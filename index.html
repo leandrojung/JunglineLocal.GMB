@@ -226,7 +226,7 @@ section{scroll-margin-top:88px}
   opacity:0;transform:scale(.85);transition:opacity .45s,transform .45s var(--ease-out)}
 .result--you.is-top .climb-badge{opacity:1;transform:scale(1)}
 /* row wrapper: rank | body | badge — no overlap */
-.result--you{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.result--you{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .result--you .result__body{flex:1;min-width:0;overflow:hidden}
 
 /* ============ STAKES / INTRO ============ */
@@ -422,6 +422,18 @@ section{scroll-margin-top:88px}
   .avatar__photo-hint{display:none}
   .modal{padding:32px 22px}
   .stakes p{font-size:1.1rem}
+  .rankcard-wrap{max-width:100%}
+  .map{height:104px}
+  .results{height:218px}
+  .result{height:64px}
+  .result[data-slot="0"]{transform:translateY(0)}
+  .result[data-slot="1"]{transform:translateY(77px)}
+  .result[data-slot="2"]{transform:translateY(154px)}
+  .result--you .name{font-size:.86rem}
+  .result__meta{flex-wrap:nowrap;gap:5px}
+  .stars{font-size:.72rem}
+  .openchip{font-size:.66rem;padding:1px 6px}
+  .climb-badge{position:absolute;top:-9px;right:10px;font-size:.66rem;padding:3px 8px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;scroll-behavior:auto!important}
@@ -510,7 +522,7 @@ section{scroll-margin-top:88px}
           </div>
         </div>
         <div class="map">
-          <svg viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
             <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
             <path class="road" d="M40 130 Q 90 60 200 70 T 380 -10"/>
             <path class="road thin" d="M-10 90 Q 150 70 250 95 T 410 80"/>
@@ -1006,8 +1018,8 @@ section{scroll-margin-top:88px}
   var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
   var you = document.getElementById('you');
   var youRank = document.getElementById('youRank');
-  var ROW = 70;
-  function place(order){ order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*ROW) + 'px)'; }); }
+  function getRow(){ return window.matchMedia('(max-width:560px)').matches ? 77 : 70; }
+  function place(order){ var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); }
   var youIdx = rows.indexOf(you);
   var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
   var bottomOrder = others.concat([youIdx]);
