@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0A120D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=optional" rel="stylesheet">
 <style>
 :root{
   --bg:#0A120D;
@@ -927,7 +927,30 @@ section{scroll-margin-top:88px}
   </div>
 </div>
 
-<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+<script>
+(function(){
+  // load Calendly only once the booking widget is actually about to be seen
+  var widget = document.querySelector('.calendly-inline-widget');
+  if(!widget) return;
+  var loaded = false;
+  var load = function(){
+    if(loaded) return;
+    loaded = true;
+    var s = document.createElement('script');
+    s.src = 'https://assets.calendly.com/assets/external/widget.js';
+    s.async = true;
+    document.body.appendChild(s);
+  };
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
+    }, {rootMargin:'600px'});
+    io.observe(widget);
+  } else {
+    load();
+  }
+})();
+</script>
 <script>
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
