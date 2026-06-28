@@ -418,7 +418,16 @@ section{scroll-margin-top:88px}
   .steps__grid{grid-template-columns:1fr}
   .footer__cols{gap:36px}
   .btn{font-size:.95rem;padding:14px 24px}
-  .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
+  /* --- Hero auf dem Handy entschlacken: weniger Text, mehr Luft --- */
+  .hero{padding:112px 0 56px}
+  .hero h1{font-size:clamp(2.15rem,9vw,2.9rem);margin:14px 0 14px}
+  .hero .eyebrow{font-size:.68rem;letter-spacing:.12em}
+  .hero .lead{display:none}                 /* langer Beschreibungstext nur auf dem Handy ausblenden */
+  .hero .claim{font-size:1.04rem;margin-bottom:24px}
+  .hero .cta-row{flex-direction:column;align-items:stretch;gap:12px}
+  .hero .cta-row .btn{width:100%}
+  .hero__trust{gap:7px 16px;margin-top:24px}
+  .hero__trust li{font-size:.82rem}
   .contacts{grid-template-columns:1fr}
   .avatar__photo-hint{display:none}
   .modal{padding:32px 22px}
