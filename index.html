@@ -264,22 +264,6 @@ section{scroll-margin-top:88px}
 .badge{position:absolute;top:-12px;right:22px;background:linear-gradient(180deg,#83c79a,#5d9f72);color:var(--green-ink);font-size:.72rem;font-weight:800;
   font-family:'Plus Jakarta Sans';padding:6px 14px;border-radius:999px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6);z-index:2}
 
-/* ============ STEPS ============ */
-.steps__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:54px;position:relative}
-.steps__grid::before{content:"";position:absolute;top:54px;left:8%;right:8%;height:1px;
-  background:linear-gradient(90deg,transparent,var(--border-strong) 12%,var(--border-strong) 88%,transparent);z-index:0}
-.step{position:relative;z-index:1;background:radial-gradient(210px circle at var(--sx,50%) var(--sy,-40%),rgba(143,212,166,.10),transparent 62%),linear-gradient(180deg,var(--surface),var(--card-solid));
-  border:1px solid var(--border);border-radius:var(--r);padding:30px 26px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:transform .4s var(--ease-out),border-color .4s,box-shadow .4s}
-.step:hover{transform:translateY(-5px);border-color:var(--border-strong);box-shadow:0 26px 54px -32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06)}
-.step__num{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
-  font-family:'Plus Jakarta Sans';font-weight:800;font-size:1.4rem;color:var(--green-bright);
-  background:radial-gradient(circle at 30% 25%,rgba(111,179,135,.2),rgba(46,87,64,.18));
-  border:1px solid var(--border-strong);margin-bottom:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.step:hover .step__num{color:var(--ink)}
-.step h3{font-size:1.18rem;font-weight:700;margin-bottom:10px}
-.step p{color:var(--dim);font-size:.95rem;line-height:1.6}
-
 /* ============ ABOUT ============ */
 .about__grid{display:grid;grid-template-columns:auto 1fr;gap:54px;align-items:center;max-width:900px}
 .about__avatar{flex:none;display:flex;flex-direction:column;align-items:center;gap:16px}
@@ -403,8 +387,6 @@ section{scroll-margin-top:88px}
   .rankcard-wrap{max-width:440px;margin:0 auto}
   .hero__scroll{display:none}
   .compare__grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
-  .steps__grid{grid-template-columns:1fr 1fr}
-  .steps__grid::before{display:none}
   .about__grid{grid-template-columns:1fr;gap:34px;text-align:center}
   .about__avatar{flex-direction:row;justify-content:center}
   .about__text .eyebrow{justify-content:center}
@@ -415,7 +397,6 @@ section{scroll-margin-top:88px}
 }
 @media(max-width:560px){
   .container{padding:0 18px}
-  .steps__grid{grid-template-columns:1fr}
   .footer__cols{gap:36px}
   .btn{font-size:.95rem;padding:14px 24px}
   .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
@@ -616,37 +597,320 @@ section{scroll-margin-top:88px}
   </div>
 </section>
 
-<!-- ============ STEPS ============ -->
-<section class="section steps" id="vorgehen">
-  <div class="container">
-    <div class="head-block" data-reveal>
-      <span class="eyebrow">So gehen wir vor</span>
-      <h2 class="section-title-grad">In vier Schritten nach ganz oben</h2>
+<!-- ============ STEPS (animiert) ============ -->
+<section class="jl-ascent" id="vorgehen" aria-label="In vier Schritten nach ganz oben">
+  <style>
+  .jl-ascent{
+    --jl-bg:        #0A120D;
+    --jl-bg-2:      #0F1C15;
+    --jl-border:    rgba(120,180,140,.13);
+    --jl-text:      #EDF4ED;
+    --jl-muted:     #9CB4A4;
+    --jl-accent:    #6FB387;
+    --jl-accent-2:  #8FD4A6;
+    --jl-ghost:     rgba(111,179,135,.12);
+
+    --jl-font: 'Inter', system-ui, sans-serif;
+
+    box-sizing:border-box;
+    position:relative;
+    background:
+      radial-gradient(1200px 520px at 78% -8%, rgba(111,179,135,.10), transparent 60%),
+      var(--jl-bg);
+    color:var(--jl-text);
+    font-family:var(--jl-font);
+    padding:clamp(56px,8vw,120px) clamp(20px,5vw,72px);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .jl-ascent *{box-sizing:border-box;}
+
+  .jl-ascent__inner{max-width:1120px;margin:0 auto;}
+
+  /* ---- Kopf ---- */
+  .jl-head{max-width:640px;margin-bottom:clamp(48px,7vw,88px);}
+  .jl-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--jl-accent-2);margin:0 0 18px;
+    opacity:0;transform:translateY(12px);transition:.7s cubic-bezier(.22,1,.36,1);
+  }
+  .jl-eyebrow::before{content:"";width:22px;height:1px;background:var(--jl-accent-2);opacity:.6;}
+  .jl-head h2{
+    margin:0 0 16px;font-weight:700;letter-spacing:-.03em;
+    font-size:clamp(28px,4.4vw,46px);line-height:1.08;
+    opacity:0;transform:translateY(16px);transition:.8s cubic-bezier(.22,1,.36,1) .06s;
+  }
+  .jl-head h2 b{
+    background:linear-gradient(120deg,var(--jl-text) 30%,var(--jl-accent-2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    font-weight:700;
+  }
+  .jl-head p{
+    margin:0;font-size:clamp(15px,1.7vw,18px);line-height:1.7;color:var(--jl-muted);
+    opacity:0;transform:translateY(16px);transition:.8s cubic-bezier(.22,1,.36,1) .14s;
+  }
+
+  /* ---- Track mit aufsteigender Route ---- */
+  .jl-track{position:relative;padding-top:96px;} /* Platz für den Gipfel oben */
+  .jl-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1;}
+  .jl-route-bg{fill:none;stroke:var(--jl-border);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .jl-route{fill:none;stroke:url(#jlGrad);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+    filter:drop-shadow(0 0 6px rgba(111,179,135,.55));}
+  .jl-comet{fill:var(--jl-accent-2);filter:drop-shadow(0 0 8px var(--jl-accent));opacity:0;}
+
+  .jl-grid{
+    position:relative;z-index:2;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:clamp(16px,2vw,28px);align-items:start;
+  }
+
+  /* aufsteigende Staffelung (Treppe) */
+  .jl-step:nth-child(1){margin-top:96px;}
+  .jl-step:nth-child(2){margin-top:64px;}
+  .jl-step:nth-child(3){margin-top:32px;}
+  .jl-step:nth-child(4){margin-top:0;}
+
+  .jl-step{
+    opacity:0;transform:translateY(26px);filter:blur(6px);
+    transition:opacity .7s cubic-bezier(.22,1,.36,1),
+               transform .7s cubic-bezier(.22,1,.36,1),
+               filter .7s cubic-bezier(.22,1,.36,1);
+  }
+  .jl-step.is-in{opacity:1;transform:none;filter:none;}
+
+  /* Knoten auf der Route (oben am Step) */
+  .jl-node{
+    position:relative;width:14px;height:14px;border-radius:50%;
+    background:var(--jl-bg);border:2px solid var(--jl-border);
+    margin:0 0 22px;transition:.5s cubic-bezier(.22,1,.36,1);
+  }
+  .jl-step.is-in .jl-node{border-color:var(--jl-accent-2);box-shadow:0 0 0 5px rgba(111,179,135,.12),0 0 16px rgba(111,179,135,.5);}
+  .jl-node::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--jl-accent-2);
+    transform:scale(0);transition:.5s cubic-bezier(.22,1,.36,1);}
+  .jl-step.is-in .jl-node::after{transform:scale(1);}
+
+  .jl-card{
+    position:relative;border:1px solid var(--jl-border);border-radius:18px;
+    background:linear-gradient(180deg,var(--jl-bg-2),rgba(10,18,13,.6));
+    padding:clamp(20px,2.2vw,28px);min-height:172px;overflow:hidden;
+    transition:border-color .5s ease,transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .jl-step.is-in .jl-card{border-color:rgba(120,180,140,.26);}
+  .jl-card::before{ /* riesige Geist-Nummer */
+    content:attr(data-num);position:absolute;top:-18px;right:6px;
+    font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;
+    color:var(--jl-ghost);pointer-events:none;
+  }
+  .jl-num{
+    display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;
+    color:var(--jl-accent-2);margin:0 0 12px;
+  }
+  .jl-card h3{margin:0 0 10px;font-size:clamp(17px,1.9vw,20px);font-weight:600;letter-spacing:-.01em;}
+  .jl-card p{margin:0;font-size:14.5px;line-height:1.6;color:var(--jl-muted);}
+
+  /* ---- Gipfel: Platz 1 (ganz oben, höchster Punkt) ---- */
+  .jl-summit{
+    position:absolute;top:0;right:0;z-index:3;
+    display:flex;align-items:center;gap:16px;width:max-content;max-width:100%;
+    padding:14px 22px 14px 16px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(111,179,135,.16),rgba(111,179,135,.04));
+    border:1px solid rgba(111,179,135,.35);
+    opacity:0;transform:translateY(18px) scale(.96);
+    transition:.8s cubic-bezier(.22,1,.36,1);
+  }
+  .jl-summit.is-in{opacity:1;transform:none;}
+  .jl-summit .pin{
+    position:relative;width:42px;height:42px;border-radius:50%;flex:none;
+    background:radial-gradient(circle at 50% 38%,var(--jl-accent-2),var(--jl-accent));
+    display:grid;place-items:center;color:#04130b;font-weight:800;
+    box-shadow:0 0 0 6px rgba(111,179,135,.14),0 0 26px rgba(111,179,135,.55);
+  }
+  .jl-summit.is-in .pin{animation:jlPulse 2.6s ease-in-out infinite;}
+  @keyframes jlPulse{0%,100%{box-shadow:0 0 0 6px rgba(111,179,135,.14),0 0 22px rgba(111,179,135,.45);}
+    50%{box-shadow:0 0 0 10px rgba(111,179,135,.06),0 0 34px rgba(111,179,135,.7);}}
+  .jl-summit .pin svg{width:20px;height:20px;}
+  .jl-summit .txt b{display:block;font-size:16px;font-weight:600;letter-spacing:-.01em;}
+  .jl-summit .txt span{display:block;font-size:13px;color:var(--jl-muted);margin-top:2px;}
+
+  /* ---- aktiver Zustand des Kopfs ---- */
+  .jl-ascent.is-active .jl-eyebrow,
+  .jl-ascent.is-active .jl-head h2,
+  .jl-ascent.is-active .jl-head p{opacity:1;transform:none;}
+
+  /* ---- Mobil: vertikale Route ---- */
+  @media(max-width:820px){
+    .jl-track{padding-top:0;}
+    .jl-grid{grid-template-columns:1fr;gap:0;align-items:stretch;}
+    .jl-step{margin-top:0 !important;display:grid;grid-template-columns:auto 1fr;
+      column-gap:20px;padding-bottom:26px;}
+    .jl-node{margin:6px 0 0;}
+    .jl-step:not(:last-child) .jl-node::before{ /* vertikale Verbindung (Fallback) */
+      content:"";position:absolute;left:50%;top:18px;transform:translateX(-50%);
+      width:2px;height:calc(100% + 26px);background:var(--jl-border);}
+    .jl-svg{display:none;} /* Route wird mobil per CSS-Linie gezeigt */
+    .jl-step.is-in:not(:last-child) .jl-node::before{background:linear-gradient(var(--jl-accent-2),var(--jl-border));}
+    .jl-card::before{font-size:74px;}
+    .jl-summit{position:static;margin:8px 0 0;width:100%;}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .jl-ascent *{transition:none !important;animation:none !important;}
+    .jl-step,.jl-eyebrow,.jl-head h2,.jl-head p,.jl-summit{opacity:1 !important;transform:none !important;filter:none !important;}
+  }
+  </style>
+
+  <div class="jl-ascent__inner">
+    <div class="jl-head">
+      <p class="jl-eyebrow">So gehen wir vor</p>
+      <h2>In vier Schritten <b>nach ganz oben</b></h2>
       <p>Ein klarer Ablauf — von der Analyse bis zur laufenden Betreuung.</p>
     </div>
-    <div class="steps__grid">
-      <div class="step" data-reveal data-d="0">
-        <div class="step__num">01</div>
-        <h3>Profil-Analyse</h3>
-        <p>Wir prüfen Ihr bestehendes Profil und Ihre lokale Sichtbarkeit.</p>
+
+    <div class="jl-track">
+      <svg class="jl-svg" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="jlGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="var(--jl-accent)"/>
+            <stop offset="1" stop-color="var(--jl-accent-2)"/>
+          </linearGradient>
+        </defs>
+        <path class="jl-route-bg" d=""/>
+        <path class="jl-route" d=""/>
+        <circle class="jl-comet" r="4.5"/>
+      </svg>
+
+      <div class="jl-grid">
+        <div class="jl-step">
+          <div class="jl-node"></div>
+          <div class="jl-card" data-num="01">
+            <span class="jl-num">01</span>
+            <h3>Profil-Analyse</h3>
+            <p>Wir prüfen Ihr bestehendes Profil und Ihre lokale Sichtbarkeit.</p>
+          </div>
+        </div>
+        <div class="jl-step">
+          <div class="jl-node"></div>
+          <div class="jl-card" data-num="02">
+            <span class="jl-num">02</span>
+            <h3>Optimierung</h3>
+            <p>Kategorien, Keywords, Beschreibung, Bilder und Leistungen sauber aufsetzen.</p>
+          </div>
+        </div>
+        <div class="jl-step">
+          <div class="jl-node"></div>
+          <div class="jl-card" data-num="03">
+            <span class="jl-num">03</span>
+            <h3>Bewertungen</h3>
+            <p>Eine Strategie für mehr und bessere Bewertungen Ihrer Kunden.</p>
+          </div>
+        </div>
+        <div class="jl-step">
+          <div class="jl-node"></div>
+          <div class="jl-card" data-num="04">
+            <span class="jl-num">04</span>
+            <h3>Betreuung</h3>
+            <p>Laufendes Monitoring und Anpassung für nachhaltige Platzierung.</p>
+          </div>
+        </div>
       </div>
-      <div class="step" data-reveal data-d="1">
-        <div class="step__num">02</div>
-        <h3>Optimierung</h3>
-        <p>Kategorien, Keywords, Beschreibung, Bilder und Leistungen sauber aufsetzen.</p>
-      </div>
-      <div class="step" data-reveal data-d="2">
-        <div class="step__num">03</div>
-        <h3>Bewertungen</h3>
-        <p>Eine Strategie für mehr und bessere Bewertungen Ihrer Kunden.</p>
-      </div>
-      <div class="step" data-reveal data-d="3">
-        <div class="step__num">04</div>
-        <h3>Betreuung</h3>
-        <p>Laufendes Monitoring und Anpassung für nachhaltige Platzierung.</p>
+
+      <div class="jl-summit">
+        <div class="pin">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 4l7 12H5z" fill="#04130b"/>
+          </svg>
+        </div>
+        <div class="txt">
+          <b>Platz 1 in Ihrer Region</b>
+          <span>Sichtbar, wenn Kunden suchen.</span>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+  (function(){
+    var root = document.currentScript.closest('.jl-ascent');
+    if(!root) return;
+    var track  = root.querySelector('.jl-track');
+    var svg    = root.querySelector('.jl-svg');
+    var bgPath = root.querySelector('.jl-route-bg');
+    var fgPath = root.querySelector('.jl-route');
+    var comet  = root.querySelector('.jl-comet');
+    var steps  = Array.prototype.slice.call(root.querySelectorAll('.jl-step'));
+    var summit = root.querySelector('.jl-summit');
+    var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var played = false;
+
+    // Route durch die Knoten-Mittelpunkte + Gipfel zeichnen
+    function buildPath(){
+      if(window.innerWidth <= 820) return; // mobil: CSS-Linie
+      var tr = track.getBoundingClientRect();
+      svg.setAttribute('viewBox','0 0 '+tr.width+' '+tr.height);
+      var pts = steps.map(function(s){
+        var n = s.querySelector('.jl-node').getBoundingClientRect();
+        return [n.left - tr.left + n.width/2, n.top - tr.top + n.height/2];
+      });
+      var sb = summit.getBoundingClientRect();
+      pts.push([sb.left - tr.left + 24, sb.top - tr.top + sb.height/2]);
+      // glatte Polyline (leichtes Catmull-Rom -> Bezier)
+      var d = 'M'+pts[0][0]+' '+pts[0][1];
+      for(var i=0;i<pts.length-1;i++){
+        var p0=pts[i?i-1:0], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+        var c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+        var c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+        d+=' C'+c1x+' '+c1y+' '+c2x+' '+c2y+' '+p2[0]+' '+p2[1];
+      }
+      bgPath.setAttribute('d',d);
+      fgPath.setAttribute('d',d);
+      var len = fgPath.getTotalLength();
+      fgPath.style.strokeDasharray = len;
+      if(!played) fgPath.style.strokeDashoffset = len;
+      fgPath.dataset.len = len;
+    }
+
+    function drawRoute(){
+      if(window.innerWidth <= 820 || reduce){ if(comet) comet.style.opacity=0; return; }
+      var len = parseFloat(fgPath.dataset.len||0);
+      if(!len) return;
+      var start=null, dur=1900;
+      comet.style.opacity=1;
+      function frame(t){
+        if(!start) start=t;
+        var k=Math.min((t-start)/dur,1);
+        var e=1-Math.pow(1-k,3); // easeOutCubic
+        fgPath.style.strokeDashoffset = len*(1-e);
+        var pt = fgPath.getPointAtLength(len*e);
+        comet.setAttribute('cx',pt.x); comet.setAttribute('cy',pt.y);
+        if(k<1) requestAnimationFrame(frame);
+        else comet.style.opacity=0;
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function play(){
+      if(played) return; played=true;
+      root.classList.add('is-active');
+      buildPath();
+      steps.forEach(function(s,i){
+        setTimeout(function(){ s.classList.add('is-in'); }, 220 + i*230);
+      });
+      setTimeout(function(){ summit.classList.add('is-in'); }, 220 + steps.length*230 + 120);
+      setTimeout(drawRoute, 260);
+    }
+
+    // erst zeichnen, wenn Layout steht
+    requestAnimationFrame(buildPath);
+    window.addEventListener('resize', function(){ played && buildPath(); });
+
+    if(reduce){ play(); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting) play(); });
+    },{threshold:.28});
+    io.observe(root);
+  })();
+  </script>
 </section>
 
 <!-- ============ ABOUT ============ -->
