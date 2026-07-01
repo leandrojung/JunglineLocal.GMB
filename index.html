@@ -6,11 +6,19 @@
 <title>JunglineLocal — Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</title>
 <meta name="description" content="JunglineLocal optimiert Ihr Google-Unternehmensprofil, damit Sie in Ihrer Region ganz oben erscheinen. Mehr Sichtbarkeit, mehr Kunden, mehr Umsatz.">
 <meta name="theme-color" content="#0A120D">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=optional" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=optional"></noscript>
+<link rel="preload" as="font" href="fonts/inter-latin.woff2" type="font/woff2" crossorigin>
+<link rel="preload" as="font" href="fonts/plus-jakarta-sans-latin.woff2" type="font/woff2" crossorigin>
 <style>
+/* self-hosted fonts (replaces Google Fonts) — each weight below shares one variable-font
+   file per family, matching the exact static instances Google's own CSS2 API used */
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:optional;src:url("fonts/inter-latin.woff2") format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:450;font-display:optional;src:url("fonts/inter-latin.woff2") format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:optional;src:url("fonts/inter-latin.woff2") format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:600;font-display:optional;src:url("fonts/inter-latin.woff2") format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500;font-display:optional;src:url("fonts/plus-jakarta-sans-latin.woff2") format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:600;font-display:optional;src:url("fonts/plus-jakarta-sans-latin.woff2") format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:700;font-display:optional;src:url("fonts/plus-jakarta-sans-latin.woff2") format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:800;font-display:optional;src:url("fonts/plus-jakarta-sans-latin.woff2") format('woff2')}
 :root{
   --bg:#0A120D;
   --bg-2:#0B150F;
@@ -243,7 +251,7 @@ section{scroll-margin-top:88px}
 .spill svg{flex:none;color:var(--green-bright)}
 
 /* ============ COMPARE ============ */
-.compare__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:54px}
+.compare__grid,.results__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:54px}
 .ccard{position:relative;background:radial-gradient(230px circle at var(--sx,50%) var(--sy,-40%),rgba(143,212,166,.11),transparent 62%),var(--card);border:1px solid var(--border);border-radius:var(--r);
   padding:32px;backdrop-filter:blur(8px);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
@@ -263,6 +271,14 @@ section{scroll-margin-top:88px}
 .ccard--hot .ccard__icon{background:linear-gradient(180deg,#83c79a,#5d9f72);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6)}
 .badge{position:absolute;top:-12px;right:22px;background:linear-gradient(180deg,#83c79a,#5d9f72);color:var(--green-ink);font-size:.72rem;font-weight:800;
   font-family:'Plus Jakarta Sans';padding:6px 14px;border-radius:999px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6);z-index:2}
+
+/* ============ RESULTS / TESTIMONIALS ============ */
+.tcard__stat{display:flex;align-items:baseline;gap:7px;font-family:'Plus Jakarta Sans';font-weight:800;font-size:1.7rem;color:var(--green-bright);margin-bottom:16px}
+.tcard__stat small{font-family:'Inter';font-weight:600;font-size:.76rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.tcard__quote{color:var(--dim);font-size:.98rem;line-height:1.7;margin-bottom:22px}
+.tcard__foot{border-top:1px solid var(--border);padding-top:14px}
+.tcard__name{display:block;font-family:'Plus Jakarta Sans';font-weight:700;color:var(--ink);font-size:1rem}
+.tcard__industry{display:block;color:var(--dim-2);font-size:.82rem;margin-top:3px}
 
 /* ============ STEPS ============ */
 .steps__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:54px;position:relative}
@@ -290,8 +306,7 @@ section{scroll-margin-top:88px}
   background:conic-gradient(from 0deg,var(--green),transparent 90deg,transparent 270deg,var(--green-bright));
   opacity:.55;animation:spin 9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.avatar__initials{font-family:'Plus Jakarta Sans';font-weight:800;font-size:2.8rem;color:var(--green-bright);letter-spacing:-.02em}
-.avatar__photo-hint{font-size:.7rem;color:var(--dim-2);text-align:center;max-width:130px;line-height:1.4}
+.avatar__mark{color:var(--green-bright);opacity:.85}
 /* swap photo later: .avatar__ring img{width:100%;height:100%;object-fit:cover;border-radius:50%} */
 .about__text .eyebrow{margin-bottom:10px}
 .about__text h2{font-size:clamp(1.7rem,3.2vw,2.45rem);font-weight:700;margin-bottom:20px;letter-spacing:-.03em}
@@ -341,6 +356,11 @@ section{scroll-margin-top:88px}
 .field textarea{resize:vertical;min-height:118px}
 .form .btn{width:100%;margin-top:6px}
 .form__note{font-size:.8rem;color:var(--dim-2);margin-top:12px;text-align:center}
+.form__status{display:none;margin-top:14px;padding:14px 16px;border-radius:12px;font-size:.92rem;line-height:1.6}
+.form__status.show{display:block}
+.form__status--success{background:rgba(111,179,135,.12);border:1px solid var(--border-strong);color:var(--green-bright)}
+.form__status--error{background:rgba(224,110,110,.1);border:1px solid rgba(224,110,110,.35);color:#eba9a9}
+.form__status a{color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .contacts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
 .crow{display:block;padding:22px 20px;background:var(--card);border:1px solid var(--border);border-radius:14px;transition:border-color .25s,transform .25s;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .crow:hover{border-color:var(--border-strong);transform:translateY(-3px)}
@@ -402,7 +422,7 @@ section{scroll-margin-top:88px}
   .hero{padding:128px 0 80px}
   .rankcard-wrap{max-width:440px;margin:0 auto}
   .hero__scroll{display:none}
-  .compare__grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+  .compare__grid,.results__grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
   .steps__grid{grid-template-columns:1fr 1fr}
   .steps__grid::before{display:none}
   .about__grid{grid-template-columns:1fr;gap:34px;text-align:center}
@@ -420,7 +440,6 @@ section{scroll-margin-top:88px}
   .btn{font-size:.95rem;padding:14px 24px}
   .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
   .contacts{grid-template-columns:1fr}
-  .avatar__photo-hint{display:none}
   .modal{padding:32px 22px}
   .stakes p{font-size:1.1rem}
   .rankcard-wrap{max-width:100%}
@@ -649,6 +668,43 @@ section{scroll-margin-top:88px}
   </div>
 </section>
 
+<!-- ============ RESULTS / TESTIMONIALS ============ -->
+<section class="section testimonials" id="ergebnisse">
+  <div class="container">
+    <div class="head-block" data-reveal>
+      <span class="eyebrow">Ergebnisse</span>
+      <h2 class="section-title-grad">Was Kunden nach der Optimierung berichten</h2>
+      <p>Platzhalter-Stimmen — hier stehen bald echte Referenzen und Zahlen unserer Kunden.</p>
+    </div>
+    <div class="results__grid">
+      <div class="ccard" data-reveal data-d="1">
+        <span class="tcard__stat">+140% <small>Anrufe</small></span>
+        <p class="tcard__quote">„Seit der Optimierung unseres Google-Profils werden wir bei Suchen in der Region deutlich häufiger gefunden. Die Anfragen kommen jetzt von allein.“</p>
+        <div class="tcard__foot">
+          <span class="tcard__name">Musterfirma GmbH</span>
+          <span class="tcard__industry">Handwerk · Sanitär &amp; Heizung</span>
+        </div>
+      </div>
+      <div class="ccard" data-reveal data-d="2">
+        <span class="tcard__stat">+180% <small>Profilaufrufe</small></span>
+        <p class="tcard__quote">„Wir waren vorher kaum sichtbar. Jetzt tauchen wir bei den wichtigen Suchbegriffen ganz oben auf und bekommen spürbar mehr Laufkundschaft.“</p>
+        <div class="tcard__foot">
+          <span class="tcard__name">Café Sonnenschein</span>
+          <span class="tcard__industry">Gastronomie</span>
+        </div>
+      </div>
+      <div class="ccard" data-reveal data-d="3">
+        <span class="tcard__stat">+65% <small>Anfragen</small></span>
+        <p class="tcard__quote">„Unkompliziert, schnell und mit echten Ergebnissen. Wir bekommen deutlich mehr Terminanfragen direkt über unser Google-Profil.“</p>
+        <div class="tcard__foot">
+          <span class="tcard__name">Autowerkstatt Schmidt</span>
+          <span class="tcard__industry">KFZ-Service</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ ABOUT ============ -->
 <section class="section about" id="ueber-mich">
   <div class="container">
@@ -657,10 +713,12 @@ section{scroll-margin-top:88px}
         <div class="avatar__ring">
           <!-- Foto später hier einsetzen:
                <img src="dein-foto.jpg" alt="Leandro Jung – JunglineLocal">
-               Dann .avatar__initials und .avatar__photo-hint entfernen. -->
-          <span class="avatar__initials">LJ</span>
+               Dann das <svg class="avatar__mark"> darunter entfernen. -->
+          <svg class="avatar__mark" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8.5" r="3.4"/>
+            <path d="M5 20c0-4.2 3.1-7 7-7s7 2.8 7 7"/>
+          </svg>
         </div>
-        <span class="avatar__photo-hint">Foto folgt in Kürze</span>
       </div>
       <div class="about__text">
         <span class="eyebrow">Über mich</span>
@@ -743,9 +801,9 @@ section{scroll-margin-top:88px}
         <div class="panel">
           <h3>Oder schreiben Sie uns</h3>
           <p class="panel__sub">Kurze Nachricht genügt — wir melden uns mit den nächsten Schritten.</p>
-          <!-- Hinweis: Für direkten Posteingang ohne Mail-Programm einen Endpoint (z.B. Formspree)
-               eintragen: <form action="https://formspree.io/f/DEIN-ID" method="POST"> ... -->
-          <form class="form" id="contactForm" novalidate>
+          <!-- Formspree: eigene Formular-ID unten bei FORM_ENDPOINT_HIER eintragen,
+               z.B. https://formspree.io/f/xxxxabcd -->
+          <form class="form" id="contactForm" action="https://formspree.io/f/FORM_ENDPOINT_HIER" method="POST" novalidate>
             <div class="field">
               <label for="cf-name">Name</label>
               <input type="text" id="cf-name" name="name" placeholder="Ihr Name" required>
@@ -763,7 +821,8 @@ section{scroll-margin-top:88px}
               <textarea id="cf-msg" name="message" placeholder="Worum geht es?" required></textarea>
             </div>
             <button type="submit" class="btn btn--primary">Nachricht senden</button>
-            <p class="form__note">Beim Absenden öffnet sich Ihr E-Mail-Programm mit der fertigen Nachricht.</p>
+            <p class="form__note">Wir melden uns in der Regel innerhalb eines Werktages.</p>
+            <div class="form__status" id="formStatus" role="status" aria-live="polite"></div>
           </form>
         </div>
         <div class="contacts">
@@ -895,8 +954,8 @@ section{scroll-margin-top:88px}
     <p style="margin-top:10px">Diese Daten werden nicht mit anderen Datenquellen zusammengeführt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb der Website).</p>
 
     <div class="modal-sep"></div>
-    <h3>4. Google Fonts</h3>
-    <p>Diese Website lädt Schriftarten über Google Fonts (Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA). Dabei wird Ihre IP-Adresse an Google übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Google ist unter dem EU-US Data Privacy Framework zertifiziert. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+    <h3>4. Schriftarten</h3>
+    <p>Diese Website bindet die Schriftarten selbst ein (self-hosted). Es findet keine Verbindung zu Google Fonts oder anderen externen Schriftarten-Diensten statt, es werden dabei keine Daten an Dritte übertragen.</p>
 
     <div class="modal-sep"></div>
     <h3>5. Calendly (Terminbuchung)</h3>
@@ -904,7 +963,7 @@ section{scroll-margin-top:88px}
 
     <div class="modal-sep"></div>
     <h3>6. Kontaktformular &amp; E-Mail</h3>
-    <p>Wenn Sie das Kontaktformular auf dieser Website nutzen, wird Ihre Anfrage direkt als E-Mail über Ihr lokales E-Mail-Programm gesendet. Es werden dabei keine Daten auf unseren Servern gespeichert oder durch Dritte verarbeitet. Wenn Sie uns direkt per E-Mail kontaktieren, werden Ihre übermittelten Daten (Name, E-Mail-Adresse, Nachrichteninhalt) ausschließlich zur Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist.</p>
+    <p>Wenn Sie das Kontaktformular auf dieser Website nutzen, werden Ihre Angaben (Name, E-Mail-Adresse, optional Telefonnummer, Nachrichteninhalt) über den Dienst Formspree (Formspree, Inc., USA) an uns übermittelt, damit wir Ihre Anfrage per E-Mail erhalten und bearbeiten können. Formspree verarbeitet diese Daten dabei in unserem Auftrag. Wenn Sie uns direkt per E-Mail kontaktieren, werden Ihre übermittelten Daten ausschließlich zur Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist. Weitere Informationen: <a href="https://formspree.io/legal/privacy-policy/" target="_blank" rel="noopener">formspree.io/legal/privacy-policy</a>.</p>
 
     <div class="modal-sep"></div>
     <h3>7. Ihre Rechte</h3>
@@ -1076,8 +1135,16 @@ section{scroll-margin-top:88px}
     });
   });
 
-  // contact form -> mailto
+  // contact form -> Formspree (fetch), mailto as fallback on error
   var form = document.getElementById('contactForm');
+  var formStatus = document.getElementById('formStatus');
+  var submitBtn = form.querySelector('button[type="submit"]');
+
+  function showFormStatus(type, html){
+    formStatus.className = 'form__status show form__status--' + type;
+    formStatus.innerHTML = html;
+  }
+
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var name = (document.getElementById('cf-name').value||'').trim();
@@ -1085,9 +1152,28 @@ section{scroll-margin-top:88px}
     var phone = (document.getElementById('cf-phone').value||'').trim();
     var msg = (document.getElementById('cf-msg').value||'').trim();
     if(!name || !mail || !msg){ form.reportValidity && form.reportValidity(); return; }
+
     var subject = 'Anfrage über Website – ' + name;
     var body = 'Name: ' + name + '\nE-Mail: ' + mail + (phone ? '\nTelefon: ' + phone : '') + '\n\nNachricht:\n' + msg;
-    window.location.href = 'mailto:Info@jungline.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var mailtoHref = 'mailto:Info@jungline.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+
+    formStatus.className = 'form__status';
+    formStatus.innerHTML = '';
+    submitBtn.disabled = true;
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    }).then(function(res){
+      if(!res.ok) throw new Error('request failed');
+      showFormStatus('success', 'Danke! Ihre Nachricht wurde erfolgreich versendet. Wir melden uns zeitnah bei Ihnen.');
+      form.reset();
+    }).catch(function(){
+      showFormStatus('error', 'Ihre Nachricht konnte nicht automatisch gesendet werden. Bitte versuchen Sie es erneut oder <a href="' + mailtoHref + '">schreiben Sie uns per E-Mail</a>.');
+    }).finally(function(){
+      submitBtn.disabled = false;
+    });
   });
 
   // legal modals
