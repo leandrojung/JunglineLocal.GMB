@@ -3,14 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JunglineLocal — Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</title>
-<meta name="description" content="JunglineLocal optimiert Ihr Google-Unternehmensprofil, damit Sie in Ihrer Region ganz oben erscheinen. Mehr Sichtbarkeit, mehr Kunden, mehr Umsatz.">
+<title>JunglineLocal — Google-Profil-Optimierung: Mehr Sichtbarkeit. Mehr Kunden.</title>
+<meta name="description" content="Ihre Kunden suchen bei Google — und finden die Konkurrenz? JunglineLocal optimiert Ihr Google-Unternehmensprofil, damit Ihr Betrieb in Ihrer Region ganz oben steht.">
 <meta name="theme-color" content="#0A120D">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=optional" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600&display=optional"></noscript>
+<link rel="canonical" href="https://jungline.de/">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jungline.de/">
+<meta property="og:title" content="JunglineLocal — Google-Profil-Optimierung für regionale Unternehmen">
+<meta property="og:description" content="Ihre Kunden suchen bei Google — und finden die Konkurrenz? Wir bringen Ihren Betrieb im Kartenbereich nach oben. Kostenloses Erstgespräch.">
+<meta property="og:image" content="https://jungline.de/logo.png">
+<meta property="og:locale" content="de_DE">
+<meta name="twitter:card" content="summary">
+<!-- Schriften werden lokal gehostet (DSGVO) — keine Verbindung zu Google-Servern -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var.woff2" crossorigin>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "JunglineLocal",
+  "description": "Optimierung von Google-Unternehmensprofilen für regionale Unternehmen.",
+  "url": "https://jungline.de/",
+  "logo": "https://jungline.de/logo.png",
+  "telephone": "+4917655769680",
+  "email": "Info@jungline.de",
+  "founder": { "@type": "Person", "name": "Leandro Jung" },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Rhader Straße 132",
+    "postalCode": "46286",
+    "addressLocality": "Dorsten",
+    "addressRegion": "NRW",
+    "addressCountry": "DE"
+  },
+  "areaServed": "DE",
+  "priceRange": "€€"
+}
+</script>
 <style>
+@font-face{
+  font-family:'Bricolage Grotesque';
+  src:url('/fonts/bricolage-grotesque-var.woff2') format('woff2-variations');
+  font-weight:200 800;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Instrument Sans';
+  src:url('/fonts/instrument-sans-var.woff2') format('woff2-variations');
+  font-weight:400 700;
+  font-display:swap;
+}
 :root{
   --bg:#0A120D;
   --bg-2:#0B150F;
@@ -41,7 +85,7 @@ html{-webkit-text-size-adjust:100%}
 body{
   background:var(--bg);
   color:var(--ink);
-  font-family:'Inter',system-ui,sans-serif;
+  font-family:'Instrument Sans',system-ui,sans-serif;
   font-weight:450;
   line-height:1.6;
   overflow-x:hidden;
@@ -53,7 +97,7 @@ body{
   content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:.03;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-h1,h2,h3,h4,.display{font-family:'Plus Jakarta Sans',sans-serif;line-height:1.07;letter-spacing:-.025em;text-wrap:balance}
+h1,h2,h3,h4,.display{font-family:'Bricolage Grotesque',sans-serif;line-height:1.07;letter-spacing:-.025em;text-wrap:balance}
 .lead,.head-block p,.stakes p,.about__text p{text-wrap:pretty}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
@@ -98,7 +142,7 @@ section{scroll-margin-top:88px}
 .btn{
   position:relative;overflow:hidden;isolation:isolate;
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;
   padding:15px 28px;border-radius:999px;cursor:pointer;border:1px solid transparent;
   transition:transform .3s var(--ease-out),box-shadow .3s var(--ease),border-color .3s,background .3s;
   white-space:nowrap;
@@ -115,6 +159,7 @@ section{scroll-margin-top:88px}
 .btn--ghost{background:rgba(255,255,255,.02);color:var(--ink);border-color:var(--border-strong);backdrop-filter:blur(6px)}
 .btn--ghost:hover{border-color:var(--green);color:var(--green-bright);transform:translateY(-2px);background:rgba(111,179,135,.06)}
 .btn--lg{padding:18px 36px;font-size:1.06rem}
+.btn:disabled{opacity:.6;cursor:default;transform:none!important}
 .btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--green-bright);outline-offset:3px}
 
 /* ============ NAV ============ */
@@ -126,7 +171,7 @@ section{scroll-margin-top:88px}
   box-shadow:0 4px 16px -4px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .4s var(--ease-out)}
 .brand:hover .brand__tile{transform:rotate(-4deg) scale(1.05)}
 .brand__tile img{width:100%;height:100%;object-fit:cover}
-.brand__name{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.18rem;letter-spacing:-.03em}
+.brand__name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.18rem;letter-spacing:-.03em}
 .brand__name b{color:var(--green-bright);font-weight:800}
 .nav__links{display:flex;align-items:center;gap:36px}
 .nav__links a{font-size:.95rem;color:var(--dim);font-weight:500;transition:color .25s;position:relative}
@@ -162,10 +207,13 @@ section{scroll-margin-top:88px}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(28,86,54,.55),transparent 66%);bottom:-160px;left:-120px;opacity:.5;transform:translate3d(calc(var(--mx,0)*14px),calc(var(--my,0)*14px),0)}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.55rem,5.4vw,4.35rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em}
-.hero h1 .hl{position:relative;background:linear-gradient(110deg,var(--green-bright),#bfead0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.claim{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:clamp(1.1rem,2vw,1.45rem);color:var(--ink);letter-spacing:-.015em;margin-bottom:18px}
-.claim span{color:var(--green-bright)}
+.hero h1 .hl,.hero h1 .hl .w{position:relative;background:linear-gradient(110deg,var(--green-bright),#bfead0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
+/* hero entrance: staggered rise on load (JS adds .js + .hero-live, skipped for reduced motion) */
+.js .hero__copy .h-anim{opacity:0;transform:translateY(24px)}
+.js .hero-live .hero__copy .h-anim{opacity:1;transform:none;transition:opacity .8s var(--ease-out) var(--hd,0s),transform .8s var(--ease-out) var(--hd,0s)}
+.js .hero h1 .w{display:inline-block;opacity:0;transform:translateY(.45em)}
+.js .hero-live h1 .w{opacity:1;transform:none;transition:opacity .65s var(--ease-out) var(--wd,0s),transform .65s var(--ease-out) var(--wd,0s)}
 .cta-row{display:flex;gap:14px;flex-wrap:wrap}
 .hero__trust{list-style:none;display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:28px}
 .hero__trust li{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;color:var(--dim);font-weight:500}
@@ -174,6 +222,20 @@ section{scroll-margin-top:88px}
 .hero__scroll .mouse{width:22px;height:34px;border:1.5px solid var(--border-strong);border-radius:12px;position:relative}
 .hero__scroll .mouse::after{content:"";position:absolute;top:6px;left:50%;width:3px;height:7px;border-radius:2px;background:var(--green-bright);transform:translateX(-50%);animation:scroll-dot 1.8s var(--ease) infinite}
 @keyframes scroll-dot{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
+
+/* ============ BRANCHEN-TICKER ============ */
+.ticker{position:relative;z-index:1;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(9,16,12,.45);padding:18px 0;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker__track{display:flex;width:max-content;animation:ticker 36s linear infinite;will-change:transform}
+.ticker:hover .ticker__track{animation-play-state:paused}
+.ticker__group{display:flex;align-items:center;flex:none}
+.ticker__group span{display:inline-flex;align-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;
+  font-size:.94rem;letter-spacing:.02em;color:var(--dim);white-space:nowrap;padding:0 26px;position:relative}
+.ticker__group span::after{content:"";position:absolute;right:-3px;width:6px;height:6px;border-radius:50%;background:var(--green-deep)}
+@keyframes ticker{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.ticker__track{width:auto;flex-wrap:wrap;justify-content:center}}
 
 /* rankcard */
 .rankcard-wrap{perspective:1200px;will-change:transform}
@@ -216,8 +278,8 @@ section{scroll-margin-top:88px}
 .result--you{background:linear-gradient(120deg,rgba(111,179,135,.17),rgba(111,179,135,.05));
   border:1px solid var(--green);box-shadow:0 14px 34px -14px rgba(111,179,135,.45)}
 .result--you .rank{min-width:28px;height:26px;padding:0 6px;border-radius:8px;background:var(--green);color:var(--green-ink);flex:none;
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Plus Jakarta Sans';font-size:.9rem}
-.result--you .name{font-family:'Plus Jakarta Sans';font-weight:700;font-size:.95rem;color:var(--ink)}
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Bricolage Grotesque';font-size:.9rem}
+.result--you .name{font-family:'Bricolage Grotesque';font-weight:700;font-size:.95rem;color:var(--ink)}
 .result__meta{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--green-bright);margin-top:2px;flex-wrap:wrap}
 .stars{letter-spacing:1px;color:#fbbc05;font-size:.76rem}
 .openchip{background:rgba(52,168,83,.16);color:#7fdc9c;border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
@@ -262,7 +324,7 @@ section{scroll-margin-top:88px}
 .ccard--hot .ccard__tag{color:var(--green-bright)}
 .ccard--hot .ccard__icon{background:linear-gradient(180deg,#83c79a,#5d9f72);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6)}
 .badge{position:absolute;top:-12px;right:22px;background:linear-gradient(180deg,#83c79a,#5d9f72);color:var(--green-ink);font-size:.72rem;font-weight:800;
-  font-family:'Plus Jakarta Sans';padding:6px 14px;border-radius:999px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6);z-index:2}
+  font-family:'Bricolage Grotesque';padding:6px 14px;border-radius:999px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6);z-index:2}
 
 /* ============ STEPS ============ */
 .steps__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:54px;position:relative}
@@ -273,26 +335,64 @@ section{scroll-margin-top:88px}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:transform .4s var(--ease-out),border-color .4s,box-shadow .4s}
 .step:hover{transform:translateY(-5px);border-color:var(--border-strong);box-shadow:0 26px 54px -32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06)}
 .step__num{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
-  font-family:'Plus Jakarta Sans';font-weight:800;font-size:1.4rem;color:var(--green-bright);
+  font-family:'Bricolage Grotesque';font-weight:800;font-size:1.4rem;color:var(--green-bright);
   background:radial-gradient(circle at 30% 25%,rgba(111,179,135,.2),rgba(46,87,64,.18));
   border:1px solid var(--border-strong);margin-bottom:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 .step:hover .step__num{color:var(--ink)}
 .step h3{font-size:1.18rem;font-weight:700;margin-bottom:10px}
 .step p{color:var(--dim);font-size:.95rem;line-height:1.6}
 
+/* ============ PROOF / ERGEBNISSE ============ */
+.stats__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:54px}
+.stat{position:relative;background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border);
+  border-radius:var(--r);padding:34px 30px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  transition:transform .4s var(--ease-out),border-color .4s}
+.stat:hover{transform:translateY(-5px);border-color:var(--border-strong)}
+.stat__num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2.7rem,5vw,3.7rem);
+  letter-spacing:-.03em;line-height:1;margin-bottom:14px;
+  background:linear-gradient(120deg,var(--ink) 20%,var(--green-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat__num .unit{font-size:.55em;font-weight:700}
+.stat p{color:var(--dim);font-size:.99rem;line-height:1.6}
+.stats__src{font-size:.78rem;color:var(--dim-2);margin-top:16px}
+.pledges{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px}
+.pledge{display:flex;align-items:center;gap:12px;padding:18px 20px;background:var(--card-2);border:1px solid var(--border);
+  border-radius:14px;font-size:.93rem;font-weight:500;color:var(--ink);backdrop-filter:blur(8px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.pledge svg{flex:none;color:var(--green-bright)}
+/* Testimonial-Karten — Markup liegt auskommentiert in der Sektion bereit */
+.tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+.tcard{position:relative;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:30px 28px;
+  backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);display:flex;flex-direction:column;gap:18px}
+.tcard__stars{color:#fbbc05;letter-spacing:2px;font-size:.9rem}
+.tcard__quote{color:var(--ink);font-size:1rem;line-height:1.7;flex:1}
+.tcard__who{display:flex;align-items:center;gap:12px;border-top:1px solid var(--border);padding-top:16px}
+.tcard__avatar{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 30% 25%,rgba(111,179,135,.3),rgba(46,87,64,.25));
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.92rem;color:var(--green-bright)}
+.tcard__name{font-weight:600;font-size:.95rem;color:var(--ink)}
+.tcard__role{font-size:.82rem;color:var(--dim-2)}
+
 /* ============ ABOUT ============ */
-.about__grid{display:grid;grid-template-columns:auto 1fr;gap:54px;align-items:center;max-width:900px}
-.about__avatar{flex:none;display:flex;flex-direction:column;align-items:center;gap:16px}
-.avatar__ring{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;
-  background:linear-gradient(150deg,var(--surface-2),var(--card-solid));
-  box-shadow:0 26px 60px -24px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.06)}
-.avatar__ring::before{content:"";position:absolute;inset:-2px;border-radius:50%;z-index:-1;
-  background:conic-gradient(from 0deg,var(--green),transparent 90deg,transparent 270deg,var(--green-bright));
-  opacity:.55;animation:spin 9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.avatar__initials{font-family:'Plus Jakarta Sans';font-weight:800;font-size:2.8rem;color:var(--green-bright);letter-spacing:-.02em}
-.avatar__photo-hint{font-size:.7rem;color:var(--dim-2);text-align:center;max-width:130px;line-height:1.4}
-/* swap photo later: .avatar__ring img{width:100%;height:100%;object-fit:cover;border-radius:50%} */
+.about__grid{display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;max-width:960px;margin:0 auto}
+.portrait{position:relative;width:min(300px,74vw)}
+.portrait::before{content:"";position:absolute;inset:14px -14px -14px 14px;border-radius:var(--r-lg);
+  border:1px solid var(--border-strong);z-index:0;pointer-events:none}
+.portrait__frame{position:relative;z-index:1;aspect-ratio:4/5;border-radius:var(--r-lg);overflow:hidden;
+  background:linear-gradient(160deg,var(--surface-2),#0C1710 70%);border:1px solid var(--border-strong);
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.06)}
+.portrait__frame img{width:100%;height:100%;object-fit:cover}
+.portrait__placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.portrait__placeholder::before{content:"";position:absolute;inset:-40%;
+  background:radial-gradient(circle at 50% 42%,rgba(111,179,135,.16),transparent 45%)}
+.portrait__rings{position:absolute;inset:0;width:100%;height:100%}
+.portrait__rings circle{fill:none;stroke:var(--green);stroke-width:1}
+.portrait__monogram{position:relative;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:5rem;letter-spacing:-.04em;
+  background:linear-gradient(120deg,var(--ink) 30%,var(--green-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  transform:translateY(-8%)}
+.portrait__badge{position:absolute;left:12px;right:12px;bottom:12px;z-index:2;display:flex;flex-direction:column;gap:2px;
+  background:rgba(9,16,12,.78);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;padding:12px 16px}
+.portrait__name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.02rem;color:var(--ink)}
+.portrait__role{font-size:.8rem;color:var(--dim)}
 .about__text .eyebrow{margin-bottom:10px}
 .about__text h2{font-size:clamp(1.7rem,3.2vw,2.45rem);font-weight:700;margin-bottom:20px;letter-spacing:-.03em}
 .about__text p{color:var(--dim);font-size:1.06rem;line-height:1.75;margin-bottom:14px}
@@ -310,7 +410,7 @@ section{scroll-margin-top:88px}
 .faq__item.open{border-color:var(--border-strong);background:linear-gradient(180deg,rgba(111,179,135,.07),var(--card-2))}
 .faq__q{width:100%;text-align:left;background:none;border:0;cursor:pointer;
   padding:22px 24px;display:flex;justify-content:space-between;align-items:center;gap:18px;
-  color:var(--ink);font-family:'Plus Jakarta Sans';font-weight:600;font-size:1.06rem;letter-spacing:-.01em}
+  color:var(--ink);font-family:'Bricolage Grotesque';font-weight:600;font-size:1.06rem;letter-spacing:-.01em}
 .faq__icon{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--border-strong);
   position:relative;transition:transform .4s var(--ease),background .3s}
 .faq__icon::before,.faq__icon::after{content:"";position:absolute;top:50%;left:50%;background:var(--green-bright);border-radius:2px;transition:opacity .3s,transform .3s}
@@ -325,17 +425,28 @@ section{scroll-margin-top:88px}
 
 /* ============ CONTACT ============ */
 .contact__grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;margin-top:50px}
+.contact__grid>*{min-width:0}
 .panel{position:relative;background:radial-gradient(260px circle at var(--sx,50%) var(--sy,-40%),rgba(143,212,166,.08),transparent 62%),var(--card-solid);border:1px solid var(--border);border-radius:var(--r);padding:28px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .panel h3{font-size:1.28rem;font-weight:700;margin-bottom:6px}
 .panel__sub{color:var(--dim);font-size:.95rem;margin-bottom:20px}
+.panel--primary{border-color:var(--green);
+  background:radial-gradient(260px circle at var(--sx,50%) var(--sy,-40%),rgba(143,212,166,.1),transparent 62%),linear-gradient(170deg,rgba(111,179,135,.1),var(--card-solid) 45%)}
+.panel__flag{position:absolute;top:-13px;left:24px;background:linear-gradient(180deg,#83c79a,#5d9f72);color:var(--green-ink);
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:.72rem;letter-spacing:.02em;
+  padding:6px 14px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(111,179,135,.6)}
+.form-status{display:none;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:12px;font-size:.92rem;line-height:1.55}
+.form-status.show{display:flex}
+.form-status--ok{background:rgba(111,179,135,.12);border:1px solid var(--green);color:var(--green-bright)}
+.form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#f0a898}
+.form-status a{text-decoration:underline;text-underline-offset:3px}
 .cal-frame{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px -30px rgba(0,0,0,.6)}
 .calendly-inline-widget{min-width:0}
 .cal-fallback{margin-top:16px;text-align:center}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:.85rem;font-weight:600;color:var(--dim);margin-bottom:7px}
 .field input,.field textarea{width:100%;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:12px;
-  padding:14px 16px;color:var(--ink);font-family:'Inter';font-size:1rem;transition:border-color .25s,background .25s,box-shadow .25s}
+  padding:14px 16px;color:var(--ink);font-family:'Instrument Sans';font-size:1rem;transition:border-color .25s,background .25s,box-shadow .25s}
 .field input::placeholder,.field textarea::placeholder{color:var(--dim-2)}
 .field input:focus,.field textarea:focus{border-color:var(--green);background:rgba(255,255,255,.06);box-shadow:0 0 0 3px rgba(111,179,135,.12)}
 .field textarea{resize:vertical;min-height:118px}
@@ -368,7 +479,6 @@ section{scroll-margin-top:88px}
 /* ============ REVEAL ============ */
 [data-reveal]{opacity:0;transform:translateY(32px);filter:blur(7px);transition:opacity .85s var(--ease-out),transform .85s var(--ease-out),filter .85s var(--ease-out);will-change:opacity,transform}
 [data-reveal].in{opacity:1;transform:none;filter:none}
-[data-reveal].in{opacity:1;transform:none}
 [data-reveal][data-d="1"]{transition-delay:.08s}
 [data-reveal][data-d="2"]{transition-delay:.16s}
 [data-reveal][data-d="3"]{transition-delay:.24s}
@@ -376,8 +486,8 @@ section{scroll-margin-top:88px}
 /* ============ LEGAL MODALS ============ */
 .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(4,9,6,.84);backdrop-filter:blur(12px);
   display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;
-  opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
-.modal-overlay.open{opacity:1;pointer-events:all}
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s var(--ease),visibility 0s .3s}
+.modal-overlay.open{opacity:1;visibility:visible;pointer-events:all;transition:opacity .3s var(--ease)}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);max-width:720px;width:100%;
   padding:48px 44px;position:relative;transform:translateY(26px);transition:transform .4s var(--ease-out);margin:auto;
   box-shadow:0 50px 120px -40px rgba(0,0,0,.9)}
@@ -405,8 +515,10 @@ section{scroll-margin-top:88px}
   .compare__grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
   .steps__grid{grid-template-columns:1fr 1fr}
   .steps__grid::before{display:none}
-  .about__grid{grid-template-columns:1fr;gap:34px;text-align:center}
-  .about__avatar{flex-direction:row;justify-content:center}
+  .stats__grid,.tcards{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+  .pledges{grid-template-columns:1fr 1fr}
+  .about__grid{grid-template-columns:1fr;gap:44px;text-align:center}
+  .portrait{margin:0 auto}
   .about__text .eyebrow{justify-content:center}
   .about__tag{margin-left:auto;margin-right:auto}
   .contact__grid{grid-template-columns:1fr}
@@ -416,11 +528,12 @@ section{scroll-margin-top:88px}
 @media(max-width:560px){
   .container{padding:0 18px}
   .steps__grid{grid-template-columns:1fr}
+  .pledges{grid-template-columns:1fr}
+  .ticker__group span{font-size:.85rem;padding:0 20px}
   .footer__cols{gap:36px}
-  .btn{font-size:.95rem;padding:14px 24px}
+  .btn{font-size:.95rem;padding:14px 24px;white-space:normal}
   .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
   .contacts{grid-template-columns:1fr}
-  .avatar__photo-hint{display:none}
   .modal{padding:32px 22px}
   .stakes p{font-size:1.1rem}
   .rankcard-wrap{max-width:100%}
@@ -460,6 +573,7 @@ section{scroll-margin-top:88px}
     <div class="nav__links">
       <a href="#vorteile">Vorteile</a>
       <a href="#vorgehen">Vorgehen</a>
+      <a href="#ergebnisse">Ergebnisse</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#faq">FAQ</a>
       <a href="#kontakt">Kontakt</a>
@@ -475,6 +589,7 @@ section{scroll-margin-top:88px}
 <div class="mobile-menu" id="mobileMenu">
   <a href="#vorteile">Vorteile</a>
   <a href="#vorgehen">Vorgehen</a>
+  <a href="#ergebnisse">Ergebnisse</a>
   <a href="#ueber-mich">Über mich</a>
   <a href="#faq">FAQ</a>
   <a href="#kontakt">Kontakt</a>
@@ -499,15 +614,14 @@ section{scroll-margin-top:88px}
   </div>
   <div class="container hero__inner">
     <div class="hero__copy">
-      <span class="eyebrow">Google Unternehmensprofil-Optimierung</span>
-      <h1>Wie Ihr Unternehmen bei Google <span class="hl">ganz oben</span> auftaucht</h1>
-      <p class="claim">Mehr <span>Sichtbarkeit</span>. Mehr <span>Kunden</span>. Mehr <span>Umsatz</span>.</p>
-      <p class="lead">Wir optimieren Ihr Google-Unternehmensprofil, damit Sie genau dann erscheinen, wenn Menschen in Ihrer Region nach Ihrer Leistung suchen.</p>
-      <div class="cta-row">
-        <a href="#kontakt" class="btn btn--primary btn--lg">Kostenloses Erstgespräch vereinbaren</a>
+      <span class="eyebrow h-anim">Google Unternehmensprofil-Optimierung</span>
+      <h1 id="heroTitle">Ihre Kunden suchen Sie bei Google — <span class="hl">und finden die Konkurrenz.</span></h1>
+      <p class="lead h-anim" style="--hd:.45s">Ich optimiere Ihr Google-Unternehmensprofil, damit Ihr Betrieb im Kartenbereich ganz oben steht — genau dort, wo aus Suchenden Anrufe, Termine und Aufträge werden.</p>
+      <div class="cta-row h-anim" style="--hd:.6s">
+        <a href="#kontakt" class="btn btn--primary btn--lg">Kostenloses Erstgespräch sichern</a>
         <a href="#vorgehen" class="btn btn--ghost btn--lg">So funktioniert's</a>
       </div>
-      <ul class="hero__trust">
+      <ul class="hero__trust h-anim" style="--hd:.75s">
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kostenlos &amp; unverbindlich</li>
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</li>
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Persönlich aus der Region</li>
@@ -564,12 +678,24 @@ section{scroll-margin-top:88px}
   </a>
 </header>
 
+<!-- ============ BRANCHEN-TICKER ============ -->
+<div class="ticker" role="marquee" aria-label="Branchen, mit denen JunglineLocal arbeitet">
+  <div class="ticker__track">
+    <div class="ticker__group">
+      <span>Handwerksbetriebe</span><span>Kanzleien</span><span>Arztpraxen</span><span>Immobilienmakler</span><span>Gastronomie</span><span>Autohäuser</span><span>Physiotherapie</span><span>Kosmetikstudios</span>
+    </div>
+    <div class="ticker__group" aria-hidden="true">
+      <span>Handwerksbetriebe</span><span>Kanzleien</span><span>Arztpraxen</span><span>Immobilienmakler</span><span>Gastronomie</span><span>Autohäuser</span><span>Physiotherapie</span><span>Kosmetikstudios</span>
+    </div>
+  </div>
+</div>
+
 <!-- ============ STAKES / INTRO ============ -->
 <section class="section stakes" id="warum">
   <div class="container stakes__wrap" data-reveal>
     <span class="eyebrow" style="justify-content:center">Warum lokal entscheidend ist</span>
-    <h2>Ihre Kunden suchen Sie bei Google — finden sie Sie auch?</h2>
-    <p><span class="mark">Über die Hälfte aller Google-Suchen</span> sind lokale Suchen. Wer im Kartenbereich oben steht, bekommt die Anfragen. Wer dort fehlt, bleibt unsichtbar — egal wie gut die eigentliche Arbeit ist.</p>
+    <h2>Wer im Kartenbereich oben steht, bekommt den Anruf.</h2>
+    <p><span class="mark">Rund die Hälfte aller Google-Suchen</span> hat einen lokalen Bezug. Die ersten Plätze im Kartenbereich holen die Anfragen ab — wer dort fehlt, bleibt unsichtbar. Egal, wie gut die eigentliche Arbeit ist.</p>
     <div class="stakes__row">
       <span class="spill"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Gefunden statt gesucht</span>
       <span class="spill"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg> Mehr Sichtbarkeit vor Ort</span>
@@ -620,7 +746,7 @@ section{scroll-margin-top:88px}
 <section class="section steps" id="vorgehen">
   <div class="container">
     <div class="head-block" data-reveal>
-      <span class="eyebrow">So gehen wir vor</span>
+      <span class="eyebrow">So gehe ich vor</span>
       <h2 class="section-title-grad">In vier Schritten nach ganz oben</h2>
       <p>Ein klarer Ablauf — von der Analyse bis zur laufenden Betreuung.</p>
     </div>
@@ -628,7 +754,7 @@ section{scroll-margin-top:88px}
       <div class="step" data-reveal data-d="0">
         <div class="step__num">01</div>
         <h3>Profil-Analyse</h3>
-        <p>Wir prüfen Ihr bestehendes Profil und Ihre lokale Sichtbarkeit.</p>
+        <p>Ich prüfe Ihr bestehendes Profil und Ihre lokale Sichtbarkeit.</p>
       </div>
       <div class="step" data-reveal data-d="1">
         <div class="step__num">02</div>
@@ -649,18 +775,99 @@ section{scroll-margin-top:88px}
   </div>
 </section>
 
+<!-- ============ ERGEBNISSE / VERTRAUEN ============ -->
+<section class="section proof" id="ergebnisse">
+  <div class="container">
+    <div class="head-block" data-reveal>
+      <span class="eyebrow">Ergebnisse &amp; Vertrauen</span>
+      <h2 class="section-title-grad">Lokale Sichtbarkeit ist messbar</h2>
+      <p>Keine Bauchgefühl-Versprechen: Die Datenlage zur lokalen Suche ist eindeutig — und was sich bei Ihrem Profil verändert, sehen Sie schwarz auf weiß in den Berichten.</p>
+    </div>
+    <div class="stats__grid">
+      <div class="stat" data-reveal data-d="1">
+        <div class="stat__num"><span class="count" data-count="46">0</span><span class="unit">&thinsp;%</span></div>
+        <p>aller Google-Suchen haben einen lokalen Bezug — Menschen suchen Leistungen in ihrer Nähe.</p>
+      </div>
+      <div class="stat" data-reveal data-d="2">
+        <div class="stat__num"><span class="count" data-count="76">0</span><span class="unit">&thinsp;%</span></div>
+        <p>der lokalen Smartphone-Suchen führen innerhalb von 24 Stunden zu einem Besuch vor Ort.</p>
+      </div>
+      <div class="stat" data-reveal data-d="3">
+        <div class="stat__num"><span class="count" data-count="28">0</span><span class="unit">&thinsp;%</span></div>
+        <p>der lokalen Suchen enden mit einem Kauf. Sichtbarkeit ist hier keine Kosmetik — sie ist Umsatz.</p>
+      </div>
+    </div>
+    <p class="stats__src" data-reveal>Quelle: Google-Studien zum lokalen Suchverhalten (Think with Google).</p>
+    <div class="pledges" data-reveal>
+      <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</div>
+      <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Transparente Zwischenberichte</div>
+      <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Faire, planbare Konditionen</div>
+      <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Direkter Draht statt Warteschleife</div>
+    </div>
+    <!-- ============================================================
+         KUNDENSTIMMEN — Struktur liegt bereit.
+         Sobald echte Testimonials vorliegen: diesen Block einkommentieren
+         und Zitat, Initialen, Name & Branche pro Karte ersetzen.
+         KEINE erfundenen Bewertungen eintragen.
+
+    <div class="tcards">
+      <figure class="tcard" data-reveal data-d="1">
+        <span class="tcard__stars" aria-hidden="true">★★★★★</span>
+        <blockquote class="tcard__quote">„Hier das wörtliche Zitat des Kunden einsetzen."</blockquote>
+        <figcaption class="tcard__who">
+          <span class="tcard__avatar" aria-hidden="true">MM</span>
+          <span><span class="tcard__name">Max Mustermann</span><br><span class="tcard__role">Malerbetrieb, Dorsten</span></span>
+        </figcaption>
+      </figure>
+      <figure class="tcard" data-reveal data-d="2">
+        <span class="tcard__stars" aria-hidden="true">★★★★★</span>
+        <blockquote class="tcard__quote">„Hier das wörtliche Zitat des Kunden einsetzen."</blockquote>
+        <figcaption class="tcard__who">
+          <span class="tcard__avatar" aria-hidden="true">EB</span>
+          <span><span class="tcard__name">Erika Beispiel</span><br><span class="tcard__role">Kanzlei, Recklinghausen</span></span>
+        </figcaption>
+      </figure>
+      <figure class="tcard" data-reveal data-d="3">
+        <span class="tcard__stars" aria-hidden="true">★★★★★</span>
+        <blockquote class="tcard__quote">„Hier das wörtliche Zitat des Kunden einsetzen."</blockquote>
+        <figcaption class="tcard__who">
+          <span class="tcard__avatar" aria-hidden="true">TB</span>
+          <span><span class="tcard__name">Thomas Beispiel</span><br><span class="tcard__role">Physiotherapie, Marl</span></span>
+        </figcaption>
+      </figure>
+    </div>
+    ============================================================ -->
+  </div>
+</section>
+
 <!-- ============ ABOUT ============ -->
 <section class="section about" id="ueber-mich">
   <div class="container">
     <div class="about__grid" data-reveal>
-      <div class="about__avatar">
-        <div class="avatar__ring">
-          <!-- Foto später hier einsetzen:
-               <img src="dein-foto.jpg" alt="Leandro Jung – JunglineLocal">
-               Dann .avatar__initials und .avatar__photo-hint entfernen. -->
-          <span class="avatar__initials">LJ</span>
+      <div class="portrait">
+        <div class="portrait__frame">
+          <!-- ============================================================
+               ECHTES FOTO EINSETZEN:
+               1. Foto (Hochformat, ca. 4:5, mind. 600×750px) als public/leandro.jpg ablegen
+               2. Die folgende img-Zeile einkommentieren:
+               <img src="/leandro.jpg" alt="Leandro Jung, Gründer von JunglineLocal" loading="lazy" width="600" height="750">
+               3. Den <div class="portrait__placeholder">…</div> darunter komplett löschen.
+               Die Namens-Plakette bleibt — sie liegt auch über dem echten Foto.
+               ============================================================ -->
+          <div class="portrait__placeholder" aria-hidden="true">
+            <svg class="portrait__rings" viewBox="0 0 300 375" preserveAspectRatio="xMidYMid slice">
+              <circle cx="150" cy="160" r="70" style="opacity:.16"/>
+              <circle cx="150" cy="160" r="115" style="opacity:.11"/>
+              <circle cx="150" cy="160" r="165" style="opacity:.07"/>
+              <circle cx="150" cy="160" r="220" style="opacity:.04"/>
+            </svg>
+            <span class="portrait__monogram">LJ</span>
+          </div>
+          <div class="portrait__badge">
+            <span class="portrait__name">Leandro Jung</span>
+            <span class="portrait__role">Gründer, JunglineLocal · Dorsten</span>
+          </div>
         </div>
-        <span class="avatar__photo-hint">Foto folgt in Kürze</span>
       </div>
       <div class="about__text">
         <span class="eyebrow">Über mich</span>
@@ -717,7 +924,7 @@ section{scroll-margin-top:88px}
     <div class="head-block center" data-reveal>
       <span class="eyebrow">Kontakt</span>
       <h2 class="section-title-grad">Lassen Sie uns sprechen</h2>
-      <p>Buchen Sie ein kostenloses Erstgespräch oder schreiben Sie uns direkt. Wir melden uns zeitnah.</p>
+      <p>Buchen Sie ein kostenloses Erstgespräch, rufen Sie an oder schreiben Sie mir direkt — ich melde mich zeitnah.</p>
       <div class="contact__trust">
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 30 Min, unverbindlich</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</span>
@@ -725,10 +932,11 @@ section{scroll-margin-top:88px}
       </div>
     </div>
     <div class="contact__grid">
-      <!-- booking -->
-      <div class="panel" data-reveal data-d="1">
-        <h3>Direkt online buchen</h3>
-        <p class="panel__sub">Wählen Sie einen Termin, der Ihnen passt — 30 Minuten, unverbindlich.</p>
+      <!-- booking = Haupt-CTA -->
+      <div class="panel panel--primary" data-reveal data-d="1">
+        <span class="panel__flag">Der schnellste Weg</span>
+        <h3>Kostenloses Erstgespräch buchen</h3>
+        <p class="panel__sub">Wählen Sie direkt einen Termin, der Ihnen passt — 30 Minuten, unverbindlich.</p>
         <div class="cal-frame">
           <div class="calendly-inline-widget"
                data-url="https://calendly.com/jungline-company/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=374151&primary_color=4a7a5a"
@@ -738,38 +946,12 @@ section{scroll-margin-top:88px}
           <a href="https://calendly.com/jungline-company/30min" target="_blank" rel="noopener" class="btn btn--ghost">Termin im neuen Tab öffnen</a>
         </div>
       </div>
-      <!-- form + contacts -->
+      <!-- direct contact + form -->
       <div data-reveal data-d="2">
-        <div class="panel">
-          <h3>Oder schreiben Sie uns</h3>
-          <p class="panel__sub">Kurze Nachricht genügt — wir melden uns mit den nächsten Schritten.</p>
-          <!-- Hinweis: Für direkten Posteingang ohne Mail-Programm einen Endpoint (z.B. Formspree)
-               eintragen: <form action="https://formspree.io/f/DEIN-ID" method="POST"> ... -->
-          <form class="form" id="contactForm" novalidate>
-            <div class="field">
-              <label for="cf-name">Name</label>
-              <input type="text" id="cf-name" name="name" placeholder="Ihr Name" required>
-            </div>
-            <div class="field">
-              <label for="cf-mail">E-Mail</label>
-              <input type="email" id="cf-mail" name="email" placeholder="name@firma.de" required>
-            </div>
-            <div class="field">
-              <label for="cf-phone">Telefon <span style="color:var(--dim-2);font-weight:400">(optional)</span></label>
-              <input type="tel" id="cf-phone" name="phone" placeholder="+49 …">
-            </div>
-            <div class="field">
-              <label for="cf-msg">Nachricht</label>
-              <textarea id="cf-msg" name="message" placeholder="Worum geht es?" required></textarea>
-            </div>
-            <button type="submit" class="btn btn--primary">Nachricht senden</button>
-            <p class="form__note">Beim Absenden öffnet sich Ihr E-Mail-Programm mit der fertigen Nachricht.</p>
-          </form>
-        </div>
-        <div class="contacts">
+        <div class="contacts" style="margin:0 0 26px">
           <a class="crow" href="tel:+4917655769680">
             <span class="crow__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></span>
-            <span class="crow__lb">Telefon</span>
+            <span class="crow__lb">Lieber direkt anrufen?</span>
             <span class="crow__vl">+49 176 55769680</span>
           </a>
           <a class="crow" href="mailto:Info@jungline.de">
@@ -777,6 +959,31 @@ section{scroll-margin-top:88px}
             <span class="crow__lb">E-Mail</span>
             <span class="crow__vl">Info@jungline.de</span>
           </a>
+        </div>
+        <div class="panel">
+          <h3>Oder schreiben Sie mir</h3>
+          <p class="panel__sub">Kurze Nachricht genügt — ich melde mich mit den nächsten Schritten.</p>
+          <form class="form" id="contactForm" novalidate>
+            <div class="field">
+              <label for="cf-name">Name</label>
+              <input type="text" id="cf-name" name="name" placeholder="Ihr Name" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="cf-mail">E-Mail</label>
+              <input type="email" id="cf-mail" name="email" placeholder="name@firma.de" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="cf-phone">Telefon <span style="color:var(--dim-2);font-weight:400">(optional)</span></label>
+              <input type="tel" id="cf-phone" name="phone" placeholder="+49 …" autocomplete="tel">
+            </div>
+            <div class="field">
+              <label for="cf-msg">Nachricht</label>
+              <textarea id="cf-msg" name="message" placeholder="Worum geht es?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary" id="cfSubmit">Nachricht senden</button>
+            <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+            <p class="form__note" id="formNote">Öffnet Ihre E-Mail-App mit der fertigen Nachricht — Sie senden selbst ab.<br>Kein E-Mail-Programm eingerichtet? <a href="tel:+4917655769680" style="color:var(--green-bright)">Rufen Sie kurz an</a> oder buchen Sie links direkt einen Termin.</p>
+          </form>
         </div>
       </div>
     </div>
@@ -792,13 +999,14 @@ section{scroll-margin-top:88px}
           <span class="brand__tile"><img src="logo.png" alt="JunglineLocal Logo" width="36" height="36" decoding="async"></span>
           <span class="brand__name">Jungline<b>Local</b></span>
         </a>
-        <p class="footer__claim"><b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Wir bringen regionale Unternehmen bei Google nach oben.</p>
+        <p class="footer__claim"><b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich bringe regionale Unternehmen bei Google nach oben — persönlich, transparent, messbar.</p>
       </div>
       <div class="footer__cols">
         <div class="fcol">
           <h4>Navigation</h4>
           <a href="#vorteile">Vorteile</a>
           <a href="#vorgehen">Vorgehen</a>
+          <a href="#ergebnisse">Ergebnisse</a>
           <a href="#ueber-mich">Über mich</a>
           <a href="#faq">FAQ</a>
           <a href="#kontakt">Kontakt</a>
@@ -863,7 +1071,7 @@ section{scroll-margin-top:88px}
     <p>Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Website unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
 
     <div class="modal-sep"></div>
-    <p style="font-size:.82rem;color:var(--dim-2)">Stand: Juni 2026</p>
+    <p style="font-size:.82rem;color:var(--dim-2)">Stand: Juli 2026</p>
   </div>
 </div>
 
@@ -895,8 +1103,8 @@ section{scroll-margin-top:88px}
     <p style="margin-top:10px">Diese Daten werden nicht mit anderen Datenquellen zusammengeführt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb der Website).</p>
 
     <div class="modal-sep"></div>
-    <h3>4. Google Fonts</h3>
-    <p>Diese Website lädt Schriftarten über Google Fonts (Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA). Dabei wird Ihre IP-Adresse an Google übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Google ist unter dem EU-US Data Privacy Framework zertifiziert. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+    <h3>4. Schriftarten (lokal gehostet)</h3>
+    <p>Diese Website verwendet Schriftarten, die lokal auf unserem eigenen Webserver gespeichert sind und von dort geladen werden. Es findet dabei keine Verbindung zu Servern von Google oder anderen Drittanbietern statt; Ihre IP-Adresse wird zu diesem Zweck nicht an Dritte übertragen.</p>
 
     <div class="modal-sep"></div>
     <h3>5. Calendly (Terminbuchung)</h3>
@@ -905,6 +1113,12 @@ section{scroll-margin-top:88px}
     <div class="modal-sep"></div>
     <h3>6. Kontaktformular &amp; E-Mail</h3>
     <p>Wenn Sie das Kontaktformular auf dieser Website nutzen, wird Ihre Anfrage direkt als E-Mail über Ihr lokales E-Mail-Programm gesendet. Es werden dabei keine Daten auf unseren Servern gespeichert oder durch Dritte verarbeitet. Wenn Sie uns direkt per E-Mail kontaktieren, werden Ihre übermittelten Daten (Name, E-Mail-Adresse, Nachrichteninhalt) ausschließlich zur Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist.</p>
+    <!-- Falls später ein Formular-Dienst (z.B. Formspree) aktiviert wird (FORM_ENDPOINT im Script),
+         MUSS der Absatz oben ersetzt werden, z.B. durch:
+         „Wenn Sie das Kontaktformular nutzen, werden Ihre Angaben (Name, E-Mail-Adresse, ggf. Telefonnummer,
+         Nachricht) über den Dienst Formspree Inc. (New York, USA) an uns übermittelt. Rechtsgrundlage ist
+         Art. 6 Abs. 1 lit. b DSGVO. Details: formspree.io/legal/privacy-policy." -->
+
 
     <div class="modal-sep"></div>
     <h3>7. Ihre Rechte</h3>
@@ -924,7 +1138,7 @@ section{scroll-margin-top:88px}
     <p>Sie haben das Recht, sich bei der zuständigen Datenschutzaufsichtsbehörde zu beschweren. In NRW ist das der Landesbeauftragte für Datenschutz und Informationsfreiheit NRW:<br><a href="https://www.ldi.nrw.de" target="_blank" rel="noopener">www.ldi.nrw.de</a></p>
 
     <div class="modal-sep"></div>
-    <p style="font-size:.82rem;color:var(--dim-2)">Stand: Juni 2026</p>
+    <p style="font-size:.82rem;color:var(--dim-2)">Stand: Juli 2026</p>
   </div>
 </div>
 
@@ -995,6 +1209,59 @@ section{scroll-margin-top:88px}
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
   document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+
+  // hero entrance: word-by-word rise (skipped bei reduced motion — dann ist alles sofort sichtbar)
+  if(!reduce){
+    document.documentElement.classList.add('js');
+    var h1 = document.getElementById('heroTitle');
+    if(h1){
+      var wi = 0;
+      var splitWords = function(node){
+        Array.prototype.slice.call(node.childNodes).forEach(function(child){
+          if(child.nodeType === 3){
+            var frag = document.createDocumentFragment();
+            child.textContent.split(/(\s+)/).forEach(function(part){
+              if(!part) return;
+              if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); return; }
+              var w = document.createElement('span');
+              w.className = 'w';
+              w.style.setProperty('--wd', (wi++ * 0.05 + 0.1).toFixed(2) + 's');
+              w.textContent = part;
+              frag.appendChild(w);
+            });
+            node.replaceChild(frag, child);
+          } else if(child.nodeType === 1){
+            splitWords(child);
+          }
+        });
+      };
+      splitWords(h1);
+    }
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      document.querySelector('.hero').classList.add('hero-live');
+    }); });
+  }
+
+  // stat count-up
+  var counts = document.querySelectorAll('.count');
+  if(counts.length){
+    var runCount = function(el){
+      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+      if(reduce){ el.textContent = target; return; }
+      var start = null, dur = 1400;
+      var tick = function(ts){
+        if(!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+        if(p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ runCount(e.target); cio.unobserve(e.target); } });
+    }, {threshold:.5});
+    counts.forEach(function(el){ cio.observe(el); });
+  }
 
   // hero parallax + rankcard tilt (fine pointer only)
   var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -1076,8 +1343,25 @@ section{scroll-margin-top:88px}
     });
   });
 
-  // contact form -> mailto
+  // Kontaktformular.
+  // ZUVERLÄSSIGER VERSAND: Hier den Endpoint eines Formular-Dienstes eintragen, z.B. Formspree:
+  //   1. Konto auf formspree.io anlegen (kostenloser Plan reicht), Formular für Info@jungline.de erstellen
+  //   2. FORM_ENDPOINT = 'https://formspree.io/f/DEINE-ID' setzen
+  //   3. Datenschutz §6 anpassen — vorbereiteter Text liegt als Kommentar im Datenschutz-Modal
+  // Ohne Endpoint nutzt das Formular den mailto-Weg (öffnet das E-Mail-Programm des Besuchers);
+  // Telefon und Calendly sind deshalb als Haupt-Kontaktwege ausgezeichnet.
+  var FORM_ENDPOINT = '';
   var form = document.getElementById('contactForm');
+  var submitBtn = document.getElementById('cfSubmit');
+  var statusEl = document.getElementById('formStatus');
+  var noteEl = document.getElementById('formNote');
+  if(FORM_ENDPOINT && noteEl){
+    noteEl.textContent = 'Ihre Nachricht landet direkt in meinem Posteingang — ich melde mich zeitnah.';
+  }
+  function showStatus(kind, html){
+    statusEl.className = 'form-status show form-status--' + kind;
+    statusEl.innerHTML = html;
+  }
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var name = (document.getElementById('cf-name').value||'').trim();
@@ -1085,9 +1369,28 @@ section{scroll-margin-top:88px}
     var phone = (document.getElementById('cf-phone').value||'').trim();
     var msg = (document.getElementById('cf-msg').value||'').trim();
     if(!name || !mail || !msg){ form.reportValidity && form.reportValidity(); return; }
-    var subject = 'Anfrage über Website – ' + name;
-    var body = 'Name: ' + name + '\nE-Mail: ' + mail + (phone ? '\nTelefon: ' + phone : '') + '\n\nNachricht:\n' + msg;
-    window.location.href = 'mailto:Info@jungline.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    if(FORM_ENDPOINT){
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Wird gesendet …';
+      fetch(FORM_ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body:new FormData(form) })
+        .then(function(res){
+          if(!res.ok) throw new Error('HTTP ' + res.status);
+          form.reset();
+          showStatus('ok', 'Vielen Dank! Ihre Nachricht ist angekommen — ich melde mich zeitnah bei Ihnen.');
+        })
+        .catch(function(){
+          showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
+        })
+        .then(function(){
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Nachricht senden';
+        });
+    } else {
+      var subject = 'Anfrage über Website – ' + name;
+      var body = 'Name: ' + name + '\nE-Mail: ' + mail + (phone ? '\nTelefon: ' + phone : '') + '\n\nNachricht:\n' + msg;
+      window.location.href = 'mailto:Info@jungline.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      showStatus('ok', 'Ihr E-Mail-Programm sollte sich jetzt öffnen. Falls nicht: <a href="mailto:Info@jungline.de">Info@jungline.de</a> oder <a href="tel:+4917655769680">+49 176 55769680</a>.');
+    }
   });
 
   // legal modals
