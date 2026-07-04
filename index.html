@@ -964,6 +964,9 @@ section{scroll-margin-top:88px}
           <h3>Oder schreiben Sie mir</h3>
           <p class="panel__sub">Kurze Nachricht genügt — ich melde mich mit den nächsten Schritten.</p>
           <form class="form" id="contactForm" novalidate>
+            <!-- Spamschutz: Honeypot (von Menschen unsichtbar) + fester Betreff für Formspree -->
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+            <input type="hidden" name="_subject" value="Neue Anfrage über jungline.de">
             <div class="field">
               <label for="cf-name">Name</label>
               <input type="text" id="cf-name" name="name" placeholder="Ihr Name" autocomplete="name" required>
@@ -982,7 +985,6 @@ section{scroll-margin-top:88px}
             </div>
             <button type="submit" class="btn btn--primary" id="cfSubmit">Nachricht senden</button>
             <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
-            <p class="form__note" id="formNote">Öffnet Ihre E-Mail-App mit der fertigen Nachricht — Sie senden selbst ab.<br>Kein E-Mail-Programm eingerichtet? <a href="tel:+4917655769680" style="color:var(--green-bright)">Rufen Sie kurz an</a> oder buchen Sie links direkt einen Termin.</p>
           </form>
         </div>
       </div>
@@ -1111,13 +1113,9 @@ section{scroll-margin-top:88px}
     <p>Für die Online-Terminbuchung wird der Dienst Calendly (Calendly LLC, 271 17th St NW, Atlanta, GA 30363, USA) eingebettet. Wenn Sie einen Termin buchen, verarbeitet Calendly die von Ihnen eingegebenen Daten (Name, E-Mail-Adresse, ggf. weitere Angaben) zur Durchführung der Terminvereinbarung. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung). Die Datenschutzerklärung von Calendly finden Sie unter: <a href="https://calendly.com/privacy" target="_blank" rel="noopener">calendly.com/privacy</a>.</p>
 
     <div class="modal-sep"></div>
-    <h3>6. Kontaktformular &amp; E-Mail</h3>
-    <p>Wenn Sie das Kontaktformular auf dieser Website nutzen, wird Ihre Anfrage direkt als E-Mail über Ihr lokales E-Mail-Programm gesendet. Es werden dabei keine Daten auf unseren Servern gespeichert oder durch Dritte verarbeitet. Wenn Sie uns direkt per E-Mail kontaktieren, werden Ihre übermittelten Daten (Name, E-Mail-Adresse, Nachrichteninhalt) ausschließlich zur Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist.</p>
-    <!-- Falls später ein Formular-Dienst (z.B. Formspree) aktiviert wird (FORM_ENDPOINT im Script),
-         MUSS der Absatz oben ersetzt werden, z.B. durch:
-         „Wenn Sie das Kontaktformular nutzen, werden Ihre Angaben (Name, E-Mail-Adresse, ggf. Telefonnummer,
-         Nachricht) über den Dienst Formspree Inc. (New York, USA) an uns übermittelt. Rechtsgrundlage ist
-         Art. 6 Abs. 1 lit. b DSGVO. Details: formspree.io/legal/privacy-policy." -->
+    <h3>6. Kontaktformular (Formspree)</h3>
+    <p>Für den Versand des Kontaktformulars wird der Dienst Formspree (Formspree, Inc., USA) eingesetzt. Wenn Sie das Kontaktformular nutzen, werden Ihre Angaben (Name, E-Mail-Adresse, ggf. Telefonnummer, Nachricht) über Formspree verarbeitet und als E-Mail an uns übermittelt. Zweck der Verarbeitung ist die Bearbeitung Ihrer Formularanfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist) bzw. Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung Ihrer Anfrage). Die Datenschutzerklärung von Formspree finden Sie unter: <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener">formspree.io/legal/privacy-policy</a>.</p>
+    <p>Wenn Sie uns direkt per E-Mail kontaktieren, werden Ihre übermittelten Daten (Name, E-Mail-Adresse, Nachrichteninhalt) ausschließlich zur Bearbeitung Ihrer Anfrage verwendet und nicht an Dritte weitergegeben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage auf den Abschluss eines Vertrages gerichtet ist.</p>
 
 
     <div class="modal-sep"></div>
@@ -1343,21 +1341,11 @@ section{scroll-margin-top:88px}
     });
   });
 
-  // Kontaktformular.
-  // ZUVERLÄSSIGER VERSAND: Hier den Endpoint eines Formular-Dienstes eintragen, z.B. Formspree:
-  //   1. Konto auf formspree.io anlegen (kostenloser Plan reicht), Formular für Info@jungline.de erstellen
-  //   2. FORM_ENDPOINT = 'https://formspree.io/f/DEINE-ID' setzen
-  //   3. Datenschutz §6 anpassen — vorbereiteter Text liegt als Kommentar im Datenschutz-Modal
-  // Ohne Endpoint nutzt das Formular den mailto-Weg (öffnet das E-Mail-Programm des Besuchers);
-  // Telefon und Calendly sind deshalb als Haupt-Kontaktwege ausgezeichnet.
-  var FORM_ENDPOINT = '';
+  // Kontaktformular – echter Versand über Formspree (AJAX, Besucher bleibt auf der Seite).
+  var FORM_ENDPOINT = 'https://formspree.io/f/mojoybqp';
   var form = document.getElementById('contactForm');
   var submitBtn = document.getElementById('cfSubmit');
   var statusEl = document.getElementById('formStatus');
-  var noteEl = document.getElementById('formNote');
-  if(FORM_ENDPOINT && noteEl){
-    noteEl.textContent = 'Ihre Nachricht landet direkt in meinem Posteingang — ich melde mich zeitnah.';
-  }
   function showStatus(kind, html){
     statusEl.className = 'form-status show form-status--' + kind;
     statusEl.innerHTML = html;
@@ -1366,31 +1354,23 @@ section{scroll-margin-top:88px}
     ev.preventDefault();
     var name = (document.getElementById('cf-name').value||'').trim();
     var mail = (document.getElementById('cf-mail').value||'').trim();
-    var phone = (document.getElementById('cf-phone').value||'').trim();
     var msg = (document.getElementById('cf-msg').value||'').trim();
     if(!name || !mail || !msg){ form.reportValidity && form.reportValidity(); return; }
-    if(FORM_ENDPOINT){
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Wird gesendet …';
-      fetch(FORM_ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body:new FormData(form) })
-        .then(function(res){
-          if(!res.ok) throw new Error('HTTP ' + res.status);
-          form.reset();
-          showStatus('ok', 'Vielen Dank! Ihre Nachricht ist angekommen — ich melde mich zeitnah bei Ihnen.');
-        })
-        .catch(function(){
-          showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
-        })
-        .then(function(){
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Nachricht senden';
-        });
-    } else {
-      var subject = 'Anfrage über Website – ' + name;
-      var body = 'Name: ' + name + '\nE-Mail: ' + mail + (phone ? '\nTelefon: ' + phone : '') + '\n\nNachricht:\n' + msg;
-      window.location.href = 'mailto:Info@jungline.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-      showStatus('ok', 'Ihr E-Mail-Programm sollte sich jetzt öffnen. Falls nicht: <a href="mailto:Info@jungline.de">Info@jungline.de</a> oder <a href="tel:+4917655769680">+49 176 55769680</a>.');
-    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gesendet …';
+    fetch(FORM_ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body:new FormData(form) })
+      .then(function(res){
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        form.reset();
+        showStatus('ok', 'Danke, deine Nachricht ist angekommen — ich melde mich zeitnah.');
+      })
+      .catch(function(){
+        showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
+      })
+      .then(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Nachricht senden';
+      });
   });
 
   // legal modals
