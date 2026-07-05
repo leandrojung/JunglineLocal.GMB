@@ -613,6 +613,14 @@ section{scroll-margin-top:88px}
   .contact__grid{grid-template-columns:1fr}
   .nav__links,.nav__cta-desktop{display:none}
   .nav__toggle{display:block}
+  /* Ueberschriften auf dem Handy exakt mittig: die dekorative Linie links
+     entfaellt, damit der Text wirklich zentriert steht (Desktop unveraendert) */
+  .eyebrow::before{display:none}
+  .head-block{margin-left:auto;margin-right:auto;text-align:center}
+  .hero__copy{text-align:center}
+  .hero .lead{margin-left:auto;margin-right:auto}
+  .cta-row{justify-content:center}
+  .hero__trust{justify-content:center}
 }
 @media(max-width:560px){
   .container{padding:0 18px}
