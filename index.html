@@ -372,6 +372,28 @@ section{scroll-margin-top:88px}
 .tcard__name{font-weight:600;font-size:.95rem;color:var(--ink)}
 .tcard__role{font-size:.82rem;color:var(--dim-2)}
 
+/* ============ CASE STUDY (in eigener Sache) — Markup liegt auskommentiert bereit ============ */
+.case__grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;margin-top:54px}
+.case__panel{background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border);border-radius:var(--r);padding:30px 32px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.case__row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+.case__row:first-child{padding-top:0}
+.case__row:last-child{border-bottom:0;padding-bottom:0}
+.case__row .k{color:var(--dim);font-size:.92rem;min-width:0}
+.case__prog{display:flex;align-items:center;gap:10px;flex:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:700}
+.case__from{color:var(--dim-2);font-size:1rem}
+.case__arrow{color:var(--green);font-size:1.1rem}
+.case__to{color:var(--green-bright);font-size:1.28rem}
+.case__note{font-size:.78rem;color:var(--dim-2);margin-top:18px}
+.case__shot{border-radius:var(--r);overflow:hidden;border:1px solid var(--border-strong);background:var(--surface-2);box-shadow:0 30px 70px -40px rgba(0,0,0,.8)}
+.case__shot img{width:100%;height:auto;display:block}
+@media(max-width:960px){.case__grid{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}}
+
+/* ============ ANGEBOT-LISTE (Erstgespräch) ============ */
+.offer-list{list-style:none;margin:0 0 22px;display:grid;gap:12px}
+.offer-list li{display:flex;align-items:flex-start;gap:11px;font-size:.96rem;color:var(--ink);line-height:1.5}
+.offer-list svg{flex:none;margin-top:2px;color:var(--green-bright)}
+.offer-list b{font-weight:600}
+
 /* ============ ABOUT ============ */
 .about__grid{display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;max-width:960px;margin:0 auto}
 .portrait{position:relative;width:min(300px,74vw)}
@@ -840,6 +862,51 @@ section{scroll-margin-top:88px}
   </div>
 </section>
 
+<!-- ============================================================
+     CASE STUDY IN EIGENER SACHE — Struktur liegt bereit.
+     Sobald echte, belegbare Ranking-Daten vorliegen:
+       1. Diesen Block einkommentieren (die Kommentar-Markierung am Anfang
+          und am Ende dieses Blocks entfernen).
+       2. Jede mit PLATZHALTER markierte Stelle durch echte Werte ersetzen
+          (Suchbegriff, Position vorher, Position jetzt, Zeitraum).
+       3. Screenshot optional als public/case-ranking.jpg ablegen. Ohne
+          Screenshot einfach das ganze .case__shot-Div entfernen — das
+          .case__grid wird dann automatisch einspaltig.
+       4. Optional im Nav und im Footer einen Link "#case" ergaenzen.
+     WICHTIG: Nur echte, belegbare Zahlen eintragen. Keine erfundenen Werte,
+     keine Ranking-Garantien.
+
+<section class="section case" id="case">
+  <div class="container">
+    <div class="head-block center" data-reveal>
+      <span class="eyebrow" style="justify-content:center">In eigener Sache</span>
+      <h2 class="section-title-grad">Der beste Beweis: mein eigenes Ranking</h2>
+      <p>Was ich für regionale Betriebe tue, mache ich zuerst für mich selbst. Hier sehen Sie schwarz auf weiss, wie sich meine Sichtbarkeit für relevante Suchbegriffe entwickelt hat.</p>
+    </div>
+    <div class="case__grid">
+      <div class="case__panel" data-reveal data-d="1">
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 1</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 2</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 3</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <p class="case__note">Zeitraum: PLATZHALTER · Quelle: eigenes Google-Unternehmensprofil / Google-Suche.</p>
+      </div>
+      <div class="case__shot" data-reveal data-d="2">
+        <img src="/case-ranking.jpg" alt="Screenshot meines Google-Rankings" loading="lazy" width="600" height="450">
+      </div>
+    </div>
+  </div>
+</section>
+     ============================================================ -->
+
 <!-- ============ ABOUT ============ -->
 <section class="section about" id="ueber-mich">
   <div class="container">
@@ -924,10 +991,11 @@ section{scroll-margin-top:88px}
     <div class="head-block center" data-reveal>
       <span class="eyebrow">Kontakt</span>
       <h2 class="section-title-grad">Lassen Sie uns sprechen</h2>
-      <p>Buchen Sie ein kostenloses Erstgespräch, rufen Sie an oder schreiben Sie mir direkt — ich melde mich zeitnah.</p>
+      <p>Buchen Sie ein kostenloses Erstgespräch, rufen Sie an oder schreiben Sie mir direkt — ich antworte werktags innerhalb von 24 Stunden.</p>
       <div class="contact__trust">
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 30 Min, unverbindlich</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Antwort werktags in 24 Std</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> DSGVO-konform</span>
       </div>
     </div>
@@ -936,7 +1004,12 @@ section{scroll-margin-top:88px}
       <div class="panel panel--primary" data-reveal data-d="1">
         <span class="panel__flag">Der schnellste Weg</span>
         <h3>Kostenloses Erstgespräch buchen</h3>
-        <p class="panel__sub">Wählen Sie direkt einen Termin, der Ihnen passt — 30 Minuten, unverbindlich.</p>
+        <p class="panel__sub">30 Minuten, unverbindlich — Sie wählen einfach den Termin, der Ihnen passt. Das nehmen Sie mit:</p>
+        <ul class="offer-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>3–5 konkrete Quick-Win-Tipps</b> für Ihr Google-Unternehmensprofil, die Sie sofort umsetzen können.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Kurze Wettbewerbseinschätzung</b> — wie Ihr Betrieb im Kartenbereich gegen die lokale Konkurrenz dasteht.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Ehrliche Einschätzung</b>, was für Ihren Betrieb realistisch möglich ist — ohne Verkaufsdruck.</span></li>
+        </ul>
         <div class="cal-frame">
           <div class="calendly-inline-widget"
                data-url="https://calendly.com/jungline-company/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=374151&primary_color=4a7a5a"
@@ -962,7 +1035,7 @@ section{scroll-margin-top:88px}
         </div>
         <div class="panel">
           <h3>Oder schreiben Sie mir</h3>
-          <p class="panel__sub">Kurze Nachricht genügt — ich melde mich mit den nächsten Schritten.</p>
+          <p class="panel__sub">Kurze Nachricht genügt — ich antworte werktags innerhalb von 24 Stunden mit den nächsten Schritten.</p>
           <form class="form" id="contactForm" novalidate>
             <!-- Spamschutz: Honeypot (von Menschen unsichtbar) + fester Betreff für Formspree -->
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
@@ -1362,7 +1435,7 @@ section{scroll-margin-top:88px}
       .then(function(res){
         if(!res.ok) throw new Error('HTTP ' + res.status);
         form.reset();
-        showStatus('ok', 'Danke, deine Nachricht ist angekommen — ich melde mich zeitnah.');
+        showStatus('ok', 'Danke, Ihre Nachricht ist angekommen — ich antworte werktags innerhalb von 24 Stunden.');
       })
       .catch(function(){
         showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
