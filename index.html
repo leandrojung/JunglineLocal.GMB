@@ -42,6 +42,21 @@
   "priceRange": "€€"
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"Wie schnell sehe ich Ergebnisse?","acceptedAnswer":{"@type":"Answer","text":"Das hängt von Branche und Wettbewerb in Ihrer Region ab. Häufig zeigen sich erste Verbesserungen in der Sichtbarkeit schon nach wenigen Wochen. Seriöse Garantien für Platz 1 gibt es nicht — wer das verspricht, ist unseriös."}},
+    {"@type":"Question","name":"Was kostet die Optimierung?","acceptedAnswer":{"@type":"Answer","text":"Das richtet sich nach Ausgangslage und Zielen. Im kostenlosen Erstgespräch gibt es eine klare, ehrliche Einschätzung — ohne Verpflichtung und ohne Verkaufsdruck."}},
+    {"@type":"Question","name":"Was genau ist der Kartenbereich?","acceptedAnswer":{"@type":"Answer","text":"Bei lokalen Suchen wie „Dachdecker Dorsten“ zeigt Google über den normalen Ergebnissen eine Karte mit drei Unternehmen — das sogenannte Local Pack. Diese drei Plätze bekommen die meiste Aufmerksamkeit und die meisten Anrufe. Wer dort erscheint, entscheidet Google anhand des Unternehmensprofils."}},
+    {"@type":"Question","name":"Kann ich das nicht selbst machen?","acceptedAnswer":{"@type":"Answer","text":"Grundsätzlich ja. Der Unterschied liegt in den Details: richtige Kategorien, Suchbegriffe mit echtem Suchvolumen, konsistente Verzeichniseinträge und laufende Pflege statt einmaligem Ausfüllen. Im kostenlosen Erstgespräch gibt es auch konkrete Tipps zum Selbermachen."}},
+    {"@type":"Question","name":"Bin ich an einen langen Vertrag gebunden?","acceptedAnswer":{"@type":"Answer","text":"Die Konditionen werden offen im Erstgespräch besprochen — planbar und ohne versteckte Kosten. Ziel ist eine Zusammenarbeit, die sich rechnet, kein Knebelvertrag."}},
+    {"@type":"Question","name":"Brauche ich technisches Wissen?","acceptedAnswer":{"@type":"Answer","text":"Nein. Die komplette Umsetzung wird übernommen — Sie kümmern sich um Ihr Geschäft, JunglineLocal um Ihre Sichtbarkeit bei Google."}},
+    {"@type":"Question","name":"Ich habe schon ein Google-Profil. Bringt das trotzdem was?","acceptedAnswer":{"@type":"Answer","text":"Gerade dann. Die meisten bestehenden Profile sind unvollständig oder falsch aufgesetzt und verschenken Sichtbarkeit. Eine Analyse zeigt, was möglich ist."}}
+  ]
+}
+</script>
 <style>
 @font-face{
   font-family:'Bricolage Grotesque';
@@ -372,6 +387,28 @@ section{scroll-margin-top:88px}
 .tcard__name{font-weight:600;font-size:.95rem;color:var(--ink)}
 .tcard__role{font-size:.82rem;color:var(--dim-2)}
 
+/* ============ CASE STUDY (in eigener Sache) — Markup liegt auskommentiert bereit ============ */
+.case__grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;margin-top:54px}
+.case__panel{background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border);border-radius:var(--r);padding:30px 32px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.case__row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+.case__row:first-child{padding-top:0}
+.case__row:last-child{border-bottom:0;padding-bottom:0}
+.case__row .k{color:var(--dim);font-size:.92rem;min-width:0}
+.case__prog{display:flex;align-items:center;gap:10px;flex:none;font-family:'Bricolage Grotesque',sans-serif;font-weight:700}
+.case__from{color:var(--dim-2);font-size:1rem}
+.case__arrow{color:var(--green);font-size:1.1rem}
+.case__to{color:var(--green-bright);font-size:1.28rem}
+.case__note{font-size:.78rem;color:var(--dim-2);margin-top:18px}
+.case__shot{border-radius:var(--r);overflow:hidden;border:1px solid var(--border-strong);background:var(--surface-2);box-shadow:0 30px 70px -40px rgba(0,0,0,.8)}
+.case__shot img{width:100%;height:auto;display:block}
+@media(max-width:960px){.case__grid{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}}
+
+/* ============ ANGEBOT-LISTE (Erstgespräch) ============ */
+.offer-list{list-style:none;margin:0 0 22px;display:grid;gap:12px}
+.offer-list li{display:flex;align-items:flex-start;gap:11px;font-size:.96rem;color:var(--ink);line-height:1.5}
+.offer-list svg{flex:none;margin-top:2px;color:var(--green-bright)}
+.offer-list b{font-weight:600}
+
 /* ============ ABOUT ============ */
 .about__grid{display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;max-width:960px;margin:0 auto}
 .portrait{position:relative;width:min(300px,74vw)}
@@ -504,6 +541,59 @@ section{scroll-margin-top:88px}
 .modal ul{margin:8px 0 0 0;padding:0}
 .modal-sep{height:1px;background:var(--border);margin:24px 0}
 
+/* ============ LEISTUNGEN (Service-Ledger) ============ */
+.services__grid{display:grid;grid-template-columns:1fr 1fr;gap:0 60px;margin-top:50px;border-bottom:1px solid var(--border)}
+.svc{display:grid;grid-template-columns:46px 1fr;gap:16px;padding:26px 4px;border-top:1px solid var(--border)}
+.svc__idx{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.9rem;color:var(--green-bright);opacity:.8;padding-top:4px;letter-spacing:.04em;transition:opacity .3s}
+.svc h3{font-size:1.1rem;font-weight:700;margin-bottom:7px;transition:color .3s}
+.svc p{color:var(--dim);font-size:.94rem;line-height:1.65}
+.svc:hover .svc__idx{opacity:1}
+.svc:hover h3{color:var(--green-bright)}
+.services__note{display:flex;align-items:flex-start;gap:14px;max-width:760px;margin:36px auto 0;padding:20px 24px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(8px);
+  color:var(--dim);font-size:.95rem;line-height:1.65;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.services__note svg{flex:none;color:var(--green-bright);margin-top:2px}
+.services__note b{color:var(--ink);font-weight:600}
+
+/* ============ VOLLSTÄNDIGES PROFIL (Google-Daten-Panel) ============ */
+.gprofile{position:relative;margin-top:26px;border:1px solid var(--border-strong);border-radius:var(--r);
+  padding:32px 34px;background:linear-gradient(150deg,rgba(111,179,135,.11),var(--card-solid) 55%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.gprofile::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
+  background:linear-gradient(140deg,rgba(143,212,166,.3),transparent 45%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.gprofile__grid{display:grid;grid-template-columns:1.15fr repeat(3,.62fr);gap:28px;align-items:center}
+.gprofile h3{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.gprofile__intro p{color:var(--dim);font-size:.96rem;line-height:1.65}
+.gp{border-left:1px solid var(--border);padding-left:24px}
+.gp__num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(1.9rem,3vw,2.5rem);letter-spacing:-.03em;line-height:1.1;
+  background:linear-gradient(120deg,var(--ink) 20%,var(--green-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gp__lb{font-size:.85rem;color:var(--dim);margin-top:6px;line-height:1.45}
+@media(max-width:960px){
+  .gprofile__grid{grid-template-columns:1fr 1fr}
+  .gprofile__intro{grid-column:1/-1}
+  .gp:first-of-type{border-left:0;padding-left:0}
+}
+@media(max-width:560px){
+  .gprofile{padding:26px 22px}
+  .gprofile__grid{grid-template-columns:1fr;gap:20px}
+  .gp{border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:18px}
+}
+
+/* ============ NAV SCROLLSPY ============ */
+.nav__links a.active{color:var(--ink)}
+.nav__links a.active::after{width:100%}
+
+/* ============ STICKY MOBILE CTA ============ */
+.mcta{position:fixed;left:12px;right:12px;bottom:12px;z-index:90;display:none;gap:10px;
+  visibility:hidden;transform:translateY(140%);transition:transform .45s var(--ease-out),visibility 0s .45s}
+.mcta.show{visibility:visible;transform:none;transition:transform .45s var(--ease-out)}
+.mcta .btn--primary{flex:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 16px 40px -10px rgba(0,0,0,.7),0 10px 28px -10px rgba(111,179,135,.5)}
+.mcta__tel{flex:none;width:54px;padding:15px 0!important;background:rgba(9,16,12,.85)!important;backdrop-filter:blur(14px)}
+@media(max-width:960px){.mcta{display:flex}}
+
+::selection{background:rgba(111,179,135,.35);color:var(--ink)}
+
 /* ============ RESPONSIVE ============ */
 @media(max-width:960px){
   .hero__inner{grid-template-columns:1fr;gap:44px}
@@ -511,6 +601,7 @@ section{scroll-margin-top:88px}
   .rankcard-wrap{max-width:440px;margin:0 auto}
   .hero__scroll{display:none}
   .compare__grid{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+  .services__grid{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}
   .steps__grid{grid-template-columns:1fr 1fr}
   .steps__grid::before{display:none}
   .stats__grid,.tcards{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
@@ -571,6 +662,7 @@ section{scroll-margin-top:88px}
     <div class="nav__links">
       <a href="#vorteile">Vorteile</a>
       <a href="#vorgehen">Vorgehen</a>
+      <a href="#leistungen">Leistungen</a>
       <a href="#ergebnisse">Ergebnisse</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#faq">FAQ</a>
@@ -587,6 +679,7 @@ section{scroll-margin-top:88px}
 <div class="mobile-menu" id="mobileMenu">
   <a href="#vorteile">Vorteile</a>
   <a href="#vorgehen">Vorgehen</a>
+  <a href="#leistungen">Leistungen</a>
   <a href="#ergebnisse">Ergebnisse</a>
   <a href="#ueber-mich">Über mich</a>
   <a href="#faq">FAQ</a>
@@ -612,7 +705,7 @@ section{scroll-margin-top:88px}
   </div>
   <div class="container hero__inner">
     <div class="hero__copy">
-      <span class="eyebrow h-anim">Google Unternehmensprofil-Optimierung</span>
+      <span class="eyebrow h-anim">Google-Unternehmensprofil-Optimierung</span>
       <h1 id="heroTitle">Ihre Kunden suchen Sie bei Google — <span class="hl">und finden die Konkurrenz.</span></h1>
       <p class="lead h-anim" style="--hd:.45s">Ich optimiere Ihr Google-Unternehmensprofil, damit Ihr Betrieb im Kartenbereich ganz oben steht — genau dort, wo aus Suchenden Anrufe, Termine und Aufträge werden.</p>
       <div class="cta-row h-anim" style="--hd:.6s">
@@ -725,7 +818,7 @@ section{scroll-margin-top:88px}
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94B09C" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         </div>
         <h3>Langwierig &amp; teuer</h3>
-        <p>Klassische Suchmaschinenoptimierung sichert Top-Plätze, dauert aber. Bis Ergebnisse kommen, sind oft fünfstellige Summen ausgegeben.</p>
+        <p>Klassische Suchmaschinenoptimierung wirkt — braucht aber viel Zeit. Bis Ergebnisse sichtbar werden, vergehen oft Monate, bei laufenden Kosten.</p>
       </div>
       <div class="ccard ccard--hot" data-reveal data-d="3">
         <span class="badge">Empfohlen</span>
@@ -752,23 +845,96 @@ section{scroll-margin-top:88px}
       <div class="step" data-reveal data-d="0">
         <div class="step__num">01</div>
         <h3>Profil-Analyse</h3>
-        <p>Ich prüfe Ihr bestehendes Profil und Ihre lokale Sichtbarkeit.</p>
+        <p>Ich prüfe Ihr Profil, Ihre Sichtbarkeit und die Konkurrenz in Ihrer Region — Sie sehen schwarz auf weiß, wo Sie stehen.</p>
       </div>
       <div class="step" data-reveal data-d="1">
         <div class="step__num">02</div>
         <h3>Optimierung</h3>
-        <p>Kategorien, Keywords, Beschreibung, Bilder und Leistungen sauber aufsetzen.</p>
+        <p>Kategorien, Suchbegriffe, Beschreibung, Bilder, Leistungen: Ihr Profil wird vollständig und richtlinienkonform aufgesetzt.</p>
       </div>
       <div class="step" data-reveal data-d="2">
         <div class="step__num">03</div>
         <h3>Bewertungen</h3>
-        <p>Eine Strategie für mehr und bessere Bewertungen Ihrer Kunden.</p>
+        <p>Mit System zu mehr echten Bewertungen — inklusive professioneller Antworten, auch auf kritische Stimmen.</p>
       </div>
       <div class="step" data-reveal data-d="3">
         <div class="step__num">04</div>
         <h3>Betreuung</h3>
-        <p>Laufendes Monitoring und Anpassung für nachhaltige Platzierung.</p>
+        <p>Laufende Pflege, Beiträge und Monitoring mit Vorher-nachher-Berichten — Sichtbarkeit ist kein einmaliges Projekt.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LEISTUNGEN IM DETAIL ============ -->
+<section class="section services" id="leistungen">
+  <div class="container">
+    <div class="head-block" data-reveal>
+      <span class="eyebrow">Leistungen im Detail</span>
+      <h2 class="section-title-grad">Das steckt in einer Optimierung</h2>
+      <p>„Profil optimieren“ klingt abstrakt. Konkret heißt es: diese acht Bausteine — sauber umgesetzt und laufend gepflegt.</p>
+    </div>
+    <div class="services__grid">
+      <div class="svc" data-reveal>
+        <span class="svc__idx" aria-hidden="true">01</span>
+        <div>
+          <h3>Kategorien &amp; Suchbegriffe</h3>
+          <p>Die passende Primär- und Sekundärkategorie plus lokale Suchbegriffe, nach denen Ihre Kunden wirklich suchen — recherchiert, nicht geraten.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal data-d="1">
+        <span class="svc__idx" aria-hidden="true">02</span>
+        <div>
+          <h3>Profilbeschreibung</h3>
+          <p>Ein sauberer SEO-Text (bis 750 Zeichen), der Ihre wichtigsten Leistungen und Ihre Stadt dort platziert, wo Google sie gewichtet.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal>
+        <span class="svc__idx" aria-hidden="true">03</span>
+        <div>
+          <h3>Bilder &amp; Erscheinungsbild</h3>
+          <p>Titelbild, Logo und Fotos, die Ihren Betrieb bei der Arbeit zeigen — einheitlich, professionell, vertrauensbildend.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal data-d="1">
+        <span class="svc__idx" aria-hidden="true">04</span>
+        <div>
+          <h3>Leistungen &amp; Attribute</h3>
+          <p>Jede Dienstleistung einzeln angelegt, alle relevanten Merkmale gepflegt. Google belohnt vollständige Daten — hier verschenken die meisten Profile am meisten.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal>
+        <span class="svc__idx" aria-hidden="true">05</span>
+        <div>
+          <h3>Bewertungsstrategie</h3>
+          <p>Ein realistischer Plan für mehr echte Bewertungen, plus professionelle Antworten — DSGVO-sicher, auch bei Kritik.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal data-d="1">
+        <span class="svc__idx" aria-hidden="true">06</span>
+        <div>
+          <h3>Beiträge &amp; Q&amp;A</h3>
+          <p>Regelmäßige Google-Posts und vorbereitete Fragen &amp; Antworten halten Ihr Profil aktiv — ein Signal, das Google registriert.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal>
+        <span class="svc__idx" aria-hidden="true">07</span>
+        <div>
+          <h3>Branchenverzeichnisse</h3>
+          <p>Identische Firmendaten in den wichtigen deutschen Verzeichnissen — Gelbe Seiten, Das Örtliche, 11880 u.&thinsp;a. Konsistenz stärkt Ihr lokales Ranking.</p>
+        </div>
+      </div>
+      <div class="svc" data-reveal data-d="1">
+        <span class="svc__idx" aria-hidden="true">08</span>
+        <div>
+          <h3>Monitoring &amp; Berichte</h3>
+          <p>Sichtbarkeits-Tracking mit Vorher-nachher-Vergleichen. Sie sehen, was sich verändert — nicht nur, dass gearbeitet wurde.</p>
+        </div>
+      </div>
+    </div>
+    <div class="services__note" data-reveal>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span><b>Alles richtlinienkonform:</b> keine gekauften Bewertungen, keine Keyword-Tricks, die Ihr Profil riskieren. Was kurzfristig schlau aussieht, kostet langfristig das Ranking — davon lasse ich die Finger.</span>
     </div>
   </div>
 </section>
@@ -795,7 +961,27 @@ section{scroll-margin-top:88px}
         <p>der lokalen Suchen enden mit einem Kauf. Sichtbarkeit ist hier keine Kosmetik — sie ist Umsatz.</p>
       </div>
     </div>
-    <p class="stats__src" data-reveal>Quelle: Google-Studien zum lokalen Suchverhalten (Think with Google).</p>
+    <div class="gprofile" data-reveal>
+      <div class="gprofile__grid">
+        <div class="gprofile__intro">
+          <h3>Ein vollständiges Profil zahlt sich aus</h3>
+          <p>Google misst den Unterschied selbst: Unternehmen mit vollständigem Profil schneiden messbar besser ab. Genau diese Vollständigkeit ist mein Handwerk.</p>
+        </div>
+        <div class="gp">
+          <div class="gp__num"><span class="count" data-count="2.7" data-dec="1">0</span>×</div>
+          <div class="gp__lb">so häufig als vertrauenswürdig eingestuft</div>
+        </div>
+        <div class="gp">
+          <div class="gp__num">+<span class="count" data-count="70">0</span>&thinsp;%</div>
+          <div class="gp__lb">mehr Besuche vor Ort und auf der Website</div>
+        </div>
+        <div class="gp">
+          <div class="gp__num">+<span class="count" data-count="50">0</span>&thinsp;%</div>
+          <div class="gp__lb">höhere Wahrscheinlichkeit, dass gekauft wird</div>
+        </div>
+      </div>
+    </div>
+    <p class="stats__src" data-reveal>Quellen: Google (Wirkung vollständiger Unternehmensprofile) · Think with Google, Studien zum lokalen Suchverhalten · BrightLocal, Local Consumer Review Survey.</p>
     <div class="pledges" data-reveal>
       <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</div>
       <div class="pledge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Transparente Zwischenberichte</div>
@@ -837,6 +1023,51 @@ section{scroll-margin-top:88px}
     ============================================================ -->
   </div>
 </section>
+
+<!-- ============================================================
+     CASE STUDY IN EIGENER SACHE — Struktur liegt bereit.
+     Sobald echte, belegbare Ranking-Daten vorliegen:
+       1. Diesen Block einkommentieren (die Kommentar-Markierung am Anfang
+          und am Ende dieses Blocks entfernen).
+       2. Jede mit PLATZHALTER markierte Stelle durch echte Werte ersetzen
+          (Suchbegriff, Position vorher, Position jetzt, Zeitraum).
+       3. Screenshot optional als public/case-ranking.jpg ablegen. Ohne
+          Screenshot einfach das ganze .case__shot-Div entfernen — das
+          .case__grid wird dann automatisch einspaltig.
+       4. Optional im Nav und im Footer einen Link "#case" ergaenzen.
+     WICHTIG: Nur echte, belegbare Zahlen eintragen. Keine erfundenen Werte,
+     keine Ranking-Garantien.
+
+<section class="section case" id="case">
+  <div class="container">
+    <div class="head-block center" data-reveal>
+      <span class="eyebrow" style="justify-content:center">In eigener Sache</span>
+      <h2 class="section-title-grad">Der beste Beweis: mein eigenes Ranking</h2>
+      <p>Was ich für regionale Betriebe tue, mache ich zuerst für mich selbst. Hier sehen Sie schwarz auf weiss, wie sich meine Sichtbarkeit für relevante Suchbegriffe entwickelt hat.</p>
+    </div>
+    <div class="case__grid">
+      <div class="case__panel" data-reveal data-d="1">
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 1</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 2</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <div class="case__row">
+          <span class="k">PLATZHALTER — Suchbegriff 3</span>
+          <span class="case__prog"><span class="case__from">Platz PLATZHALTER</span><span class="case__arrow">&rarr;</span><span class="case__to">Platz PLATZHALTER</span></span>
+        </div>
+        <p class="case__note">Zeitraum: PLATZHALTER · Quelle: eigenes Google-Unternehmensprofil / Google-Suche.</p>
+      </div>
+      <div class="case__shot" data-reveal data-d="2">
+        <img src="/case-ranking.jpg" alt="Screenshot meines Google-Rankings" loading="lazy" width="600" height="450">
+      </div>
+    </div>
+  </div>
+</section>
+     ============================================================ -->
 
 <!-- ============ ABOUT ============ -->
 <section class="section about" id="ueber-mich">
@@ -884,6 +1115,14 @@ section{scroll-margin-top:88px}
         <div class="faq__a"><div class="faq__a-inner">Das richtet sich nach Ihrer Ausgangslage und Ihren Zielen. Im kostenlosen Erstgespräch schaue ich mir Ihr Profil an und gebe Ihnen eine klare, ehrliche Einschätzung — ohne Verpflichtung und ohne Verkaufsdruck.</div></div>
       </div>
       <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">Was genau ist der „Kartenbereich“?<span class="faq__icon" aria-hidden="true"></span></button>
+        <div class="faq__a"><div class="faq__a-inner">Wenn jemand nach z.&thinsp;B. „Dachdecker Dorsten“ sucht, zeigt Google über den normalen Ergebnissen eine Karte mit drei Unternehmen — das sogenannte Local Pack. Diese drei Plätze bekommen die meiste Aufmerksamkeit und die meisten Anrufe. Wer dort erscheint, entscheidet Google anhand des Unternehmensprofils — und genau da setzt meine Arbeit an.</div></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">Kann ich das nicht einfach selbst machen?<span class="faq__icon" aria-hidden="true"></span></button>
+        <div class="faq__a"><div class="faq__a-inner">Grundsätzlich ja — Google stellt die Werkzeuge jedem zur Verfügung. Der Unterschied liegt in den Details: die richtigen Kategorien, Suchbegriffe mit echtem Suchvolumen, konsistente Einträge in den Branchenverzeichnissen und laufende Pflege statt einmaligem Ausfüllen. Wenn Sie die Zeit investieren wollen, bekommen Sie im kostenlosen Erstgespräch sogar konkrete Tipps zum Selbermachen — ohne Haken.</div></div>
+      </div>
+      <div class="faq__item">
         <button class="faq__q" aria-expanded="false">Bin ich an einen langen Vertrag gebunden?<span class="faq__icon" aria-hidden="true"></span></button>
         <div class="faq__a"><div class="faq__a-inner">Die Konditionen besprechen wir offen im Erstgespräch — planbar und ohne versteckte Kosten. Ziel ist eine Zusammenarbeit, die sich für Sie rechnet, nicht ein Knebelvertrag.</div></div>
       </div>
@@ -906,10 +1145,11 @@ section{scroll-margin-top:88px}
     <div class="head-block center" data-reveal>
       <span class="eyebrow">Kontakt</span>
       <h2 class="section-title-grad">Lassen Sie uns sprechen</h2>
-      <p>Buchen Sie ein kostenloses Erstgespräch, rufen Sie an oder schreiben Sie mir direkt — ich melde mich zeitnah.</p>
+      <p>Buchen Sie ein kostenloses Erstgespräch, rufen Sie an oder schreiben Sie mir direkt — ich antworte werktags innerhalb von 24 Stunden.</p>
       <div class="contact__trust">
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> 30 Min, unverbindlich</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Antwort werktags in 24 Std</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> DSGVO-konform</span>
       </div>
     </div>
@@ -918,7 +1158,12 @@ section{scroll-margin-top:88px}
       <div class="panel panel--primary" data-reveal data-d="1">
         <span class="panel__flag">Der schnellste Weg</span>
         <h3>Kostenloses Erstgespräch buchen</h3>
-        <p class="panel__sub">Wählen Sie direkt einen Termin, der Ihnen passt — 30 Minuten, unverbindlich.</p>
+        <p class="panel__sub">30 Minuten, unverbindlich — Sie wählen einfach den Termin, der Ihnen passt. Das nehmen Sie mit:</p>
+        <ul class="offer-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>3–5 konkrete Quick-Win-Tipps</b> für Ihr Google-Unternehmensprofil, die Sie sofort umsetzen können.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Kurze Wettbewerbseinschätzung</b> — wie Ihr Betrieb im Kartenbereich gegen die lokale Konkurrenz dasteht.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Ehrliche Einschätzung</b>, was für Ihren Betrieb realistisch möglich ist — ohne Verkaufsdruck.</span></li>
+        </ul>
         <div class="cal-frame">
           <div class="calendly-inline-widget"
                data-url="https://calendly.com/jungline-company/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=374151&primary_color=4a7a5a"
@@ -944,7 +1189,7 @@ section{scroll-margin-top:88px}
         </div>
         <div class="panel">
           <h3>Oder schreiben Sie mir</h3>
-          <p class="panel__sub">Kurze Nachricht genügt — ich melde mich mit den nächsten Schritten.</p>
+          <p class="panel__sub">Kurze Nachricht genügt — ich antworte werktags innerhalb von 24 Stunden mit den nächsten Schritten.</p>
           <form class="form" id="contactForm" novalidate>
             <!-- Spamschutz: Honeypot (von Menschen unsichtbar) + fester Betreff für Formspree -->
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
@@ -990,6 +1235,7 @@ section{scroll-margin-top:88px}
           <h4>Navigation</h4>
           <a href="#vorteile">Vorteile</a>
           <a href="#vorgehen">Vorgehen</a>
+          <a href="#leistungen">Leistungen</a>
           <a href="#ergebnisse">Ergebnisse</a>
           <a href="#ueber-mich">Über mich</a>
           <a href="#faq">FAQ</a>
@@ -1015,6 +1261,14 @@ section{scroll-margin-top:88px}
   </div>
 </footer>
 </div><!-- /.page -->
+
+<!-- ============ STICKY MOBILE CTA ============ -->
+<div class="mcta" id="mcta">
+  <a href="#kontakt" class="btn btn--primary">Kostenloses Erstgespräch</a>
+  <a href="tel:+4917655769680" class="btn btn--ghost mcta__tel" aria-label="Jetzt anrufen: +49 176 55769680">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg>
+  </a>
+</div>
 
 <!-- ============ IMPRESSUM MODAL ============ -->
 <div class="modal-overlay" id="modalImpressum" role="dialog" aria-modal="true" aria-labelledby="impressumTitle">
@@ -1225,14 +1479,16 @@ section{scroll-margin-top:88px}
   // stat count-up
   var counts = document.querySelectorAll('.count');
   if(counts.length){
+    var fmtCount = function(v, dec){ return dec ? v.toFixed(dec).replace('.', ',') : String(Math.round(v)); };
     var runCount = function(el){
-      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
-      if(reduce){ el.textContent = target; return; }
+      var target = parseFloat(el.getAttribute('data-count')) || 0;
+      var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
+      if(reduce){ el.textContent = fmtCount(target, dec); return; }
       var start = null, dur = 1400;
       var tick = function(ts){
         if(!start) start = ts;
         var p = Math.min((ts - start) / dur, 1);
-        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+        el.textContent = fmtCount((1 - Math.pow(1 - p, 3)) * target, dec);
         if(p < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
@@ -1279,7 +1535,7 @@ section{scroll-margin-top:88px}
         var r = btn.getBoundingClientRect();
         mx = (e.clientX-(r.left+r.width/2))*0.22;
         my = (e.clientY-(r.top+r.height/2))*0.30;
-        if(!mraf) mraf = requestAnimationFrame(function(){ btn.style.transform='translate('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px)'; mraf=null; });
+        if(!mraf) mraf = requestAnimationFrame(function(){ btn.style.transform='translate('+mx.toFixed(1)+'px,'+(my-2).toFixed(1)+'px)'; mraf=null; });
       }, {passive:true});
       btn.addEventListener('mouseleave', function(){ btn.style.transform=''; });
     });
@@ -1323,6 +1579,40 @@ section{scroll-margin-top:88px}
     });
   });
 
+  // Scrollspy: aktive Sektion in der Navigation markieren
+  var spyLinks = document.querySelectorAll('.nav__links a[href^="#"]');
+  if(spyLinks.length && 'IntersectionObserver' in window){
+    var byId = {};
+    spyLinks.forEach(function(a){ byId[a.getAttribute('href').slice(1)] = a; });
+    var setActive = function(id){
+      spyLinks.forEach(function(a){ a.classList.remove('active'); a.removeAttribute('aria-current'); });
+      if(byId[id]){ byId[id].classList.add('active'); byId[id].setAttribute('aria-current','true'); }
+    };
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting) setActive(e.target.id); });
+    }, {rootMargin:'-35% 0px -55% 0px'});
+    Object.keys(byId).forEach(function(id){
+      var sec = document.getElementById(id);
+      if(sec) spy.observe(sec);
+    });
+  }
+
+  // Sticky Mobile-CTA: nach dem Hero zeigen, im Kontaktbereich ausblenden
+  var mcta = document.getElementById('mcta');
+  var kontakt = document.getElementById('kontakt');
+  if(mcta && kontakt){
+    var kontaktVisible = false;
+    var kio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ kontaktVisible = e.isIntersecting; updateMcta(); });
+    }, {rootMargin:'0px 0px -20% 0px'});
+    kio.observe(kontakt);
+    var updateMcta = function(){
+      mcta.classList.toggle('show', window.scrollY > 640 && !kontaktVisible);
+    };
+    window.addEventListener('scroll', updateMcta, {passive:true});
+    updateMcta();
+  }
+
   // Kontaktformular – echter Versand über Formspree (AJAX, Besucher bleibt auf der Seite).
   var FORM_ENDPOINT = 'https://formspree.io/f/xlgyavbn';
   var form = document.getElementById('contactForm');
@@ -1344,7 +1634,7 @@ section{scroll-margin-top:88px}
       .then(function(res){
         if(!res.ok) throw new Error('HTTP ' + res.status);
         form.reset();
-        showStatus('ok', 'Danke, deine Nachricht ist angekommen — ich melde mich zeitnah.');
+        showStatus('ok', 'Danke, Ihre Nachricht ist angekommen — ich antworte werktags innerhalb von 24 Stunden.');
       })
       .catch(function(){
         showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
@@ -1366,7 +1656,18 @@ section{scroll-margin-top:88px}
     btn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
     overlay.addEventListener('click', function(e){ if(e.target===overlay) close(); });
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape' && overlay.classList.contains('open')) close(); });
+    document.addEventListener('keydown', function(e){
+      if(!overlay.classList.contains('open')) return;
+      if(e.key==='Escape'){ close(); return; }
+      if(e.key==='Tab'){
+        // Fokus im offenen Dialog halten (Fokus-Falle)
+        var f = overlay.querySelectorAll('button, a[href]');
+        if(!f.length) return;
+        var first = f[0], last = f[f.length-1];
+        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+      }
+    });
   }
   initModal('openImpressum','closeImpressum','modalImpressum');
   initModal('openDatenschutz','closeDatenschutz','modalDatenschutz');
