@@ -1,0 +1,8 @@
+# robots.txt für https://jungline.de
+# Erlaubt allen Suchmaschinen das vollständige Crawlen der Seite
+
+User-agent: *
+Allow: /
+
+# Verweis auf die Sitemap (wichtig für die Indexierung)
+Sitemap: https://jungline.de/sitemap.xml
