@@ -1,0 +1,41 @@
+name: Deploy zu Hostinger
+
+# Läuft bei jedem Push auf den Produktiv-Branch, außerdem manuell startbar
+# über den "Run workflow"-Button im GitHub-Actions-Tab.
+on:
+  push:
+    branches:
+      - claude/ecstatic-turing-2a206v
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v7
+
+      - name: Node einrichten
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Seite bauen
+        run: npm run build
+
+      - name: Per FTP zu Hostinger hochladen
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          # HOSTINGER_FTP_DIR ist optional — Standard passt für die meisten
+          # Hostinger-Konten. Nur nötig, falls die Seite in einem
+          # Unterordner liegt (z. B. bei einer Zusatzdomain).
+          server-dir: ${{ secrets.HOSTINGER_FTP_DIR || './public_html/' }}
