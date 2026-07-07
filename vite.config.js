@@ -36,7 +36,19 @@ function findHtmlInputs(dir = root, acc = {}) {
 // noch verarbeitet und mit Hash versehen werden.
 // ---------------------------------------------------------------------------
 function sharedShell() {
-  const partial = (name) => readFileSync(resolve(root, 'partials', name), 'utf-8')
+  // Jedes Partial nur einmal pro Änderungsstand lesen statt für jede der
+  // ~17 Seiten erneut. Der Cache invalidiert sich über mtime + Größe der
+  // Datei, damit im Dev-Server Änderungen an Partials sofort greifen.
+  const cache = new Map()
+  const partial = (name) => {
+    const abs = resolve(root, 'partials', name)
+    const { mtimeMs, size } = statSync(abs)
+    const hit = cache.get(name)
+    if (hit && hit.mtimeMs === mtimeMs && hit.size === size) return hit.html
+    const html = readFileSync(abs, 'utf-8')
+    cache.set(name, { mtimeMs, size, html })
+    return html
+  }
   const tokens = {
     '<!--HEAD-->': () => partial('head.html'),
     '<!--NAV-->': () => partial('nav.html'),

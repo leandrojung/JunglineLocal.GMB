@@ -1,0 +1,90 @@
+# =========================================================================
+# Caching-Strategie JunglineLocal — für Hostinger (LiteSpeed/Apache)
+#
+# Diese Datei liegt in public/ und wird von Vite unverändert in den
+# dist/-Ordner kopiert, landet also beim Deploy im Webroot.
+#
+# Grundidee:
+#   1. Dateien mit Content-Hash im Namen (/assets/…) ändern sich nie —
+#      sie dürfen ein Jahr lang ohne Rückfrage aus dem Browser-Cache kommen.
+#   2. HTML wird bei jedem Aufruf beim Server rückgefragt (Antwort ist ein
+#      billiges 304 "Not Modified", solange nichts deployt wurde) —
+#      dadurch ist jeder Deploy sofort für alle Besucher sichtbar.
+#   3. Alles mit stabilem Pfad (Logo, Fotos, Fonts) bekommt eine mittlere
+#      bis lange Lebensdauer, je nachdem wie wahrscheinlich Änderungen sind.
+# =========================================================================
+
+# ---------- 1) Textinhalte komprimiert ausliefern ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE application/xml application/rss+xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ---------- 2) Cache-Header ----------
+# Die Regeln sind bewusst disjunkt — jede Datei fällt in genau eine
+# Kategorie: HTML, robots/sitemap, Bild, Font oder gehashtes /assets/-
+# Bundle (dort liegen nur CSS/JS, die keine der FilesMatch-Regeln trifft).
+# Sollte Vite künftig auch Bilder/Fonts nach /assets/ hashen, greift für
+# diese die jeweilige FilesMatch-Regel (FilesMatch hat bei Apache Vorrang
+# vor den nackten Header-Direktiven) — das ist nur weniger aggressiv,
+# nie falsch.
+<IfModule mod_headers.c>
+
+  # HTML: cachen erlaubt, aber vor jeder Nutzung beim Server rückfragen.
+  # Unverändertes HTML wird per ETag/Last-Modified als 304 beantwortet
+  # (wenige Bytes) — geändertes HTML ist sofort live.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # robots.txt & sitemap.xml: 1 Stunde reicht, Crawler fragen ohnehin
+  # nicht im Sekundentakt.
+  <FilesMatch "^(robots\.txt|sitemap\.xml)$">
+    Header set Cache-Control "public, max-age=3600"
+  </FilesMatch>
+
+  # Bilder mit stabilen Pfaden (logo.png, leandro.jpg, …): 30 Tage.
+  # stale-while-revalidate: Nach Ablauf zeigt der Browser noch das alte
+  # Bild und holt die neue Version im Hintergrund — nie ein leeres Bild.
+  # Achtung: Wer z. B. das Logo unter gleichem Namen austauscht, muss bis
+  # zu 30 Tage warten, bis es alle Stammbesucher sehen. Bei eiligen
+  # Änderungen die Datei umbenennen (logo-2.png) und Verweise anpassen.
+  <FilesMatch "\.(png|jpe?g|webp|avif|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+  </FilesMatch>
+
+  # Lokal gehostete Schriften: ändern sich praktisch nie → 1 Jahr,
+  # "immutable" heißt: der Browser fragt nicht einmal nach.
+  # Bei einem Font-Wechsel die Datei zwingend umbenennen!
+  <FilesMatch "\.(woff2?|ttf|otf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Vite-Build-Assets: alles unter /assets/ trägt einen Content-Hash im
+  # Dateinamen (site-Bx3F9dQk.css). Ändert sich der Inhalt, ändert sich
+  # der Name — der alte Cache-Eintrag wird schlicht nie mehr angefragt.
+  # Deshalb: 1 Jahr, ohne jede Rückfrage.
+  SetEnvIf Request_URI "^/assets/" HASHED_ASSET
+  Header set Cache-Control "public, max-age=31536000, immutable" env=HASHED_ASSET
+</IfModule>
+
+# ---------- 3) Fallback über mod_expires ----------
+# Greift nur, falls mod_headers nicht verfügbar ist; die Werte spiegeln
+# die Regeln oben (ohne immutable/stale-while-revalidate, das kann
+# mod_expires nicht).
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+</IfModule>
