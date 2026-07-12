@@ -616,9 +616,9 @@ section{scroll-margin-top:88px}
 
 /* Artikel-/Fließtext */
 .prose{max-width:760px}
-.prose.center{margin-left:auto;margin-right:auto}
-/* Überschriften mittig, Fließtext bleibt für Lesbarkeit linksbündig */
-.prose.center h2,.prose.center h3{text-align:center}
+/* .center bleibt als Marker im Markup, richtet den Fließtext aber linksbündig
+   zum Seitenrand aus (bündig unter dem Seitenkopf) statt als mittige Spalte. */
+.prose.center{margin-left:0;margin-right:auto;text-align:left}
 .prose h2{font-size:clamp(1.55rem,3vw,2.05rem);font-weight:700;letter-spacing:-.025em;margin:46px 0 14px}
 .prose h2:first-child{margin-top:0}
 .prose h3{font-size:1.22rem;font-weight:700;margin:30px 0 10px}
