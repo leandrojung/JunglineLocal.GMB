@@ -440,14 +440,15 @@ section{scroll-margin-top:88px}
 /* ============ FOOTER ============ */
 .footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:64px 0 36px;margin-top:var(--sp);
   background:linear-gradient(180deg,transparent,rgba(6,12,8,.6))}
-.footer__top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:42px}
-.footer__claim{color:var(--dim);max-width:330px;margin-top:16px;font-size:.96rem;line-height:1.65}
+.footer__top{display:flex;flex-direction:column;align-items:center;text-align:center;gap:40px;margin-bottom:42px}
+.footer .brand{justify-content:center}
+.footer__claim{color:var(--dim);max-width:330px;margin:16px auto 0;font-size:.96rem;line-height:1.65}
 .footer__claim b{color:var(--green-bright);font-weight:600}
-.footer__cols{display:flex;gap:64px;flex-wrap:wrap}
+.footer__cols{display:flex;gap:64px;flex-wrap:wrap;justify-content:center}
 .fcol h4{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim-2);margin-bottom:16px;font-weight:600}
 .fcol a,.fcol span{display:block;color:var(--dim);font-size:.95rem;margin-bottom:10px;transition:color .2s}
 .fcol a:hover{color:var(--green-bright)}
-.footer__bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--border);
+.footer__bottom{display:flex;justify-content:center;text-align:center;gap:16px 32px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--border);
   color:var(--dim-2);font-size:.86rem}
 .footer__bottom a{color:var(--dim-2)}.footer__bottom a:hover{color:var(--green-bright)}
 
@@ -603,6 +604,12 @@ section{scroll-margin-top:88px}
 .pagehead .lead{font-size:1.16rem;color:var(--dim);max-width:660px;margin-bottom:26px}
 .pagehead .eyebrow{margin-bottom:2px}
 .pagehead .breadcrumb{margin-bottom:26px}
+/* zentrierte Variante: Kopfbereich mittig, kurze Elemente zentriert */
+.pagehead--center .breadcrumb{justify-content:center}
+.pagehead--center .pagehead__inner{margin:0 auto;text-align:center}
+.pagehead--center .eyebrow{justify-content:center}
+.pagehead--center .lead{margin-left:auto;margin-right:auto}
+.pagehead--center .cta-row{justify-content:center}
 
 /* etwas kompaktere Sektionsrhythmik auf Textseiten */
 .section--tight{padding:calc(var(--sp)*.58) 0}
@@ -610,6 +617,8 @@ section{scroll-margin-top:88px}
 /* Artikel-/Fließtext */
 .prose{max-width:760px}
 .prose.center{margin-left:auto;margin-right:auto}
+/* Überschriften mittig, Fließtext bleibt für Lesbarkeit linksbündig */
+.prose.center h2,.prose.center h3{text-align:center}
 .prose h2{font-size:clamp(1.55rem,3vw,2.05rem);font-weight:700;letter-spacing:-.025em;margin:46px 0 14px}
 .prose h2:first-child{margin-top:0}
 .prose h3{font-size:1.22rem;font-weight:700;margin:30px 0 10px}
@@ -657,8 +666,8 @@ section{scroll-margin-top:88px}
 /* "Passende Themen" — kompakte interne Verlinkung */
 .related{margin:40px auto 0;max-width:760px;padding:26px 28px;background:var(--card-2);border:1px solid var(--border);
   border-radius:var(--r);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
-.related__title{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim-2);font-weight:600;margin-bottom:14px}
-.related__list{display:flex;flex-wrap:wrap;gap:10px 14px}
+.related__title{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim-2);font-weight:600;margin-bottom:14px;text-align:center}
+.related__list{display:flex;flex-wrap:wrap;gap:10px 14px;justify-content:center}
 .related__list a{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border:1px solid var(--border);border-radius:999px;
   background:var(--card);color:var(--ink);font-size:.92rem;font-weight:500;transition:border-color .25s,color .25s,transform .25s}
 .related__list a:hover{border-color:var(--green);color:var(--green-bright);transform:translateY(-2px)}
@@ -678,7 +687,7 @@ section{scroll-margin-top:88px}
 @media(max-width:560px){.ctaband{padding:34px 22px}}
 
 /* Fakten-/Merkmal-Raster für Branchen- & Leistungsseiten */
-.factgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin:38px 0}
+.factgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin:38px auto;max-width:940px}
 .fact{background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border);border-radius:var(--r);
   padding:24px 26px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .fact h3{display:flex;align-items:center;gap:10px;font-size:1.08rem;font-weight:700;margin-bottom:8px}
