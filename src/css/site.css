@@ -597,8 +597,9 @@ section{scroll-margin-top:88px}
   transition:opacity .25s}
 .cur-ring{width:40px;height:40px;margin:-20px 0 0 -20px;display:flex;align-items:center;justify-content:center;
   mix-blend-mode:difference;transition:opacity .25s}
-.cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;
-  transition:transform .3s var(--ease-out),opacity .3s;will-change:transform}
+.cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;background:transparent;
+  transition:transform .3s var(--ease-out),opacity .3s,border-radius .32s var(--ease-out),background-color .3s,border-color .3s;
+  will-change:transform}
 .cur-ring__label{position:relative;color:#fff;font-size:.56rem;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;opacity:0;transition:opacity .25s;white-space:nowrap}
 .cur-ring__drag{position:absolute;color:#fff;opacity:0;transform:scale(.6);transition:opacity .25s,transform .3s var(--ease-out)}
@@ -607,7 +608,13 @@ section{scroll-margin-top:88px}
 .cur-ring[data-state="view"] .cur-ring__label{opacity:1}
 .cur-ring[data-state="drag"] .cur-ring__c{transform:scale(1.9)}
 .cur-ring[data-state="drag"] .cur-ring__drag{opacity:1;transform:scale(1)}
-.cur-ring[data-state="view"]~.cur-dot,.cur-ring[data-state="drag"]~.cur-dot{opacity:0}
+/* Signature-Moment: über dem primären CTA wird der Ring zum Map-Pin aus dem
+   Hero — derselbe, der dort von Platz 3 auf Platz 1 klettert. Eine einzelne,
+   ruhige Formänderung beim Betreten, kein Loop, sonst bleibt der Cursor
+   überall der schlichte Ring. */
+.cur-ring[data-state="pin"] .cur-ring__c{border-color:transparent;background-color:var(--green-bright);
+  border-radius:50% 50% 50% 0;transform:rotate(-45deg) scale(.68) translateY(-3px)}
+.cur-ring[data-state="view"]~.cur-dot,.cur-ring[data-state="drag"]~.cur-dot,.cur-ring[data-state="pin"]~.cur-dot{opacity:0}
 @media (hover:none),(pointer:coarse){.cur-dot,.cur-ring{display:none}}
 
 /* ============ RESPONSIVE ============ */

@@ -235,6 +235,7 @@
       if(t.closest('input,textarea,select,iframe,.cal-frame')){ setCurState('off'); return; }
       if(t.closest('.ba__stage')){ setCurState('drag'); return; }
       if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
+      if(t.closest('.btn--primary')){ setCurState('pin'); return; }
       if(t.closest('a,button,[role="button"]')){ setCurState('grow'); return; }
       setCurState('idle');
     });
