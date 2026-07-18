@@ -190,6 +190,68 @@
     setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
   }
 
+  // Vorher-Nachher-Slider: eine Pointer-Logik für Maus & Touch,
+  // zusätzlich per Pfeiltasten bedienbar (role="slider").
+  var baStage = document.getElementById('baStage');
+  if(baStage){
+    var baPos = 50;
+    var baSet = function(p){
+      baPos = Math.max(0, Math.min(100, p));
+      baStage.style.setProperty('--pos', baPos + '%');
+      baStage.setAttribute('aria-valuenow', String(Math.round(baPos)));
+      baStage.setAttribute('aria-valuetext', 'Regler bei ' + Math.round(baPos) + ' %');
+    };
+    baSet(50);
+    var baFromEvent = function(e){
+      var r = baStage.getBoundingClientRect();
+      return ((e.clientX - r.left) / r.width) * 100;
+    };
+    var baDrag = false, baRaf = null, baNext = 50;
+    var baQueue = function(p){
+      baNext = p;
+      if(!baRaf) baRaf = requestAnimationFrame(function(){ baSet(baNext); baRaf = null; });
+    };
+    baStage.addEventListener('pointerdown', function(e){
+      baDrag = true;
+      if(baStage.setPointerCapture){ try{ baStage.setPointerCapture(e.pointerId); }catch(_){} }
+      baQueue(baFromEvent(e));
+      e.preventDefault();
+    });
+    baStage.addEventListener('pointermove', function(e){ if(baDrag) baQueue(baFromEvent(e)); });
+    var baEnd = function(){ baDrag = false; };
+    baStage.addEventListener('pointerup', baEnd);
+    baStage.addEventListener('pointercancel', baEnd);
+    baStage.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ baSet(baPos - 5); e.preventDefault(); }
+      else if(e.key === 'ArrowRight' || e.key === 'ArrowUp'){ baSet(baPos + 5); e.preventDefault(); }
+      else if(e.key === 'Home'){ baSet(0); e.preventDefault(); }
+      else if(e.key === 'End'){ baSet(100); e.preventDefault(); }
+    });
+    // Beim ersten Sichtbarwerden wippt der Griff einmal kurz, damit klar
+    // ist, dass man ziehen kann. Danach hat der Nutzer die Kontrolle.
+    if(!reduce && 'IntersectionObserver' in window){
+      var baHinted = false;
+      var baIo = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting || baHinted) return;
+          baHinted = true; baIo.disconnect();
+          setTimeout(function(){
+            var t0 = null, dur = 1500;
+            var swing = function(ts){
+              if(baDrag) return;
+              if(!t0) t0 = ts;
+              var p = Math.min((ts - t0) / dur, 1);
+              baSet(50 + Math.sin(p * Math.PI * 2) * 12 * (1 - p));
+              if(p < 1) requestAnimationFrame(swing);
+            };
+            requestAnimationFrame(swing);
+          }, 600);
+        });
+      }, {threshold:.55});
+      baIo.observe(baStage);
+    }
+  }
+
   // FAQ accordion
   document.querySelectorAll('.faq__item').forEach(function(item){
     var q = item.querySelector('.faq__q');

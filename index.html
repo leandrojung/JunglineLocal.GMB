@@ -136,7 +136,87 @@
       <h2 class="section-title-grad">Wer im Kartenbereich oben steht, bekommt den Anruf.</h2>
       <p>Unsichtbar oder Platz 1: Dieser Unterschied entscheidet, wen Ihre Kunden anrufen.</p>
     </div>
-    <!-- Der ziehbare Vorher-Nachher-Slider wird hier eingesetzt (Phase 3) -->
+    <div class="ba-slider" data-reveal>
+      <div class="ba__stage" id="baStage" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+           aria-label="Vorher-Nachher-Vergleich: Regler ziehen, um das Google-Profil vor und nach der Optimierung zu sehen">
+        <!-- VORHER: unsichtbar, unvollständig -->
+        <div class="ba__side ba__side--before" aria-hidden="true">
+          <div class="bam">
+            <div class="bam__pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              Ihre Leistung · in Ihrer Stadt
+            </div>
+            <div class="bam__map bam__map--empty">
+              <svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path class="bam__road" d="M-10 24 Q 120 44 200 16 T 410 32"/>
+                <path class="bam__road" d="M40 106 Q 90 48 200 56 T 380 -8"/>
+                <path class="bam__road bam__road--thin" d="M-10 72 Q 150 56 250 76 T 410 64"/>
+              </svg>
+            </div>
+            <div class="bam__rows">
+              <div class="bam__row bam__row--ghost"><span class="bam__rank">1</span><span class="bam__lines"><i style="width:58%"></i><i style="width:34%"></i></span></div>
+              <div class="bam__row bam__row--ghost"><span class="bam__rank">2</span><span class="bam__lines"><i style="width:48%"></i><i style="width:28%"></i></span></div>
+              <div class="bam__row bam__row--ghost"><span class="bam__rank">3</span><span class="bam__lines"><i style="width:53%"></i><i style="width:38%"></i></span></div>
+              <div class="bam__dots">· · ·</div>
+              <div class="bam__row bam__row--missing">
+                <span class="bam__rank">?</span>
+                <span class="bam__body">
+                  <span class="bam__name">Ihr Unternehmen</span>
+                  <span class="bam__meta">Keine Bewertungen · Profil unvollständig</span>
+                </span>
+                <span class="bam__chip bam__chip--warn">Nicht sichtbar</span>
+              </div>
+            </div>
+          </div>
+          <span class="ba__label ba__label--before">Vorher</span>
+        </div>
+        <!-- NACHHER: Platz 1 im Local Pack -->
+        <div class="ba__side ba__side--after" aria-hidden="true">
+          <div class="bam">
+            <div class="bam__pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              Ihre Leistung · in Ihrer Stadt
+            </div>
+            <div class="bam__map">
+              <svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <path class="bam__road" d="M-10 24 Q 120 44 200 16 T 410 32"/>
+                <path class="bam__road" d="M40 106 Q 90 48 200 56 T 380 -8"/>
+                <path class="bam__road bam__road--thin" d="M-10 72 Q 150 56 250 76 T 410 64"/>
+              </svg>
+              <span class="bam__pin">
+                <svg width="24" height="31" viewBox="0 0 28 36" fill="none" aria-hidden="true">
+                  <path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#8FD4A6"/>
+                  <circle cx="14" cy="14" r="5.2" fill="#0A120D"/>
+                </svg>
+              </span>
+            </div>
+            <div class="bam__rows">
+              <div class="bam__row bam__row--you">
+                <span class="bam__rank bam__rank--you">1</span>
+                <span class="bam__body">
+                  <span class="bam__name">Ihr Unternehmen</span>
+                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,9 · <span class="bam__open">Jetzt geöffnet</span></span>
+                </span>
+                <span class="bam__chip bam__chip--top">▲ Platz 1</span>
+              </div>
+              <div class="bam__row bam__row--ghost"><span class="bam__rank">2</span><span class="bam__lines"><i style="width:58%"></i><i style="width:34%"></i></span></div>
+              <div class="bam__row bam__row--ghost"><span class="bam__rank">3</span><span class="bam__lines"><i style="width:48%"></i><i style="width:28%"></i></span></div>
+              <div class="bam__dots">· · ·</div>
+              <div class="bam__row bam__row--ghost"><span class="bam__rank"></span><span class="bam__lines"><i style="width:53%"></i><i style="width:38%"></i></span></div>
+            </div>
+          </div>
+          <span class="ba__label ba__label--after">Nachher</span>
+        </div>
+        <!-- Griff -->
+        <div class="ba__handle" aria-hidden="true">
+          <span class="ba__line"></span>
+          <span class="ba__grip">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>
+          </span>
+        </div>
+      </div>
+      <p class="ba__caption">Regler ziehen: links vorher, rechts nachher</p>
+    </div>
     <div class="ways" data-reveal>
       <div class="way">
         <span class="way__tag">Zufallsprinzip</span>
