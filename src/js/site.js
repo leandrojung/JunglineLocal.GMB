@@ -190,6 +190,38 @@
     setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
   }
 
+  // Scroll-Parallax für die Kapitel: Ebenen mit data-pd bewegen sich beim
+  // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
+  // Kapitel-Container (kein Feedback über die eigene Transformation),
+  // geschrieben wird nur transform, gedrosselt per requestAnimationFrame.
+  var chapterEls = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  if(chapterEls.length && !reduce){
+    var chapters = chapterEls.map(function(ch){
+      return {root: ch, layers: Array.prototype.slice.call(ch.querySelectorAll('[data-pd]')).map(function(el){
+        return {el: el, depth: parseFloat(el.getAttribute('data-pd')) || 0};
+      })};
+    });
+    var pRaf = null;
+    var applyParallax = function(){
+      pRaf = null;
+      var vh = window.innerHeight;
+      chapters.forEach(function(ch){
+        var r = ch.root.getBoundingClientRect();
+        if(r.bottom < -160 || r.top > vh + 160) return;
+        var c = r.top + r.height / 2 - vh / 2;
+        ch.layers.forEach(function(l){
+          var y = c * l.depth;
+          l.el.style.transform = (l.el.classList.contains('chapter__glow') ? 'translateY(-50%) ' : '') +
+            'translate3d(0,' + y.toFixed(1) + 'px,0)';
+        });
+      });
+    };
+    var queueParallax = function(){ if(!pRaf) pRaf = requestAnimationFrame(applyParallax); };
+    window.addEventListener('scroll', queueParallax, {passive:true});
+    window.addEventListener('resize', queueParallax, {passive:true});
+    queueParallax();
+  }
+
   // Vorher-Nachher-Slider: eine Pointer-Logik für Maus & Touch,
   // zusätzlich per Pfeiltasten bedienbar (role="slider").
   var baStage = document.getElementById('baStage');
