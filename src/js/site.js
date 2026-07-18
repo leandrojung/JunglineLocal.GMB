@@ -97,9 +97,12 @@
       };
       splitWords(h1);
     }
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      document.querySelector('.hero').classList.add('hero-live');
-    }); });
+    var heroEl = document.querySelector('.hero');
+    if(heroEl){
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        heroEl.classList.add('hero-live');
+      }); });
+    }
   }
 
   // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
@@ -149,7 +152,7 @@
   // premium pointer micro-interactions (fine pointer + motion ok)
   if(finePointer && !reduce){
     // cursor-following spotlight on cards & panels
-    document.querySelectorAll('.ccard, .step, .panel').forEach(function(el){
+    document.querySelectorAll('.panel, .linkcard').forEach(function(el){
       el.addEventListener('mousemove', function(e){
         var r = el.getBoundingClientRect();
         el.style.setProperty('--sx', ((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
@@ -170,24 +173,26 @@
     });
   }
 
-  // ranking climb animation
-  var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
+  // ranking climb animation (nur Startseite — Unterseiten haben keine Rankcard)
   var you = document.getElementById('you');
-  var youRank = document.getElementById('youRank');
-  function getRow(){ return window.matchMedia('(max-width:560px)').matches ? 77 : 70; }
-  function place(order){ var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); }
-  var youIdx = rows.indexOf(you);
-  var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
-  var bottomOrder = others.concat([youIdx]);
-  var topOrder = [youIdx].concat(others);
+  if(you){
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
+    var youRank = document.getElementById('youRank');
+    var getRow = function(){ return window.matchMedia('(max-width:560px)').matches ? 77 : 70; };
+    var place = function(order){ var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); };
+    var youIdx = rows.indexOf(you);
+    var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
+    var bottomOrder = others.concat([youIdx]);
+    var topOrder = [youIdx].concat(others);
 
-  // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
-  // ruhige, selbstbewusste Erzählung statt Endlosschleife.
-  if(reduce){
-    place(topOrder); you.classList.add('is-top'); youRank.textContent='1';
-  } else {
-    place(bottomOrder);
-    setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
+    // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
+    // ruhige, selbstbewusste Erzählung statt Endlosschleife.
+    if(reduce){
+      place(topOrder); you.classList.add('is-top'); youRank.textContent='1';
+    } else {
+      place(bottomOrder);
+      setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
+    }
   }
 
   // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
@@ -413,7 +418,7 @@
     statusEl.className = 'form-status show form-status--' + kind;
     statusEl.innerHTML = html;
   }
-  form.addEventListener('submit', function(ev){
+  if(form) form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var name = (document.getElementById('cf-name').value||'').trim();
     var mail = (document.getElementById('cf-mail').value||'').trim();
