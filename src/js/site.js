@@ -22,6 +22,31 @@
 })();
 
 (function(){
+  // Localo-Ranking-Widget genau wie Calendly erst laden, wenn es in
+  // Sichtweite kommt — spart auf der Startseite ein komplettes
+  // Drittanbieter-Skript beim ersten Laden (Tool sitzt direkt unterm Hero).
+  var tool = document.getElementById('free-tool');
+  if(!tool) return;
+  var loaded = false;
+  var load = function(){
+    if(loaded) return;
+    loaded = true;
+    var s = document.createElement('script');
+    s.src = 'https://jstools.localo.app/scripts/freetool.js';
+    s.async = true;
+    document.body.appendChild(s);
+  };
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
+    }, {rootMargin:'600px'});
+    io.observe(tool);
+  } else {
+    load();
+  }
+})();
+
+(function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // year
@@ -71,8 +96,10 @@
   document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
 
   // hero entrance: word-by-word rise (skipped bei reduced motion — dann ist alles sofort sichtbar)
+  // .js-Klasse selbst sitzt als winziges Inline-Script in head.html (vor dem
+  // ersten Paint), damit Hero-Text nie erst sichtbar aufblitzt und dann durch
+  // die Reveal-Regeln verschwindet (das kostete sonst LCP und CLS).
   if(!reduce){
-    document.documentElement.classList.add('js');
     var h1 = document.getElementById('heroTitle');
     if(h1){
       var wi = 0;
@@ -213,17 +240,24 @@
     document.body.appendChild(curRing);
     document.body.appendChild(curDot);
     var curLabel = curRing.querySelector('.cur-ring__label');
-    var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false;
-    window.addEventListener('mousemove', function(e){
-      cx = e.clientX; cy = e.clientY;
-      if(!curSeen){ curSeen = true; rx = cx; ry = cy; document.documentElement.classList.add('cursor-seen'); }
-    }, {passive:true});
-    (function curLoop(){
+    var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false, curLoopRunning = false;
+    var curLoop = function(){
       rx += (cx - rx) * 0.15; ry += (cy - ry) * 0.15;
       curDot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
       curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)';
       requestAnimationFrame(curLoop);
-    })();
+    };
+    // Loop erst starten, wenn sich die Maus tatsächlich bewegt hat — sonst
+    // läuft die Animation (rAF + Style-Writes) schon während des Seitenladens
+    // dauerhaft mit, ganz ohne dass ein Cursor je sichtbar ist.
+    window.addEventListener('mousemove', function(e){
+      cx = e.clientX; cy = e.clientY;
+      if(!curSeen){
+        curSeen = true; rx = cx; ry = cy;
+        document.documentElement.classList.add('cursor-seen');
+      }
+      if(!curLoopRunning){ curLoopRunning = true; curLoop(); }
+    }, {passive:true});
     var setCurState = function(state, labelText){
       document.documentElement.classList.toggle('cursor-off', state === 'off');
       curRing.setAttribute('data-state', state);
