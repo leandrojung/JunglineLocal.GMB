@@ -102,14 +102,14 @@
     }); });
   }
 
-  // stat count-up
+  // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
+  // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
   var counts = document.querySelectorAll('.count');
-  if(counts.length){
+  if(counts.length && !reduce && 'IntersectionObserver' in window){
     var fmtCount = function(v, dec){ return dec ? v.toFixed(dec).replace('.', ',') : String(Math.round(v)); };
     var runCount = function(el){
       var target = parseFloat(el.getAttribute('data-count')) || 0;
       var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
-      if(reduce){ el.textContent = fmtCount(target, dec); return; }
       var start = null, dur = 1400;
       var tick = function(ts){
         if(!start) start = ts;
@@ -122,7 +122,10 @@
     var cio = new IntersectionObserver(function(entries){
       entries.forEach(function(e){ if(e.isIntersecting){ runCount(e.target); cio.unobserve(e.target); } });
     }, {threshold:.5});
-    counts.forEach(function(el){ cio.observe(el); });
+    counts.forEach(function(el){
+      el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
+      cio.observe(el);
+    });
   }
 
   // hero parallax + rankcard tilt (fine pointer only)
