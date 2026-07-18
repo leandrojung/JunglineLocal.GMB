@@ -181,16 +181,13 @@
   var bottomOrder = others.concat([youIdx]);
   var topOrder = [youIdx].concat(others);
 
+  // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
+  // ruhige, selbstbewusste Erzählung statt Endlosschleife.
   if(reduce){
     place(topOrder); you.classList.add('is-top'); youRank.textContent='1';
   } else {
     place(bottomOrder);
-    var cycle = function(){
-      setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1100);
-      setTimeout(function(){ place(bottomOrder); you.classList.remove('is-top'); youRank.textContent='15'; }, 6200);
-    };
-    cycle();
-    setInterval(cycle, 8400);
+    setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
   }
 
   // FAQ accordion
