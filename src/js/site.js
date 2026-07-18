@@ -190,6 +190,53 @@
     setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
   }
 
+  // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
+  // Nur auf Geräten mit feinem Zeiger und ohne reduced motion — auf Touch
+  // existiert er gar nicht (keine DOM-Knoten, keine Listener).
+  if(finePointer && !reduce){
+    document.documentElement.classList.add('has-cursor');
+    var curDot = document.createElement('div');
+    curDot.className = 'cur-dot';
+    var curRing = document.createElement('div');
+    curRing.className = 'cur-ring';
+    curRing.innerHTML = '<span class="cur-ring__c"></span><span class="cur-ring__label"></span>' +
+      '<svg class="cur-ring__drag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
+    curDot.setAttribute('aria-hidden', 'true');
+    curRing.setAttribute('aria-hidden', 'true');
+    // Ring vor dem Punkt einhängen: das CSS blendet den Punkt über den
+    // Folge-Geschwister-Selektor aus, wenn der Ring ein Label/Griff zeigt.
+    document.body.appendChild(curRing);
+    document.body.appendChild(curDot);
+    var curLabel = curRing.querySelector('.cur-ring__label');
+    var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false;
+    window.addEventListener('mousemove', function(e){
+      cx = e.clientX; cy = e.clientY;
+      if(!curSeen){ curSeen = true; rx = cx; ry = cy; document.documentElement.classList.add('cursor-seen'); }
+    }, {passive:true});
+    (function curLoop(){
+      rx += (cx - rx) * 0.15; ry += (cy - ry) * 0.15;
+      curDot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+      curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)';
+      requestAnimationFrame(curLoop);
+    })();
+    var setCurState = function(state, labelText){
+      document.documentElement.classList.toggle('cursor-off', state === 'off');
+      curRing.setAttribute('data-state', state);
+      curLabel.textContent = labelText || '';
+    };
+    document.addEventListener('mouseover', function(e){
+      var t = e.target;
+      if(!(t instanceof Element)) return;
+      if(t.closest('input,textarea,select,iframe,.cal-frame')){ setCurState('off'); return; }
+      if(t.closest('.ba__stage')){ setCurState('drag'); return; }
+      if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
+      if(t.closest('a,button,[role="button"]')){ setCurState('grow'); return; }
+      setCurState('idle');
+    });
+    document.addEventListener('mouseleave', function(){ document.documentElement.classList.add('cursor-off'); });
+    document.addEventListener('mouseenter', function(){ document.documentElement.classList.remove('cursor-off'); });
+  }
+
   // Scroll-Parallax für die Kapitel: Ebenen mit data-pd bewegen sich beim
   // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
   // Kapitel-Container (kein Feedback über die eigene Transformation),
@@ -282,6 +329,28 @@
       }, {threshold:.55});
       baIo.observe(baStage);
     }
+  }
+
+  // Punkt-Indikatoren für die swipebare Baustein-Reihe (nur Mobile sichtbar)
+  var svcRow = document.querySelector('.services__grid');
+  var svcDots = document.getElementById('svcDots');
+  if(svcRow && svcDots){
+    var svcCards = svcRow.querySelectorAll('.svc');
+    svcCards.forEach(function(){ svcDots.appendChild(document.createElement('i')); });
+    var dotEls = svcDots.children;
+    var svcRaf = null;
+    var svcUpdate = function(){
+      svcRaf = null;
+      var mid = svcRow.scrollLeft + svcRow.clientWidth / 2;
+      var best = 0, bestDist = Infinity;
+      svcCards.forEach(function(card, i){
+        var d = Math.abs(card.offsetLeft + card.offsetWidth / 2 - mid);
+        if(d < bestDist){ bestDist = d; best = i; }
+      });
+      for(var i = 0; i < dotEls.length; i++) dotEls[i].classList.toggle('on', i === best);
+    };
+    svcRow.addEventListener('scroll', function(){ if(!svcRaf) svcRaf = requestAnimationFrame(svcUpdate); }, {passive:true});
+    svcUpdate();
   }
 
   // FAQ accordion

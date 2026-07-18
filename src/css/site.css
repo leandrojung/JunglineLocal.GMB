@@ -619,6 +619,20 @@ section{scroll-margin-top:88px}
 .svc p{color:var(--dim);font-size:.94rem;line-height:1.65}
 .svc:hover .svc__idx{opacity:1}
 .svc:hover h3{color:var(--green-bright)}
+/* Mobile: Bausteine als swipebare Karten-Reihe mit Scroll-Snap */
+.snapdots{display:none}
+@media(max-width:700px){
+  .services__grid{display:flex;overflow-x:auto;gap:12px;margin-top:34px;max-width:none;
+    border-bottom:0;padding:4px 2px 16px;scroll-snap-type:x mandatory;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .services__grid::-webkit-scrollbar{display:none}
+  .svc{flex:0 0 min(76%,300px);scroll-snap-align:center;border:1px solid var(--border);border-radius:var(--r);
+    padding:22px 20px;background:var(--card-2);grid-template-columns:38px 1fr;gap:12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+  .snapdots{display:flex;justify-content:center;gap:7px;margin-top:2px}
+  .snapdots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.16);transition:background .3s,transform .3s}
+  .snapdots i.on{background:var(--green-bright);transform:scale(1.25)}
+}
 .services__note{display:flex;align-items:flex-start;gap:14px;max-width:760px;margin:36px auto 0;padding:20px 24px;
   background:var(--card-2);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(8px);
   color:var(--dim);font-size:.95rem;line-height:1.65;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
@@ -663,6 +677,35 @@ section{scroll-margin-top:88px}
 @media(max-width:960px){.mcta{display:flex}}
 
 ::selection{background:rgba(111,179,135,.35);color:var(--ink)}
+
+/* ============ CUSTOM CURSOR (nur pointer:fine, JS setzt .has-cursor) ============ */
+@media (hover:hover) and (pointer:fine){
+  html.has-cursor.cursor-seen body{cursor:none}
+  html.has-cursor.cursor-seen a,
+  html.has-cursor.cursor-seen button,
+  html.has-cursor.cursor-seen [role="button"],
+  html.has-cursor.cursor-seen .ba__stage{cursor:none}
+  html.has-cursor input,html.has-cursor textarea,html.has-cursor select{cursor:auto}
+}
+.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0}
+.cursor-seen .cur-dot,.cursor-seen .cur-ring{opacity:1}
+.cursor-off .cur-dot,.cursor-off .cur-ring{opacity:0}
+.cur-dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;mix-blend-mode:difference;
+  transition:opacity .25s}
+.cur-ring{width:40px;height:40px;margin:-20px 0 0 -20px;display:flex;align-items:center;justify-content:center;
+  mix-blend-mode:difference;transition:opacity .25s}
+.cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;
+  transition:transform .3s var(--ease-out),opacity .3s;will-change:transform}
+.cur-ring__label{position:relative;color:#fff;font-size:.56rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;opacity:0;transition:opacity .25s;white-space:nowrap}
+.cur-ring__drag{position:absolute;color:#fff;opacity:0;transform:scale(.6);transition:opacity .25s,transform .3s var(--ease-out)}
+.cur-ring[data-state="grow"] .cur-ring__c{transform:scale(1.5)}
+.cur-ring[data-state="view"] .cur-ring__c{transform:scale(2.1)}
+.cur-ring[data-state="view"] .cur-ring__label{opacity:1}
+.cur-ring[data-state="drag"] .cur-ring__c{transform:scale(1.9)}
+.cur-ring[data-state="drag"] .cur-ring__drag{opacity:1;transform:scale(1)}
+.cur-ring[data-state="view"]~.cur-dot,.cur-ring[data-state="drag"]~.cur-dot{opacity:0}
+@media (hover:none),(pointer:coarse){.cur-dot,.cur-ring{display:none}}
 
 /* ============ RESPONSIVE ============ */
 @media(max-width:960px){
@@ -801,6 +844,15 @@ section{scroll-margin-top:88px}
   background:var(--card);color:var(--ink);font-size:.92rem;font-weight:500;transition:border-color .25s,color .25s,transform .25s}
 .related__list a:hover{border-color:var(--green);color:var(--green-bright);transform:translateY(-2px)}
 .related__list svg{flex:none;color:var(--green-bright)}
+/* Mobile: Branchen-Chips als swipebare Snap-Reihe mit Rand-Fade */
+@media(max-width:700px){
+  .related__list{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+    scroll-snap-type:x proximity;padding:2px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+  .related__list::-webkit-scrollbar{display:none}
+  .related__list a{flex:0 0 auto;scroll-snap-align:start;padding:12px 18px;min-height:44px}
+}
 
 /* CTA-Band (Abschluss jeder Unterseite) */
 .ctaband{position:relative;overflow:hidden;margin:0 auto;max-width:900px;border:1px solid var(--green);border-radius:var(--r-lg);
