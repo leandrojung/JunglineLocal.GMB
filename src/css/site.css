@@ -603,7 +603,7 @@ section{scroll-margin-top:88px}
 .cursor-off .cur-dot,.cursor-off .cur-ring{opacity:0}
 .cur-dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;mix-blend-mode:difference;
   transition:opacity .25s}
-.cur-ring{width:40px;height:40px;margin:-20px 0 0 -20px;display:flex;align-items:center;justify-content:center;
+.cur-ring{width:28px;height:28px;margin:-14px 0 0 -14px;display:flex;align-items:center;justify-content:center;
   mix-blend-mode:difference;transition:opacity .25s}
 .cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;background:transparent;
   transition:transform .3s var(--ease-out),opacity .3s,border-radius .32s var(--ease-out),background-color .3s,border-color .3s;

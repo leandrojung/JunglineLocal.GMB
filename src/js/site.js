@@ -235,16 +235,35 @@
       '<svg class="cur-ring__drag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
     curDot.setAttribute('aria-hidden', 'true');
     curRing.setAttribute('aria-hidden', 'true');
+    curRing.setAttribute('data-cursor', 'elastic');
     // Ring vor dem Punkt einhängen: das CSS blendet den Punkt über den
     // Folge-Geschwister-Selektor aus, wenn der Ring ein Label/Griff zeigt.
     document.body.appendChild(curRing);
     document.body.appendChild(curDot);
     var curLabel = curRing.querySelector('.cur-ring__label');
     var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false, curLoopRunning = false;
+    // Elastic-Dehnung: der Ring hinkt der Zielposition per Lerp hinterher —
+    // der dabei entstehende Rückstand (dx/dy) ist proportional zur
+    // Bewegungsgeschwindigkeit und liefert Länge + Richtung der Dehnung.
+    // Rotate → stretchen → zurückrotieren dehnt exakt entlang der
+    // Bewegungsrichtung, unabhängig vom Winkel (klassischer Gummiband-Trick).
     var curLoop = function(){
-      rx += (cx - rx) * 0.15; ry += (cy - ry) * 0.15;
+      var dx = cx - rx, dy = cy - ry;
+      rx += dx * 0.15; ry += dy * 0.15;
       curDot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
-      curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)';
+      var state = curRing.getAttribute('data-state');
+      var stretchOk = state !== 'pin' && state !== 'drag' && state !== 'view';
+      var stretchTf = '';
+      if(stretchOk){
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var stretch = Math.min(1 + dist * 0.012, 1.3);
+        if(stretch > 1.01){
+          var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+          var squeeze = 1 / Math.sqrt(stretch);
+          stretchTf = ' rotate(' + angle.toFixed(1) + 'deg) scale(' + stretch.toFixed(3) + ',' + squeeze.toFixed(3) + ') rotate(' + (-angle).toFixed(1) + 'deg)';
+        }
+      }
+      curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)' + stretchTf;
       requestAnimationFrame(curLoop);
     };
     // Loop erst starten, wenn sich die Maus tatsächlich bewegt hat — sonst
