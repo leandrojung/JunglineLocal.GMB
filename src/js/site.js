@@ -95,56 +95,105 @@
   }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
   document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
 
-  // hero entrance: word-by-word rise (skipped bei reduced motion — dann ist alles sofort sichtbar)
-  // .js-Klasse selbst sitzt als winziges Inline-Script in head.html (vor dem
-  // ersten Paint), damit Hero-Text nie erst sichtbar aufblitzt und dann durch
-  // die Reveal-Regeln verschwindet (das kostete sonst LCP und CLS).
+  // hero entrance: Schreibmaschinen-Effekt (skipped bei reduced motion — dann
+  // ist alles sofort als vollständiger Text sichtbar). Die .js-Klasse sitzt als
+  // winziges Inline-Script in head.html (vor dem ersten Paint), damit Hero-Text
+  // nie erst aufblitzt und dann durch die Reveal-Regeln verschwindet.
+  var mkCursor = function(){
+    var c = document.createElement('span');
+    c.className = 'lead__cursor';
+    c.setAttribute('aria-hidden', 'true');
+    return c;
+  };
+
   if(!reduce){
+    // ---- Headline: einmaliger Schreibmaschinen-Effekt --------------------
+    // Tippt erst den normalen Teil, dann den grün hervorgehobenen (.hl) und
+    // hält danach an (kein Loop). Der volle Satz steht als aria-label, damit
+    // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
+    // bekommen.
     var h1 = document.getElementById('heroTitle');
+    var startLead;
+
+    var runLead = function(){ if(startLead) startLead(); };
+
     if(h1){
-      var wi = 0;
-      var splitWords = function(node){
-        Array.prototype.slice.call(node.childNodes).forEach(function(child){
-          if(child.nodeType === 3){
-            var frag = document.createDocumentFragment();
-            child.textContent.split(/(\s+)/).forEach(function(part){
-              if(!part) return;
-              if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); return; }
-              var w = document.createElement('span');
-              w.className = 'w';
-              w.style.setProperty('--wd', (wi++ * 0.05 + 0.1).toFixed(2) + 's');
-              w.textContent = part;
-              frag.appendChild(w);
-            });
-            node.replaceChild(frag, child);
-          } else if(child.nodeType === 1){
-            splitWords(child);
-          }
+      var hlEl = h1.querySelector('.hl');
+      var hlText = hlEl ? hlEl.textContent : '';
+      var plainStr = (h1.firstChild && h1.firstChild.nodeType === 3) ? h1.firstChild.textContent : h1.textContent;
+      if(hlEl){
+        // nur den reinen Textanteil vor dem .hl übernehmen
+        plainStr = '';
+        Array.prototype.slice.call(h1.childNodes).forEach(function(n){
+          if(n === hlEl) return;
+          if(n.nodeType === 3) plainStr += n.textContent;
         });
+      }
+      h1.textContent = '';
+      var plainSpan = document.createElement('span');
+      var hlSpan = document.createElement('span');
+      hlSpan.className = 'hl';
+      var hCursor = mkCursor();
+      h1.appendChild(plainSpan);
+      h1.appendChild(hlSpan);
+      h1.appendChild(hCursor);
+
+      var segs = [{el: plainSpan, text: plainStr}, {el: hlSpan, text: hlText}];
+      var si = 0, sc = 0;
+      var typeHead = function(){
+        if(si >= segs.length){ hCursor.classList.add('done'); runLead(); return; }
+        var seg = segs[si];
+        if(sc >= seg.text.length){ si++; sc = 0; typeHead(); return; }
+        seg.el.textContent += seg.text.charAt(sc);
+        sc++;
+        setTimeout(typeHead, 42);
       };
-      splitWords(h1);
+      setTimeout(typeHead, 260);
     }
 
-    // Lead-Text: Schreibmaschinen-Effekt, läuft bei jedem Seitenaufruf/Reload
-    // neu (kein Session-Flag). Der volle Satz steht als aria-label an der <p>,
-    // damit Screenreader nicht mitten im Tippen nur ein Satzfragment bekommen.
+    // ---- Lead: rotierender Schreibmaschinen-Effekt (Endlos-Loop) ---------
+    // Fester Anfang bleibt stehen, nur der Satz-Abschluss wird getippt,
+    // wieder gelöscht und durch den nächsten ersetzt. Der Screenreader-Satz
+    // steht komplett als aria-label an der <p>. Das DOM wird sofort auf den
+    // festen Anfang gesetzt (kein Aufblitzen des vollen Fallback-Satzes),
+    // der Tipp-Loop startet aber erst, wenn die Headline durchgelaufen ist.
     var lead = document.getElementById('heroLead');
     if(lead){
-      var full = lead.textContent;
+      var prefix = 'Ich optimiere Ihr Google-Profil, damit Sie ';
+      var phrases = [
+        'im Kartenbereich ganz oben stehen.',
+        'mehr Umsatz generieren.',
+        'mehr Aufmerksamkeit erregen.'
+      ];
       lead.textContent = '';
-      var cursor = document.createElement('span');
-      cursor.className = 'lead__cursor';
-      cursor.setAttribute('aria-hidden', 'true');
-      lead.appendChild(cursor);
-      var ci = 0;
-      var typeChar = function(){
-        if(ci >= full.length){ cursor.classList.add('done'); return; }
-        cursor.insertAdjacentText('beforebegin', full.charAt(ci));
-        ci++;
-        setTimeout(typeChar, 20);
+      var staticEl = document.createElement('span');
+      staticEl.textContent = prefix;
+      var rotateEl = document.createElement('span');
+      var leadCursor = mkCursor();
+      lead.appendChild(staticEl);
+      lead.appendChild(rotateEl);
+      lead.appendChild(leadCursor);
+
+      var pi = 0, pc = 0, deleting = false;
+      var tick = function(){
+        var phrase = phrases[pi];
+        if(!deleting){
+          pc++;
+          rotateEl.textContent = phrase.slice(0, pc);
+          if(pc >= phrase.length){ deleting = true; setTimeout(tick, 1700); return; }
+          setTimeout(tick, 38);
+        } else {
+          pc--;
+          rotateEl.textContent = phrase.slice(0, pc);
+          if(pc <= 0){ deleting = false; pi = (pi + 1) % phrases.length; setTimeout(tick, 340); return; }
+          setTimeout(tick, 20);
+        }
       };
-      setTimeout(typeChar, 650);
+      startLead = function(){ setTimeout(tick, 400); };
     }
+
+    // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.
+    if(!h1) runLead();
 
     var heroEl = document.querySelector('.hero');
     if(heroEl){
