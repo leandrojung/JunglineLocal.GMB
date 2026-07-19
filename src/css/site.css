@@ -363,7 +363,7 @@ section{scroll-margin-top:88px}
 .chapter:nth-child(even) .chapter__body{order:1}
 .chapter__num{line-height:1;will-change:transform}
 .chapter__num span{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
-  font-size:clamp(5.4rem,13vw,9.5rem);letter-spacing:-.05em;line-height:.9;
+  font-size:clamp(5.4rem,13vw,9.5rem);letter-spacing:-.05em;line-height:.9;padding-right:.15em;
   background:linear-gradient(160deg,rgba(143,212,166,.55),rgba(143,212,166,.05) 85%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .chapter__body h3{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:700;margin-bottom:12px;letter-spacing:-.02em}
