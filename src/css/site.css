@@ -907,10 +907,22 @@ section{scroll-margin-top:88px}
   color:var(--ink);background:rgba(255,255,255,.03);border:1px solid var(--border-strong);border-radius:999px;
   padding:9px 18px;cursor:default}
 
+/* Chip-Reihe (z. B. mehrere Kategorien/Rechtsgebiete/Attribute) */
+.chiprow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+
 /* Vollständigkeits-/Fortschrittsbalken */
 .progress-bar{display:flex;gap:6px}
 .progress-bar i{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.07);display:block}
 .progress-bar i.on{background:linear-gradient(90deg,var(--green),var(--green-bright))}
+
+/* Vorher-Nachher-Sichtbarkeitsbalken (kompakt, für Branchenseiten) */
+.beforeafter{display:flex;flex-direction:column;gap:14px}
+.ba-row{display:flex;align-items:center;gap:12px}
+.ba-row__label{width:64px;flex:none;font-size:.72rem;color:var(--dim-2);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.ba-row__track{flex:1;height:14px;border-radius:7px;background:rgba(255,255,255,.06);overflow:hidden}
+.ba-row__fill{height:100%;border-radius:7px;background:rgba(255,255,255,.16)}
+.ba-row--after .ba-row__fill{background:linear-gradient(90deg,var(--green),var(--green-bright))}
+.ba-row--after .ba-row__label{color:var(--green-bright)}
 
 /* Mini-Ablauf-Kette (z. B. Anruf → Antwort → Auftrag) */
 .flow-strip{display:flex;align-items:flex-start;justify-content:center;gap:8px}
