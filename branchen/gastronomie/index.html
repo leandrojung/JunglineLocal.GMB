@@ -100,6 +100,7 @@
 
 <!--NAV-->
 
+<main id="main">
 <span id="top"></span>
 
 <section class="pagehead pagehead--center">
@@ -124,27 +125,67 @@
 
 <section class="section section--tight">
   <div class="container">
-    <div class="prose center" data-reveal>
-      <p class="lead">In kaum einer Branche entscheidet Google so unmittelbar über den Umsatz wie in der Gastronomie. Hungrige Menschen suchen spontan, oft von unterwegs — und wählen aus dem, was ihnen die Karte zeigt. Appetitliche Fotos, gute Bewertungen und korrekte Öffnungszeiten sind hier bares Geld.</p>
-      <p>Gastronomie ist extrem <strong>visuell und lokal</strong> — beides spielt dem Google-Unternehmensprofil in die Karten. Doch genau hier passieren die teuersten Fehler: falsche Feiertagszeiten, veraltete Speisekarten, fehlende Fotos.</p>
-      <p>Ein optimiertes Profil verwandelt spontane Sucher in Gäste — ohne Provision an ein Lieferportal.</p>
-      <h2>Ihre wichtigsten Stellschrauben</h2>
+    <div class="prose-illu" data-reveal>
+      <div class="prose-illu__text">
+        <p class="lead">In kaum einer Branche entscheidet Google so unmittelbar über den Umsatz wie in der Gastronomie. Hungrige Menschen suchen spontan, oft von unterwegs — und wählen aus dem, was ihnen die Karte zeigt.</p>
+        <p>Gastronomie ist extrem <strong>visuell und lokal</strong>. Doch genau hier passieren die teuersten Fehler: falsche Feiertagszeiten, veraltete Speisekarten, fehlende Fotos. Ein optimiertes Profil verwandelt spontane Sucher in Gäste — ohne Provision an ein Lieferportal.</p>
+      </div>
+      <div class="illu illu-profilcard" role="img" aria-label="Mockup eines Restaurant-Profils: geöffnet, Sterne, Fotos und Aktionsbutton">
+        <div class="profcard" aria-hidden="true">
+          <div class="profcard__top"><span class="profcard__badge">Geöffnet</span><span class="profcard__cat">Ihre Küche</span></div>
+          <div class="profcard__stars"><span class="stars">★★★★★</span><span class="profcard__count">112 Bewertungen</span></div>
+          <div class="profcard__photos"><i></i><i></i><i></i></div>
+          <div class="profcard__row"><span class="profcard__attr">Außensitzplätze</span><span class="profcard__attr">Vegetarisch</span></div>
+          <button class="profcard__btn" type="button" tabindex="-1" aria-hidden="true">Tisch reservieren</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="head-block center" data-reveal>
+      <h2 class="section-title-grad">Ihre wichtigsten Stellschrauben</h2>
       <p>In der Gastronomie zahlen diese Punkte am schnellsten auf volle Tische ein:</p>
     </div>
-    <div class="factgrid" data-reveal>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Fotos, die Appetit machen</h3><p>Gerichte, Ambiente, Terrasse, Team — hochwertige Bilder sind der stärkste Hebel. Menschen essen mit den Augen, und Google zeigt Fotos prominent an.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Öffnungszeiten & Feiertage</h3><p>Korrekte reguläre und besondere Öffnungszeiten. Nichts kostet mehr Gäste als „geöffnet", wenn geschlossen ist — oder umgekehrt.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg> Speisekarte & Reservierung</h3><p>Aktuelle Speisekarte hinterlegt und, wo möglich, ein Reservierungs- oder Bestellweg verlinkt. Weniger Hürden bedeuten mehr Gäste.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg> Attribute & Küche</h3><p>Küchenrichtung, „vegetarisch", „Außensitzplätze", „hundefreundlich" und Co. sauber gepflegt — damit Sie bei gezielten Suchen auftauchen.</p></div>
+    <div class="step-path" data-reveal>
+      <svg class="step-path__line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M50,0 C64,12 64,20 50,28 C36,36 36,44 50,52 C64,60 64,68 50,76 C36,84 36,92 50,100"/>
+      </svg>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="step-path__num">1</span></div></div>
+        <div class="step-path__body"><h3>Fotos, die Appetit machen</h3><p>Gerichte, Ambiente, Terrasse, Team — hochwertige Bilder sind der stärkste Hebel. Menschen essen mit den Augen, Google zeigt Fotos prominent an.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="step-path__num">2</span></div></div>
+        <div class="step-path__body"><h3>Öffnungszeiten & Feiertage</h3><p>Korrekte reguläre und besondere Öffnungszeiten — nichts kostet mehr Gäste als „geöffnet", wenn geschlossen ist.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="step-path__num">3</span></div></div>
+        <div class="step-path__body"><h3>Speisekarte & Reservierung</h3><p>Aktuelle Speisekarte hinterlegt und, wo möglich, ein Reservierungs- oder Bestellweg verlinkt — weniger Hürden bedeuten mehr Gäste.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span class="step-path__num">4</span></div></div>
+        <div class="step-path__body"><h3>Attribute & Küche</h3><p>Küchenrichtung, „vegetarisch", „Außensitzplätze", „hundefreundlich" und Co. sauber gepflegt — damit Sie bei gezielten Suchen auftauchen.</p></div>
+      </div>
     </div>
+
     <div class="prose center" data-reveal>
       <h2>Fotos und Bewertungen entscheiden die Wahl</h2>
-      <p>Wenn drei Restaurants im Local Pack stehen, gibt oft das Bauchgefühl den Ausschlag — und das entsteht aus Fotos und Bewertungen. Ein Profil mit aktuellen, appetitlichen Bildern und vielen echten, gut beantworteten Bewertungen wirkt einladend und lebendig. Ein Profil mit einem unscharfen Handyfoto von 2019 wirkt verlassen, egal wie gut die Küche ist.</p>
-      <p>Deshalb gehört zur Optimierung nicht nur die Technik, sondern auch ein Plan: regelmäßig frische Fotos, ein einfacher Weg für Gäste, nach dem Besuch eine Bewertung zu hinterlassen, und professionelle Antworten — auch auf kritische Stimmen. Bewertungen werden dabei nie gekauft; das verstößt gegen die Richtlinien und das Wettbewerbsrecht und fliegt früher oder später auf.</p>
-      <p>Wichtig bleibt die ehrliche Erwartung: Ein starkes Profil bringt mehr Sichtbarkeit und Gäste, ersetzt aber keine gute Küche. Wie Sie mehr Bewertungen gewinnen, zeigt der <a href="/ratgeber/mehr-google-bewertungen-bekommen/">Bewertungs-Ratgeber</a>; alle Leistungen finden Sie unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
+      <p>Wenn drei Restaurants im Local Pack stehen, gibt oft das Bauchgefühl den Ausschlag — und das entsteht aus Fotos und Bewertungen. Ein Profil mit aktuellen, appetitlichen Bildern und vielen echten, gut beantworteten Bewertungen wirkt einladend; ein unscharfes Handyfoto von 2019 wirkt verlassen, egal wie gut die Küche ist.</p>
+    </div>
+
+    <div class="illu illu-flow illu--narrow" role="img" aria-label="Ablauf: Fotos ansehen, Bewertungen prüfen, Tisch reservieren" data-reveal>
+      <div class="flow-strip" aria-hidden="true">
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span>Fotos ansehen</span></div>
+        <span class="flow-strip__arrow" aria-hidden="true">→</span>
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg></span><span>Bewertungen prüfen</span></div>
+        <span class="flow-strip__arrow" aria-hidden="true">→</span>
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span>Tisch reservieren</span></div>
+      </div>
+      <p class="illu__caption">Deshalb gehört zur Optimierung ein Plan: regelmäßig frische Fotos, ein einfacher Bewertungsweg für Gäste, professionelle Antworten — nie gekauft, das verstößt gegen Richtlinien und UWG. Mehr dazu im <a href="/ratgeber/mehr-google-bewertungen-bekommen/">Bewertungs-Ratgeber</a>, alle Leistungen unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
+    </div>
+
+    <div class="prose center" data-reveal>
       <h2>Aktuelle Infos entscheiden über den Besuch</h2>
-      <p>In der Gastronomie ändert sich vieles schnell: Saisonkarte, Öffnungszeiten, Ruhetage. Jede Abweichung, die im Profil nicht stimmt, kostet reale Gäste — oder produziert enttäuschte Besucher vor verschlossener Tür.</p>
-      <p>Nutzen Sie zusätzlich die aktiven Funktionen: Google-Beiträge zu Events, Aktionen oder saisonalen Gerichten halten Ihr Profil lebendig und geben Gästen einen Grund, gerade jetzt zu kommen. Auch die Funktion „Beliebte Zeiten" und aktuelle Fotos helfen bei der Entscheidung.</p>
+      <p>In der Gastronomie ändert sich vieles schnell: Saisonkarte, Öffnungszeiten, Ruhetage. Jede Abweichung im Profil kostet reale Gäste oder produziert enttäuschte Besucher vor verschlossener Tür. Google-Beiträge zu Events oder saisonalen Gerichten halten Ihr Profil lebendig — auch die Funktion „Beliebte Zeiten" und aktuelle Fotos helfen bei der Entscheidung.</p>
     </div>
   </div>
 </section>
@@ -203,6 +244,8 @@
     </div>
   </div>
 </section>
+
+</main>
 
 <!--FOOTER-->
 </div><!-- /.page -->
