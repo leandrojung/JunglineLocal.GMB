@@ -377,6 +377,10 @@ section{scroll-margin-top:88px}
   transform:translateY(-50%);will-change:transform}
 .chapter:nth-child(odd) .chapter__glow{left:-120px}
 .chapter:nth-child(even) .chapter__glow{right:-120px}
+@media(min-width:961px){
+  .chapter__num{padding-left:clamp(0px,4vw,40px)}
+  .chapter:nth-child(even) .chapter__num{padding-left:0;padding-right:clamp(0px,4vw,40px)}
+}
 @media(max-width:960px){
   .chapter,.chapter:nth-child(even){grid-template-columns:1fr;justify-content:start;gap:10px;padding:44px 0}
   .chapter:nth-child(even) .chapter__num{order:0;text-align:left}
