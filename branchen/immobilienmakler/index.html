@@ -100,6 +100,7 @@
 
 <!--NAV-->
 
+<main id="main">
 <span id="top"></span>
 
 <section class="pagehead pagehead--center">
@@ -124,26 +125,84 @@
 
 <section class="section section--tight">
   <div class="container">
-    <div class="prose center" data-reveal>
-      <p class="lead">Im Maklergeschäft ist die wertvollste Anfrage die des verkaufswilligen Eigentümers. Und genau diese Menschen recherchieren, bevor sie sich melden: Sie googeln „Immobilienmakler [Stadt]", vergleichen Bewertungen und entscheiden oft schon anhand des ersten Eindrucks, wen sie kontaktieren.</p>
-      <p>Ein Maklerbüro lebt von <strong>Vertrauen und lokaler Reputation</strong> — beides macht das Google-Unternehmensprofil sichtbar. Viele Makler verschenken hier Potenzial an Wettbewerber mit vollständigem Auftritt und guten Bewertungen.</p>
-      <h2>Ihre wichtigsten Stellschrauben</h2>
+    <div class="prose-illu" data-reveal>
+      <div class="prose-illu__text">
+        <p class="lead">Im Maklergeschäft ist die wertvollste Anfrage die des verkaufswilligen Eigentümers. Genau diese Menschen recherchieren vorher: Sie googeln „Immobilienmakler [Stadt]", vergleichen Bewertungen und entscheiden oft schon nach dem ersten Eindruck.</p>
+        <p>Ein Maklerbüro lebt von <strong>Vertrauen und lokaler Reputation</strong> — beides macht das Google-Unternehmensprofil sichtbar.</p>
+      </div>
+      <div class="illu illu-localpack" role="img" aria-label="Kartenausschnitt: drei Makler im Local Pack, das eigene Büro auf Platz 1 hervorgehoben">
+        <div class="map" aria-hidden="true">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice">
+            <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
+            <path class="road thin" d="M-10 90 Q 150 70 250 95 T 410 80"/>
+          </svg>
+          <div class="pin">
+            <span class="pulse"></span>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#8FD4A6"/><circle cx="14" cy="14" r="5.2" fill="#0A120D"/></svg>
+          </div>
+        </div>
+        <div class="bam__rows" aria-hidden="true" style="margin-top:14px">
+          <div class="bam__row bam__row--ghost"><span class="bam__rank">2</span><div class="bam__lines"><i></i><i></i></div></div>
+          <div class="bam__row bam__row--you"><span class="bam__rank bam__rank--you">1</span>
+            <div class="bam__body"><span class="bam__name">Ihr Büro</span><span class="bam__meta"><span class="bam__stars">★★★★★</span></span></div>
+          </div>
+          <div class="bam__row bam__row--ghost"><span class="bam__rank">3</span><div class="bam__lines"><i></i><i></i></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="head-block center" data-reveal>
+      <h2 class="section-title-grad">Ihre wichtigsten Stellschrauben</h2>
       <p>Diese Stellschrauben bringen Maklern die meiste Wirkung:</p>
     </div>
-    <div class="factgrid" data-reveal>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg> Bewertungen als Verkaufsargument</h3><p>Im Maklergeschäft zählen Referenzen. Ein systematischer, echter Bewertungsaufbau von zufriedenen Verkäufern und Käufern ist Ihr stärkstes Vertrauenssignal.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Klares Einzugsgebiet</h3><p>In welchen Städten und Stadtteilen sind Sie aktiv? Ein präzise gepflegtes Gebiet sorgt dafür, dass Sie dort erscheinen, wo Sie tatsächlich vermitteln.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg> Leistungen & Spezialisierung</h3><p>Verkauf, Vermietung, Bewertung, Gewerbe oder Wohnen — Ihre Schwerpunkte sichtbar gemacht, damit die passenden Anfragen kommen.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Professioneller Auftritt</h3><p>Bürofotos, Team und Logo einheitlich und hochwertig. Immobilien sind ein Vertrauensgeschäft — der visuelle Eindruck zahlt direkt darauf ein.</p></div>
+    <div class="step-path" data-reveal>
+      <svg class="step-path__line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M50,0 C64,12 64,20 50,28 C36,36 36,44 50,52 C64,60 64,68 50,76 C36,84 36,92 50,100"/>
+      </svg>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg><span class="step-path__num">1</span></div></div>
+        <div class="step-path__body"><h3>Bewertungen als Verkaufsargument</h3><p>Im Maklergeschäft zählen Referenzen. Ein systematischer, echter Bewertungsaufbau von zufriedenen Verkäufern und Käufern ist Ihr stärkstes Vertrauenssignal.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="step-path__num">2</span></div></div>
+        <div class="step-path__body"><h3>Klares Einzugsgebiet</h3><p>In welchen Städten und Stadtteilen sind Sie aktiv? Ein präzise gepflegtes Gebiet sorgt dafür, dass Sie dort erscheinen, wo Sie tatsächlich vermitteln.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span class="step-path__num">3</span></div></div>
+        <div class="step-path__body"><h3>Leistungen & Spezialisierung</h3><p>Verkauf, Vermietung, Bewertung, Gewerbe oder Wohnen — Ihre Schwerpunkte sichtbar gemacht, damit die passenden Anfragen kommen.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="step-path__num">4</span></div></div>
+        <div class="step-path__body"><h3>Professioneller Auftritt</h3><p>Bürofotos, Team und Logo einheitlich und hochwertig — Immobilien sind ein Vertrauensgeschäft, der visuelle Eindruck zahlt direkt darauf ein.</p></div>
+      </div>
     </div>
+
     <div class="prose center" data-reveal>
       <h2>Warum Bewertungen für Makler besonders zählen</h2>
-      <p>Kaum eine Entscheidung ist so groß wie der Verkauf der eigenen Immobilie. Entsprechend gründlich prüfen Eigentümer, wem sie diesen Schritt anvertrauen. Google-Bewertungen sind dabei zur wichtigsten öffentlichen Referenz geworden. Ein Profil mit vielen echten, positiven Bewertungen und professionellen Antworten schlägt in der Wahrnehmung oft sogar die Hochglanzbroschüre.</p>
-      <p>Deshalb baue ich mit Ihnen einen verlässlichen, richtlinienkonformen Ablauf auf, um nach erfolgreicher Vermittlung um eine Bewertung zu bitten — freiwillig und echt, ohne gekaufte Rezensionen. Parallel sorgt ein vollständiges Profil dafür, dass Sie bei „Makler [Stadt]" überhaupt im Local Pack auftauchen und nicht auf Seite zwei verschwinden.</p>
-      <p>Ein realistischer Hinweis: Sichtbarkeit und Reputation wachsen mit der Zeit und der Zahl echter Bewertungen — das ist ein Prozess, kein Schalter. Wie Sie ihn in Gang bringen, lesen Sie unter <a href="/ratgeber/mehr-google-bewertungen-bekommen/">Mehr Google-Bewertungen bekommen</a>. Alle Bausteine der Optimierung finden Sie unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
-      <h2>In mehreren Orten sichtbar werden</h2>
-      <p>Viele Makler sind nicht nur in einer Stadt aktiv, sondern in mehreren Orten oder Stadtteilen einer Region. Ein sauber definiertes Einzugsgebiet sorgt dafür, dass Sie in genau diesen Orten bei der Maklersuche erscheinen — ohne unrealistisch große Gebiete anzugeben, die Google eher abwertet. Realistische, präzise Angaben schlagen den Versuch, überall gleichzeitig sichtbar sein zu wollen.</p>
-      <p>Sinnvoll ist außerdem, die unterschiedlichen Suchabsichten zu bedienen: Verkäufer suchen einen Makler zum Verkauf ihrer Immobilie, Vermieter suchen Verwaltung, Käufer und Mieter suchen Objekte. Wenn Ihr Profil klar zeigt, worauf Sie spezialisiert sind, ziehen Sie eher die Anfragen an, die zu Ihrem Geschäft passen. Ergänzend lohnt es sich, das Profil mit aktuellen Referenzen und Beiträgen lebendig zu halten — etwa mit einem Hinweis auf erfolgreich vermittelte Objekte oder einer kurzen Einschätzung zum lokalen Markt, natürlich ohne vertrauliche Details.</p>
+      <p>Kaum eine Entscheidung ist so groß wie der Verkauf der eigenen Immobilie — entsprechend gründlich prüfen Eigentümer, wem sie diesen Schritt anvertrauen. Google-Bewertungen sind zur wichtigsten öffentlichen Referenz geworden und schlagen in der Wahrnehmung oft sogar die Hochglanzbroschüre.</p>
+      <p>Deshalb baue ich einen verlässlichen, richtlinienkonformen Ablauf auf, um nach erfolgreicher Vermittlung um eine Bewertung zu bitten — freiwillig und echt, ohne gekaufte Rezensionen. Wie Sie das in Gang bringen, lesen Sie unter <a href="/ratgeber/mehr-google-bewertungen-bekommen/">Mehr Google-Bewertungen bekommen</a>, alle Bausteine unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
+    </div>
+
+    <div class="prose-illu rev" data-reveal>
+      <div class="illu illu-radius" role="img" aria-label="Mini-Karte mit Standort-Pin und konzentrischen Ringen für das Einzugsgebiet">
+        <div class="map" aria-hidden="true">
+          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
+            <path class="road" d="M-10 40 Q 100 60 150 30 T 310 50"/>
+            <path class="road thin" d="M-10 120 Q 120 95 220 118 T 310 105"/>
+            <circle class="radius-ring" cx="150" cy="75" r="26"/>
+            <circle class="radius-ring" cx="150" cy="75" r="46"/>
+            <circle class="radius-ring" cx="150" cy="75" r="66"/>
+          </svg>
+          <div class="pin">
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#8FD4A6"/><circle cx="14" cy="14" r="5.2" fill="#0A120D"/></svg>
+          </div>
+        </div>
+        <p class="illu__caption">Präzise statt übergroß — Google wertet unrealistische Gebiete eher ab</p>
+      </div>
+      <div class="prose-illu__text">
+        <h2>In mehreren Orten sichtbar werden</h2>
+        <p>Viele Makler sind in mehreren Orten oder Stadtteilen aktiv. Ein sauber definiertes Einzugsgebiet sorgt dafür, dass Sie genau dort bei der Maklersuche erscheinen. Wichtig ist auch, unterschiedliche Suchabsichten zu bedienen: Verkäufer suchen einen Makler zum Verkauf, Vermieter suchen Verwaltung, Käufer und Mieter suchen Objekte — ein Profil, das klar zeigt, worauf Sie spezialisiert sind, zieht die passenden Anfragen an.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -202,6 +261,8 @@
     </div>
   </div>
 </section>
+
+</main>
 
 <!--FOOTER-->
 </div><!-- /.page -->
