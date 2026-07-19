@@ -165,9 +165,13 @@ section{scroll-margin-top:88px}
 .glow--a{width:460px;height:460px;background:radial-gradient(circle,rgba(60,140,92,.5),transparent 65%);top:-120px;right:-60px;opacity:.55;transform:translate3d(calc(var(--mx,0)*17px),calc(var(--my,0)*17px),0)}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(28,86,54,.55),transparent 66%);bottom:-160px;left:-120px;opacity:.5;transform:translate3d(calc(var(--mx,0)*14px),calc(var(--my,0)*14px),0)}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
-.hero h1{font-size:clamp(2.55rem,5.6vw,4.7rem);font-weight:800;margin:26px 0 22px;letter-spacing:-.035em}
+.hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em}
 .hero h1 .hl,.hero h1 .hl .w{position:relative;background:linear-gradient(110deg,var(--green-bright),#bfead0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
+.lead__cursor{display:inline-block;width:2px;height:1em;margin-left:2px;background:var(--green-bright);vertical-align:-.15em;animation:caret .85s steps(1) infinite}
+.lead__cursor.done{animation:none;opacity:0}
+@keyframes caret{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.lead__cursor{display:none}}
 /* hero entrance: staggered rise on load (JS adds .js + .hero-live, skipped for reduced motion).
    Nur transform, kein opacity: der Hero-Text bleibt vom ersten Frame an sichtbar
    (zaehlt fuers LCP) und verschiebt sich lediglich in Position. */

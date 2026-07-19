@@ -124,6 +124,28 @@
       };
       splitWords(h1);
     }
+
+    // Lead-Text: Schreibmaschinen-Effekt, läuft bei jedem Seitenaufruf/Reload
+    // neu (kein Session-Flag). Der volle Satz steht als aria-label an der <p>,
+    // damit Screenreader nicht mitten im Tippen nur ein Satzfragment bekommen.
+    var lead = document.getElementById('heroLead');
+    if(lead){
+      var full = lead.textContent;
+      lead.textContent = '';
+      var cursor = document.createElement('span');
+      cursor.className = 'lead__cursor';
+      cursor.setAttribute('aria-hidden', 'true');
+      lead.appendChild(cursor);
+      var ci = 0;
+      var typeChar = function(){
+        if(ci >= full.length){ cursor.classList.add('done'); return; }
+        cursor.insertAdjacentText('beforebegin', full.charAt(ci));
+        ci++;
+        setTimeout(typeChar, 20);
+      };
+      setTimeout(typeChar, 650);
+    }
+
     var heroEl = document.querySelector('.hero');
     if(heroEl){
       requestAnimationFrame(function(){ requestAnimationFrame(function(){
