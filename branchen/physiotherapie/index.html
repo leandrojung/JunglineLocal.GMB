@@ -100,6 +100,7 @@
 
 <!--NAV-->
 
+<main id="main">
 <span id="top"></span>
 
 <section class="pagehead pagehead--center">
@@ -124,26 +125,68 @@
 
 <section class="section section--tight">
   <div class="container">
-    <div class="prose center" data-reveal>
-      <p class="lead">Ein Rezept in der Hand, Schmerzen im Rücken — und die Suche nach einer Praxis, die zeitnah einen Termin hat. Genau so beginnt für viele die Suche nach Physiotherapie, und sie läuft über Google. Wer dort mit korrekten Angaben sichtbar ist, bekommt die Anfrage.</p>
-      <p>Für Physio-Praxen ist das Profil vor allem ein <strong>Informations- und Vertrauensinstrument</strong>: Welche Leistungen bieten Sie an? Wie ist die Erreichbarkeit? Nehmen Sie neue Patientinnen und Patienten an? Diese Fragen beantwortet ein gutes Profil sofort — sachlich und im Rahmen des Heilmittelwerbegesetzes.</p>
-      <h2>Ihre wichtigsten Stellschrauben</h2>
+    <div class="prose-illu" data-reveal>
+      <div class="prose-illu__text">
+        <p class="lead">Ein Rezept in der Hand, Schmerzen im Rücken — und die Suche nach einer Praxis, die zeitnah einen Termin hat. Genau so beginnt für viele die Suche nach Physiotherapie, und sie läuft über Google.</p>
+        <p>Für Physio-Praxen ist das Profil vor allem ein <strong>Informations- und Vertrauensinstrument</strong>: Leistungen, Erreichbarkeit, freie Kapazität — sachlich beantwortet, im Rahmen des Heilmittelwerbegesetzes.</p>
+      </div>
+      <div class="illu illu-profilcard" role="img" aria-label="Mockup eines Praxis-Profils: Termine frei, Sterne, Fotos und Aktionsbutton">
+        <div class="profcard" aria-hidden="true">
+          <div class="profcard__top"><span class="profcard__badge">Termine frei</span><span class="profcard__cat">Ihre Leistungen</span></div>
+          <div class="profcard__stars"><span class="stars">★★★★★</span><span class="profcard__count">41 Bewertungen</span></div>
+          <div class="profcard__photos"><i></i><i></i><i></i></div>
+          <div class="profcard__row"><span class="profcard__attr">Barrierefrei</span><span class="profcard__attr">Selbstzahler</span></div>
+          <button class="profcard__btn" type="button" tabindex="-1" aria-hidden="true">Route berechnen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="head-block center" data-reveal>
+      <h2 class="section-title-grad">Ihre wichtigsten Stellschrauben</h2>
       <p>Bei Physiotherapie-Praxen sind diese Punkte besonders wichtig:</p>
     </div>
-    <div class="factgrid" data-reveal>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg> Leistungen & Schwerpunkte</h3><p>Krankengymnastik, manuelle Therapie, Lymphdrainage, Sportphysio und Co. sachlich hinterlegt — damit Suchende mit passendem Bedarf Sie finden.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Terminvergabe & Erreichbarkeit</h3><p>Klare Angaben zu Öffnungszeiten, Telefon und Terminweg. Wer schnell Hilfe braucht, entscheidet sich für die Praxis, die erreichbar und transparent ist.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Lage, Anfahrt & Barrierefreiheit</h3><p>Parkmöglichkeiten, ÖPNV und Barrierefreiheit sind für Patienten mit Beschwerden oft ausschlaggebend — und gehören ins Profil.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg> Bewertungen — seriös & konform</h3><p>Ein sachlicher Umgang mit echten Bewertungen und datenschutzkonforme Antworten. Keine Anreize, keine gekauften Rezensionen.</p></div>
+    <div class="step-path" data-reveal>
+      <svg class="step-path__line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M50,0 C64,12 64,20 50,28 C36,36 36,44 50,52 C64,60 64,68 50,76 C36,84 36,92 50,100"/>
+      </svg>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="step-path__num">1</span></div></div>
+        <div class="step-path__body"><h3>Leistungen & Schwerpunkte</h3><p>Krankengymnastik, manuelle Therapie, Lymphdrainage, Sportphysio und Co. sachlich hinterlegt — damit Suchende mit passendem Bedarf Sie finden.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="step-path__num">2</span></div></div>
+        <div class="step-path__body"><h3>Terminvergabe & Erreichbarkeit</h3><p>Klare Angaben zu Öffnungszeiten, Telefon und Terminweg — wer schnell Hilfe braucht, wählt die Praxis, die erreichbar und transparent ist.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="step-path__num">3</span></div></div>
+        <div class="step-path__body"><h3>Lage, Anfahrt & Barrierefreiheit</h3><p>Parkmöglichkeiten, ÖPNV und Barrierefreiheit sind für Patienten mit Beschwerden oft ausschlaggebend — und gehören ins Profil.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg><span class="step-path__num">4</span></div></div>
+        <div class="step-path__body"><h3>Bewertungen — seriös & konform</h3><p>Sachlicher Umgang mit echten Bewertungen und datenschutzkonforme Antworten — keine Anreize, keine gekauften Rezensionen.</p></div>
+      </div>
     </div>
+
     <div class="prose center" data-reveal>
       <h2>Auffindbar für neue Patienten — sachlich und konform</h2>
-      <p>Wie bei Arztpraxen gilt auch für die Physiotherapie das Heilmittelwerbegesetz. Das ist kein Nachteil, sondern ein Qualitätsmerkmal: Ein sachliches, vollständiges Profil wirkt vertrauenswürdiger als vollmundige Werbung. Bei der Optimierung bleiben alle Angaben informativ — Leistungen werden beschrieben, nicht mit Heilversprechen beworben, und es gibt keine irreführenden Aussagen zu Behandlungserfolgen.</p>
-      <p>Bewertungen sind auch hier wertvoll, aber sensibel. Sie müssen echt und freiwillig sein und dürfen nicht durch Anreize entstehen. Beim Antworten ist auf den Datenschutz zu achten — keine Behandlungsdetails, keine Patientendaten. Ich richte Ihnen einen Ablauf ein, der beides berücksichtigt: mehr echte Bewertungen und rechtssichere Reaktionen.</p>
-      <p>Ehrlich eingeordnet: Ein optimiertes Profil verbessert Ihre Auffindbarkeit für Menschen, die ohnehin eine Physiotherapie suchen. Es „erzeugt" keine Patienten, sondern sorgt dafür, dass die passenden Sie finden. Verwandte Hinweise gibt der Ratgeber <a href="/ratgeber/local-seo-grundlagen/">Local-SEO-Grundlagen</a>; alle Leistungen unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
-      <h2>Selbstzahler-Leistungen sichtbar machen</h2>
-      <p>Neben der Behandlung auf Rezept bieten viele Praxen Leistungen an, die Patientinnen und Patienten selbst zahlen — etwa Massagen, Prävention, medizinische Trainingstherapie oder Wellness-Angebote. Genau diese Leistungen werden oft aktiv und ohne Überweisung gesucht. Wer sie im Profil klar und sachlich als eigene Leistungen ausweist, wird für diese lohnenden Anfragen überhaupt erst gefunden.</p>
-      <p>Auch praktische Details entscheiden mit: Ein transparenter Hinweis, ob und wie schnell neue Termine möglich sind, steuert Anfragen sinnvoll und vermeidet Enttäuschungen. Wer zusätzlich Kooperationen mit Ärzten oder Sportvereinen pflegt, kann diese Schwerpunkte ebenfalls sachlich abbilden und wird für spezialisierte Anfragen besser gefunden.</p>
+      <p>Wie bei Arztpraxen gilt auch hier das Heilmittelwerbegesetz — kein Nachteil, sondern ein Qualitätsmerkmal: Ein sachliches, vollständiges Profil wirkt vertrauenswürdiger als vollmundige Werbung. Leistungen werden beschrieben, nicht mit Heilversprechen beworben.</p>
+      <p>Bewertungen sind auch hier wertvoll, aber sensibel: echt, freiwillig, ohne Anreize, und beim Antworten ohne Behandlungsdetails oder Patientendaten. Ehrlich eingeordnet: Ein optimiertes Profil „erzeugt" keine Patienten, sondern sorgt dafür, dass die passenden Sie finden. Verwandtes im Ratgeber <a href="/ratgeber/local-seo-grundlagen/">Local-SEO-Grundlagen</a>, alle Leistungen unter <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
+    </div>
+
+    <div class="prose-illu rev" data-reveal>
+      <div class="illu illu-chips" role="img" aria-label="Mehrere Selbstzahler-Leistungen als einzelne Chips: Massage, Prävention, Medizinische Trainingstherapie, Wellness">
+        <div class="chiprow" aria-hidden="true">
+          <span class="profcard__attr">Massage</span>
+          <span class="profcard__attr">Prävention</span>
+          <span class="profcard__attr">Trainingstherapie</span>
+          <span class="profcard__attr">Wellness</span>
+        </div>
+        <p class="illu__caption">Selbstzahler-Leistungen als eigene Einträge — aktiv gesucht, ohne Überweisung</p>
+      </div>
+      <div class="prose-illu__text">
+        <h2>Selbstzahler-Leistungen sichtbar machen</h2>
+        <p>Neben der Behandlung auf Rezept bieten viele Praxen Leistungen an, die Patientinnen und Patienten selbst zahlen. Wer sie im Profil klar und sachlich als eigene Leistungen ausweist, wird für diese lohnenden Anfragen überhaupt erst gefunden. Auch ein transparenter Hinweis zur aktuellen Terminlage steuert Anfragen sinnvoll und vermeidet Enttäuschungen.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -202,6 +245,8 @@
     </div>
   </div>
 </section>
+
+</main>
 
 <!--FOOTER-->
 </div><!-- /.page -->
