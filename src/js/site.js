@@ -288,6 +288,10 @@
       if(t.closest('input,textarea,select,iframe,.cal-frame')){ setCurState('off'); return; }
       if(t.closest('.ba__stage')){ setCurState('drag'); return; }
       if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
+      var faqQ = t.closest('.faq__q');
+      if(faqQ){ setCurState('view', faqQ.getAttribute('aria-expanded') === 'true' ? 'Schließen' : 'Öffnen'); return; }
+      var crow = t.closest('.crow');
+      if(crow){ setCurState('view', (crow.getAttribute('href') || '').indexOf('tel:') === 0 ? 'Anrufen' : 'Schreiben'); return; }
       if(t.closest('.btn--primary')){ setCurState('pin'); return; }
       if(t.closest('a,button,[role="button"]')){ setCurState('grow'); return; }
       setCurState('idle');
