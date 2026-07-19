@@ -79,6 +79,22 @@ section{scroll-margin-top:88px}
           mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000,transparent 75%);
 }
 
+/* ============ SCROLL-PARALLAX HINTERGRUND (sitewide, siehe site.js) ============ */
+/* Rein dekorative Ebene über dem bg-flow-Wash: 3 weiche Farbflächen, die beim
+   Scrollen unterschiedlich schnell driften. Nur transform/opacity, bewusst
+   kein filter:blur (Falloff kommt aus dem Gradienten selbst) — spart GPU-Kosten,
+   da die Ebene fixed+vollflächig auf jeder Seite mitläuft. */
+.bg-parallax{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.bg-parallax__shape{position:absolute;border-radius:50%;will-change:transform}
+.bg-parallax__shape--a{width:62vw;height:62vw;top:-18%;right:-14%;
+  background:radial-gradient(circle,rgba(111,179,135,.8),transparent 70%);opacity:.06}
+.bg-parallax__shape--b{width:56vw;height:56vw;bottom:-20%;left:-16%;
+  background:radial-gradient(circle,rgba(46,87,64,.9),transparent 70%);opacity:.07}
+.bg-parallax__shape--c{width:38vw;height:38vw;top:38%;left:58%;
+  background:radial-gradient(circle,rgba(143,212,166,.8),transparent 72%);opacity:.045}
+/* Redaktionelle Ausnahme für sehr kurze, textlastige Rechtsseiten (siehe impressum/datenschutz) */
+body[data-bgfx="off"] .bg-parallax{display:none}
+
 /* ============ SHARED BITS ============ */
 .eyebrow{
   display:inline-flex;align-items:center;gap:10px;
@@ -677,6 +693,7 @@ section{scroll-margin-top:88px}
   *{animation:none!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1;transform:none;transition:none}
   .result,.rankcard{transition:none}
+  .bg-parallax__shape{transform:none!important}
 }
 
 /* ============================================================

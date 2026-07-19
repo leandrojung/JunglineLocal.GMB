@@ -332,6 +332,26 @@
     queueParallax();
   }
 
+  // Sitewide Hintergrund-Parallax: 2-3 weiche Formen (partials/endbody.html)
+  // driften beim Scrollen unterschiedlich schnell, je nach data-speed. Gleiches
+  // rAF-Drossel-Muster wie der Kapitel-Parallax oben, komplett unabhängig davon
+  // (eigene Elemente, eigener Listener) und unabhängig von data-reveal.
+  var bgParallax = document.getElementById('bgParallax');
+  if(bgParallax && !reduce && document.body.getAttribute('data-bgfx') !== 'off'){
+    var bgShapes = Array.prototype.slice.call(bgParallax.querySelectorAll('[data-speed]')).map(function(el){
+      return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
+    });
+    var bgRaf = null;
+    var applyBgParallax = function(){
+      bgRaf = null;
+      var y = window.scrollY;
+      bgShapes.forEach(function(s){ s.el.style.transform = 'translate3d(0,' + (y * s.speed).toFixed(1) + 'px,0)'; });
+    };
+    var queueBgParallax = function(){ if(!bgRaf) bgRaf = requestAnimationFrame(applyBgParallax); };
+    window.addEventListener('scroll', queueBgParallax, {passive:true});
+    queueBgParallax();
+  }
+
   // Vorher-Nachher-Slider: eine Pointer-Logik für Maus & Touch,
   // zusätzlich per Pfeiltasten bedienbar (role="slider").
   var baStage = document.getElementById('baStage');
