@@ -228,7 +228,7 @@ section{scroll-margin-top:88px}
 .gdot.r{background:#ea4335}.gdot.y{background:#fbbc05}.gdot.g{background:#34a853}.gdot.b{background:#4285f4}
 .map{position:relative;height:120px;border-radius:14px;overflow:hidden;margin-bottom:14px;
   background:linear-gradient(135deg,#16291d,#0e1b13);border:1px solid var(--border)}
-.map svg{position:absolute;inset:0;width:100%;height:100%}
+.map>svg{position:absolute;inset:0;width:100%;height:100%}
 .map .road{stroke:rgba(111,179,135,.18);stroke-width:6;fill:none;stroke-linecap:round}
 .map .road.thin{stroke:rgba(111,179,135,.1);stroke-width:3}
 .pin{position:absolute;top:50%;left:50%;z-index:3}
@@ -807,3 +807,120 @@ section{scroll-margin-top:88px}
 .infocard h3{font-size:1.1rem;font-weight:700;margin-bottom:12px}
 .infocard p{color:var(--dim);font-size:.98rem;line-height:1.7}
 .infocard a{color:var(--green-bright);text-decoration:underline;text-underline-offset:3px}
+
+/* ============ SKIP LINK (Barrierefreiheit) ============ */
+.skip-link{position:fixed;top:-60px;left:12px;z-index:200;background:var(--green-bright);color:var(--green-ink);
+  padding:12px 20px;border-radius:10px;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;font-size:.94rem;
+  transition:top .25s var(--ease-out)}
+.skip-link:focus{top:12px;outline:2px solid var(--green-ink);outline-offset:3px}
+
+/* ============================================================
+   SCHRITT-PFAD — nummerierte Schritte an geschwungener Linie
+   Knoten bleiben mittig (Grid: Text | Knoten | Text), der Text
+   wechselt links/rechts. Die SVG-Linie ist prozentual (viewBox
+   0 0 100 100, preserveAspectRatio=none) und dehnt sich auf die
+   tatsächliche Höhe — funktioniert unabhängig von Schrittzahl.
+   ============================================================ */
+.step-path{position:relative;max-width:880px;margin:46px auto 0}
+.step-path__line{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  stroke:var(--border-strong);stroke-width:.35;vector-effect:non-scaling-stroke;fill:none;opacity:.8}
+.step-path__item{position:relative;z-index:1;display:grid;grid-template-columns:1fr 72px 1fr;
+  gap:0 26px;align-items:center;padding:32px 0}
+.step-path__item:first-child{padding-top:6px}
+.step-path__node{grid-column:2;justify-self:center}
+.step-path__body{grid-column:1;text-align:right}
+.step-path__item:nth-child(even) .step-path__body{grid-column:3;text-align:left}
+.step-path__dot{position:relative;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border-strong);color:var(--green-bright);
+  box-shadow:0 14px 32px -16px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.05)}
+.step-path__dot svg{width:24px;height:24px}
+.step-path__num{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 5px;border-radius:7px;
+  background:var(--green);color:var(--green-ink);display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:.76rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px -3px rgba(0,0,0,.5)}
+.step-path__body h3{font-size:1.12rem;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.step-path__body p{color:var(--dim);font-size:.96rem;line-height:1.62}
+.step-path__body ul{margin:0;padding-left:20px;display:grid;gap:5px}
+.step-path__body li{color:var(--dim);font-size:.9rem;line-height:1.5}
+.step-path__body li::marker{color:var(--green)}
+.step-path__body:has(ul){text-align:left}
+@media(max-width:800px){
+  .step-path{max-width:460px}
+  .step-path__line{display:none}
+  .step-path::before{content:"";position:absolute;left:21px;top:6px;bottom:6px;width:2px;z-index:0;
+    background:linear-gradient(180deg,transparent,var(--border-strong) 6%,var(--border-strong) 94%,transparent)}
+  .step-path__item,.step-path__item:nth-child(even){grid-template-columns:44px 1fr;gap:16px;padding:20px 0}
+  .step-path__item:first-child{padding-top:0}
+  .step-path__node,.step-path__item:nth-child(even) .step-path__node{grid-column:1}
+  .step-path__body,.step-path__item:nth-child(even) .step-path__body{grid-column:2;text-align:left}
+  .step-path__dot{width:44px;height:44px}
+  .step-path__dot svg{width:18px;height:18px}
+  .step-path__num{width:19px;height:19px;min-width:19px;font-size:.7rem;top:-5px;right:-5px}
+}
+
+/* ============================================================
+   ILLUSTRATIONS-SET — kompakte Inline-SVG-Veranschaulichungen
+   statt Stockfotos. Karte/Pin/Pulse/Ergebniszeilen sind dieselben
+   Bausteine wie im Hero (nur kleiner), damit alles wie eine
+   Familie wirkt.
+   ============================================================ */
+.illu{background:linear-gradient(158deg,rgba(24,42,30,.85),rgba(12,21,15,.9));border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px;box-shadow:0 30px 70px -42px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(8px)}
+.illu__caption{margin-top:14px;font-size:.82rem;color:var(--dim-2);text-align:center;line-height:1.5}
+
+/* Text-neben-Illustration-Layout (breiter als .prose, damit Platz für beides ist) */
+.prose-illu{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,340px);gap:40px;align-items:center;
+  max-width:1000px;margin:0 auto 8px}
+.prose-illu__text{color:var(--dim);font-size:1.06rem;line-height:1.78}
+.prose-illu__text strong{color:var(--ink);font-weight:600}
+.prose-illu__text h2{font-size:clamp(1.55rem,3vw,2.05rem);font-weight:700;letter-spacing:-.025em;margin:0 0 14px;color:var(--ink)}
+.illu--narrow{max-width:460px;margin:30px auto 0}
+.prose-illu.rev{grid-template-columns:minmax(260px,340px) minmax(0,1.15fr)}
+.prose-illu.rev .illu{order:-1}
+@media(max-width:860px){
+  .prose-illu,.prose-illu.rev{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}
+  .prose-illu.rev .illu{order:0}
+}
+
+/* Servicegebiet-Radius (Mini-Karte mit Pin + konzentrischen Ringen) */
+.illu-radius .map{height:150px;margin-bottom:0}
+.radius-ring{fill:none;stroke:var(--green-bright);stroke-width:1.4;stroke-dasharray:3 5}
+.radius-ring:nth-of-type(1){opacity:.65}
+.radius-ring:nth-of-type(2){opacity:.4}
+.radius-ring:nth-of-type(3){opacity:.22}
+
+/* Google-Profil-Card-Mockup */
+.profcard{display:flex;flex-direction:column;gap:12px}
+.profcard__top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.profcard__badge{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green-bright);
+  background:rgba(111,179,135,.14);border-radius:6px;padding:3px 8px}
+.profcard__cat{color:var(--dim);font-size:.85rem}
+.profcard__stars{display:flex;align-items:center;gap:8px}
+.profcard__count{color:var(--dim-2);font-size:.82rem}
+.profcard__photos{display:flex;gap:8px}
+.profcard__photos i{flex:1;aspect-ratio:1;border-radius:10px;display:block;
+  background:linear-gradient(135deg,rgba(111,179,135,.24),rgba(111,179,135,.05));border:1px solid var(--border)}
+.profcard__row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.profcard__attr{font-size:.74rem;color:var(--dim-2);border:1px solid var(--border);border-radius:999px;padding:3px 11px}
+.profcard__btn{align-self:flex-start;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.86rem;
+  color:var(--ink);background:rgba(255,255,255,.03);border:1px solid var(--border-strong);border-radius:999px;
+  padding:9px 18px;cursor:default}
+
+/* Vollständigkeits-/Fortschrittsbalken */
+.progress-bar{display:flex;gap:6px}
+.progress-bar i{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.07);display:block}
+.progress-bar i.on{background:linear-gradient(90deg,var(--green),var(--green-bright))}
+
+/* Mini-Ablauf-Kette (z. B. Anruf → Antwort → Auftrag) */
+.flow-strip{display:flex;align-items:flex-start;justify-content:center;gap:8px}
+.flow-strip__step{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.78rem;color:var(--dim);
+  text-align:center;width:88px;line-height:1.35}
+.flow-strip__ic{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border-strong);color:var(--green-bright)}
+.flow-strip__ic svg{width:20px;height:20px}
+.flow-strip__arrow{color:var(--dim-2);font-size:1.1rem;flex:none;margin-top:14px}
+@media(max-width:480px){
+  .flow-strip{flex-direction:column;align-items:center}
+  .flow-strip__arrow{transform:rotate(90deg);margin-top:0}
+}
