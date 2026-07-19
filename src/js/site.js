@@ -332,24 +332,79 @@
     queueParallax();
   }
 
-  // Sitewide Hintergrund-Parallax: 2-3 weiche Formen (partials/endbody.html)
-  // driften beim Scrollen unterschiedlich schnell, je nach data-speed. Gleiches
-  // rAF-Drossel-Muster wie der Kapitel-Parallax oben, komplett unabhängig davon
-  // (eigene Elemente, eigener Listener) und unabhängig von data-reveal.
-  var bgParallax = document.getElementById('bgParallax');
-  if(bgParallax && !reduce && document.body.getAttribute('data-bgfx') !== 'off'){
-    var bgShapes = Array.prototype.slice.call(bgParallax.querySelectorAll('[data-speed]')).map(function(el){
-      return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
-    });
-    var bgRaf = null;
-    var applyBgParallax = function(){
-      bgRaf = null;
-      var y = window.scrollY;
-      bgShapes.forEach(function(s){ s.el.style.transform = 'translate3d(0,' + (y * s.speed).toFixed(1) + 'px,0)'; });
-    };
-    var queueBgParallax = function(){ if(!bgRaf) bgRaf = requestAnimationFrame(applyBgParallax); };
-    window.addEventListener('scroll', queueBgParallax, {passive:true});
-    queueBgParallax();
+  // Sitewide Partikel-Hintergrund (partials/endbody.html): einzelne Punkte
+  // sinken langsam mit leichtem Sinus-Wabern nach unten und werden am oberen
+  // Rand wieder eingeblendet (Wrapping). Ein kontinuierlicher rAF-Loop treibt
+  // die Bewegung; die Scroll-Geschwindigkeit (nicht die Position) beschleunigt
+  // sie zusätzlich obendrauf — im Ruhezustand driften sie trotzdem sanft weiter.
+  // Bei reduced motion werden die Punkte erzeugt, aber nie bewegt (stehen still).
+  var bgParticles = document.getElementById('bgParticles');
+  if(bgParticles && document.body.getAttribute('data-bgfx') !== 'off'){
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    var pTiers = [
+      {cls:'p-near', rMin:2.2, rMax:3,   speedMin:10, speedMax:18, ampMin:14, ampMax:26},
+      {cls:'p-mid',  rMin:1.6, rMax:2.2, speedMin:6,  speedMax:11, ampMin:10, ampMax:20},
+      {cls:'p-far',  rMin:1,   rMax:1.6, speedMin:3,  speedMax:6,  ampMin:6,  ampMax:14}
+    ];
+    var pCount = window.matchMedia('(max-width:700px)').matches ? 7 : 14;
+    var winW = window.innerWidth, winH = window.innerHeight;
+    var pMargin = 40;
+
+    var particles = [];
+    for(var pi = 0; pi < pCount; pi++){
+      var tier = pTiers[pi % pTiers.length];
+      var pEl = document.createElementNS(SVG_NS, 'circle');
+      pEl.setAttribute('class', tier.cls);
+      var px0 = Math.random() * winW;
+      var py0 = Math.random() * winH;
+      pEl.setAttribute('cx', px0.toFixed(1));
+      pEl.setAttribute('cy', py0.toFixed(1));
+      pEl.setAttribute('r', (tier.rMin + Math.random() * (tier.rMax - tier.rMin)).toFixed(2));
+      bgParticles.appendChild(pEl);
+      particles.push({
+        el: pEl, y0: py0,
+        speed: tier.speedMin + Math.random() * (tier.speedMax - tier.speedMin),
+        amp: tier.ampMin + Math.random() * (tier.ampMax - tier.ampMin),
+        freq: 0.006 + Math.random() * 0.01,
+        phase: Math.random() * Math.PI * 2,
+        travelled: Math.random() * winH
+      });
+    }
+    window.addEventListener('resize', function(){ winW = window.innerWidth; winH = window.innerHeight; }, {passive:true});
+
+    if(!reduce){
+      var pLastScrollY = window.scrollY;
+      var pLastFrameTime = null;
+      var SCROLL_BOOST = 0.3;
+      var pRunning = false;
+
+      var pTick = function(now){
+        if(!pRunning) return;
+        if(pLastFrameTime === null) pLastFrameTime = now;
+        var dt = Math.min(now - pLastFrameTime, 100);
+        pLastFrameTime = now;
+        var scrollY = window.scrollY;
+        var scrollDelta = Math.abs(scrollY - pLastScrollY);
+        pLastScrollY = scrollY;
+
+        var band = winH + pMargin * 2;
+        particles.forEach(function(p){
+          p.travelled += p.speed * (dt / 1000) + scrollDelta * SCROLL_BOOST;
+          var raw = (p.y0 + p.travelled) % band;
+          if(raw < 0) raw += band;
+          var y = raw - pMargin;
+          var x = p.amp * Math.sin(y * p.freq + p.phase);
+          p.el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + (y - p.y0).toFixed(1) + 'px,0)';
+        });
+        requestAnimationFrame(pTick);
+      };
+      var pStart = function(){ if(pRunning) return; pRunning = true; pLastFrameTime = null; requestAnimationFrame(pTick); };
+      var pStop = function(){ pRunning = false; };
+      document.addEventListener('visibilitychange', function(){
+        if(document.visibilityState === 'hidden') pStop(); else pStart();
+      });
+      pStart();
+    }
   }
 
   // Vorher-Nachher-Slider: eine Pointer-Logik für Maus & Touch,
