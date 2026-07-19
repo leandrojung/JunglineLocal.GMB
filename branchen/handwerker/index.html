@@ -100,6 +100,7 @@
 
 <!--NAV-->
 
+<main id="main">
 <span id="top"></span>
 
 <section class="pagehead pagehead--center">
@@ -124,26 +125,102 @@
 
 <section class="section section--tight">
   <div class="container">
-    <div class="prose center" data-reveal>
-      <p class="lead">„Heizung ausgefallen", „Fenster undicht", „Elektriker Notdienst" — wenn im Haushalt etwas kaputtgeht, greifen die Leute zum Handy und suchen bei Google. Angezeigt werden zuerst drei Betriebe auf der Karte. Wer dort steht, bekommt den Anruf. Wer nicht auftaucht, existiert für den Suchenden schlicht nicht.</p>
-      <p>Ein optimiertes Google-Unternehmensprofil ist der Kanal, der unabhängig von Empfehlungen und Stammkunden zuverlässig neue Anfragen bringt — ohne Werbebudget pro Klick, rund um die Uhr.</p>
-      <h2>Ihre wichtigsten Stellschrauben</h2>
+    <div class="prose-illu" data-reveal>
+      <div class="prose-illu__text">
+        <p class="lead">„Heizung ausgefallen", „Elektriker Notdienst" — wenn im Haushalt etwas kaputtgeht, greifen Menschen zum Handy und suchen bei Google. Angezeigt werden zuerst drei Betriebe auf der Karte. Wer dort steht, bekommt den Anruf; wer nicht auftaucht, existiert für den Suchenden schlicht nicht.</p>
+        <p>Ein optimiertes Google-Unternehmensprofil bringt zuverlässig neue Anfragen — unabhängig von Empfehlungen, ohne Werbebudget pro Klick, rund um die Uhr.</p>
+      </div>
+      <div class="illu illu-localpack" role="img" aria-label="Kartenausschnitt: drei Unternehmen im Local Pack, das eigene auf Platz 1 hervorgehoben">
+        <div class="map" aria-hidden="true">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice">
+            <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
+            <path class="road thin" d="M-10 90 Q 150 70 250 95 T 410 80"/>
+          </svg>
+          <div class="pin">
+            <span class="pulse"></span>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#8FD4A6"/><circle cx="14" cy="14" r="5.2" fill="#0A120D"/></svg>
+          </div>
+        </div>
+        <div class="bam__rows" aria-hidden="true" style="margin-top:14px">
+          <div class="bam__row bam__row--ghost"><span class="bam__rank">2</span><div class="bam__lines"><i></i><i></i></div></div>
+          <div class="bam__row bam__row--you"><span class="bam__rank bam__rank--you">1</span>
+            <div class="bam__body"><span class="bam__name">Ihr Betrieb</span><span class="bam__meta"><span class="bam__stars">★★★★★</span></span></div>
+          </div>
+          <div class="bam__row bam__row--ghost"><span class="bam__rank">3</span><div class="bam__lines"><i></i><i></i></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="head-block center" data-reveal>
+      <h2 class="section-title-grad">Ihre wichtigsten Stellschrauben</h2>
       <p>Diese vier Punkte entscheiden bei Handwerksbetrieben besonders stark über die lokale Sichtbarkeit:</p>
     </div>
-    <div class="factgrid" data-reveal>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Servicegebiet statt Ladenadresse</h3><p>Viele Handwerker haben keinen Kundenverkehr am Betriebssitz. Google erlaubt dann ein „Servicegebiet" (Service-Area-Business) — richtig eingestellt ranken Sie in Ihrem gesamten Einzugsgebiet, nicht nur an einer Adresse.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg> Das richtige Gewerk als Kategorie</h3><p>Dachdecker, Elektriker, Klempner, Maler — die Primärkategorie ist der stärkste Hebel. Dazu passende Nebenkategorien für zusätzliche Leistungen, sauber statt wahllos.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Projektfotos als Vertrauensbeweis</h3><p>Vorher-nachher-Bilder Ihrer Arbeit sagen mehr als jeder Werbetext. Sie zeigen Qualität und geben potenziellen Kunden Sicherheit, bevor der erste Anruf passiert.</p></div>
-      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg> Bewertungen nach dem Auftrag</h3><p>Ein einfacher, richtlinienkonformer Weg, zufriedene Kunden nach Abschluss um eine ehrliche Bewertung zu bitten — ohne gekaufte Rezensionen, die Ihr Profil gefährden.</p></div>
+    <div class="step-path" data-reveal>
+      <svg class="step-path__line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M50,0 C64,12 64,20 50,28 C36,36 36,44 50,52 C64,60 64,68 50,76 C36,84 36,92 50,100"/>
+      </svg>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="step-path__num">1</span></div></div>
+        <div class="step-path__body"><h3>Servicegebiet statt Ladenadresse</h3><p>Kein Kundenverkehr am Betriebssitz? Google erlaubt ein „Servicegebiet" (Service-Area-Business) — richtig eingestellt ranken Sie im gesamten Einzugsgebiet, nicht nur an einer Adresse.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span class="step-path__num">2</span></div></div>
+        <div class="step-path__body"><h3>Das richtige Gewerk als Kategorie</h3><p>Dachdecker, Elektriker, Klempner, Maler — die Primärkategorie ist der stärkste Hebel, dazu passende Nebenkategorien statt wahllos gewählter Zusätze.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span class="step-path__num">3</span></div></div>
+        <div class="step-path__body"><h3>Projektfotos als Vertrauensbeweis</h3><p>Vorher-nachher-Bilder Ihrer Arbeit sagen mehr als jeder Werbetext — sie geben Sicherheit, noch bevor der erste Anruf passiert.</p></div>
+      </div>
+      <div class="step-path__item">
+        <div class="step-path__node"><div class="step-path__dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6.5 7 .8-5 4.7 1.3 6.9L12 17.8 5.4 20.9 6.7 14l-5-4.7 7-.8z"/></svg><span class="step-path__num">4</span></div></div>
+        <div class="step-path__body"><h3>Bewertungen nach dem Auftrag</h3><p>Ein einfacher, richtlinienkonformer Weg, zufriedene Kunden um eine ehrliche Bewertung zu bitten — ohne gekaufte Rezensionen, die Ihr Profil gefährden.</p></div>
+      </div>
     </div>
+
     <div class="prose center" data-reveal>
       <h2>Warum „in der Nähe" für Sie Gold wert ist</h2>
-      <p>Handwerksleistungen sind fast immer lokal. Niemand holt einen Elektriker aus 80 Kilometern Entfernung. Genau deshalb ist die lokale Suche für Ihr Gewerk so wertvoll: Wer „Sanitär Dorsten" oder „Rolladen Reparatur in der Nähe" sucht, hat konkreten Bedarf — und oft eilt es. Diese Menschen sind keine anonymen Website-Besucher, sondern potenzielle Aufträge mit Kaufabsicht.</p>
-      <p>Damit Ihr Betrieb bei solchen Suchen erscheint, muss das Profil vollständig und konsistent sein: korrekte Öffnungs- und Notdienstzeiten, alle Leistungen einzeln angelegt, eine ehrliche Beschreibung mit Ihren Schwerpunkten und Ihrer Region, dazu einheitliche Firmendaten in den relevanten Verzeichnissen. Das klingt nach Kleinkram — aber genau diese Summe an Details ist es, die Googles lokaler Algorithmus bewertet.</p>
-      <p>Einen garantierten ersten Platz verspreche ich nicht — das kann niemand seriös; was ich zusage, ist ein sauber aufgesetztes Profil und Transparenz darüber, was sich verändert. Wie das Ranking konkret zustande kommt, lesen Sie im Ratgeber <a href="/ratgeber/google-maps-ranking-verbessern/">Google-Maps-Ranking verbessern</a>. Den vollständigen Leistungsumfang finden Sie auf der Seite <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
-      <h2>Vom Anruf zum Auftrag — Geschwindigkeit zählt</h2>
-      <p>Der erste Kontakt ist im Handwerk oft dringend — ein Wasserschaden wartet nicht. Wer schnell erreichbar ist, gewinnt genau diese wertvollen Aufträge: Hinterlegen Sie deshalb realistische Reaktionszeiten, einen erreichbaren Anschluss und gegebenenfalls Ihre Notdienstzeiten.</p>
-      <p>Auch das Saisongeschäft lässt sich über das Profil aktiv steuern. Ein Dachdecker kann vor der Sturmsaison auf schnelle Reparaturen hinweisen, ein Heizungsbauer im Herbst auf Wartungen, ein Garten- und Landschaftsbauer im Frühjahr auf die Terrassensaison. Solche Google-Beiträge halten Ihr Profil aktiv und rücken die passende Leistung genau dann in den Vordergrund, wenn die Nachfrage steigt. So wird aus einem statischen Eintrag ein Werkzeug, das mitarbeitet.</p>
+      <p class="lead">Handwerksleistungen sind fast immer lokal — niemand holt einen Elektriker aus 80&nbsp;Kilometern Entfernung. Wer „Sanitär Dorsten" sucht, hat konkreten Bedarf und oft Eile.</p>
+      <p>Damit Ihr Betrieb bei solchen Suchen erscheint, muss das Profil vollständig und konsistent sein:</p>
+      <ul>
+        <li>Korrekte Öffnungs- und Notdienstzeiten</li>
+        <li>Alle Leistungen einzeln angelegt</li>
+        <li>Ehrliche Beschreibung mit Schwerpunkten &amp; Region</li>
+        <li>Einheitliche Firmendaten in den Verzeichnissen</li>
+      </ul>
+      <p>Einen garantierten ersten Platz verspreche ich dabei nicht — das kann niemand seriös. Mehr zum Ranking im Ratgeber <a href="/ratgeber/google-maps-ranking-verbessern/">Google-Maps-Ranking verbessern</a>, den vollständigen Leistungsumfang auf der Seite <a href="/leistungen/google-unternehmensprofil-optimierung/">Google-Unternehmensprofil optimieren lassen</a>.</p>
+    </div>
+
+    <div class="prose-illu rev" data-reveal>
+      <div class="illu illu-radius" role="img" aria-label="Mini-Karte mit Standort-Pin und konzentrischen Ringen für das Servicegebiet">
+        <div class="map" aria-hidden="true">
+          <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">
+            <path class="road" d="M-10 40 Q 100 60 150 30 T 310 50"/>
+            <path class="road thin" d="M-10 120 Q 120 95 220 118 T 310 105"/>
+            <circle class="radius-ring" cx="150" cy="75" r="26"/>
+            <circle class="radius-ring" cx="150" cy="75" r="46"/>
+            <circle class="radius-ring" cx="150" cy="75" r="66"/>
+          </svg>
+          <div class="pin">
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#8FD4A6"/><circle cx="14" cy="14" r="5.2" fill="#0A120D"/></svg>
+          </div>
+        </div>
+        <p class="illu__caption">Servicegebiet statt Ladenadresse — Sie ranken in der ganzen Region</p>
+      </div>
+      <div class="prose-illu__text">
+        <h2>Vom Anruf zum Auftrag — Geschwindigkeit zählt</h2>
+        <p>Ein Wasserschaden wartet nicht: Wer schnell erreichbar ist, gewinnt genau diese dringenden Aufträge. Hinterlegen Sie realistische Reaktionszeiten, einen erreichbaren Anschluss und Ihre Notdienstzeiten.</p>
+      </div>
+    </div>
+
+    <div class="illu illu-flow illu--narrow" role="img" aria-label="Ablauf: Anruf kommt rein, schnelle Antwort, Auftrag ist fix" data-reveal>
+      <div class="flow-strip" aria-hidden="true">
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></span><span>Anruf kommt rein</span></div>
+        <span class="flow-strip__arrow" aria-hidden="true">→</span>
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></span><span>Schnelle Antwort</span></div>
+        <span class="flow-strip__arrow" aria-hidden="true">→</span>
+        <div class="flow-strip__step"><span class="flow-strip__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span>Auftrag ist fix</span></div>
+      </div>
+      <p class="illu__caption">Saisonale Google-Beiträge (Sturmsaison, Wartung, Terrassensaison) halten das Profil aktiv — so wird aus einem statischen Eintrag ein Werkzeug, das mitarbeitet.</p>
     </div>
   </div>
 </section>
@@ -202,6 +279,8 @@
     </div>
   </div>
 </section>
+
+</main>
 
 <!--FOOTER-->
 </div><!-- /.page -->
