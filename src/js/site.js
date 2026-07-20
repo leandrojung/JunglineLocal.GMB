@@ -113,7 +113,7 @@
     // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
     // bekommen.
     var h1 = document.getElementById('heroTitle');
-    var startLead;
+    var startLead, reserveHeadHeight;
 
     var runLead = function(){ if(startLead) startLead(); };
 
@@ -138,6 +138,26 @@
       h1.appendChild(hlSpan);
       h1.appendChild(hCursor);
 
+      // Headline-Höhe vorab auf den vollen (mehrzeiligen) Endzustand
+      // reservieren, damit sie beim Eintippen nicht Zeile für Zeile wächst und
+      // alles darunter (Untertitel, CTA) schiebt. Gemessen wird am echten
+      // Element (exakte Schrift/Stile): die echten Span-Knoten werden kurz
+      // abgehängt, der volle Text eingesetzt, die Höhe gelesen und die Knoten
+      // wieder angehängt — passiert synchron, also unsichtbar. Passt sich per
+      // Resize an (Zeilenzahl ändert sich mit der Breite).
+      var h1Full = plainStr + hlText;
+      reserveHeadHeight = function(){
+        h1.style.minHeight = '0px';
+        var kids = [];
+        while(h1.firstChild){ kids.push(h1.firstChild); h1.removeChild(h1.firstChild); }
+        h1.textContent = h1Full;
+        var hh = h1.getBoundingClientRect().height;
+        h1.textContent = '';
+        kids.forEach(function(k){ h1.appendChild(k); });
+        h1.style.minHeight = Math.ceil(hh) + 'px';
+      };
+      reserveHeadHeight();
+
       var segs = [{el: plainSpan, text: plainStr}, {el: hlSpan, text: hlText}];
       var si = 0, sc = 0;
       var typeHead = function(){
@@ -152,11 +172,13 @@
     }
 
     // ---- Lead: rotierender Schreibmaschinen-Effekt (Endlos-Loop) ---------
-    // Fester Anfang bleibt stehen, nur der Satz-Abschluss wird getippt,
-    // wieder gelöscht und durch den nächsten ersetzt. Der Screenreader-Satz
-    // steht komplett als aria-label an der <p>. Das DOM wird sofort auf den
-    // festen Anfang gesetzt (kein Aufblitzen des vollen Fallback-Satzes),
-    // der Tipp-Loop startet aber erst, wenn die Headline durchgelaufen ist.
+    // Der GESAMTE Satz tippt sich von leer ein — der feste Anfang steht nicht
+    // mehr schon vorab da. Erst nach der Headline: zuerst der feste Anfang,
+    // dann die erste Aussage; danach wird nur noch der Satz-Abschluss gelöscht
+    // und durch die nächste Aussage ersetzt (der Anfang bleibt dann stehen).
+    // Die <p> hat eine fixierte Höhe (CSS min-height), damit beim Wechsel
+    // zwischen kurzen und langen Aussagen nichts darunter springt. Der volle
+    // Satz steht komplett als aria-label für Screenreader.
     var lead = document.getElementById('heroLead');
     if(lead){
       var prefix = 'Ich optimiere Ihr Profil bei Google, damit Sie ';
@@ -166,30 +188,71 @@
         'mehr Aufmerksamkeit erregen.'
       ];
       lead.textContent = '';
-      var staticEl = document.createElement('span');
-      staticEl.textContent = prefix;
-      var rotateEl = document.createElement('span');
+      var staticEl = document.createElement('span');   // fester Anfang (wird einmal getippt)
+      var rotateEl = document.createElement('span');   // wechselnder Abschluss
       var leadCursor = mkCursor();
       lead.appendChild(staticEl);
       lead.appendChild(rotateEl);
-      lead.appendChild(leadCursor);
+      // Cursor erst anhängen, wenn das Tippen startet — vorher bleibt der
+      // reservierte Bereich leer (kein einsam blinkender Cursor).
 
+      // Feste Höhe reservieren: die längste Aussage (Anfang + Abschluss) wird
+      // am echten Element gemessen (exakte Stile), damit beim Wechsel zwischen
+      // kurzen und langen Aussagen darunter nichts springt. Die echten Span-
+      // Knoten werden dafür kurz abgehängt und wieder angehängt. Passt sich per
+      // Resize an (auf Mobil/Übergangsbreiten mehr Zeilen als auf breitem
+      // Desktop), ohne auf breiten Screens eine leere Zeile zu reservieren.
+      var reserveLeadHeight = function(){
+        lead.style.minHeight = '0px';
+        var kids = [];
+        while(lead.firstChild){ kids.push(lead.firstChild); lead.removeChild(lead.firstChild); }
+        var maxH = 0;
+        phrases.forEach(function(p){
+          lead.textContent = prefix + p;
+          maxH = Math.max(maxH, lead.getBoundingClientRect().height);
+        });
+        lead.textContent = '';
+        kids.forEach(function(k){ lead.appendChild(k); });
+        lead.style.minHeight = Math.ceil(maxH) + 'px';
+      };
+      reserveLeadHeight();
+      var reserveRAF;
+      window.addEventListener('resize', function(){
+        cancelAnimationFrame(reserveRAF);
+        reserveRAF = requestAnimationFrame(function(){
+          reserveLeadHeight();
+          if(reserveHeadHeight) reserveHeadHeight();
+        });
+      }, {passive:true});
+
+      // Phase 2: Abschlüsse rotieren (Anfang bleibt stehen)
       var pi = 0, pc = 0, deleting = false;
       var tick = function(){
         var phrase = phrases[pi];
         if(!deleting){
           pc++;
           rotateEl.textContent = phrase.slice(0, pc);
-          if(pc >= phrase.length){ deleting = true; setTimeout(tick, 1700); return; }
-          setTimeout(tick, 38);
+          if(pc >= phrase.length){ deleting = true; setTimeout(tick, 1800); return; }
+          setTimeout(tick, 30);
         } else {
           pc--;
           rotateEl.textContent = phrase.slice(0, pc);
-          if(pc <= 0){ deleting = false; pi = (pi + 1) % phrases.length; setTimeout(tick, 340); return; }
-          setTimeout(tick, 20);
+          if(pc <= 0){ deleting = false; pi = (pi + 1) % phrases.length; setTimeout(tick, 300); return; }
+          setTimeout(tick, 16);
         }
       };
-      startLead = function(){ setTimeout(tick, 400); };
+
+      // Phase 1: festen Anfang einmalig von leer eintippen, dann rotieren
+      var typePrefix = function(pos){
+        if(pos > prefix.length){ setTimeout(tick, 120); return; }
+        staticEl.textContent = prefix.slice(0, pos);
+        setTimeout(function(){ typePrefix(pos + 1); }, 26);
+      };
+
+      startLead = function(){
+        lead.appendChild(leadCursor);
+        setTimeout(function(){ typePrefix(0); }, 300);
+      };
     }
 
     // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.

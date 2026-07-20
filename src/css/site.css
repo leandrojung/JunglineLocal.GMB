@@ -168,6 +168,8 @@ section{scroll-margin-top:88px}
 .hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em;min-height:2.4em}
 .hero h1 .hl{position:relative;background:linear-gradient(110deg,var(--green-bright),#bfead0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
+/* Grund-Reservierung, falls kein JS/Reduced Motion: der animierte Fall setzt
+   die exakte Höhe per Inline-Style (JS misst die längste Aussage). */
 .lead{min-height:3.4em}
 .lead__cursor{display:inline-block;width:2px;height:1em;margin-left:2px;background:var(--green-bright);vertical-align:-.15em;animation:caret .85s steps(1) infinite}
 .hero h1 .lead__cursor{width:.045em;height:.92em;margin-left:.04em}
