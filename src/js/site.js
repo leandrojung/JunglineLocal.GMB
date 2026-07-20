@@ -159,9 +159,9 @@
     // der Tipp-Loop startet aber erst, wenn die Headline durchgelaufen ist.
     var lead = document.getElementById('heroLead');
     if(lead){
-      var prefix = 'Ich optimiere Ihr Google-Profil, damit Sie ';
+      var prefix = 'Ich optimiere Ihr Profil bei Google, damit Sie ';
       var phrases = [
-        'im Kartenbereich ganz oben stehen.',
+        'im Kartenbereich ganz oben stehen und somit mehr Kunden bekommen.',
         'mehr Umsatz generieren.',
         'mehr Aufmerksamkeit erregen.'
       ];
