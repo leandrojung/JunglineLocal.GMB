@@ -98,7 +98,13 @@ if (!$apiKey) {
 // ---------------------------------------------------------------------
 // Google Places API (New) — kleiner cURL-Helper
 // ---------------------------------------------------------------------
-function placesRequest(string $method, string $url, string $apiKey, string $fieldMask, ?array $body = null): ?array {
+function placesRequest(string $method, string $url, string $apiKey, string $fieldMask, ?array $body = null, ?array &$failInfo = null): ?array {
+    if (!function_exists('curl_init')) {
+        $failInfo = ['reason' => 'curl_missing'];
+        error_log('gbp-check: PHP-cURL-Extension ist nicht aktiviert');
+        return null;
+    }
+
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_CUSTOMREQUEST => $method,
@@ -116,22 +122,27 @@ function placesRequest(string $method, string $url, string $apiKey, string $fiel
     }
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $errno = curl_errno($ch);
     $error = curl_error($ch);
     curl_close($ch);
 
     if ($response === false || $error !== '') {
-        error_log('gbp-check: cURL-Fehler — ' . $error);
+        $failInfo = ['reason' => 'connection_failed', 'curl_errno' => $errno];
+        error_log('gbp-check: cURL-Fehler (' . $errno . ') — ' . $error);
         return null;
     }
     $decoded = json_decode($response, true);
     if ($httpCode < 200 || $httpCode >= 300 || !is_array($decoded)) {
-        error_log('gbp-check: Places API HTTP ' . $httpCode . ' — ' . substr((string) $response, 0, 300));
+        $googleReason = is_array($decoded) ? ($decoded['error']['status'] ?? null) : null;
+        $failInfo = ['reason' => 'google_http_error', 'status' => $httpCode, 'google_status' => $googleReason];
+        error_log('gbp-check: Places API HTTP ' . $httpCode . ' — ' . substr((string) $response, 0, 500));
         return null;
     }
     return $decoded;
 }
 
 // 1) Text Search: erstes passendes Profil finden
+$searchFail = null;
 $searchResult = placesRequest(
     'POST',
     'https://places.googleapis.com/v1/places:searchText',
@@ -141,8 +152,16 @@ $searchResult = placesRequest(
         'textQuery' => $company . ' ' . $keyword . ' ' . $city,
         'languageCode' => 'de',
         'maxResultCount' => 1,
-    ]
+    ],
+    $searchFail
 );
+
+// Ein fehlgeschlagener Request (Auth/API/Netzwerk) ist ein Server-Fehler,
+// KEIN "nicht gefunden" — sonst verschleiern wir Konfigurationsfehler
+// als vermeintlich fehlendes Google-Profil.
+if ($searchResult === null) {
+    respond(502, ['success' => false, 'error' => 'upstream_error', 'debug' => $searchFail]);
+}
 
 $placeId = $searchResult['places'][0]['id'] ?? null;
 if (!is_string($placeId) || $placeId === '') {
@@ -150,15 +169,18 @@ if (!is_string($placeId) || $placeId === '') {
 }
 
 // 2) Place Details: die für den Score nötigen Felder abrufen
+$detailsFail = null;
 $details = placesRequest(
     'GET',
     'https://places.googleapis.com/v1/places/' . rawurlencode($placeId),
     $apiKey,
-    'displayName,rating,userRatingCount,photos,currentOpeningHours,websiteUri,types'
+    'displayName,rating,userRatingCount,photos,currentOpeningHours,websiteUri,types',
+    null,
+    $detailsFail
 );
 
 if ($details === null) {
-    respond(502, ['success' => false, 'error' => 'upstream_error']);
+    respond(502, ['success' => false, 'error' => 'upstream_error', 'debug' => $detailsFail]);
 }
 
 // ---------------------------------------------------------------------
