@@ -41,6 +41,57 @@ foreach ($envCandidates as $path) {
     }
 }
 
+// ---------------------------------------------------------------------
+// Echter Testaufruf gegen die Places API (New) — mit dem Key, der laut
+// getenv() beim Server ankommt. Zeigt die exakte Google-Fehlermeldung.
+// ---------------------------------------------------------------------
+$apiKey = getenv('GOOGLE_PLACES_API_KEY') ?: null;
+$googleTest = null;
+
+if ($apiKey !== null) {
+    $ch = curl_init('https://places.googleapis.com/v1/places:searchText');
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'X-Goog-Api-Key: ' . $apiKey,
+            'X-Goog-FieldMask: places.id,places.displayName',
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            'textQuery' => 'Kölner Dom Köln',
+            'languageCode' => 'de',
+            'maxResultCount' => 1,
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_CONNECTTIMEOUT => 5,
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false || $curlError !== '') {
+        $googleTest = ['ergebnis' => 'netzwerkfehler', 'curl_fehler' => $curlError];
+    } else {
+        $decoded = json_decode((string) $response, true);
+        if ($httpCode >= 200 && $httpCode < 300 && is_array($decoded)) {
+            $googleTest = [
+                'ergebnis' => 'erfolgreich',
+                'http_status' => $httpCode,
+                'treffer' => $decoded['places'][0]['displayName']['text'] ?? '(kein Treffer, aber Aufruf war ok)',
+            ];
+        } else {
+            $googleTest = [
+                'ergebnis' => 'fehlgeschlagen',
+                'http_status' => $httpCode,
+                'google_fehler_status' => $decoded['error']['status'] ?? null,
+                'google_fehler_message' => $decoded['error']['message'] ?? substr((string) $response, 0, 500),
+            ];
+        }
+    }
+}
+
 echo json_encode([
     'php_version' => PHP_VERSION,
     'quelle_getenv' => [
@@ -56,4 +107,5 @@ echo json_encode([
         'GBP_DIAG_TOKEN' => mask($_ENV['GBP_DIAG_TOKEN'] ?? null),
     ],
     'env_dateien_auf_platte' => $envFiles,
+    'google_testaufruf' => $googleTest,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
