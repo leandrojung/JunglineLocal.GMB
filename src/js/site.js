@@ -22,28 +22,92 @@
 })();
 
 (function(){
-  // Localo-Ranking-Widget genau wie Calendly erst laden, wenn es in
-  // Sichtweite kommt — spart auf der Startseite ein komplettes
-  // Drittanbieter-Skript beim ersten Laden (Tool sitzt direkt unterm Hero).
-  var tool = document.getElementById('free-tool');
-  if(!tool) return;
-  var loaded = false;
-  var load = function(){
-    if(loaded) return;
-    loaded = true;
-    var s = document.createElement('script');
-    s.src = 'https://jstools.localo.app/scripts/freetool.js';
-    s.async = true;
-    document.body.appendChild(s);
-  };
-  if('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
-    }, {rootMargin:'600px'});
-    io.observe(tool);
-  } else {
-    load();
+  // GBP-Profil-Check-Badge: schickt Firmenname/Stadt/Keyword an die eigene
+  // Backend-Route /api/gbp-check (kein Google-Key im Frontend) und zeigt
+  // den Vollständigkeits-Score als Ring + Checkliste an.
+  var badge = document.getElementById('gbp-badge');
+  if(!badge) return;
+  var form = document.getElementById('gbpForm');
+  var ringValue = badge.querySelector('.gbp-ring__value');
+  var ringNum = document.getElementById('gbpScoreNum');
+  var nameEl = document.getElementById('gbpCompanyName');
+  var checklist = document.getElementById('gbpChecklist');
+  var errorText = document.getElementById('gbpErrorText');
+
+  var CIRC = 2 * Math.PI * 52;
+  if(ringValue){
+    ringValue.style.strokeDasharray = CIRC.toFixed(2);
+    ringValue.style.strokeDashoffset = CIRC.toFixed(2);
   }
+
+  var setState = function(state){ badge.setAttribute('data-state', state); };
+
+  var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen'};
+  var CHECK_ORDER = ['categories', 'photos', 'hours', 'reviews'];
+
+  var renderResult = function(data){
+    nameEl.textContent = data.company_name || '';
+    var pct = Math.max(0, Math.min(100, data.score || 0));
+    ringNum.textContent = pct + '%';
+    if(ringValue) ringValue.style.strokeDashoffset = (CIRC - (CIRC * pct / 100)).toFixed(2);
+
+    checklist.innerHTML = '';
+    CHECK_ORDER.forEach(function(key){
+      var ok = !!(data.completeness && data.completeness[key]);
+      var li = document.createElement('li');
+      var label = document.createElement('span');
+      label.textContent = CHECK_LABELS[key];
+      var chip = document.createElement('span');
+      chip.className = 'bam__chip ' + (ok ? 'bam__chip--top' : 'bam__chip--warn');
+      chip.textContent = ok ? 'Erfüllt' : 'Fehlt';
+      li.appendChild(label);
+      li.appendChild(chip);
+      checklist.appendChild(li);
+    });
+  };
+
+  var showError = function(message){
+    errorText.textContent = message;
+    setState('error');
+  };
+
+  if(form) form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var company = (document.getElementById('gbp-company').value || '').trim();
+    var city = (document.getElementById('gbp-city').value || '').trim();
+    var keyword = (document.getElementById('gbp-keyword').value || '').trim();
+    if(!company || !city || !keyword){ form.reportValidity && form.reportValidity(); return; }
+
+    setState('loading');
+    fetch('/api/gbp-check', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({company: company, city: city, keyword: keyword})
+    })
+      .then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(data){ return {ok: res.ok, data: data}; });
+      })
+      .then(function(r){
+        if(r.ok && r.data && r.data.success){
+          renderResult(r.data);
+          setState('result');
+        } else if(r.data && r.data.error === 'not_found'){
+          showError('Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.');
+        } else {
+          showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.');
+        }
+      })
+      .catch(function(){
+        showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.');
+      });
+  });
+
+  Array.prototype.forEach.call(badge.querySelectorAll('[data-gbp-reset]'), function(btn){
+    btn.addEventListener('click', function(){
+      if(form) form.reset();
+      setState('form');
+    });
+  });
 })();
 
 (function(){

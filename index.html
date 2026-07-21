@@ -116,23 +116,48 @@
   </a>
 </header>
 
-<!-- ============ LOCALO FREE TOOL (Local Rank Checker) ============ -->
-<!-- Localo Free Tool: kostenloses Local-SEO-/Rank-Checker-Widget von jstools.localo.app -->
+<!-- ============ GBP-PROFIL-CHECK (eigenes Badge-Widget) ============ -->
 <section class="section" id="rank-check">
   <div class="container">
-    <div class="head-block center" data-reveal>
-      <span class="eyebrow" style="justify-content:center">Kostenloser Check</span>
-      <h2 class="section-title-grad">Wo steht Ihr Unternehmen aktuell bei Google?</h2>
-      <p>Prüfen Sie kostenlos und unverbindlich, wie sichtbar Ihr Betrieb im lokalen Kartenbereich ist.</p>
+    <div class="gbp-badge" id="gbp-badge" data-state="form">
+
+      <form class="form gbp-badge__form" id="gbpForm" novalidate>
+        <div class="field">
+          <label for="gbp-company">Firmenname</label>
+          <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required>
+        </div>
+        <div class="field">
+          <label for="gbp-city">Stadt</label>
+          <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required>
+        </div>
+        <div class="field">
+          <label for="gbp-keyword">Keyword</label>
+          <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required>
+        </div>
+        <button type="submit" class="btn btn--primary">Profil kostenlos prüfen</button>
+      </form>
+
+      <div class="gbp-badge__loading">Profil wird geprüft …</div>
+
+      <div class="gbp-badge__result">
+        <div class="gbp-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+            <circle class="gbp-ring__track" cx="60" cy="60" r="52"/>
+            <circle class="gbp-ring__value" cx="60" cy="60" r="52"/>
+          </svg>
+          <span class="gbp-ring__num" id="gbpScoreNum">0%</span>
+        </div>
+        <p class="gbp-badge__name" id="gbpCompanyName"></p>
+        <ul class="gbp-checklist" id="gbpChecklist"></ul>
+        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+      </div>
+
+      <div class="gbp-badge__error">
+        <p id="gbpErrorText">Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.</p>
+        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+      </div>
+
     </div>
-    <script>
-      window.LOCALO_FREE_TOOL = {
-        container: "#free-tool",
-        hidePoweredBy: true,
-        token: "nwlGEwcyTEhKGD9eawHZJER7uRmG8iibiFgOjY79HjA"
-      };
-    </script>
-    <div id="free-tool">Wird geladen...</div>
   </div>
 </section>
 
