@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
-function respond(int $status, array $body): never {
+function respond(int $status, array $body) {
     http_response_code($status);
     echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -51,12 +51,27 @@ if ($company === null || $city === null || $keyword === null) {
 //    gebauten dist/-Ordner und ist so nie öffentlich abrufbar.
 // ---------------------------------------------------------------------
 function loadApiKey(): ?string {
-    $fromEnv = getenv('GOOGLE_PLACES_API_KEY');
-    if ($fromEnv !== false && $fromEnv !== '') return $fromEnv;
+    // Manche Hosting-Setups (PHP-FPM/LSAPI, Apache SetEnv) reichen
+    // Env-Variablen nicht über getenv() durch, sondern nur über
+    // $_SERVER/$_ENV (abhängig von php.ini variables_order). Zusätzlich
+    // hängt Apache bei internen Redirects (unser mod_rewrite auf
+    // api/gbp-check.php greift genau das) ein "REDIRECT_"-Präfix an
+    // bereits gesetzte SetEnv-Variablen an — deshalb auch das prüfen.
+    $names = ['GOOGLE_PLACES_API_KEY', 'REDIRECT_GOOGLE_PLACES_API_KEY'];
+    foreach ($names as $name) {
+        foreach ([getenv($name), $_SERVER[$name] ?? false, $_ENV[$name] ?? false] as $fromEnv) {
+            if (is_string($fromEnv) && $fromEnv !== '') return $fromEnv;
+        }
+        if (function_exists('apache_getenv')) {
+            $fromApache = apache_getenv($name);
+            if (is_string($fromApache) && $fromApache !== '') return $fromApache;
+        }
+    }
 
     $candidates = [
         __DIR__ . '/../../.env',
         __DIR__ . '/../../../.env',
+        __DIR__ . '/../.env',
     ];
     foreach ($candidates as $path) {
         if (!is_file($path)) continue;
