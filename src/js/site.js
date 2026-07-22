@@ -881,20 +881,29 @@
     });
   }
 
-  // Sticky Mobile-CTA: nach dem Hero zeigen, im Kontaktbereich ausblenden
+  // Sticky Mobile-CTA: nach dem Hero zeigen, im Kontaktbereich und im
+  // Footer ausblenden (sonst verdeckt die fixe Leiste am Seitenende
+  // dauerhaft die letzte Footer-Zeile, ohne dass man daran vorbeiscrollen kann).
   var mcta = document.getElementById('mcta');
   if(mcta){
     var kontakt = document.getElementById('kontakt');
-    var kontaktVisible = false;
+    var footerEl = document.querySelector('.footer');
+    var kontaktVisible = false, footerVisible = false;
+    var updateMcta = function(){
+      mcta.classList.toggle('show', window.scrollY > 640 && !kontaktVisible && !footerVisible);
+    };
     if(kontakt){
       var kio = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ kontaktVisible = e.isIntersecting; updateMcta(); });
       }, {rootMargin:'0px 0px -20% 0px'});
       kio.observe(kontakt);
     }
-    var updateMcta = function(){
-      mcta.classList.toggle('show', window.scrollY > 640 && !kontaktVisible);
-    };
+    if(footerEl){
+      var fio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ footerVisible = e.isIntersecting; updateMcta(); });
+      }, {rootMargin:'0px'});
+      fio.observe(footerEl);
+    }
     window.addEventListener('scroll', updateMcta, {passive:true});
     updateMcta();
   }

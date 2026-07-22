@@ -863,6 +863,10 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
   .contacts{grid-template-columns:1fr}
   .rankcard-wrap{max-width:100%}
+  /* Die Pill bleibt hier schmaler als der zentrierte Titel lang ist —
+     die drei Ampel-Punkte wuerden mit dem Text kollidieren. Auf Mobile
+     daher ohne Punkte, Titel bleibt sauber zentriert. */
+  .gpill__dots{display:none}
   .map{height:104px}
   .results{height:218px}
   .result{height:64px}
