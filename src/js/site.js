@@ -53,13 +53,44 @@
   var factorTotalEl = document.getElementById('gbpFactorTotal');
   if(factorTotalEl) factorTotalEl.textContent = String(TOTAL_FACTORS);
 
+  // Ampel-Farblogik für den Ring: die ersten 25% der Skala (0-25%) dunkelrot,
+  // 25-50% helleres Rot, 50-75% Orange, erst ab 75% ein GRADUELLER Übergang
+  // zu Grün (kein abruptes Umspringen auf Grün genau bei 75%). Da unser
+  // realistisches Maximum bei 5 von 25 Faktoren liegt (20%), bleibt der Ring
+  // damit praktisch immer im dunkelroten Bereich — passend zur Botschaft,
+  // dass der Basis-Check allein nie "fertig" ist.
+  var RING_DARK_RED = [122, 46, 40];
+  var RING_LIGHT_RED = [196, 88, 74];
+  var RING_ORANGE = [214, 138, 60];
+  var RING_GREEN = [85, 211, 150];
+  var mixRgb = function(a, b, t){
+    return [
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t)
+    ];
+  };
+  var ringColor = function(pct){
+    pct = Math.max(0, Math.min(100, pct));
+    var rgb;
+    if(pct <= 25) rgb = RING_DARK_RED;
+    else if(pct <= 50) rgb = RING_LIGHT_RED;
+    else if(pct <= 75) rgb = RING_ORANGE;
+    else rgb = mixRgb(RING_ORANGE, RING_GREEN, (pct - 75) / 25);
+    return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+  };
+
   var renderResult = function(data){
     nameEl.textContent = data.company_name || '';
 
     var completeness = data.completeness || {};
     var fulfilled = CHECK_ORDER.reduce(function(n, key){ return n + (completeness[key] ? 1 : 0); }, 0);
+    var pct = (fulfilled / TOTAL_FACTORS) * 100;
     ringNum.textContent = String(fulfilled);
-    if(ringValue) ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(fulfilled / TOTAL_FACTORS, 1))).toFixed(2);
+    if(ringValue){
+      ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(fulfilled / TOTAL_FACTORS, 1))).toFixed(2);
+      ringValue.style.stroke = ringColor(pct);
+    }
 
     checklist.innerHTML = '';
     CHECK_ORDER.forEach(function(key){
