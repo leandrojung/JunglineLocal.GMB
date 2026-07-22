@@ -117,9 +117,24 @@
 </header>
 
 <!-- ============ GBP-PROFIL-CHECK (eigenes Badge-Widget) ============ -->
-<section class="section" id="rank-check">
+<section class="section rank-check" id="rank-check">
   <div class="container">
-    <div class="gbp-badge" id="gbp-badge" data-state="form">
+    <div class="rank-check__grid">
+      <div class="rank-check__intro" data-reveal>
+        <div class="eyebrow rank-check__eyebrow"><span class="rank-check__dot"></span>Live-Check in 30 Sekunden</div>
+        <h2 class="rank-check__headline">Testen Sie jetzt: <span class="rank-check__accent">wo steht Ihr Unternehmen</span> bei Google?</h2>
+        <p class="rank-check__sub">Wir durchsuchen Google in Echtzeit — Vollständigkeit, Bewertungen und Ihre Position gegen die echte Konkurrenz in Ihrer Stadt.</p>
+        <ul class="rank-check__trust">
+          <li>Echte Google Daten</li>
+          <li>Ergebnis in Sekunden</li>
+        </ul>
+      </div>
+      <div class="rank-check__stage" data-reveal>
+        <span class="rank-check__ring"></span>
+        <span class="rank-check__ring rank-check__ring--2"></span>
+        <span class="rank-check__ring rank-check__ring--3"></span>
+        <span class="rank-check__beam"></span>
+        <div class="gbp-badge" id="gbp-badge" data-state="form">
 
       <form class="form gbp-badge__form" id="gbpForm" novalidate>
         <div class="field">
@@ -157,6 +172,8 @@
         <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
       </div>
 
+        </div>
+      </div>
     </div>
 
     <!-- ============ WETTBEWERBSVERGLEICH (erscheint nach erfolgreichem Profil-Check) ============ -->
