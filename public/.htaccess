@@ -15,10 +15,12 @@
 # =========================================================================
 
 # ---------- 0) Saubere URL für die GBP-Check-API ----------
-# /api/gbp-check (ohne .php) intern auf die tatsächliche PHP-Datei mappen.
+# /api/gbp-check bzw. /api/gbp-compare (ohne .php) intern auf die
+# tatsächlichen PHP-Dateien mappen.
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
+  RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
 </IfModule>
 
 # .env-Dateien dürfen unter keinen Umständen ausgeliefert werden — auch
