@@ -88,7 +88,13 @@
   var compareList = document.getElementById('gbpCompareList');
   var compareGaps = document.getElementById('gbpCompareGaps');
   var compareSub = document.getElementById('gbpCompareSub');
-  var setCompareState = function(state){ if(compare) compare.setAttribute('data-state', state); };
+  var rankSection = document.getElementById('rank-check');
+  // Solange der Vergleich aktiv ist (loading/result/empty/error) ersetzt er
+  // links den Intro-Text — dazu bekommt die Sektion eine Marker-Klasse.
+  var setCompareState = function(state){
+    if(compare) compare.setAttribute('data-state', state);
+    if(rankSection) rankSection.classList.toggle('rank-check--comparing', state !== 'hidden');
+  };
 
   var fmtRating = function(r){
     return (typeof r === 'number' && r > 0) ? (Math.round(r * 10) / 10).toFixed(1).replace('.', ',') : '–';
@@ -211,7 +217,10 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var scrollToCompare = function(){
-    var y = compare.getBoundingClientRect().top + window.scrollY - 72;
+    // Zum Anfang der Sektion scrollen, damit beide Spalten (Vergleich links,
+    // Basis-Check rechts) gemeinsam im Blick sind.
+    var target = rankSection || compare;
+    var y = target.getBoundingClientRect().top + window.scrollY - 72;
     window.scrollTo({top: y, behavior: reduceMotion ? 'auto' : 'smooth'});
   };
 

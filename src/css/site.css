@@ -236,6 +236,12 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    damit das sitewide Aurora/Grain (partials/endbody.html) durchscheint und
    der Übergang zum Hero oben bzw. zum Ticker unten nahtlos bleibt. */
 .rank-check__grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+.rank-check__left{min-width:0}
+/* Nach dem Check wandert der Vergleich in die linke Spalte und ersetzt den
+   Intro-Text; die Spalten richten sich dann oben statt mittig aus, damit
+   Vergleichs-Card und Basis-Check auf einer Höhe beginnen. */
+.rank-check--comparing .rank-check__grid{align-items:start}
+.rank-check--comparing .rank-check__intro{display:none}
 
 .rank-check__eyebrow{margin-bottom:18px}
 .rank-check__eyebrow::before{content:none}
@@ -280,6 +286,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 
 @media(max-width:880px){
   .rank-check__grid{grid-template-columns:1fr;gap:40px}
+  /* Gestapelt: nach dem Check zuerst der Basis-Check (Antwort auf die Eingabe),
+     darunter der Vergleich. */
+  .rank-check--comparing .rank-check__stage{order:-1}
 }
 @media(max-width:640px){
   .rank-check__stage{min-height:380px}
@@ -340,8 +349,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .gbp-badge__error p{color:var(--dim);font-size:.95rem;line-height:1.6;margin-bottom:18px}
 .gbp-badge__result .btn,.gbp-badge__error .btn{width:100%}
 
-/* ============ WETTBEWERBSVERGLEICH (zweiter Block unter dem Badge) ============ */
-.gbp-compare{display:none;margin:20px auto 0;max-width:620px;padding:32px 28px;
+/* ============ WETTBEWERBSVERGLEICH (ersetzt nach dem Check den Intro-Text
+   in der linken Spalte, gegenüber dem Basis-Check rechts) ============ */
+.gbp-compare{display:none;padding:32px 28px;
   background:var(--card-2);border:1px solid var(--border);border-radius:var(--r-lg);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .gbp-compare[data-state="loading"],
