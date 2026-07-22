@@ -71,6 +71,155 @@
     setState('error');
   };
 
+  // ---- Wettbewerbsvergleich: zweiter Block, startet automatisch sobald
+  // der Profil-Check oben erfolgreich war. Eigene Backend-Route
+  // /api/gbp-compare, die intern die Places API (New) Text Search nutzt. ----
+  var compare = document.getElementById('gbp-compare');
+  var compareList = document.getElementById('gbpCompareList');
+  var compareGaps = document.getElementById('gbpCompareGaps');
+  var compareSub = document.getElementById('gbpCompareSub');
+  var setCompareState = function(state){ if(compare) compare.setAttribute('data-state', state); };
+
+  var fmtRating = function(r){
+    return (typeof r === 'number' && r > 0) ? (Math.round(r * 10) / 10).toFixed(1).replace('.', ',') : '–';
+  };
+
+  var buildRow = function(rank, name, rating, reviewCount, isYou){
+    var row = document.createElement('div');
+    row.className = 'bam__row ' + (isYou ? 'bam__row--you' : 'bam__row--comp');
+    var rankEl = document.createElement('span');
+    rankEl.className = 'bam__rank' + (isYou ? ' bam__rank--you' : '');
+    rankEl.textContent = String(rank);
+    var body = document.createElement('span');
+    body.className = 'bam__body';
+    var nameEl2 = document.createElement('span');
+    nameEl2.className = 'bam__name';
+    nameEl2.textContent = name;
+    var meta = document.createElement('span');
+    meta.className = 'bam__meta';
+    var stars = document.createElement('span');
+    stars.className = 'bam__stars';
+    stars.textContent = '★';
+    meta.appendChild(stars);
+    meta.appendChild(document.createTextNode(' ' + fmtRating(rating) + ' · '));
+    var count = document.createElement('span');
+    count.className = 'bam__count';
+    count.textContent = reviewCount + ' Bewertungen';
+    meta.appendChild(count);
+    body.appendChild(nameEl2);
+    body.appendChild(meta);
+    row.appendChild(rankEl);
+    row.appendChild(body);
+    if(isYou){
+      var chip = document.createElement('span');
+      chip.className = 'bam__chip bam__chip--top';
+      chip.textContent = 'Ihre Firma';
+      row.appendChild(chip);
+    }
+    return row;
+  };
+
+  var buildOwnBelowRow = function(own, company){
+    var row = document.createElement('div');
+    row.className = 'bam__row bam__row--you bam__row--own-below';
+    var rankEl = document.createElement('span');
+    rankEl.className = 'bam__rank bam__rank--you';
+    rankEl.textContent = own.found ? String(own.position) : '?';
+    var body = document.createElement('span');
+    body.className = 'bam__body';
+    var nameEl2 = document.createElement('span');
+    nameEl2.className = 'bam__name';
+    nameEl2.textContent = own.found ? own.name : company;
+    var meta = document.createElement('span');
+    meta.className = 'bam__meta';
+    if(own.found){
+      var stars = document.createElement('span');
+      stars.className = 'bam__stars';
+      stars.textContent = '★';
+      meta.appendChild(stars);
+      meta.appendChild(document.createTextNode(' ' + fmtRating(own.rating) + ' · '));
+      var count = document.createElement('span');
+      count.className = 'bam__count';
+      count.textContent = own.review_count + ' Bewertungen';
+      meta.appendChild(count);
+    } else {
+      meta.textContent = 'Nicht unter den ersten 20 Treffern';
+    }
+    body.appendChild(nameEl2);
+    body.appendChild(meta);
+    var chip = document.createElement('span');
+    chip.className = 'bam__chip ' + (own.found ? 'bam__chip--top' : 'bam__chip--warn');
+    chip.textContent = own.found ? ('Platz ' + own.position) : 'Außerhalb der Top 20';
+    row.appendChild(rankEl);
+    row.appendChild(body);
+    row.appendChild(chip);
+    return row;
+  };
+
+  var addGapRow = function(label, text, good){
+    var li = document.createElement('li');
+    var labelEl = document.createElement('span');
+    labelEl.textContent = label;
+    var chip = document.createElement('span');
+    chip.className = 'bam__chip ' + (good ? 'bam__chip--top' : 'bam__chip--warn');
+    chip.textContent = text;
+    li.appendChild(labelEl);
+    li.appendChild(chip);
+    compareGaps.appendChild(li);
+  };
+
+  var renderCompare = function(data, ctx){
+    if(!data.result_count){
+      setCompareState('empty');
+      return;
+    }
+
+    var top3 = data.top3 || [];
+    var own = data.own || {found: false};
+    var ownInTop3 = own.found && own.position <= 3;
+
+    compareList.innerHTML = '';
+    top3.forEach(function(p, i){
+      compareList.appendChild(buildRow(i + 1, p.name, p.rating, p.review_count, ownInTop3 && i === own.position - 1));
+    });
+    if(!ownInTop3){
+      compareList.appendChild(buildOwnBelowRow(own, ctx.company));
+    }
+
+    compareGaps.innerHTML = '';
+    var top1 = top3[0];
+    var ownRating = own.found ? own.rating : ctx.ownRating;
+    var ownReviews = own.found ? own.review_count : ctx.ownReviews;
+    if(top1){
+      addGapRow('Rating', fmtRating(ownRating) + ' vs. ' + fmtRating(top1.rating) + ' bei Platz 1', ownRating >= top1.rating);
+      addGapRow('Bewertungen', ownReviews + ' vs. ' + top1.review_count + ' bei Platz 1', ownReviews >= top1.review_count);
+    }
+
+    setCompareState('result');
+  };
+
+  var fetchCompare = function(ctx){
+    if(!compare) return;
+    if(compareSub) compareSub.textContent = 'Basierend auf echten Google-Daten für „' + ctx.keyword + '“ in ' + ctx.city + '.';
+    setCompareState('loading');
+    fetch('/api/gbp-compare', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({company: ctx.company, city: ctx.city, keyword: ctx.keyword, place_id: ctx.placeId || ''})
+    })
+      .then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(data){ return {ok: res.ok, data: data}; });
+      })
+      .then(function(r){
+        if(r.ok && r.data && r.data.success){
+          renderCompare(r.data, ctx);
+        } else {
+          setCompareState('error');
+        }
+      })
+      .catch(function(){ setCompareState('error'); });
+  };
+
   if(form) form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var company = (document.getElementById('gbp-company').value || '').trim();
@@ -91,6 +240,10 @@
         if(r.ok && r.data && r.data.success){
           renderResult(r.data);
           setState('result');
+          fetchCompare({
+            company: company, city: city, keyword: keyword,
+            placeId: r.data.place_id, ownRating: r.data.rating, ownReviews: r.data.reviews
+          });
         } else if(r.data && r.data.error === 'not_found'){
           showError('Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.');
         } else {
@@ -106,6 +259,7 @@
     btn.addEventListener('click', function(){
       if(form) form.reset();
       setState('form');
+      setCompareState('hidden');
     });
   });
 })();

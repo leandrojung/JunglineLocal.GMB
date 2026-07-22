@@ -14,99 +14,10 @@
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-
-function respond(int $status, array $body): never {
-    http_response_code($status);
-    echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
-// ---------------------------------------------------------------------
-// API-Key laden — nie im Frontend, nie im Repo. Reihenfolge:
-// 1) echte PHP-Umgebungsvariable (z. B. im Hostinger hPanel gesetzt)
-// 2) .env-Datei OBERHALB des Web-Roots — public_html/../.env bzw. eine
-//    Ebene weiter, je nach Deploy-Layout. Landet dadurch nie im per Vite
-//    gebauten dist/-Ordner und ist so nie öffentlich abrufbar.
-// ---------------------------------------------------------------------
-function envValue(string $name): ?string {
-    $fromEnv = getenv($name);
-    if ($fromEnv !== false && trim($fromEnv) !== '') return trim($fromEnv);
-
-    $candidates = [
-        __DIR__ . '/../../.env',
-        __DIR__ . '/../../../.env',
-    ];
-    foreach ($candidates as $path) {
-        if (!is_file($path)) continue;
-        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
-            [$key, $value] = explode('=', $line, 2);
-            if (trim($key) === $name) {
-                $value = trim(trim($value), "\"'");
-                if ($value !== '') return $value;
-            }
-        }
-    }
-    return null;
-}
-
-// ---------------------------------------------------------------------
-// Google Places API (New) — cURL-Helper.
-// Liefert IMMER ein strukturiertes Ergebnis zurück, damit der Aufrufer
-// zwischen "Aufruf fehlgeschlagen" (Konfig/Netz) und "gültige Antwort
-// ohne Treffer" unterscheiden kann. Früher gab ein Fehler schlicht null
-// zurück und wurde weiter oben fälschlich als "not_found" gedeutet.
-// ---------------------------------------------------------------------
-function placesRequest(string $method, string $url, string $apiKey, string $fieldMask, ?array $body = null): array {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_CUSTOMREQUEST => $method,
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'X-Goog-Api-Key: ' . $apiKey,
-            'X-Goog-FieldMask: ' . $fieldMask,
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 8,
-        CURLOPT_CONNECTTIMEOUT => 5,
-    ]);
-    if ($body !== null) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body, JSON_UNESCAPED_UNICODE));
-    }
-    $response = curl_exec($ch);
-    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-
-    // Netz-/cURL-Fehler (DNS, Timeout, TLS …)
-    if ($response === false || $curlError !== '') {
-        error_log('gbp-check: cURL-Fehler — ' . $curlError);
-        return ['ok' => false, 'status' => 0, 'data' => null, 'reason' => 'network_error', 'message' => $curlError];
-    }
-
-    $decoded = json_decode((string) $response, true);
-
-    // HTTP-Fehler von Google (403 Key-Restriktion, 400 API nicht aktiviert,
-    // Billing-Fehler …). Google liefert die konkrete Ursache im Feld
-    // error.message — genau das brauchen wir für die Diagnose.
-    if ($httpCode < 200 || $httpCode >= 300 || !is_array($decoded)) {
-        $googleMessage = $decoded['error']['message'] ?? substr((string) $response, 0, 300);
-        $googleStatus  = $decoded['error']['status'] ?? '';
-        error_log('gbp-check: Places API HTTP ' . $httpCode . ' — ' . $googleStatus . ' ' . $googleMessage);
-        return [
-            'ok' => false,
-            'status' => $httpCode,
-            'data' => null,
-            'reason' => 'api_error',
-            'message' => trim($googleStatus . ' ' . $googleMessage),
-        ];
-    }
-
-    return ['ok' => true, 'status' => $httpCode, 'data' => $decoded, 'reason' => '', 'message' => ''];
-}
+// respond(), envValue(), placesRequest(), cleanField() — siehe _shared.php.
+// API-Key nie im Frontend, nie im Repo: entweder echte PHP-Umgebungsvariable
+// (z. B. im Hostinger hPanel gesetzt) oder .env-Datei OBERHALB des Web-Roots.
+require __DIR__ . '/_shared.php';
 
 // =====================================================================
 // DIAGNOSE-MODUS (nur Betreiber): GET ?diag=<token>
@@ -211,12 +122,6 @@ if (!is_array($input)) {
     respond(400, ['success' => false, 'error' => 'invalid_body']);
 }
 
-function cleanField(array $input, string $key, int $maxLen = 150): ?string {
-    $value = isset($input[$key]) ? trim((string) $input[$key]) : '';
-    if ($value === '' || mb_strlen($value) > $maxLen) return null;
-    return $value;
-}
-
 $company = cleanField($input, 'company');
 $city    = cleanField($input, 'city');
 $keyword = cleanField($input, 'keyword');
@@ -291,6 +196,7 @@ $score = min(100, $score);
 respond(200, [
     'success' => true,
     'company_name' => $details['displayName']['text'] ?? $company,
+    'place_id' => $placeId,
     'score' => $score,
     'rating' => $rating,
     'reviews' => $reviewCount,
