@@ -120,7 +120,13 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   font-size:.76rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
   color:var(--green-bright);
 }
-.eyebrow::before{content:"";width:24px;height:1px;background:linear-gradient(90deg,transparent,var(--green))}
+/* Je Thema ein eigenes kleines Icon statt des generischen Strichs davor.
+   Alle teilen Groesse/Stroke-Stil; einzelne Varianten bekommen zusaetzlich
+   eine sehr dezente, thematisch passende Bewegung (siehe unten). */
+.eyebrow__icon{flex:none;width:15px;height:15px;overflow:visible}
+.eyebrow__icon--pin,.eyebrow__icon--trend circle{animation:eyebrow-breathe 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes eyebrow-breathe{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.35);opacity:1}}
+@media(prefers-reduced-motion:reduce){.eyebrow__icon--pin,.eyebrow__icon--trend circle{animation:none}}
 .head-block{max-width:680px}
 .head-block.center{margin:0 auto;text-align:center}
 .head-block.center .eyebrow{justify-content:center}
@@ -254,7 +260,6 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result [data-gbp-reset]{margin-top:auto}
 
 .rank-check__eyebrow{margin-bottom:18px}
-.rank-check__eyebrow::before{content:none}
 .rank-check__dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);flex:none;
   box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),.55);animation:rank-check-pulse 1.8s ease-out infinite}
 @keyframes rank-check-pulse{
