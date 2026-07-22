@@ -42,18 +42,28 @@
 
   var setState = function(state){ badge.setAttribute('data-state', state); };
 
-  var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen'};
-  var CHECK_ORDER = ['categories', 'photos', 'hours', 'reviews'];
+  var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen', website:'Website verlinkt'};
+  var CHECK_ORDER = ['categories', 'photos', 'hours', 'reviews', 'website'];
+  // Bewusst KEIN Prozent-Score mehr: "75%" oder "100%" vermittelt den falschen
+  // Eindruck, das Profil sei schon (fast) fertig optimiert. Die 5 Basis-Checks
+  // hier sind nur ein kleiner Ausschnitt der echten Ranking-Faktoren — der
+  // Ring zeigt deshalb ehrlich "X von 25+" statt einer Fertigstellungs-Quote,
+  // und bleibt dadurch selbst bei 5/5 sichtbar größtenteils ungefüllt.
+  var TOTAL_FACTORS = 25;
+  var factorTotalEl = document.getElementById('gbpFactorTotal');
+  if(factorTotalEl) factorTotalEl.textContent = String(TOTAL_FACTORS);
 
   var renderResult = function(data){
     nameEl.textContent = data.company_name || '';
-    var pct = Math.max(0, Math.min(100, data.score || 0));
-    ringNum.textContent = pct + '%';
-    if(ringValue) ringValue.style.strokeDashoffset = (CIRC - (CIRC * pct / 100)).toFixed(2);
+
+    var completeness = data.completeness || {};
+    var fulfilled = CHECK_ORDER.reduce(function(n, key){ return n + (completeness[key] ? 1 : 0); }, 0);
+    ringNum.textContent = String(fulfilled);
+    if(ringValue) ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(fulfilled / TOTAL_FACTORS, 1))).toFixed(2);
 
     checklist.innerHTML = '';
     CHECK_ORDER.forEach(function(key){
-      var ok = !!(data.completeness && data.completeness[key]);
+      var ok = !!completeness[key];
       var li = document.createElement('li');
       var label = document.createElement('span');
       label.textContent = CHECK_LABELS[key];
