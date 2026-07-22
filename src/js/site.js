@@ -208,10 +208,18 @@
     setCompareState('result');
   };
 
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var scrollToCompare = function(){
+    var y = compare.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({top: y, behavior: reduceMotion ? 'auto' : 'smooth'});
+  };
+
   var fetchCompare = function(ctx){
     if(!compare) return;
     if(compareSub) compareSub.textContent = 'Basierend auf echten Google-Daten für „' + ctx.keyword + '“ in ' + ctx.city + '.';
     setCompareState('loading');
+    scrollToCompare();
     fetch('/api/gbp-compare', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
