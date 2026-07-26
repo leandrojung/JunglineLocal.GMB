@@ -1030,6 +1030,12 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   font-size:.85rem;font-weight:500;padding:6px 14px;line-height:1.3;
   transition:color .2s var(--ease-out),border-color .2s var(--ease-out),background-color .2s var(--ease-out),transform .2s var(--ease-out)}
 .catcard__badges li:hover{color:var(--green-bright);border-color:var(--green);background:rgba(var(--green-rgb),.08);transform:translateY(-2px)}
+/* Stagger übers Zeilenraster (nth-child statt data-d="1|2|3", da hier bis zu
+   16 Karten stehen können — das globale data-d deckt nur 3 Stufen ab).
+   Nutzt dieselbe .js [data-reveal]-Basisanimation und dieselbe
+   reduced-motion-Abschaltung, ergänzt nur die Verzögerung. */
+.js .catgrid>[data-reveal]:nth-child(3n+2){transition-delay:.07s}
+.js .catgrid>[data-reveal]:nth-child(3n){transition-delay:.14s}
 
 /* schlanke Kontakt-Kurzinfos (Kontakt-/Über-mich-Seite) */
 .infocard{background:var(--card-2);border:1px solid var(--border);border-radius:var(--r);padding:26px 28px;backdrop-filter:blur(8px)}
