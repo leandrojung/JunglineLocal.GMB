@@ -1013,10 +1013,13 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 
 /* Kategorie-Karten-Raster (Branchen-Übersicht: /branchen/). Bewusst eigene
    Klassen statt .factgrid/.fact zu erweitern, da jene auch auf leistungen/
-   und kontakt/ laufen und dort unverändert bleiben müssen. align-items:start,
-   weil die Badge-Anzahl pro Karte stark schwankt (1 bis 17) — Karten sollen
-   ihre eigene Höhe behalten statt auf Zeilenhöhe gestreckt zu werden. */
-.catgrid{display:grid;grid-template-columns:1fr;gap:20px;margin:44px auto 0;align-items:start}
+   und kontakt/ laufen und dort unverändert bleiben müssen. KEIN
+   align-items:start: Grid-Items mit intrinsischer Höhe zwingt den Browser,
+   für jede Karte zuerst die verschachtelte Flex-Wrap-Badge-Liste vollständig
+   durchzurechnen, bevor die Zeilenhöhe feststeht — bei 16 Karten mit 1 bis
+   17 Badges maß das im Lighthouse-Check +1,5s Blocking-Zeit (Performance
+   71 statt 86). Karten strecken sich deshalb bewusst auf Zeilenhöhe. */
+.catgrid{display:grid;grid-template-columns:1fr;gap:20px;margin:44px auto 0}
 @media(min-width:641px){.catgrid{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:961px){.catgrid{grid-template-columns:repeat(3,1fr)}}
 .catcard{background:linear-gradient(180deg,var(--surface),var(--card-solid));border:1px solid var(--border);
