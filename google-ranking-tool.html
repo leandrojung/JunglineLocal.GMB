@@ -1,0 +1,727 @@
+<!doctype html>
+<!--
+================================================================================
+  GOOGLE-RANKING-CHECK  ·  Komplettes Tool in EINER Datei
+  Original: jungline.de  ·  Weitergabe an einen Freund (Hosting über Lovable)
+================================================================================
+
+  Hallo! 👋  Diese eine HTML-Datei enthält das komplette „Live-Check in 30
+  Sekunden“-Tool von jungline.de:
+
+     Schritt 1  ->  Formular (Firmenname · Stadt · Keyword)
+     Schritt 2  ->  Radar-Ladeanimation
+     Schritt 3  ->  Ergebnis: Sichtbarkeits-Score als Ring + Checkliste
+     Schritt 4  ->  Wettbewerbsvergleich (Top 3 + deine Position + Lücken)
+     Schritt 5  ->  Call-to-Action
+
+  …inklusive aller Animationen (Radar-Ringe, pulsierender Punkt, Schimmer-Text,
+  Ring-Füllung, sanfte Übergänge).
+
+  --------------------------------------------------------------------------
+  ⚡  SOFORT AUSPROBIEREN (kein Setup nötig)
+  --------------------------------------------------------------------------
+  Datei einfach doppelklicken -> sie öffnet sich im Browser und funktioniert
+  komplett. Sie läuft standardmäßig im DEMO-MODUS: Du gibst irgendeinen
+  Firmennamen, eine Stadt und ein Keyword ein und siehst den kompletten Ablauf
+  mit realistischen Beispiel-Daten. Perfekt, um es herzuzeigen.
+
+  Ganz unten im Code (Bereich "KONFIGURATION") steht:
+
+      MODE: 'demo'      // 'demo' = Beispieldaten | 'live' = echte Google-Daten
+
+  --------------------------------------------------------------------------
+  🅰  SO BAUST DU ES IN DEINE LOVABLE-SEITE EIN  (empfohlen)
+  --------------------------------------------------------------------------
+  Lovable baut React-Apps. Am einfachsten übergibst du Lovable diese Datei per
+  Prompt. Kopiere den GESAMTEN Inhalt dieser Datei und schreibe im Lovable-Chat:
+
+    „Hier ist eine fertige, eigenständige HTML-Seite mit einem Google-Ranking-
+     Check-Tool. Bitte binde sie 1:1 als neue Seite unter der Route /ranking-check
+     ein – am einfachsten über eine Komponente, die diesen HTML-Inhalt in einem
+     <iframe srcdoc={...}> oder per dangerouslySetInnerHTML rendert, damit CSS
+     und Animationen exakt erhalten bleiben. Ändere nichts am Design.“
+
+    [danach den kompletten Datei-Inhalt einfügen]
+
+  Alternativ (am robustesten, wenn du nichts kaputt machen willst):
+    1. Lege die Datei in Lovable unter  public/ranking-check.html  ab
+       (im Lovable-Editor: „Add file“ -> Pfad public/ranking-check.html).
+    2. Erreichbar dann unter  deine-domain.de/ranking-check.html
+    3. Optional auf einer bestehenden Seite einbetten:
+         <iframe src="/ranking-check.html" style="width:100%;height:900px;border:0"></iframe>
+
+  So bleibt das Tool 100 % unverändert und kann nichts an deiner React-App stören.
+
+  --------------------------------------------------------------------------
+  🅱  ECHTE GOOGLE-DATEN AKTIVIEREN  (optional, für „live“ statt Demo)
+  --------------------------------------------------------------------------
+  Wichtig zu verstehen: Der Google-API-Schlüssel darf NIEMALS im Frontend/
+  Browser stehen (sonst kann ihn jeder klauen). Deshalb braucht „live“ einen
+  winzigen Server-Baustein. Zwei Wege:
+
+  Weg 1 – Supabase Edge Function (passt perfekt zu Lovable):
+    Lovable hat Supabase eingebaut. Sag im Lovable-Chat einfach:
+      „Verbinde Supabase und lege eine Edge Function namens 'gbp' an mit
+       folgendem Code“ – und füge den Code aus dem Block  === SUPABASE-CODE ===
+       (weiter unten in diesem Kommentar) ein.
+    Dann in Supabase unter „Edge Functions -> Secrets“ eintragen:
+       GOOGLE_PLACES_API_KEY = dein-schlüssel
+    Und unten in der KONFIGURATION dieser Datei setzen:
+       MODE: 'live',
+       LIVE_ENDPOINT: 'https://DEIN-PROJEKT.supabase.co/functions/v1/gbp'
+
+  Weg 2 – klassisches PHP-Hosting (falls du irgendwo PHP hast, z. B. Hostinger):
+    Lade die 2 PHP-Dateien aus  === PHP-CODE ===  in einen Ordner /api hoch,
+    trag den Key als Umgebungsvariable oder .env ein, und setze:
+       MODE: 'live',
+       LIVE_ENDPOINT: '/api'      (die Datei ruft dann /api/gbp-check + /api/gbp-compare)
+    Hinweis: Reines Lovable-Hosting kann kein PHP – dieser Weg ist nur für
+    zusätzliches klassisches Webhosting gedacht.
+
+  Google-API-Schlüssel besorgen (für beide Wege):
+    1. console.cloud.google.com öffnen -> Projekt anlegen
+    2. „APIs & Dienste -> Bibliothek“ -> „Places API (New)“ aktivieren
+    3. „APIs & Dienste -> Anmeldedaten“ -> API-Schlüssel erstellen
+    4. Abrechnung aktivieren (Google verlangt eine Kreditkarte; es gibt ein
+       großzügiges kostenloses Monatskontingent)
+    5. Den Schlüssel als Secret/Umgebungsvariable auf dem Server hinterlegen –
+       NICHT in diese HTML-Datei schreiben.
+
+  --------------------------------------------------------------------------
+  🎨  ANPASSEN (Farben, Texte)
+  --------------------------------------------------------------------------
+  - Farben: ganz oben im <style> unter  :root  (z. B. --green, --bg).
+  - Texte/Überschriften: direkt im HTML weiter unten (deutsch, klar benannt).
+  - Der Sichtbarkeits-Score zeigt bewusst „X von 25 Faktoren“ (nicht %), damit
+    er ehrlich wirkt und nie „fertig optimiert“ suggeriert.
+
+  ================================  === SUPABASE-CODE ===  =====================
+  Datei: supabase/functions/gbp/index.ts   (Deno / TypeScript)
+
+    import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+    const KEY = Deno.env.get("GOOGLE_PLACES_API_KEY")!;
+    const CORS = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "content-type, authorization",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+    };
+    const json = (b: unknown, s = 200) =>
+      new Response(JSON.stringify(b), { status: s, headers: { ...CORS, "content-type": "application/json" } });
+
+    async function places(method: string, url: string, mask: string, body?: unknown) {
+      const r = await fetch(url, {
+        method,
+        headers: { "content-type": "application/json", "X-Goog-Api-Key": KEY, "X-Goog-FieldMask": mask },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await r.json().catch(() => null);
+      return { ok: r.ok, data };
+    }
+
+    serve(async (req) => {
+      if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+      const { action, company, city, keyword, place_id } = await req.json().catch(() => ({}));
+
+      if (action === "check") {
+        const s = await places("POST", "https://places.googleapis.com/v1/places:searchText",
+          "places.id,places.displayName,places.formattedAddress",
+          { textQuery: `${company} ${keyword} ${city}`, languageCode: "de", maxResultCount: 1 });
+        if (!s.ok) return json({ success: false, error: "upstream_error" }, 502);
+        const id = s.data?.places?.[0]?.id;
+        if (!id) return json({ success: false, error: "not_found" });
+        const d = await places("GET", `https://places.googleapis.com/v1/places/${encodeURIComponent(id)}`,
+          "displayName,rating,userRatingCount,photos,currentOpeningHours,websiteUri,types");
+        if (!d.ok) return json({ success: false, error: "upstream_error" }, 502);
+        const x = d.data;
+        const reviews = x.userRatingCount ?? 0, photos = (x.photos ?? []).length;
+        return json({
+          success: true, company_name: x.displayName?.text ?? company, place_id: id,
+          rating: x.rating ?? 0, reviews, photos, website: x.websiteUri ?? null,
+          completeness: {
+            categories: !!(x.types?.length), hours: !!x.currentOpeningHours,
+            website: !!x.websiteUri, photos: photos >= 5, reviews: reviews >= 10,
+          },
+        });
+      }
+
+      if (action === "compare") {
+        const s = await places("POST", "https://places.googleapis.com/v1/places:searchText",
+          "places.id,places.displayName,places.rating,places.userRatingCount",
+          { textQuery: `${keyword} ${city}`, languageCode: "de", maxResultCount: 20 });
+        if (!s.ok) return json({ success: false, error: "upstream_error" }, 502);
+        const list = (s.data?.places ?? []).map((p: any) => ({
+          id: p.id, name: p.displayName?.text ?? "",
+          rating: p.rating ?? 0, review_count: p.userRatingCount ?? 0,
+        })).filter((p: any) => p.id && p.name);
+        const norm = (n: string) => n.toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").replace(/\s+/g, " ").trim();
+        let idx = place_id ? list.findIndex((p: any) => p.id === place_id) : -1;
+        if (idx < 0) { const c = norm(company); idx = list.findIndex((p: any) => norm(p.name).includes(c) || c.includes(norm(p.name))); }
+        const own = idx >= 0
+          ? { found: true, position: idx + 1, name: list[idx].name, rating: list[idx].rating, review_count: list[idx].review_count }
+          : { found: false };
+        return json({
+          success: true, keyword, city, result_count: list.length,
+          top3: list.slice(0, 3).map((p: any) => ({ name: p.name, rating: p.rating, review_count: p.review_count })),
+          own,
+        });
+      }
+      return json({ success: false, error: "unknown_action" }, 400);
+    });
+
+  ================================  === PHP-CODE ===  =========================
+  (Das sind die Original-Backend-Dateien von jungline.de. Ordner /api anlegen.)
+  Aus Platzgründen hier NICHT nochmal vollständig eingefügt – wenn du diesen
+  Weg gehst, sag Leandro Bescheid, er hat die 3 Dateien gbp-check.php,
+  gbp-compare.php und _shared.php im Original-Projekt. Der Weg über Supabase
+  (oben) ist für Lovable ohnehin der bessere.
+
+  Viel Erfolg damit!  – Leandro / jungline.de
+================================================================================
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google-Ranking-Check · Live-Check in 30 Sekunden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+/* ===================== DESIGN-TOKENS (Farben hier ändern) ===================== */
+:root{
+  --bg:#040605; --bg-rgb:4,6,5; --bg-2:#070A08;
+  --surface-2-rgb:27,31,30; --surface-2:#1B1F1E;
+  --card-2:rgba(39,44,42,.72); --card-solid:#272C2A;
+  --border:rgba(22,154,80,.18); --border-strong:rgba(22,154,80,.34);
+  --green:#169A50; --green-rgb:22,154,80;
+  --green-bright:#55D396; --green-bright-rgb:85,211,150;
+  --green-ink:#06120B;
+  --ink:#FFFFFF; --dim:#A8B5AE; --dim-2:#8CA095;
+  --grad-cta:linear-gradient(135deg,var(--green),var(--green-bright));
+  --r-lg:24px;
+  --ease:cubic-bezier(.2,.7,.2,1); --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Instrument Sans',system-ui,sans-serif; font-weight:450; line-height:1.6;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh; position:relative;
+}
+/* weicher Marken-Hintergrund */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1100px 700px at 78% 2%, rgba(var(--green-rgb),.18), transparent 60%),
+    radial-gradient(900px 700px at 12% 24%, rgba(var(--green-bright-rgb),.09), transparent 60%),
+    radial-gradient(1000px 800px at 88% 52%, rgba(var(--green-rgb),.12), transparent 62%),
+    radial-gradient(1200px 800px at 70% 100%, rgba(var(--green-rgb),.15), transparent 62%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 38%, var(--bg) 70%, var(--bg-2) 100%);
+}
+h1,h2,h3,h4{font-family:'Bricolage Grotesque',sans-serif;line-height:1.07;letter-spacing:-.025em;text-wrap:balance}
+img{max-width:100%;display:block}
+button{font-family:inherit}
+.container{max-width:1180px;margin:0 auto;padding:0 26px;position:relative;z-index:1}
+.section{position:relative;padding:clamp(56px,10vh,110px) 0;z-index:1}
+
+/* ===================== SHARED ===================== */
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.76rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--green-bright)}
+
+/* ===================== BUTTONS ===================== */
+.btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;
+  justify-content:center;gap:10px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:1rem;padding:15px 28px;border-radius:999px;cursor:pointer;border:1px solid transparent;
+  transition:transform .3s var(--ease-out),box-shadow .3s var(--ease),border-color .3s,background .3s;white-space:nowrap}
+.btn--primary{background:var(--grad-cta);color:var(--green-ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 28px -10px rgba(var(--green-rgb),.6),0 2px 6px -2px rgba(0,0,0,.4)}
+.btn--primary::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.42) 48%,transparent 66%);
+  transform:translateX(-130%);transition:transform .7s var(--ease)}
+.btn--primary:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 16px 38px -12px rgba(var(--green-bright-rgb),.7),0 3px 10px -3px rgba(0,0,0,.4)}
+.btn--primary:hover::after{transform:translateX(130%)}
+.btn--ghost{background:rgba(255,255,255,.02);color:var(--ink);border-color:var(--border-strong);backdrop-filter:blur(6px)}
+.btn--ghost:hover{border-color:var(--green);color:var(--green-bright);transform:translateY(-2px);background:rgba(var(--green-rgb),.06)}
+.btn--lg{padding:18px 36px;font-size:1.06rem}
+.btn:disabled{opacity:.6;cursor:default;transform:none!important}
+.btn:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--green-bright);outline-offset:3px}
+
+/* ===================== FORMULAR-FELDER ===================== */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.85rem;font-weight:600;color:var(--dim);margin-bottom:7px}
+.field input{width:100%;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;color:var(--ink);font:inherit}
+.field input::placeholder{color:var(--dim-2)}
+.field input:focus{border-color:var(--green);background:rgba(255,255,255,.06);box-shadow:0 0 0 3px rgba(var(--green-rgb),.12);outline:none}
+.form .btn{width:100%;margin-top:6px}
+
+/* ===================== INTRO + RADAR-STAGE ===================== */
+.rank-check__grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+.rank-check__left{min-width:0}
+.rank-check--comparing .rank-check__grid{align-items:stretch}
+.rank-check--comparing .rank-check__intro{display:none}
+.rank-check--comparing .rank-check__left{display:flex;flex-direction:column}
+.rank-check--comparing .rank-check__left .gbp-compare{flex:1}
+.rank-check--comparing .rank-check__stage{align-items:stretch}
+.rank-check--comparing #gbp-badge{align-self:stretch;display:flex;flex-direction:column}
+.rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result{flex:1;display:flex;flex-direction:column}
+.rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result [data-gbp-reset]{margin-top:auto}
+
+.rank-check__eyebrow{margin-bottom:18px}
+.rank-check__dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);flex:none;
+  box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),.55);animation:rank-check-pulse 1.8s ease-out infinite}
+@keyframes rank-check-pulse{0%{box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),.55)}
+  70%{box-shadow:0 0 0 10px rgba(var(--green-bright-rgb),0)}100%{box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),0)}}
+.rank-check__headline{font-size:clamp(2rem,4vw,3.2rem);margin-bottom:18px}
+.rank-check__accent{background:linear-gradient(100deg, var(--green-bright) 32%, #A6F6D6 46%, var(--green-bright) 60%);
+  background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:rank-check-sweep 4.5s linear infinite}
+@keyframes rank-check-sweep{0%{background-position:200% 0}100%{background-position:-60% 0}}
+.rank-check__sub{color:var(--dim);font-size:1.05rem;line-height:1.6;max-width:46ch;margin-bottom:24px}
+.rank-check__trust{list-style:none;display:flex;flex-wrap:wrap;gap:9px 20px}
+.rank-check__trust li{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--dim);font-weight:600}
+.rank-check__trust li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green-bright);flex:none}
+
+.rank-check__stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:480px}
+.rank-check__ring{position:absolute;left:50%;top:50%;width:120px;height:120px;border-radius:50%;
+  border:1px solid rgba(var(--green-rgb),.35);transform:translate(-50%,-50%) scale(.4);opacity:0;
+  animation:rank-check-ping 3.6s cubic-bezier(.2,.7,.2,1) infinite;pointer-events:none}
+.rank-check__ring--2{animation-delay:1.2s}
+.rank-check__ring--3{animation-delay:2.4s}
+@keyframes rank-check-ping{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}15%{opacity:.5}
+  100%{transform:translate(-50%,-50%) scale(3.2);opacity:0}}
+.rank-check__beam{position:absolute;left:50%;top:50%;width:2px;height:220px;
+  background:linear-gradient(to bottom, rgba(var(--green-bright-rgb),.5), transparent 70%);
+  transform-origin:top center;transform:translate(-50%,0) rotate(0deg);
+  animation:rank-check-spin 4s linear infinite;pointer-events:none}
+@keyframes rank-check-spin{to{transform:translate(-50%,0) rotate(360deg)}}
+
+@media(max-width:880px){
+  .rank-check__grid{grid-template-columns:1fr;gap:40px}
+  .rank-check--comparing .rank-check__stage{order:-1}
+}
+@media(max-width:640px){.rank-check__stage{min-height:380px}.rank-check__ring{width:90px;height:90px}}
+@media(prefers-reduced-motion:reduce){
+  .rank-check__dot,.rank-check__ring,.rank-check__beam,.rank-check__accent{animation:none}
+  .rank-check__accent{background:none;color:var(--green-bright);-webkit-text-fill-color:var(--green-bright)}
+}
+
+/* ===================== BASIS-CHECK-BADGE (Ring + Checkliste) ===================== */
+#gbp-badge{max-width:460px;margin-left:auto;margin-right:auto;padding:32px 28px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+#gbp-badge .gbp-badge__loading,#gbp-badge .gbp-badge__result,#gbp-badge .gbp-badge__error{display:none}
+#gbp-badge[data-state="loading"] .gbp-badge__form,
+#gbp-badge[data-state="result"] .gbp-badge__form,
+#gbp-badge[data-state="error"] .gbp-badge__form{display:none}
+#gbp-badge[data-state="loading"] .gbp-badge__loading{display:block;text-align:center;color:var(--dim);padding:60px 0}
+#gbp-badge[data-state="result"] .gbp-badge__result{display:block}
+#gbp-badge[data-state="error"] .gbp-badge__error{display:block;text-align:center}
+.gbp-badge__eyebrow{text-align:center;color:var(--green-bright);font-weight:700;font-size:.76rem;
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.gbp-ring{position:relative;width:120px;height:120px;margin:0 auto 10px}
+.gbp-ring svg{transform:rotate(-90deg)}
+.gbp-ring__track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:10}
+.gbp-ring__value{fill:none;stroke:var(--green-bright);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .8s var(--ease-out)}
+.gbp-ring__num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.7rem;color:var(--ink)}
+.gbp-ring__caption{text-align:center;color:var(--dim);font-size:.82rem;line-height:1.5;max-width:26ch;margin:0 auto 20px}
+.gbp-badge__name{text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:1.05rem;margin-bottom:18px;color:var(--ink)}
+.gbp-checklist{list-style:none;display:grid;gap:10px;margin:0 0 22px}
+.gbp-checklist li{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.9rem;
+  color:var(--ink);padding:10px 14px;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:12px}
+.gbp-badge__error p{color:var(--dim);font-size:.95rem;line-height:1.6;margin-bottom:18px}
+.gbp-badge__result .btn,.gbp-badge__error .btn{width:100%}
+
+/* ===================== WETTBEWERBSVERGLEICH ===================== */
+.gbp-compare{display:none;height:100%;padding:32px 28px;background:var(--card-2);
+  border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.gbp-compare[data-state="loading"],.gbp-compare[data-state="result"],
+.gbp-compare[data-state="empty"],.gbp-compare[data-state="error"]{display:block}
+.gbp-compare .gbp-compare__loading,.gbp-compare .gbp-compare__result,
+.gbp-compare .gbp-compare__empty,.gbp-compare .gbp-compare__error{display:none}
+.gbp-compare[data-state="loading"] .gbp-compare__loading{display:block;text-align:center;color:var(--dim);padding:36px 0}
+.gbp-compare[data-state="result"] .gbp-compare__result{display:block}
+.gbp-compare[data-state="empty"] .gbp-compare__empty,
+.gbp-compare[data-state="error"] .gbp-compare__error{display:block;text-align:center;color:var(--dim);padding:16px 0 4px}
+.gbp-compare__head{text-align:center;margin-bottom:22px}
+.gbp-compare__title{font-size:1.3rem;color:var(--ink);margin-bottom:8px}
+.gbp-compare__sub{color:var(--dim);font-size:.92rem}
+.gbp-compare__result .bam__rows{margin-bottom:20px}
+.gbp-compare__result .bam__row--own-below{margin-top:12px}
+.gbp-compare__gaps{margin-bottom:0}
+
+/* ===================== ERGEBNIS-ZEILEN (Local-Pack-Optik) ===================== */
+.bam__rows{display:flex;flex-direction:column;gap:10px}
+.bam__row{display:flex;align-items:center;gap:12px;height:56px;padding:0 14px;border-radius:13px}
+.bam__row--comp{background:rgba(255,255,255,.03);border:1px solid var(--border)}
+.bam__row--comp .bam__name{color:var(--ink);font-weight:600}
+.bam__row--comp .bam__meta{color:var(--dim)}
+.bam__count{color:var(--dim-2)}
+.bam__rank{min-width:26px;height:26px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.06);
+  color:var(--dim-2);flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.86rem}
+.bam__rank--you{background:var(--green);color:var(--green-ink)}
+.bam__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.bam__name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bam__meta{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--green-bright);white-space:nowrap}
+.bam__stars{color:#fbbc05;letter-spacing:1px;font-size:.74rem}
+.bam__chip{flex:none;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.bam__chip--top{background:rgba(var(--green-rgb),.16);color:var(--green-bright)}
+.bam__chip--warn{background:rgba(230,110,90,.12);color:#f0a898}
+.bam__row--you{background:linear-gradient(120deg,rgba(var(--green-rgb),.17),rgba(var(--green-rgb),.05));
+  border:1px solid var(--border-strong)}
+@media(max-width:640px){
+  .bam__row{height:52px;padding:0 11px;gap:9px}.bam__name{font-size:.88rem}
+  .bam__meta{font-size:.72rem}.bam__chip{font-size:.66rem;padding:3px 8px}
+}
+
+/* ===================== CTA-BLOCK ===================== */
+.rank-check__cta{display:none;margin:44px auto 0;max-width:760px;text-align:center;
+  padding:32px 32px 34px;background:rgba(var(--green-rgb),.07);border:1px solid var(--border);
+  border-radius:var(--r-lg);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.rank-check--comparing .rank-check__cta{display:block}
+.rank-check__cta-lead{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.12rem;
+  color:var(--ink);margin-bottom:20px}
+.rank-check__cta-list{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;margin-bottom:26px}
+.rank-check__cta-list li{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;color:var(--dim);
+  background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:999px;padding:8px 16px}
+.rank-check__cta-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green-bright);flex:none}
+.rank-check__cta-btn{min-width:260px}
+</style>
+</head>
+<body>
+
+<!-- ============ GOOGLE-RANKING-CHECK (eigenständiges Widget) ============ -->
+<section class="section rank-check" id="rank-check">
+  <div class="container">
+    <div class="rank-check__grid">
+      <div class="rank-check__left">
+        <div class="rank-check__intro">
+          <div class="eyebrow rank-check__eyebrow"><span class="rank-check__dot"></span>Live-Check in 30 Sekunden</div>
+          <h2 class="rank-check__headline">Testen Sie jetzt: <span class="rank-check__accent">wo steht Ihr Unternehmen</span> bei Google?</h2>
+          <p class="rank-check__sub">Wir durchsuchen Google in Echtzeit — Vollständigkeit, Bewertungen und Ihre Position gegen die echte Konkurrenz in Ihrer Stadt.</p>
+          <ul class="rank-check__trust">
+            <li>Echte Google Daten</li>
+            <li>Ergebnis in Sekunden</li>
+          </ul>
+        </div>
+
+        <!-- Wettbewerbsvergleich (ersetzt nach dem Check den Intro-Text links) -->
+        <div class="gbp-compare" id="gbp-compare" data-state="hidden">
+          <div class="gbp-compare__head">
+            <h3 class="gbp-compare__title">Wo Sie im Vergleich stehen</h3>
+            <p class="gbp-compare__sub" id="gbpCompareSub">Basierend auf echten Google-Daten.</p>
+          </div>
+          <div class="gbp-compare__loading">Wir gleichen ab, wie Sie im Vergleich zu anderen Treffern abschneiden …</div>
+          <div class="gbp-compare__result">
+            <div class="bam__rows" id="gbpCompareList"></div>
+            <ul class="gbp-checklist gbp-compare__gaps" id="gbpCompareGaps"></ul>
+          </div>
+          <div class="gbp-compare__empty">
+            <p>Für dieses Keyword und diese Stadt haben wir aktuell keine Vergleichsdaten gefunden.</p>
+          </div>
+          <div class="gbp-compare__error">
+            <p>Der Wettbewerbsvergleich ist gerade nicht verfügbar.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rank-check__stage">
+        <span class="rank-check__ring"></span>
+        <span class="rank-check__ring rank-check__ring--2"></span>
+        <span class="rank-check__ring rank-check__ring--3"></span>
+        <span class="rank-check__beam"></span>
+        <div class="gbp-badge" id="gbp-badge" data-state="form">
+
+          <form class="form gbp-badge__form" id="gbpForm" novalidate>
+            <div class="field">
+              <label for="gbp-company">Firmenname</label>
+              <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required>
+            </div>
+            <div class="field">
+              <label for="gbp-city">Stadt</label>
+              <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required>
+            </div>
+            <div class="field">
+              <label for="gbp-keyword">Keyword</label>
+              <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required>
+            </div>
+            <button type="submit" class="btn btn--primary">Profil kostenlos prüfen</button>
+          </form>
+
+          <div class="gbp-badge__loading">Profil wird geprüft …</div>
+
+          <div class="gbp-badge__result">
+            <p class="gbp-badge__eyebrow">Ihr Basis-Check</p>
+            <div class="gbp-ring">
+              <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+                <circle class="gbp-ring__track" cx="60" cy="60" r="52"/>
+                <circle class="gbp-ring__value" cx="60" cy="60" r="52"/>
+              </svg>
+              <span class="gbp-ring__num" id="gbpScoreNum">0</span>
+            </div>
+            <p class="gbp-ring__caption">von über <span id="gbpFactorTotal">25</span> Sichtbarkeits-Faktoren bei Google</p>
+            <p class="gbp-badge__name" id="gbpCompanyName"></p>
+            <ul class="gbp-checklist" id="gbpChecklist"></ul>
+            <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+          </div>
+
+          <div class="gbp-badge__error">
+            <p id="gbpErrorText">Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.</p>
+            <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA-Block mittig unter beiden Cards (nur nach dem Check sichtbar) -->
+    <div class="rank-check__cta">
+      <p class="rank-check__cta-lead">Das ist nur die Basis. Das prüfen und optimieren wir zusätzlich:</p>
+      <ul class="rank-check__cta-list">
+        <li>Suchbegriffe &amp; Profilbeschreibung</li>
+        <li>Leistungen &amp; Attribute</li>
+        <li>Bewertungsstrategie</li>
+        <li>Verzeichnis-Konsistenz (NAP)</li>
+        <li>Laufendes Monitoring</li>
+      </ul>
+      <!-- Ziel-Link anpassen: hier auf deine Kontakt-/Terminseite -->
+      <a href="#kontakt" class="btn btn--primary btn--lg rank-check__cta-btn">Jetzt aufholen</a>
+    </div>
+
+  </div>
+</section>
+
+<script>
+/* ============================================================================
+   KONFIGURATION  ·  hier stellst du Demo <-> Live um
+   ============================================================================ */
+var CONFIG = {
+  // 'demo' = realistische Beispieldaten, läuft ohne Server/Key sofort.
+  // 'live' = echte Google-Daten über deinen Server-Baustein (siehe Anleitung oben).
+  MODE: 'demo',
+
+  // Nur für MODE:'live' relevant.
+  // Supabase-Weg: die volle Function-URL, z. B.
+  //   'https://DEIN-PROJEKT.supabase.co/functions/v1/gbp'   (Backend erwartet {action:'check'|'compare', ...})
+  // PHP-Weg:      der Basis-Pfad zum /api-Ordner, z. B.
+  //   '/api'                                                (ruft /api/gbp-check und /api/gbp-compare)
+  LIVE_ENDPOINT: 'https://DEIN-PROJEKT.supabase.co/functions/v1/gbp',
+
+  // Wird nur beim PHP-Weg gebraucht: dann true setzen (zwei getrennte Endpunkte).
+  PHP_STYLE: false
+};
+
+/* ---- kleine Backend-Brücke: ruft entweder Demo-Daten oder den echten Server ---- */
+function apiCall(action, payload){
+  if(CONFIG.MODE === 'demo') return demoResponse(action, payload);
+
+  if(CONFIG.PHP_STYLE){
+    var path = action === 'check' ? '/gbp-check' : '/gbp-compare';
+    return fetch(CONFIG.LIVE_ENDPOINT + path, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    }).then(function(res){ return res.json().catch(function(){return {};}).then(function(d){return {ok:res.ok,data:d};}); });
+  }
+  // Supabase-Style: ein Endpunkt, action im Body
+  var body = Object.assign({action:action}, payload);
+  return fetch(CONFIG.LIVE_ENDPOINT, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+  }).then(function(res){ return res.json().catch(function(){return {};}).then(function(d){return {ok:res.ok,data:d};}); });
+}
+
+/* ---- DEMO-DATEN: erzeugen einen realistischen Ablauf ohne echte API ---- */
+function demoResponse(action, p){
+  return new Promise(function(resolve){
+    setTimeout(function(){
+      if(action === 'check'){
+        resolve({ok:true, data:{
+          success:true,
+          company_name: p.company,
+          place_id:'demo-place-id',
+          rating:4.1, reviews:7, photos:3, website:true,
+          // bewusst „ausbaufähig“: Basis-Check ist nie „fertig“
+          completeness:{categories:true, hours:true, website:true, photos:false, reviews:false}
+        }});
+      } else {
+        var city = p.city || 'Ihrer Stadt';
+        var top3 = [
+          {name:'Meridian Dienstleistungen', rating:4.8, review_count:214},
+          {name:'Berger & Partner',           rating:4.6, review_count:146},
+          {name:'Stadtwerk Profis',           rating:4.7, review_count:121}
+        ];
+        resolve({ok:true, data:{
+          success:true, keyword:p.keyword, city:city, result_count:20,
+          top3:top3,
+          own:{found:true, position:8, name:p.company, rating:4.1, review_count:7}
+        }});
+      }
+    }, action === 'check' ? 1500 : 1600);
+  });
+}
+
+/* ============================================================================
+   TOOL-LOGIK  (1:1 aus jungline.de, nur Backend-Aufruf ausgetauscht)
+   ============================================================================ */
+(function(){
+  var badge = document.getElementById('gbp-badge');
+  if(!badge) return;
+  var form = document.getElementById('gbpForm');
+  var ringValue = badge.querySelector('.gbp-ring__value');
+  var ringNum = document.getElementById('gbpScoreNum');
+  var nameEl = document.getElementById('gbpCompanyName');
+  var checklist = document.getElementById('gbpChecklist');
+  var errorText = document.getElementById('gbpErrorText');
+
+  var CIRC = 2 * Math.PI * 52;
+  if(ringValue){ ringValue.style.strokeDasharray = CIRC.toFixed(2); ringValue.style.strokeDashoffset = CIRC.toFixed(2); }
+  var setState = function(state){ badge.setAttribute('data-state', state); };
+
+  var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen', website:'Website verlinkt'};
+  var CHECK_ORDER = ['categories','photos','hours','reviews','website'];
+  var TOTAL_FACTORS = 25;
+  var factorTotalEl = document.getElementById('gbpFactorTotal');
+  if(factorTotalEl) factorTotalEl.textContent = String(TOTAL_FACTORS);
+
+  var RING_DARK_RED=[122,46,40], RING_LIGHT_RED=[196,88,74], RING_ORANGE=[214,138,60], RING_GREEN=[85,211,150];
+  var mixRgb=function(a,b,t){return [Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)];};
+  var ringColor=function(pct){pct=Math.max(0,Math.min(100,pct));var rgb;
+    if(pct<=25)rgb=RING_DARK_RED;else if(pct<=50)rgb=RING_LIGHT_RED;else if(pct<=75)rgb=RING_ORANGE;
+    else rgb=mixRgb(RING_ORANGE,RING_GREEN,(pct-75)/25);return 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';};
+
+  var renderResult = function(data){
+    nameEl.textContent = data.company_name || '';
+    var completeness = data.completeness || {};
+    var fulfilled = CHECK_ORDER.reduce(function(n,key){return n+(completeness[key]?1:0);},0);
+    var pct = (fulfilled / TOTAL_FACTORS) * 100;
+    ringNum.textContent = String(fulfilled);
+    if(ringValue){
+      ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(fulfilled/TOTAL_FACTORS,1))).toFixed(2);
+      ringValue.style.stroke = ringColor(pct);
+    }
+    checklist.innerHTML = '';
+    CHECK_ORDER.forEach(function(key){
+      var ok = !!completeness[key];
+      var li = document.createElement('li');
+      var label = document.createElement('span'); label.textContent = CHECK_LABELS[key];
+      var chip = document.createElement('span');
+      chip.className = 'bam__chip ' + (ok?'bam__chip--top':'bam__chip--warn');
+      chip.textContent = ok ? 'Erfüllt' : 'Fehlt';
+      li.appendChild(label); li.appendChild(chip); checklist.appendChild(li);
+    });
+  };
+  var showError = function(message){ errorText.textContent = message; setState('error'); };
+
+  // ---- Wettbewerbsvergleich ----
+  var compare = document.getElementById('gbp-compare');
+  var compareList = document.getElementById('gbpCompareList');
+  var compareGaps = document.getElementById('gbpCompareGaps');
+  var compareSub = document.getElementById('gbpCompareSub');
+  var rankSection = document.getElementById('rank-check');
+  var setCompareState = function(state){
+    if(compare) compare.setAttribute('data-state', state);
+    if(rankSection) rankSection.classList.toggle('rank-check--comparing', state !== 'hidden');
+  };
+  var fmtRating = function(r){ return (typeof r==='number' && r>0) ? (Math.round(r*10)/10).toFixed(1).replace('.',',') : '–'; };
+
+  var buildRow = function(rank,name,rating,reviewCount,isYou){
+    var row=document.createElement('div'); row.className='bam__row '+(isYou?'bam__row--you':'bam__row--comp');
+    var rankEl=document.createElement('span'); rankEl.className='bam__rank'+(isYou?' bam__rank--you':''); rankEl.textContent=String(rank);
+    var body=document.createElement('span'); body.className='bam__body';
+    var nameEl2=document.createElement('span'); nameEl2.className='bam__name'; nameEl2.textContent=name;
+    var meta=document.createElement('span'); meta.className='bam__meta';
+    var stars=document.createElement('span'); stars.className='bam__stars'; stars.textContent='★';
+    meta.appendChild(stars); meta.appendChild(document.createTextNode(' '+fmtRating(rating)+' · '));
+    var count=document.createElement('span'); count.className='bam__count'; count.textContent=reviewCount+' Bewertungen';
+    meta.appendChild(count); body.appendChild(nameEl2); body.appendChild(meta);
+    row.appendChild(rankEl); row.appendChild(body);
+    if(isYou){ var chip=document.createElement('span'); chip.className='bam__chip bam__chip--top'; chip.textContent='Ihre Firma'; row.appendChild(chip); }
+    return row;
+  };
+  var buildOwnBelowRow = function(own,company){
+    var row=document.createElement('div'); row.className='bam__row bam__row--you bam__row--own-below';
+    var rankEl=document.createElement('span'); rankEl.className='bam__rank bam__rank--you'; rankEl.textContent=own.found?String(own.position):'?';
+    var body=document.createElement('span'); body.className='bam__body';
+    var nameEl2=document.createElement('span'); nameEl2.className='bam__name'; nameEl2.textContent=own.found?own.name:company;
+    var meta=document.createElement('span'); meta.className='bam__meta';
+    if(own.found){
+      var stars=document.createElement('span'); stars.className='bam__stars'; stars.textContent='★';
+      meta.appendChild(stars); meta.appendChild(document.createTextNode(' '+fmtRating(own.rating)+' · '));
+      var count=document.createElement('span'); count.className='bam__count'; count.textContent=own.review_count+' Bewertungen';
+      meta.appendChild(count);
+    } else { meta.textContent='Nicht unter den ersten 20 Treffern'; }
+    body.appendChild(nameEl2); body.appendChild(meta);
+    var chip=document.createElement('span'); chip.className='bam__chip '+(own.found?'bam__chip--top':'bam__chip--warn');
+    chip.textContent=own.found?('Platz '+own.position):'Außerhalb der Top 20';
+    row.appendChild(rankEl); row.appendChild(body); row.appendChild(chip); return row;
+  };
+  var addGapRow = function(label,text,good){
+    var li=document.createElement('li');
+    var labelEl=document.createElement('span'); labelEl.textContent=label;
+    var chip=document.createElement('span'); chip.className='bam__chip '+(good?'bam__chip--top':'bam__chip--warn'); chip.textContent=text;
+    li.appendChild(labelEl); li.appendChild(chip); compareGaps.appendChild(li);
+  };
+  var renderCompare = function(data,ctx){
+    if(!data.result_count){ setCompareState('empty'); return; }
+    var top3=data.top3||[]; var own=data.own||{found:false}; var ownInTop3=own.found && own.position<=3;
+    compareList.innerHTML='';
+    top3.forEach(function(p,i){ compareList.appendChild(buildRow(i+1,p.name,p.rating,p.review_count,ownInTop3 && i===own.position-1)); });
+    if(!ownInTop3){ compareList.appendChild(buildOwnBelowRow(own,ctx.company)); }
+    compareGaps.innerHTML='';
+    var top1=top3[0];
+    var ownRating=own.found?own.rating:ctx.ownRating; var ownReviews=own.found?own.review_count:ctx.ownReviews;
+    if(top1){
+      addGapRow('Rating', fmtRating(ownRating)+' vs. '+fmtRating(top1.rating)+' bei Platz 1', ownRating>=top1.rating);
+      addGapRow('Bewertungen', ownReviews+' vs. '+top1.review_count+' bei Platz 1', ownReviews>=top1.review_count);
+    }
+    setCompareState('result');
+  };
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var scrollToCompare = function(){
+    var target=rankSection||compare;
+    var y=target.getBoundingClientRect().top+window.scrollY-72;
+    window.scrollTo({top:y, behavior:reduceMotion?'auto':'smooth'});
+  };
+  var fetchCompare = function(ctx){
+    if(!compare) return;
+    if(compareSub) compareSub.textContent='Basierend auf echten Google-Daten für „'+ctx.keyword+'“ in '+ctx.city+'.';
+    setCompareState('loading'); scrollToCompare();
+    apiCall('compare', {company:ctx.company, city:ctx.city, keyword:ctx.keyword, place_id:ctx.placeId||''})
+      .then(function(r){
+        if(r.ok && r.data && r.data.success){ renderCompare(r.data,ctx); } else { setCompareState('error'); }
+      })
+      .catch(function(){ setCompareState('error'); });
+  };
+
+  if(form) form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var company=(document.getElementById('gbp-company').value||'').trim();
+    var city=(document.getElementById('gbp-city').value||'').trim();
+    var keyword=(document.getElementById('gbp-keyword').value||'').trim();
+    if(!company||!city||!keyword){ form.reportValidity && form.reportValidity(); return; }
+    setState('loading');
+    apiCall('check', {company:company, city:city, keyword:keyword})
+      .then(function(r){
+        if(r.ok && r.data && r.data.success){
+          renderResult(r.data); setState('result');
+          fetchCompare({company:company, city:city, keyword:keyword, placeId:r.data.place_id, ownRating:r.data.rating, ownReviews:r.data.reviews});
+        } else if(r.data && r.data.error === 'not_found'){
+          showError('Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.');
+        } else {
+          showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.');
+        }
+      })
+      .catch(function(){ showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.'); });
+  });
+
+  Array.prototype.forEach.call(badge.querySelectorAll('[data-gbp-reset]'), function(btn){
+    btn.addEventListener('click', function(){ if(form) form.reset(); setState('form'); setCompareState('hidden'); });
+  });
+})();
+</script>
+</body>
+</html>
