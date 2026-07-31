@@ -449,9 +449,11 @@
         }
         allChars[ci].classList.remove('tc--h');
         ci++;
-        setTimeout(typeHead, 42);
+        setTimeout(typeHead, 14);
       };
-      setTimeout(typeHead, 260);
+      // Kürzere initiale Wartezeit: LCP-Text erscheint ca. 530 ms früher
+      // als bei den alten Werten (260 ms Initial + 42 ms/Zeichen).
+      setTimeout(typeHead, 80);
     }
 
     // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.
@@ -637,8 +639,10 @@
   // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
   // Kapitel-Container (kein Feedback über die eigene Transformation),
   // geschrieben wird nur transform, gedrosselt per requestAnimationFrame.
+  // Nur auf Geräten mit feinem Zeiger (Desktop): auf Touch-Geräten wäre
+  // der Scroll-Handler überflüssige Arbeit ohne sichtbaren Effekt.
   var chapterEls = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
-  if(chapterEls.length && !reduce){
+  if(chapterEls.length && !reduce && finePointer){
     var chapters = chapterEls.map(function(ch){
       return {root: ch, layers: Array.prototype.slice.call(ch.querySelectorAll('[data-pd]')).map(function(el){
         return {el: el, depth: parseFloat(el.getAttribute('data-pd')) || 0};
@@ -671,8 +675,10 @@
   // (data-speed) — eigene Transform-Ebene pro Blob, damit sich beide
   // Bewegungen nicht gegenseitig überschreiben. Gleiches rAF-Drossel-Muster
   // wie der Kapitel-Parallax oben, unabhängig davon.
+  // Parallax nur auf Desktop: auf Mobile ist Aurora per CSS ausgeblendet
+  // (display:none), finePointer verhindert unnötige JS-Arbeit.
   var bgAurora = document.getElementById('bgAurora');
-  if(bgAurora && !reduce && document.body.getAttribute('data-bgfx') !== 'off'){
+  if(bgAurora && !reduce && finePointer && document.body.getAttribute('data-bgfx') !== 'off'){
     var auroraLayers = Array.prototype.slice.call(bgAurora.querySelectorAll('[data-speed]')).map(function(el){
       return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
     });

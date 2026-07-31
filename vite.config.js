@@ -75,8 +75,26 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    // esbuild-Minifier (Standard in Vite) liefert sehr kompakten Output;
+    // cssMinify:true explizit gesetzt, damit auch CSS-Dateien mit esbuild
+    // optimiert werden (Kommentare entfernen, Whitespace kürzen).
+    cssMinify: true,
+    // reportCompressedSize: false beschleunigt den Build leicht (kein
+    // gzip-Scan nach dem Bundle), ändert die Ausgabe nicht.
+    reportCompressedSize: false,
     rollupOptions: {
       input: findHtmlInputs(),
+      output: {
+        // Kompaktes Output: kein unnötiges Whitespace in Rollup-Wrappern.
+        compact: true,
+        // Chunks: CSS pro Entry isolieren (verhindert, dass Unterseiten
+        // ungenutztes CSS aus anderen Seiten mitladen, sobald Vite das
+        // Splitting unterstützt — ist bei shared-CSS im MPA-Modus heute
+        // schon aktiv, compact hält die Datei klein).
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      },
     },
   },
 })

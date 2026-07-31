@@ -1217,3 +1217,52 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   .flow-strip{flex-direction:column;align-items:center}
   .flow-strip__arrow{transform:rotate(90deg);margin-top:0}
 }
+
+/* ============================================================
+   PERFORMANCE: MOBILE — GPU-EFFEKTE REDUZIEREN
+   filter:blur() auf den Aurora-Blobs und backdrop-filter auf
+   Karten verursachen auf mobilen GPUs messbare Paint- und
+   Compositing-Kosten. Unter 960 px werden sie durch günstigere
+   Alternativen ersetzt oder vollständig entfernt.
+   Das visuelle Fundament (bg-flow, bg-grid, Farb-Tokens) bleibt
+   erhalten — nur die GPU-teure Renderarbeit entfällt.
+   ============================================================ */
+@media(max-width:960px){
+  /* Soft-Aurora: 4 × filter:blur(90px) auf eigenen GPU-Compositing-
+     Layern entfallen auf Mobile vollständig — der Gradient-Hintergrund
+     über .bg-flow liefert die visuelle Tiefe ohne Blur-Kosten. */
+  .bg-aurora{display:none}
+
+  /* backdrop-filter auf Karten und Panels entfernen.
+     Nav (.nav.scrolled) und Mobile-Menü behalten ihren Blur, da sie
+     UX-kritisch sind. mcta__tel behält einen leichten Blur (Kontrast).
+     Portrait-Badge: leicht reduziert, aber erhalten (liegt über Foto). */
+  .rankcard,
+  .services__note,
+  .faq__item,
+  .way,
+  .pledge,
+  .callout,
+  .related,
+  .linkcard,
+  .infocard,
+  .illu,
+  .tcard{backdrop-filter:none}
+
+  /* btn--ghost: Blur entfällt auf Mobile (kein Kontrast-Verlust da der
+     Hintergrund ohnehin nicht transparenter Inhalt ist). */
+  .btn--ghost{backdrop-filter:none}
+}
+
+/* Aurora-Drift-Animationen: auf Tablets leicht beschleunigt, damit sie
+   nicht die gesamte GPU-Bandwidth blockieren, falls die Aurora doch
+   sichtbar ist (z. B. bei einem Tablet mit fine pointer). */
+@media(max-width:1100px) and (min-width:961px){
+  .bg-aurora__blob--a{animation-duration:18s}
+  .bg-aurora__blob--b{animation-duration:22s}
+  .bg-aurora__blob--c{animation-duration:16s}
+  .bg-aurora__blob--d{animation-duration:20s}
+}
+
+/* Schriften: font-display swap als explizite Überbrückung falls optional
+   greift und der User einen langsamen First Load hat. */

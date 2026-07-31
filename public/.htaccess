@@ -30,11 +30,20 @@
 </FilesMatch>
 
 # ---------- 1) Textinhalte komprimiert ausliefern ----------
+# Brotli (LiteSpeed / Apache mit mod_brotli) — deutlich besser als gzip
+# (15–25 % kleinere Bundles), besonders für Fonts und JS.
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json
+  AddOutputFilterByType BROTLI_COMPRESS application/xml application/rss+xml
+  AddOutputFilterByType BROTLI_COMPRESS image/svg+xml font/woff2
+</IfModule>
+# Gzip als Fallback für Clients ohne Brotli-Support
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
   AddOutputFilterByType DEFLATE application/javascript application/json
   AddOutputFilterByType DEFLATE application/xml application/rss+xml
-  AddOutputFilterByType DEFLATE image/svg+xml
+  AddOutputFilterByType DEFLATE image/svg+xml font/woff2
 </IfModule>
 
 # ---------- 2) Cache-Header ----------
@@ -46,6 +55,14 @@
 # vor den nackten Header-Direktiven) — das ist nur weniger aggressiv,
 # nie falsch.
 <IfModule mod_headers.c>
+
+  # Vary-Header: CDN/Proxy-Cache kann Brotli- und gzip-Variante getrennt
+  # speichern. Ohne diesen Header würde ein Proxy die komprimierte Variante
+  # an einen Client ohne Brotli-Support ausliefern — das bräche die Seite.
+  Header append Vary Accept-Encoding
+
+  # Keep-Alive: Verbindungen für nachfolgende Requests wiederverwenden.
+  Header set Connection keep-alive
 
   # HTML: cachen erlaubt, aber vor jeder Nutzung beim Server rückfragen.
   # Unverändertes HTML wird per ETag/Last-Modified als 304 beantwortet
@@ -83,6 +100,21 @@
   # Deshalb: 1 Jahr, ohne jede Rückfrage.
   SetEnvIf Request_URI "^/assets/" HASHED_ASSET
   Header set Cache-Control "public, max-age=31536000, immutable" env=HASHED_ASSET
+
+  # Sicherheits- und Performance-Header
+  # X-Content-Type-Options: verhindert MIME-Sniffing (Sicherheit + Performance,
+  # da der Browser Inhalte nicht falsch interpretieren und neu parsen muss).
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Referrer-Policy: minimiert gesendete Daten an externe Ressourcen.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # X-Frame-Options: verhindert Clickjacking (Lighthouse-Empfehlung).
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # Permissions-Policy: nicht benötigte Browser-APIs deaktivieren.
+  # Reduziert Attack-Surface und verbessert Lighthouse "Best Practices".
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
 # ---------- 3) Fallback über mod_expires ----------

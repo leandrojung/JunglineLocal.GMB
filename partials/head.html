@@ -7,8 +7,12 @@
 <meta name="twitter:card" content="summary">
 <meta name="author" content="Leandro Jung — JunglineLocal">
 <!-- Schriften lokal gehostet (DSGVO) — keine Verbindung zu Google-Servern -->
-<link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var.woff2" crossorigin fetchpriority="high">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var.woff2" crossorigin fetchpriority="high">
+<!-- Frühzeitige Verbindung zu externen Diensten (Calendly-Widget, Kontaktformular) -->
+<link rel="preconnect" href="https://assets.calendly.com" crossorigin>
+<link rel="preconnect" href="https://calendly.com" crossorigin>
+<link rel="dns-prefetch" href="//formspree.io">
 <link rel="stylesheet" href="/src/css/site.css">
 <script type="application/ld+json">
 {
