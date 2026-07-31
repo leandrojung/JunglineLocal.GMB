@@ -913,6 +913,22 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .pagehead--center .lead{margin-left:auto;margin-right:auto}
 .pagehead--center .cta-row{justify-content:center}
 
+/* === GBP-Icon-Reihe ===
+   Drei kleine, thematische Icons über der Seitenüberschrift der GBP-Leistungsseite.
+   Kontrast-Check: --green-bright (#3A4E9C) auf --surface (#FFF) = ~6.8:1 ✓ WCAG 1.4.11 (min 3:1).
+   Das Google-G bleibt in den offiziellen Markenfarben (unverändert, DSGVO-konform self-hosted). */
+.gbp-icon-row{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:18px;flex-wrap:wrap;
+}
+.gbp-icon-row__item{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--green-bright);flex:none;
+}
+.gbp-icon-row__item svg{display:block}
+
 /* etwas kompaktere Sektionsrhythmik auf Textseiten */
 .section--tight{padding:calc(var(--sp)*.58) 0}
 
