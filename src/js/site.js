@@ -389,23 +389,27 @@
     // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
     // bekommen.
     var h1 = document.getElementById('heroTitle');
-    var startLead, reserveHeadHeight;
+    var startLead;
 
     var runLead = function(){ if(startLead) startLead(); };
 
     if(h1){
       var hlEl = h1.querySelector('.hl');
       var hlText = hlEl ? hlEl.textContent : '';
-      var plainStr = (h1.firstChild && h1.firstChild.nodeType === 3) ? h1.firstChild.textContent : h1.textContent;
+      var plainStr = '';
       if(hlEl){
-        // nur den reinen Textanteil vor dem .hl übernehmen
-        plainStr = '';
         Array.prototype.slice.call(h1.childNodes).forEach(function(n){
           if(n === hlEl) return;
           if(n.nodeType === 3) plainStr += n.textContent;
         });
+      } else {
+        plainStr = h1.textContent;
       }
+
+      // Full text as accessible label so screen readers get the complete sentence.
+      h1.setAttribute('aria-label', (plainStr + hlText).replace(/\s+/g, ' ').trim());
       h1.textContent = '';
+
       var plainSpan = document.createElement('span');
       var hlSpan = document.createElement('span');
       hlSpan.className = 'hl';
@@ -414,34 +418,29 @@
       h1.appendChild(hlSpan);
       h1.appendChild(hCursor);
 
-      // Headline-Höhe vorab auf den vollen (mehrzeiligen) Endzustand
-      // reservieren, damit sie beim Eintippen nicht Zeile für Zeile wächst und
-      // alles darunter (Untertitel, CTA) schiebt. Gemessen wird am echten
-      // Element (exakte Schrift/Stile): die echten Span-Knoten werden kurz
-      // abgehängt, der volle Text eingesetzt, die Höhe gelesen und die Knoten
-      // wieder angehängt — passiert synchron, also unsichtbar. Passt sich per
-      // Resize an (Zeilenzahl ändert sich mit der Breite).
-      var h1Full = plainStr + hlText;
-      reserveHeadHeight = function(){
-        h1.style.minHeight = '0px';
-        var kids = [];
-        while(h1.firstChild){ kids.push(h1.firstChild); h1.removeChild(h1.firstChild); }
-        h1.textContent = h1Full;
-        var hh = h1.getBoundingClientRect().height;
-        h1.textContent = '';
-        kids.forEach(function(k){ h1.appendChild(k); });
-        h1.style.minHeight = Math.ceil(hh) + 'px';
+      // Pre-populate both spans with invisible char spans so all text occupies
+      // its final layout positions from the very first frame. Chars are revealed
+      // in sequence by removing .tc--h (opacity:0 → visible). This prevents any
+      // line-reflow or word-shift during the typing animation.
+      var buildCharSpans = function(el, text){
+        var spans = [];
+        for(var i = 0; i < text.length; i++){
+          var s = document.createElement('span');
+          s.className = 'tc tc--h';
+          s.setAttribute('aria-hidden', 'true');
+          s.textContent = text.charAt(i);
+          el.appendChild(s);
+          spans.push(s);
+        }
+        return spans;
       };
-      reserveHeadHeight();
 
-      var segs = [{el: plainSpan, text: plainStr}, {el: hlSpan, text: hlText}];
-      var si = 0, sc = 0;
+      var allChars = buildCharSpans(plainSpan, plainStr).concat(buildCharSpans(hlSpan, hlText));
+      var ci = 0;
       var typeHead = function(){
-        if(si >= segs.length){ hCursor.classList.add('done'); runLead(); return; }
-        var seg = segs[si];
-        if(sc >= seg.text.length){ si++; sc = 0; typeHead(); return; }
-        seg.el.textContent += seg.text.charAt(sc);
-        sc++;
+        if(ci >= allChars.length){ hCursor.classList.add('done'); runLead(); return; }
+        allChars[ci].classList.remove('tc--h');
+        ci++;
         setTimeout(typeHead, 42);
       };
       setTimeout(typeHead, 260);

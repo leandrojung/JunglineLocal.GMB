@@ -220,6 +220,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .lead__cursor{display:inline-block;width:2px;height:1em;margin-left:2px;background:var(--green-bright);vertical-align:-.15em;animation:caret .85s steps(1) infinite}
 .hero h1 .lead__cursor{width:.045em;height:.92em;margin-left:.04em}
 .lead__cursor.done{animation:none;opacity:0}
+.tc--h{opacity:0}
 @keyframes caret{50%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.lead__cursor{display:none}}
 /* hero entrance: staggered rise on load (JS adds .js + .hero-live, skipped for reduced motion).
