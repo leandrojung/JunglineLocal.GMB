@@ -412,7 +412,11 @@
 
       var plainSpan = document.createElement('span');
       var hlSpan = document.createElement('span');
-      hlSpan.className = 'hl';
+      // hlSpan intentionally has NO 'hl' class during typing. background-clip:text
+      // makes any child text contribute to the gradient mask regardless of
+      // visibility/opacity, so hidden chars would bleed through. We apply solid
+      // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
+      hlSpan.style.color = 'var(--green-bright)';
       var hCursor = mkCursor();
       h1.appendChild(plainSpan);
       h1.appendChild(hlSpan);
@@ -420,8 +424,8 @@
 
       // Pre-populate both spans with invisible char spans so all text occupies
       // its final layout positions from the very first frame. Chars are revealed
-      // in sequence by removing .tc--h (opacity:0 → visible). This prevents any
-      // line-reflow or word-shift during the typing animation.
+      // in sequence by removing .tc--h (visibility:hidden → visible). No reflow,
+      // no word-shift during typing.
       var buildCharSpans = function(el, text){
         var spans = [];
         for(var i = 0; i < text.length; i++){
@@ -438,7 +442,14 @@
       var allChars = buildCharSpans(plainSpan, plainStr).concat(buildCharSpans(hlSpan, hlText));
       var ci = 0;
       var typeHead = function(){
-        if(ci >= allChars.length){ hCursor.classList.add('done'); runLead(); return; }
+        if(ci >= allChars.length){
+          // All chars typed: activate shimmer on the highlighted span
+          hlSpan.className = 'hl';
+          hlSpan.style.color = '';
+          hCursor.classList.add('done');
+          runLead();
+          return;
+        }
         allChars[ci].classList.remove('tc--h');
         ci++;
         setTimeout(typeHead, 42);
