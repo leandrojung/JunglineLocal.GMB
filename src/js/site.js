@@ -417,10 +417,8 @@
       // visibility/opacity, so hidden chars would bleed through. We apply solid
       // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
       hlSpan.style.color = 'var(--green-bright)';
-      var hCursor = mkCursor();
       h1.appendChild(plainSpan);
       h1.appendChild(hlSpan);
-      h1.appendChild(hCursor);
 
       // Pre-populate both spans with invisible char spans so all text occupies
       // its final layout positions from the very first frame. Chars are revealed
@@ -446,7 +444,6 @@
           // All chars typed: activate shimmer on the highlighted span
           hlSpan.className = 'hl';
           hlSpan.style.color = '';
-          hCursor.classList.add('done');
           runLead();
           return;
         }
