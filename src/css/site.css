@@ -821,16 +821,15 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 ::selection{background:rgba(var(--green-rgb),.35);color:var(--ink)}
 
 /* ============ CUSTOM CURSOR (nur pointer:fine, JS setzt .has-cursor) ============ */
+/* Pin-Animation nur über .btn--primary (alle CTAs); überall sonst normaler Systemcursor.
+   Zum Reaktivieren des vollen Custom-Cursors:
+   1) cursor:none zurück auf body, a, button, [role="button"], .ba__stage
+   2) Zeile einfügen: .cursor-seen .cur-dot,.cursor-seen .cur-ring{opacity:1} */
 @media (hover:hover) and (pointer:fine){
-  html.has-cursor.cursor-seen body{cursor:none}
-  html.has-cursor.cursor-seen a,
-  html.has-cursor.cursor-seen button,
-  html.has-cursor.cursor-seen [role="button"],
-  html.has-cursor.cursor-seen .ba__stage{cursor:none}
-  html.has-cursor input,html.has-cursor textarea,html.has-cursor select{cursor:auto}
+  html.has-cursor.cursor-seen .btn--primary{cursor:none}
 }
 .cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0}
-.cursor-seen .cur-dot,.cursor-seen .cur-ring{opacity:1}
+html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 .cursor-off .cur-dot,.cursor-off .cur-ring{opacity:0}
 .cur-dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;mix-blend-mode:difference;
   transition:opacity .25s}
