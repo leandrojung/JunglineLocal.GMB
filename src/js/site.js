@@ -872,3 +872,53 @@
   // Impressum & Datenschutz sind jetzt echte, crawlbare Seiten (/impressum, /datenschutz) —
   // die früheren Rechtstext-Modals entfallen ersatzlos.
 })();
+
+// Scroll-linked sequential sweep animation for step numbers 01–04
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nums = Array.prototype.slice.call(document.querySelectorAll('.chapter__num'));
+  if(!nums.length || reduce) return;
+
+  // Track scroll velocity (px/ms) to set animation duration
+  var scrollVel = 0;
+  var lastY = window.scrollY, lastT = Date.now();
+  window.addEventListener('scroll', function(){
+    var now = Date.now(), dt = now - lastT;
+    if(dt > 0) scrollVel = Math.abs(window.scrollY - lastY) / dt;
+    lastY = window.scrollY; lastT = now;
+  }, {passive: true});
+
+  // nextIdx: which number should animate next (ensures strict ordering)
+  var nextIdx = 0;
+
+  var lightUp = function(idx, vel){
+    if(idx >= nums.length) return;
+    var el = nums[idx];
+    // Faster scroll → shorter sweep (clamped 0.35s – 1.6s)
+    var dur = Math.max(0.35, Math.min(1.6, 0.7 / Math.max(vel, 0.04)));
+    el.style.setProperty('--chnum-dur', dur.toFixed(2) + 's');
+    el.classList.add('lit');
+    nextIdx = idx + 1;
+  };
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var idx = nums.indexOf(e.target);
+      if(idx < 0 || idx < nextIdx) return;
+      io.unobserve(e.target);
+
+      // Any numbers that were skipped over (fast scroll) light up instantly
+      for(var i = nextIdx; i < idx; i++){
+        nums[i].style.setProperty('--chnum-dur', '0.35s');
+        nums[i].classList.add('lit');
+        nextIdx = i + 1;
+      }
+
+      // Animate the visible number with scroll-speed-linked duration
+      lightUp(idx, scrollVel);
+    });
+  }, {threshold: 0.2, rootMargin: '0px 0px -60px 0px'});
+
+  nums.forEach(function(el){ io.observe(el); });
+})();
