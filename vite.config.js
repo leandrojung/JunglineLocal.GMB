@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { bausteine } from './src/data/bausteine.js'
 
 const root = dirname(fileURLToPath(import.meta.url))
 
@@ -35,6 +36,30 @@ function findHtmlInputs(dir = root, acc = {}) {
 // order:'pre', damit die eingefügten <link>/<script>-Tags von Vite anschließend
 // noch verarbeitet und mit Hash versehen werden.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Rendert die 8 Bausteine (src/data/bausteine.js) für Startseite (Kurzfassung,
+// nummerierte Kacheln) und Leistungen-Seite (Volldarstellung mit Icon + Langtext).
+// Eine Datenquelle, zwei Ansichten — verhindert, dass beide Seiten unterschiedlich
+// viele/andere Bausteine zeigen.
+// ---------------------------------------------------------------------------
+function renderBausteineHome() {
+  const cards = bausteine.map((b, i) => `
+      <div class="svc" data-reveal${i % 2 === 1 ? ' data-d="1"' : ''}>
+        <span class="svc__idx" aria-hidden="true">${b.num}</span>
+        <div>
+          <h3>${b.title}</h3>
+          <p>${b.teaser}</p>
+        </div>
+      </div>`).join('')
+  return `<div class="services__grid">${cards}\n    </div>`
+}
+
+function renderBausteineLeistungen() {
+  const facts = bausteine.map((b) => `
+      <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b.icon}</svg> ${b.title}</h3><p>${b.full}</p></div>`).join('')
+  return `<div class="factgrid" data-reveal>${facts}\n    </div>`
+}
+
 function sharedShell() {
   // Jedes Partial nur einmal pro Änderungsstand lesen statt für jede der
   // ~17 Seiten erneut. Der Cache invalidiert sich über mtime + Größe der
@@ -54,6 +79,8 @@ function sharedShell() {
     '<!--NAV-->': () => partial('nav.html'),
     '<!--FOOTER-->': () => partial('footer.html'),
     '<!--ENDBODY-->': () => partial('endbody.html'),
+    '<!--BAUSTEINE_HOME-->': renderBausteineHome,
+    '<!--BAUSTEINE_LEISTUNGEN-->': renderBausteineLeistungen,
   }
   return {
     name: 'jungline-shared-shell',
