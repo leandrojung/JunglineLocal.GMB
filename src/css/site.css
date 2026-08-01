@@ -226,8 +226,8 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 /* hero entrance: staggered rise on load (JS adds .js + .hero-live, skipped for reduced motion).
    Nur transform, kein opacity: der Hero-Text bleibt vom ersten Frame an sichtbar
    (zaehlt fuers LCP) und verschiebt sich lediglich in Position. */
-.js .hero__copy .h-anim{transform:translateY(24px)}
-.js .hero-live .hero__copy .h-anim{transform:none;transition:transform .8s var(--ease-out) var(--hd,0s)}
+.js .hero__copy .h-anim{transform:translateY(30px)}
+.js .hero-live .hero__copy .h-anim{transform:none;transition:transform 1.05s var(--ease-out) var(--hd,0s)}
 .cta-row{display:flex;gap:14px;flex-wrap:wrap}
 .hero .cta-row{align-items:center;gap:26px}
 .hero__minor{display:inline-flex;align-items:center;gap:8px;color:var(--dim);font-weight:600;font-size:.98rem;
@@ -810,6 +810,14 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .js [data-reveal][data-d="1"]{transition-delay:.08s}
 .js [data-reveal][data-d="2"]{transition-delay:.16s}
 .js [data-reveal][data-d="3"]{transition-delay:.24s}
+/* Leichte Tempo-Variation zwischen Sections, damit die Choreografie nicht
+   über die ganze Seite gleich tickt — gleiche Easing-Kurve und Fade+Rise-
+   Mechanik bleiben überall identisch, nur Dauer/Distanz/Stagger variieren.
+   Hero: langsamerer, dramatischerer erster Eindruck. */
+.hero [data-reveal]{transform:translateY(40px);transition-duration:1.15s}
+/* Bausteine-Grid: knackiger, schneller gestaffelt als der Rest der Seite. */
+.svc[data-reveal]{transform:translateY(20px);transition-duration:.55s}
+.svc[data-reveal][data-d="1"]{transition-delay:.05s}
 
 /* ============ LEISTUNGEN (Service-Ledger) ============ */
 .services__grid{display:grid;grid-template-columns:1fr 1fr;gap:0 60px;margin-top:50px;border-bottom:1px solid var(--border)}
@@ -950,7 +958,11 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;scroll-behavior:auto!important}
-  [data-reveal]{opacity:1;transform:none;transition:none}
+  /* !important: die neuen Section-Timing-Overrides (.hero/.svc [data-reveal])
+     sind spezifischer als eine unqualifizierte [data-reveal]-Regel und
+     würden transform sonst gewinnen lassen — hier muss die Bewegung
+     bedingungslos aus sein. */
+  [data-reveal]{opacity:1;transform:none!important;transition:none!important}
   .result,.rankcard{transition:none}
 }
 
