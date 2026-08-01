@@ -1178,7 +1178,7 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 .profcard__stars{display:flex;align-items:center;gap:8px}
 .profcard__count{color:var(--dim-2);font-size:.82rem}
 .profcard__photos{display:flex;gap:8px}
-.profcard__photos i{flex:1;aspect-ratio:1;border-radius:10px;display:block;
+.profcard__photos i{flex:1;aspect-ratio:1;border-radius:10px;display:block;overflow:hidden;
   background:linear-gradient(135deg,rgba(var(--green-rgb),.24),rgba(var(--green-rgb),.05));border:1px solid var(--border)}
 .profcard__row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .profcard__attr{font-size:.74rem;color:var(--dim-2);border:1px solid var(--border);border-radius:999px;padding:3px 11px}
