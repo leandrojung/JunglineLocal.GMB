@@ -473,16 +473,33 @@
   if(counts.length && !reduce && 'IntersectionObserver' in window){
     var fmtCount = function(v, dec){ return dec ? v.toFixed(dec).replace('.', ',') : String(Math.round(v)); };
     var runCount = function(el){
+      // Guard: verhindert einen zweiten Lauf, falls derselbe Trigger (oder ein
+      // künftiger zweiter Observer) das Element ein zweites Mal anstößt —
+      // zwei parallele rAF-Loops auf demselben Element würden sich beim
+      // Schreiben von textContent gegenseitig überschreiben.
+      if(el.__countStarted) return;
+      el.__countStarted = true;
       var target = parseFloat(el.getAttribute('data-count')) || 0;
       var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
-      var start = null, dur = 1400;
+      var start = null, dur = 1400, done = false;
+      var finish = function(){
+        if(done) return;
+        done = true;
+        el.textContent = fmtCount(target, dec);
+      };
       var tick = function(ts){
+        if(done) return;
         if(!start) start = ts;
         var p = Math.min((ts - start) / dur, 1);
         el.textContent = fmtCount((1 - Math.pow(1 - p, 3)) * target, dec);
         if(p < 1) requestAnimationFrame(tick);
+        else finish();
       };
       requestAnimationFrame(tick);
+      // Sicherheitsnetz: setzt den exakten Endwert unabhängig vom rAF-Timing
+      // hart fest (z. B. falls Tab-Wechsel, Drosselung o. Ä. die Loop
+      // unterbricht), statt dass die Zahl auf einem Zwischenwert einfriert.
+      setTimeout(finish, dur + 400);
     };
     // threshold:.5 verlangte 50% Sichtbarkeit jedes einzelnen .count-Elements.
     // Auf Mobile stapelt .stats__grid einspaltig (mehr Gesamthöhe) — bei
