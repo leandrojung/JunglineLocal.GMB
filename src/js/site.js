@@ -546,14 +546,20 @@
     var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
     var bottomOrder = others.concat([youIdx]);
     var topOrder = [youIdx].concat(others);
+    var ghostRanks = others.map(function(i){ return rows[i].querySelector('.rank'); });
+
+    var setTopRanks = function(){
+      you.classList.add('is-top'); youRank.textContent='1';
+      ghostRanks.forEach(function(el, i){ el.textContent = String(i+2); });
+    };
 
     // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
     // ruhige, selbstbewusste Erzählung statt Endlosschleife.
     if(reduce){
-      place(topOrder); you.classList.add('is-top'); youRank.textContent='1';
+      place(topOrder); setTopRanks();
     } else {
       place(bottomOrder);
-      setTimeout(function(){ place(topOrder); you.classList.add('is-top'); youRank.textContent='1'; }, 1600);
+      setTimeout(function(){ place(topOrder); setTopRanks(); }, 1600);
     }
   }
 
