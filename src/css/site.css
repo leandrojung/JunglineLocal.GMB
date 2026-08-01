@@ -239,10 +239,18 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(var(--green-bright-rgb),.4),transparent 66%);bottom:-160px;left:-120px;opacity:.5;transform:translate3d(calc(var(--mx,0)*14px),calc(var(--my,0)*14px),0)}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em;min-height:2.4em}
-.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 20%,#A6F6D6 40%,var(--green-bright) 60%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rank-check-sweep 4.5s linear 1 forwards}
-/* Schimmer läuft nur einmal beim Laden (site.js hängt nach animationend
+/* Eigenes (nicht das gemeinsame rank-check-sweep-)Keyframe: der geteilte
+   Sweep läuft über 260% Weg bei 260%-Kachelbreite — für einen Dauerloop
+   unproblematisch, aber bei einmaligem Abspielen legt das Band dabei fast
+   zwei volle Kachel-Perioden zurück und zieht sichtbar zweimal durchs Wort.
+   Hier bleibt die Strecke bewusst unter einer Periode: das Band startet
+   komplett rechts außerhalb des Texts und endet komplett links außerhalb,
+   damit exakt ein sauberer Durchlauf zu sehen ist.
+   Schimmer läuft nur einmal beim Laden (site.js hängt nach animationend
    diese Klasse an) — danach ruhiges, statisches Marken-Gradient wie im
    reduced-motion-Fall, kein Dauerloop wie bei den übrigen Sweep-Stellen. */
+.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 40%,#A6F6D6 50%,var(--green-bright) 60%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:heroSweepOnce 1.8s linear 1 forwards}
+@keyframes heroSweepOnce{0%{background-position:0% 0}100%{background-position:100% 0}}
 .hero h1 .hl.hl--settled{animation:none;background:linear-gradient(110deg,var(--green),var(--green-bright));background-size:auto;-webkit-background-clip:text;background-clip:text}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
 /* Grund-Reservierung, falls kein JS/Reduced Motion: der animierte Fall setzt
