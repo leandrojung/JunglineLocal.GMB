@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
+import { rankcardCompetitors, rankcardExampleNote } from './src/data/rankcard-example.js'
 
 const root = dirname(fileURLToPath(import.meta.url))
 
@@ -60,6 +61,38 @@ function renderBausteineLeistungen() {
   return `<div class="factgrid" data-reveal>${facts}\n    </div>`
 }
 
+// ---------------------------------------------------------------------------
+// Rendert das kleine "3 Treffer im Local Pack"-Illustrationswidget (Branchen-
+// und Ratgeber-Seiten sowie die Leistungen-Seite) aus dem einen festen
+// Beispiel-Datensatz (src/data/rankcard-example.js). Parametrisiert über
+// youLabel/ariaLabel, weil der Platzhalter für "Sie" je nach Branche variiert
+// ("Ihr Betrieb", "Ihr Büro", …), die Wettbewerber-Namen aber überall identisch
+// bleiben. Token-Syntax: <!--RANKCARD_ILLU youLabel="…" ariaLabel="…"-->
+// ---------------------------------------------------------------------------
+function renderRankcardIllu(youLabel, ariaLabel) {
+  const [c1, c2] = rankcardCompetitors
+  return `<div class="illu illu-localpack" role="img" aria-label="${ariaLabel}">
+        <div class="map" aria-hidden="true">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice">
+            <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
+            <path class="road thin" d="M-10 90 Q 150 70 250 95 T 410 80"/>
+          </svg>
+          <div class="pin">
+            <span class="pulse"></span>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#55D396"/><circle cx="14" cy="14" r="5.2" fill="#040605"/></svg>
+          </div>
+        </div>
+        <div class="bam__rows" aria-hidden="true" style="margin-top:14px">
+          <div class="bam__row bam__row--you"><span class="bam__rank bam__rank--you">1</span>
+            <div class="bam__body"><span class="bam__name">${youLabel}</span><span class="bam__meta"><span class="bam__stars">★★★★★</span></span></div>
+          </div>
+          <div class="bam__row bam__row--comp bam__row--fade"><span class="bam__rank">2</span><div class="bam__body"><span class="bam__name">${c1.name}</span><span class="bam__meta"><span class="bam__stars">${c1.stars}</span></span></div></div>
+          <div class="bam__row bam__row--comp bam__row--fade"><span class="bam__rank">3</span><div class="bam__body"><span class="bam__name">${c2.name}</span><span class="bam__meta"><span class="bam__stars">${c2.stars}</span></span></div></div>
+        </div>
+      </div>
+      <p class="illu__caption illu__caption--example">${rankcardExampleNote}</p>`
+}
+
 function sharedShell() {
   // Jedes Partial nur einmal pro Änderungsstand lesen statt für jede der
   // ~17 Seiten erneut. Der Cache invalidiert sich über mtime + Größe der
@@ -91,6 +124,11 @@ function sharedShell() {
           // Funktions-Ersatz umgeht $-Sonderzeichen in CSS/JSON-LD
           html = html.split(token).join(load())
         }
+        // Parametrisierter Token (Attribute statt fixer Textkonstante).
+        html = html.replace(
+          /<!--RANKCARD_ILLU\s+youLabel="([^"]*)"\s+ariaLabel="([^"]*)"-->/g,
+          (_, youLabel, ariaLabel) => renderRankcardIllu(youLabel, ariaLabel),
+        )
         return html
       },
     },
