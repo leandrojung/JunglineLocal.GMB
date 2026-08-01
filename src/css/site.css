@@ -244,14 +244,24 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    unproblematisch, aber bei einmaligem Abspielen legt das Band dabei fast
    zwei volle Kachel-Perioden zurück und zieht sichtbar zweimal durchs Wort.
    Hier bleibt die Strecke bewusst unter einer Periode: das Band startet
-   komplett rechts außerhalb des Texts und endet komplett links außerhalb,
-   damit exakt ein sauberer Durchlauf zu sehen ist.
-   Schimmer läuft nur einmal beim Laden (site.js hängt nach animationend
-   diese Klasse an) — danach ruhiges, statisches Marken-Gradient wie im
-   reduced-motion-Fall, kein Dauerloop wie bei den übrigen Sweep-Stellen. */
-.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 40%,#A6F6D6 50%,var(--green-bright) 60%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:heroSweepOnce 1.8s linear 1 forwards}
-@keyframes heroSweepOnce{0%{background-position:0% 0}100%{background-position:100% 0}}
-.hero h1 .hl.hl--settled{animation:none;background:linear-gradient(110deg,var(--green),var(--green-bright));background-size:auto;-webkit-background-clip:text;background-clip:text}
+   komplett außerhalb des Texts und endet komplett außerhalb, damit exakt
+   ein sauberer Durchlauf zu sehen ist. Reihenfolge der Prozentwerte läuft
+   bewusst von 100% auf 0% (nicht 0→100): bei background-size>100% bewegt
+   sich der sichtbare Ausschnitt bei steigendem Positionswert weiter durchs
+   Bild, wodurch der Inhalt scheinbar nach LINKS wandert — 100%→0% ist also
+   die Variante, die visuell links (bei "und") beginnt und rechts (bei
+   "Konkurrenz.") endet. Timing bewusst linear statt ease/ease-out: jede
+   der getesteten Eased-Varianten zieht die sichtbare Durchquerung in die
+   ersten ~25% der Laufzeit und lässt danach nur eine lange reglose Pause
+   stehen — wirkt gehetzt statt weich. linear verteilt Ein- und Auslaufen
+   gleichmäßig über die volle Dauer; das eigentlich "weiche" Verblassen
+   entsteht dadurch, dass danach kein harter Klassenwechsel mehr stattfindet
+   (s.u.) statt über die Zeitkurve selbst.
+   Schimmer läuft nur einmal beim Laden, hält per forwards am Ende (schon
+   außerhalb des Farbbands, also einfarbig) — kein separater harter
+   Klassenwechsel danach, kein Dauerloop wie bei den übrigen Sweep-Stellen. */
+.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 40%,#A6F6D6 50%,var(--green-bright) 60%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:heroSweepOnce 2s linear 1 forwards}
+@keyframes heroSweepOnce{0%{background-position:100% 0}100%{background-position:0% 0}}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
 /* Grund-Reservierung, falls kein JS/Reduced Motion: der animierte Fall setzt
    die exakte Höhe per Inline-Style (JS misst die längste Aussage). */
