@@ -484,9 +484,15 @@
       };
       requestAnimationFrame(tick);
     };
+    // threshold:.5 verlangte 50% Sichtbarkeit jedes einzelnen .count-Elements.
+    // Auf Mobile stapelt .stats__grid einspaltig (mehr Gesamthöhe) — bei
+    // normalen Scroll-Stopps blieb dadurch v. a. der letzte Wert oft unter
+    // der Schwelle hängen und zählte nie hoch. Gleiche, bereits bewährte
+    // Trigger-Logik wie beim allgemeinen Reveal-Observer: niedrigere
+    // Schwelle + rootMargin statt harter Pixelwerte.
     var cio = new IntersectionObserver(function(entries){
       entries.forEach(function(e){ if(e.isIntersecting){ runCount(e.target); cio.unobserve(e.target); } });
-    }, {threshold:.5});
+    }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
     counts.forEach(function(el){
       el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
       cio.observe(el);
