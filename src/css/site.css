@@ -235,8 +235,13 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .hero__minor svg{transition:transform .3s var(--ease)}
 .hero__minor:hover{color:var(--green-bright)}
 .hero__minor:hover svg{transform:translateY(3px)}
-.hero__trust{list-style:none;display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:28px}
-.hero__trust li{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;color:var(--dim);font-weight:500}
+/* Prozess-Garantien als eigene kleine Leiste statt Fließtext-Bullets —
+   gleiches Bordered-Badge-Muster wie .rank-check__google-badge, höherer
+   Textkontrast (--ink statt --dim) für bessere Lesbarkeit im Hero. */
+.hero__trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero__trust li{display:inline-flex;align-items:center;gap:8px;
+  padding:9px 15px;background:var(--surface);border:1px solid var(--border);border-radius:999px;
+  font-size:.86rem;color:var(--ink);font-weight:600}
 .hero__trust svg{flex:none;color:var(--green-bright)}
 .hero__scroll{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--dim-2);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
 .hero__scroll .mouse{width:22px;height:34px;border:1.5px solid var(--border-strong);border-radius:12px;position:relative}
@@ -284,6 +289,20 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .rank-check__trust{list-style:none;display:flex;flex-wrap:wrap;gap:9px 20px}
 .rank-check__trust li{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--dim);font-weight:600}
 .rank-check__trust li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green-bright);flex:none}
+
+/* "Kein Verkaufstext"-Hinweis: das Tool selbst ist der Trust-Beweis, nicht
+   ein weiteres Werbeversprechen — deshalb eigener, klar abgesetzter Baustein
+   statt einer weiteren Zeile in der schlichten Trust-Liste. */
+.rank-check__promise{
+  display:flex;align-items:flex-start;gap:12px;
+  margin-bottom:22px;padding:14px 18px;max-width:46ch;
+  background:rgba(var(--green-bright-rgb),.07);
+  border:1px solid rgba(var(--green-bright-rgb),.26);
+  border-radius:14px;
+}
+.rank-check__promise svg{flex:none;color:var(--green-bright);margin-top:2px}
+.rank-check__promise strong{display:block;color:var(--ink);font-weight:700;margin-bottom:1px}
+.rank-check__promise span{font-size:.92rem;color:var(--dim);line-height:1.5}
 
 /* Datenquelle-Badge mit Google-G im GBP-Check-Bereich
    Kontrast: --green-bright (#3A4E9C) auf --surface (#FFF) = 7,64:1 ✓ WCAG 1.4.11 */
