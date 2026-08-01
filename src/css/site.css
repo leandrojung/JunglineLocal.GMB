@@ -169,7 +169,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   background:var(--surface);display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 16px -4px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.07);transition:transform .4s var(--ease-out)}
 .brand:hover .brand__tile{transform:rotate(-4deg) scale(1.05)}
-.brand__tile svg{width:22px;height:22px;display:block}
+.brand__tile img{width:24px;height:auto;object-fit:contain;display:block}
 .brand__name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.18rem;letter-spacing:-.03em}
 .brand__name b{color:var(--green-bright);font-weight:800}
 .nav__links{display:flex;align-items:center;gap:36px}
