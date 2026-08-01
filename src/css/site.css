@@ -455,7 +455,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .pin{position:absolute;top:50%;left:50%;z-index:3}
 .pin__marker{position:absolute;left:0;top:0;transform:translate(-50%,-100%);filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));z-index:3}
 .pulse{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--green-bright);
-  transform:translate(-50%,-50%);animation:pulse 3s var(--ease) infinite}
+  transform:translate(-50%,-50%);animation:pulse 4.5s var(--ease) infinite}
 .pulse.d2{animation-delay:1s}.pulse.d3{animation-delay:2s}
 @keyframes pulse{0%{opacity:.7;width:18px;height:18px}100%{opacity:0;width:150px;height:150px}}
 .results{position:relative;height:200px}
