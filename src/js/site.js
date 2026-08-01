@@ -441,9 +441,14 @@
       var ci = 0;
       var typeHead = function(){
         if(ci >= allChars.length){
-          // All chars typed: activate shimmer on the highlighted span
+          // All chars typed: activate shimmer on the highlighted span — läuft
+          // per CSS (animation-iteration-count:1) nur einmal, danach hier auf
+          // die ruhige statische Gradient-Fassung umschalten (kein Dauerloop).
           hlSpan.className = 'hl';
           hlSpan.style.color = '';
+          hlSpan.addEventListener('animationend', function(){
+            hlSpan.classList.add('hl--settled');
+          }, {once: true});
           runLead();
           return;
         }

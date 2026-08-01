@@ -239,7 +239,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(var(--green-bright-rgb),.4),transparent 66%);bottom:-160px;left:-120px;opacity:.5;transform:translate3d(calc(var(--mx,0)*14px),calc(var(--my,0)*14px),0)}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em;min-height:2.4em}
-.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 20%,#A6F6D6 40%,var(--green-bright) 60%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rank-check-sweep 4.5s linear infinite}
+.hero h1 .hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 20%,#A6F6D6 40%,var(--green-bright) 60%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rank-check-sweep 4.5s linear 1 forwards}
+/* Schimmer läuft nur einmal beim Laden (site.js hängt nach animationend
+   diese Klasse an) — danach ruhiges, statisches Marken-Gradient wie im
+   reduced-motion-Fall, kein Dauerloop wie bei den übrigen Sweep-Stellen. */
+.hero h1 .hl.hl--settled{animation:none;background:linear-gradient(110deg,var(--green),var(--green-bright));background-size:auto;-webkit-background-clip:text;background-clip:text}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
 /* Grund-Reservierung, falls kein JS/Reduced Motion: der animierte Fall setzt
    die exakte Höhe per Inline-Style (JS misst die längste Aussage). */
@@ -379,7 +383,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 @media(prefers-reduced-motion:reduce){
   .rank-check__dot,.rank-check__ring,.rank-check__beam,.rank-check__accent,.hero h1 .hl{animation:none}
   .rank-check__accent{background:none;color:var(--green-bright);-webkit-text-fill-color:var(--green-bright)}
-  .hero h1 .hl{background:linear-gradient(110deg,var(--green),var(--green-bright));background-size:auto}
+  .hero h1 .hl{background:linear-gradient(110deg,var(--green),var(--green-bright));background-size:auto;-webkit-background-clip:text;background-clip:text}
 }
 
 /* ============ GBP-PROFIL-CHECK BADGE (ersetzt das ehemalige Localo-Tool) ============ */
