@@ -900,8 +900,8 @@
   var lightUp = function(idx, vel){
     if(idx >= nums.length) return;
     var el = nums[idx];
-    // Faster scroll → shorter sweep (clamped 1.2s – 3.0s)
-    var dur = Math.max(1.2, Math.min(3.0, 1.4 / Math.max(vel, 0.04)));
+    // Faster scroll → shorter sweep (clamped 2.5s – 6.0s)
+    var dur = Math.max(2.5, Math.min(6.0, 3.0 / Math.max(vel, 0.04)));
     el.style.setProperty('--chnum-dur', dur.toFixed(2) + 's');
     el.classList.add('lit');
     nextIdx = idx + 1;
@@ -916,7 +916,7 @@
 
       // Any numbers that were skipped over (fast scroll) light up at minimum speed
       for(var i = nextIdx; i < idx; i++){
-        nums[i].style.setProperty('--chnum-dur', '1.2s');
+        nums[i].style.setProperty('--chnum-dur', '2.5s');
         nums[i].classList.add('lit');
         nextIdx = i + 1;
       }
