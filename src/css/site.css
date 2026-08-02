@@ -576,7 +576,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   box-shadow:0 44px 100px -42px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);
   touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .ba__stage:focus-visible{outline:2px solid var(--green-bright);outline-offset:3px}
-.ba__side{position:absolute;inset:0;padding:22px;padding-top:64px;display:flex;align-items:flex-start;justify-content:center}
+.ba__side{position:absolute;inset:0;padding:22px;display:flex;align-items:center;justify-content:center}
 .ba__side--before{background:linear-gradient(158deg,var(--surface-2),var(--bg))}
 .ba__side--after{background:radial-gradient(560px circle at 72% 8%,rgba(var(--green-rgb),.16),transparent 60%),linear-gradient(158deg,rgba(var(--surface-2-rgb),.97),var(--bg));
   clip-path:inset(0 0 0 var(--pos,50%))}
@@ -640,7 +640,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .bam__dots{text-align:center;color:var(--dim-2);font-size:.8rem;letter-spacing:.3em;line-height:1;margin:-2px 0}
 @media(max-width:640px){
   .ba__stage{height:440px}
-  .ba__side{padding:16px;padding-top:52px}
+  .ba__side{padding:16px;padding-top:52px;align-items:flex-start}
   .bam__map{height:72px}
   .bam__row{height:52px;padding:0 11px;gap:9px}
   .bam__name{font-size:.88rem}
