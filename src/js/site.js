@@ -548,16 +548,30 @@
       }, {passive:true});
       el.addEventListener('mouseleave', function(){ el.style.setProperty('--sy','-40%'); });
     });
-    // magnetic primary buttons
+    // magnetic primary buttons — schwächerer Zug (0.22/0.30 -> 0.1/0.13) und
+    // per Lerp sanft nachgeführt statt den Button beim ersten Mousemove
+    // sofort auf den vollen Zielwert zu springen (das wirkte "hingezogen").
     document.querySelectorAll('.btn--primary').forEach(function(btn){
-      var mraf=null,mx=0,my=0;
+      var tx=0, ty=0, cx=0, cy=0, running=false;
+      var loop = function(){
+        cx += (tx-cx)*0.16; cy += (ty-cy)*0.16;
+        btn.style.transform = 'translate('+cx.toFixed(2)+'px,'+(cy-2).toFixed(2)+'px)';
+        if(Math.abs(tx-cx) > 0.05 || Math.abs(ty-cy) > 0.05){
+          requestAnimationFrame(loop);
+        } else {
+          running = false;
+        }
+      };
       btn.addEventListener('mousemove', function(e){
         var r = btn.getBoundingClientRect();
-        mx = (e.clientX-(r.left+r.width/2))*0.22;
-        my = (e.clientY-(r.top+r.height/2))*0.30;
-        if(!mraf) mraf = requestAnimationFrame(function(){ btn.style.transform='translate('+mx.toFixed(1)+'px,'+(my-2).toFixed(1)+'px)'; mraf=null; });
+        tx = (e.clientX-(r.left+r.width/2))*0.1;
+        ty = (e.clientY-(r.top+r.height/2))*0.13;
+        if(!running){ running = true; requestAnimationFrame(loop); }
       }, {passive:true});
-      btn.addEventListener('mouseleave', function(){ btn.style.transform=''; });
+      btn.addEventListener('mouseleave', function(){
+        tx = 0; ty = 0;
+        if(!running){ running = true; requestAnimationFrame(loop); }
+      });
     });
   }
 
