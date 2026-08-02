@@ -326,11 +326,19 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 }
 
 .rank-check__headline{font-size:clamp(2rem,4vw,3.2rem);margin-bottom:18px}
+/* Gleiche Logik wie bei der Hero-Headline: eigenes Einmal-Keyframe
+   (heroSweepOnce, siehe .hero h1 .hl) statt des geteilten Dauerloops,
+   damit der Sweep sauber bei "wo" beginnt und bei "Unternehmen" endet.
+   Läuft nicht beim Laden los (Sektion ist unterhalb des Folds), sondern
+   erst wenn .rank-check__intro per Scroll-Reveal die .in-Klasse bekommt —
+   animation-play-state bleibt bis dahin paused (pausiert auch die
+   Verzögerung, startet also bei .in bei 0, nicht mittendrin). */
 .rank-check__accent{
-  background:linear-gradient(100deg, var(--green-bright) 32%, #A6F6D6 46%, var(--green-bright) 60%);
-  background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:rank-check-sweep 4.5s linear infinite;
+  background:linear-gradient(100deg,var(--green-bright) 40%,#A6F6D6 50%,var(--green-bright) 60%);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:heroSweepOnce 2s linear 1 forwards;animation-play-state:paused;
 }
+.rank-check__intro.in .rank-check__accent{animation-play-state:running}
 @keyframes rank-check-sweep{0%{background-position:200% 0}100%{background-position:-60% 0}}
 
 .rank-check__sub{color:var(--dim);font-size:1.05rem;line-height:1.6;max-width:46ch;margin-bottom:24px}
