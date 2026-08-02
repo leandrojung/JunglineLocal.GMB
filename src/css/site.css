@@ -417,9 +417,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    wirkte die Card sonst schmaler als die Content-Blöcke darüber/darunter
    und brach die sonst durchgängige Spaltenbreite. Auf Mobile (Grid wird
    einspaltig) bleibt eine Obergrenze, damit das Formular nicht ausufert. */
-#gbp-badge{max-width:100%;margin-left:auto;margin-right:auto;padding:32px 28px;
+#gbp-badge{position:relative;max-width:100%;margin-left:auto;margin-right:auto;padding:32px 28px;
   background:var(--card-2);border:1px solid var(--border);border-radius:var(--r-lg);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);overflow:hidden}
 #gbp-badge .gbp-badge__loading,
 #gbp-badge .gbp-badge__result,
 #gbp-badge .gbp-badge__error{display:none}
