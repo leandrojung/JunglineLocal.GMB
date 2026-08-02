@@ -823,18 +823,20 @@
     svcUpdate();
   }
 
-  // FAQ accordion
+  // FAQ accordion — reines Klassen-Toggle, die Höhe übernimmt CSS
+  // (grid-template-rows 0fr/1fr auf .faq__a, siehe site.css). Kein
+  // scrollHeight-Messen mehr nötig, das vor der Animation ohnehin einen
+  // synchronen Layout-Flush erzwungen hätte.
   document.querySelectorAll('.faq__item').forEach(function(item){
     var q = item.querySelector('.faq__q');
-    var a = item.querySelector('.faq__a');
     q.addEventListener('click', function(){
       var open = item.classList.contains('open');
       // close siblings
       document.querySelectorAll('.faq__item.open').forEach(function(other){
-        if(other!==item){ other.classList.remove('open'); other.querySelector('.faq__a').style.maxHeight=null; other.querySelector('.faq__q').setAttribute('aria-expanded','false'); }
+        if(other!==item){ other.classList.remove('open'); other.querySelector('.faq__q').setAttribute('aria-expanded','false'); }
       });
-      if(open){ item.classList.remove('open'); a.style.maxHeight=null; q.setAttribute('aria-expanded','false'); }
-      else{ item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; q.setAttribute('aria-expanded','true'); }
+      item.classList.toggle('open', !open);
+      q.setAttribute('aria-expanded', String(!open));
     });
   });
 

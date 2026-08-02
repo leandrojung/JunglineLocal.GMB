@@ -801,8 +801,21 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .faq__icon::after{width:1.6px;height:11px;transform:translate(-50%,-50%)}
 .faq__item.open .faq__icon{transform:rotate(90deg);background:rgba(var(--green-rgb),.14)}
 .faq__item.open .faq__icon::after{opacity:0}
-.faq__a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
-.faq__a-inner{padding:0 24px 24px;color:var(--dim);font-size:.99rem;line-height:1.75}
+/* max-height-Transition ersetzt: max-height erzwingt bei jedem Frame ein
+   volles Reflow (Layout), zusammen mit dem backdrop-filter der Karte war
+   das spürbar ruckelig/wenig FPS beim Auf-/Zuklappen. grid-template-rows
+   0fr→1fr ist der etablierte, deutlich ruhiger laufende Ersatz dafür —
+   kein JS-Messen von scrollHeight mehr nötig, nur noch Klassenwechsel. */
+.faq__a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+.faq__item.open .faq__a{grid-template-rows:1fr}
+/* Polsterung sitzt bewusst NICHT auf .faq__a-inner (dem Grid-Item): Padding
+   zählt für die grid-template-rows-Größenberechnung immer als unschrumpfbarer
+   Mindestbeitrag, egal ob overflow:hidden/min-height:0 gesetzt sind — 0fr
+   wäre dadurch nie wirklich 0 geworden. Eine Ebene tiefer (.faq__a-text)
+   greift diese Berechnung nicht mehr an, wird beim Zuklappen sauber
+   mitgeclippt. */
+.faq__a-inner{overflow:hidden;min-height:0}
+.faq__a-text{padding:0 24px 24px;color:var(--dim);font-size:.99rem;line-height:1.75}
 .faq__cta{text-align:center;margin-top:38px;color:var(--dim);font-size:1rem}
 .faq__cta a{color:var(--green-bright);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 
