@@ -160,6 +160,21 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .btn:disabled{opacity:.6;cursor:default;transform:none!important}
 .btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--green-bright);outline-offset:3px}
 
+/* ============ KUNDENBEISPIEL / CLIENT SPOTLIGHT ============ */
+.client-spotlight__card{
+  max-width:560px;margin:40px auto 0;padding:38px 34px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;
+}
+.client-spotlight__logo{max-width:180px;max-height:64px;width:auto;height:auto;object-fit:contain}
+.client-spotlight__badge{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+  padding:9px 16px;background:var(--card-2);border:1px solid var(--border);border-radius:999px;
+  font-size:.86rem;font-weight:600;color:var(--dim)}
+.client-spotlight__stars{color:#fbbc05}
+.client-spotlight__quote p{color:var(--ink);font-size:1.08rem;line-height:1.7;font-style:italic}
+.client-spotlight__quote cite{display:block;margin-top:10px;font-style:normal;font-size:.86rem;color:var(--dim-2)}
+
 /* ============ NAV ============ */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .4s,backdrop-filter .4s,border-color .4s,box-shadow .4s;border-bottom:1px solid transparent}
 .nav.scrolled{background:rgba(var(--bg-rgb),.72);backdrop-filter:blur(18px) saturate(140%);border-bottom-color:var(--border);box-shadow:0 10px 40px -24px rgba(0,0,0,.8)}
@@ -1027,6 +1042,7 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 @media(max-width:560px){
   .container{padding:0 18px}
   .pledges{grid-template-columns:1fr}
+  .client-spotlight__card{padding:30px 22px}
   .ticker__group span{font-size:.85rem;padding:0 20px}
   .footer__cols{gap:36px}
   .btn{font-size:.95rem;padding:14px 24px;white-space:normal}
@@ -1416,7 +1432,8 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
   .linkcard,
   .infocard,
   .illu,
-  .tcard{backdrop-filter:none}
+  .tcard,
+  .client-spotlight__card{backdrop-filter:none}
 
   /* btn--ghost: Blur entfällt auf Mobile (kein Kontrast-Verlust da der
      Hintergrund ohnehin nicht transparenter Inhalt ist). */
