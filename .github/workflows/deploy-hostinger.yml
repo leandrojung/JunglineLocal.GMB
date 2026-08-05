@@ -27,6 +27,44 @@ jobs:
       - name: Seite bauen
         run: npm run build
 
+      # Der fertige Build wird IMMER als Artefakt gesichert — auch dann, wenn
+      # der Upload danach scheitert. Damit gibt es jederzeit ein
+      # vollständiges, in sich stimmiges ZIP, das im hPanel-Dateimanager nach
+      # public_html/ entpackt werden kann. Genau dieser Weg fehlte bisher:
+      # Es wurden einzelne HTML-Dateien von Hand hochgeladen, während die
+      # zugehörigen Dateien unter /assets/ auf dem Server fehlten.
+      # include-hidden-files ist zwingend, sonst fehlt .htaccess im ZIP.
+      - name: Build als Artefakt sichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: jungline-dist
+          path: dist/
+          include-hidden-files: true
+          retention-days: 30
+
+      # Ohne diesen Schritt bricht die FTP-Action mit "Input required and not
+      # supplied: server" ab — eine Meldung, die nicht verrät, dass schlicht
+      # die Repository-Secrets fehlen. Genau daran sind alle bisherigen
+      # Deploys gescheitert, ohne dass es jemandem aufgefallen ist.
+      - name: FTP-Zugangsdaten prüfen
+        env:
+          FTP_SERVER: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+        run: |
+          missing=""
+          [ -n "$FTP_SERVER" ]   || missing="$missing HOSTINGER_FTP_SERVER"
+          [ -n "$FTP_USERNAME" ] || missing="$missing HOSTINGER_FTP_USERNAME"
+          [ -n "$FTP_PASSWORD" ] || missing="$missing HOSTINGER_FTP_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Der Upload kann nicht laufen. Es fehlen diese Repository-Secrets:$missing"
+            echo "::error::Anzulegen unter Settings -> Secrets and variables -> Actions -> New repository secret."
+            echo "::error::Die Zugangsdaten stehen im Hostinger hPanel unter Dateien -> FTP-Zugang."
+            echo "::error::Zwischenloesung ohne Secrets: Artefakt 'jungline-dist' oben auf dieser Seite herunterladen und im hPanel-Dateimanager vollstaendig nach public_html/ entpacken."
+            exit 1
+          fi
+          echo "Alle FTP-Secrets vorhanden."
+
       - name: Per FTP zu Hostinger hochladen
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -39,3 +77,51 @@ jobs:
           # Hostinger-Konten. Nur nötig, falls die Seite in einem
           # Unterordner liegt (z. B. bei einer Zusatzdomain).
           server-dir: ${{ secrets.HOSTINGER_FTP_DIR || './public_html/' }}
+
+      # Abschließender Härtetest gegen die echte Domain. Er prüft genau den
+      # Fehler, der die Seite in Instagram- und Google-App ungestylt gemacht
+      # hat: Die HTML kam an, das darin verlinkte Stylesheet nicht. Ein grüner
+      # Haken beim Deploy heißt ab jetzt auch, dass die Seite tatsächlich
+      # gestylt ausgeliefert wird.
+      - name: Live-Seite prüfen
+        run: |
+          set -u
+          html=""
+          for versuch in 1 2 3; do
+            if html=$(curl -fsSL --max-time 30 "https://jungline.de/"); then break; fi
+            echo "Startseite nicht erreichbar (Versuch $versuch/3), neuer Versuch in 10s ..."
+            sleep 10
+          done
+          if [ -z "$html" ]; then
+            echo "::error::https://jungline.de/ ist nicht erreichbar."
+            exit 1
+          fi
+
+          css=$(printf '%s' "$html" | grep -o 'href="[^"]*\.css"' | head -1 | cut -d'"' -f2)
+          if [ -z "$css" ]; then
+            echo "::error::In der ausgelieferten Startseite steht kein Stylesheet-Link. Auf dem Server liegt eine falsche oder veraltete index.html."
+            exit 1
+          fi
+          case "$css" in
+            http*) css_url="$css" ;;
+            *)     css_url="https://jungline.de${css}" ;;
+          esac
+          echo "Verlinktes Stylesheet: $css_url"
+
+          kopf=$(curl -sSI --max-time 30 "$css_url")
+          status=$(printf '%s' "$kopf" | grep -i '^HTTP/' | tail -1 | awk '{print $2}')
+          typ=$(printf '%s' "$kopf" | grep -i '^content-type:' | tail -1 | tr -d '\r')
+
+          if [ "$status" != "200" ]; then
+            echo "::error::Das Stylesheet $css_url antwortet mit HTTP $status statt 200. Die Seite wird dadurch voellig ungestylt angezeigt — der Ordner /assets/ fehlt auf dem Server oder ist nicht lesbar."
+            exit 1
+          fi
+          case "$typ" in
+            *text/css*) ;;
+            *)
+              echo "::error::Das Stylesheet wird als '$typ' ausgeliefert statt als text/css. Zusammen mit X-Content-Type-Options: nosniff verwirft der Browser es — die Seite bleibt ungestylt. Bitte pruefen, ob .htaccess im Webroot liegt."
+              exit 1
+              ;;
+          esac
+
+          echo "OK: Startseite und Stylesheet werden korrekt ausgeliefert ($typ)."

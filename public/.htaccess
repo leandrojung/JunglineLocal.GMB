@@ -14,13 +14,43 @@
 #      bis lange Lebensdauer, je nachdem wie wahrscheinlich Änderungen sind.
 # =========================================================================
 
-# ---------- 0) Saubere URL für die GBP-Check-API ----------
+# ---------- 0) Kanonische Domain + saubere URL für die GBP-Check-API ----------
 # /api/gbp-check bzw. /api/gbp-compare (ohne .php) intern auf die
 # tatsächlichen PHP-Dateien mappen.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Kanonische Domain ohne www. Der <link rel="canonical"> jeder Seite zeigt
+  # auf https://jungline.de/ — Aufrufe über www. landen sonst auf einer
+  # zweiten, für Google eigenständigen Adresse. Die Regel kann nicht in einer
+  # Schleife enden, weil das Ziel selbst nie auf www. matcht.
+  RewriteCond %{HTTP_HOST} ^www\.jungline\.de$ [NC]
+  RewriteRule ^ https://jungline.de%{REQUEST_URI} [R=301,L]
+
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
+</IfModule>
+
+# ---------- 0b) MIME-Typen verbindlich festlegen ----------
+# Weiter unten wird X-Content-Type-Options: nosniff gesetzt. Das ist richtig,
+# hat aber eine harte Konsequenz: Liefert der Server eine Datei mit falschem
+# Content-Type aus (z. B. text/plain oder application/octet-stream, weil eine
+# Endung im Server-Profil nicht hinterlegt ist), darf der Browser den Typ
+# NICHT mehr erraten — er verwirft die Datei ersatzlos. Bei einem Stylesheet
+# heißt das: die Seite wird komplett ungestylt angezeigt, ohne Fehlermeldung.
+# Deshalb hier alle ausgelieferten Typen explizit deklarieren, statt sich auf
+# die Voreinstellung des Hosters zu verlassen.
+<IfModule mod_mime.c>
+  AddType text/css                      .css
+  AddType text/javascript               .js .mjs
+  AddType application/json              .json
+  AddType image/svg+xml                 .svg
+  AddType image/webp                    .webp
+  AddType image/avif                    .avif
+  AddType font/woff2                    .woff2
+  AddType font/woff                     .woff
+  AddType application/xml               .xml
+  AddType text/plain                    .txt
 </IfModule>
 
 # .env-Dateien dürfen unter keinen Umständen ausgeliefert werden — auch
@@ -33,15 +63,18 @@
 # Brotli (LiteSpeed / Apache mit mod_brotli) — deutlich besser als gzip
 # (15–25 % kleinere Bundles), besonders für Fonts und JS.
 <IfModule mod_brotli.c>
+  # text/javascript UND application/javascript, weil JS oben per AddType als
+  # text/javascript deklariert wird (der heute gültige Standardtyp) — stünde
+  # hier nur application/javascript, bliebe das JS-Bundle unkomprimiert.
   AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml
-  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json
+  AddOutputFilterByType BROTLI_COMPRESS text/javascript application/javascript application/json
   AddOutputFilterByType BROTLI_COMPRESS application/xml application/rss+xml
   AddOutputFilterByType BROTLI_COMPRESS image/svg+xml font/woff2
 </IfModule>
 # Gzip als Fallback für Clients ohne Brotli-Support
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
-  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE text/javascript application/javascript application/json
   AddOutputFilterByType DEFLATE application/xml application/rss+xml
   AddOutputFilterByType DEFLATE image/svg+xml font/woff2
 </IfModule>
@@ -61,8 +94,13 @@
   # an einen Client ohne Brotli-Support ausliefern — das bräche die Seite.
   Header append Vary Accept-Encoding
 
-  # Keep-Alive: Verbindungen für nachfolgende Requests wiederverwenden.
-  Header set Connection keep-alive
+  # Hinweis: Hier stand früher "Header set Connection keep-alive". Connection
+  # ist ein Hop-by-Hop-Header, den ausschließlich der Server selbst setzen
+  # darf. Über HTTP/2 und HTTP/3 — was Hostinger für jungline.de spricht —
+  # gilt eine Antwort mit Connection-Header laut RFC 9113 als "malformed";
+  # strenge Clients brechen den Stream ab (ERR_HTTP2_PROTOCOL_ERROR), während
+  # Safari sie toleriert. Genau so entstehen Fehler, die nur in manchen
+  # Browsern auftreten. Keep-Alive handelt der Server ohnehin selbst aus.
 
   # HTML: cachen erlaubt, aber vor jeder Nutzung beim Server rückfragen.
   # Unverändertes HTML wird per ETag/Last-Modified als 304 beantwortet
@@ -94,12 +132,16 @@
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 
-  # Vite-Build-Assets: alles unter /assets/ trägt einen Content-Hash im
-  # Dateinamen (site-Bx3F9dQk.css). Ändert sich der Inhalt, ändert sich
-  # der Name — der alte Cache-Eintrag wird schlicht nie mehr angefragt.
-  # Deshalb: 1 Jahr, ohne jede Rückfrage.
-  SetEnvIf Request_URI "^/assets/" HASHED_ASSET
-  Header set Cache-Control "public, max-age=31536000, immutable" env=HASHED_ASSET
+  # Vite-Build-Assets: /assets/site.css und /assets/site.js haben bewusst
+  # stabile Namen ohne Content-Hash (Begründung in vite.config.js). Damit
+  # darf hier NICHT mehr "immutable, 1 Jahr" stehen — sonst würde ein
+  # Besucher, der die Seite schon einmal geladen hat, bis zu einem Jahr
+  # lang das alte Stylesheet behalten und nach einem Redesign eine kaputte
+  # Seite sehen. Stattdessen wie beim HTML: cachen erlaubt, aber vor jeder
+  # Nutzung rückfragen. Unverändert antwortet der Server mit 304 (wenige
+  # Bytes), geändert ist sofort für alle live.
+  SetEnvIf Request_URI "^/assets/" BUILD_ASSET
+  Header set Cache-Control "no-cache" env=BUILD_ASSET
 
   # Sicherheits- und Performance-Header
   # X-Content-Type-Options: verhindert MIME-Sniffing (Sicherheit + Performance,
@@ -125,8 +167,11 @@
   ExpiresActive On
   ExpiresDefault "access plus 1 hour"
   ExpiresByType text/html "access plus 0 seconds"
-  ExpiresByType text/css "access plus 1 year"
-  ExpiresByType application/javascript "access plus 1 year"
+  # CSS/JS haben stabile Namen ohne Hash — sie müssen revalidiert werden,
+  # sonst hängt ein wiederkehrender Besucher auf einer alten Version fest.
+  ExpiresByType text/css "access plus 0 seconds"
+  ExpiresByType text/javascript "access plus 0 seconds"
+  ExpiresByType application/javascript "access plus 0 seconds"
   ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType font/woff "access plus 1 year"
   ExpiresByType image/png "access plus 30 days"

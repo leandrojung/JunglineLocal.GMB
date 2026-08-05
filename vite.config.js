@@ -209,8 +209,35 @@ function sharedShell() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Vite hängt an jedes selbst eingefügte <link>/<script> ein crossorigin-
+// Attribut. Für Dateien der eigenen Domain bringt das keinen Vorteil, macht
+// aus einem gewöhnlichen Subresource-Request aber einen CORS-Request. In
+// In-App-Browsern (Instagram, Google-App) und hinter Proxys ist das eine
+// zusätzliche Fehlerquelle: Schlägt die CORS-Prüfung fehl, verwirft der
+// Browser das komplette Stylesheet und die Seite erscheint roh und ungestylt.
+// Entfernt wird das Attribut ausschließlich bei /assets/-Dateien; bei den
+// Font-Preloads ist crossorigin zwingend und bleibt deshalb stehen.
+// order:'post', weil Vite diese Tags erst nach den 'pre'-Hooks einfügt.
+// ---------------------------------------------------------------------------
+function dropSameOriginCrossorigin() {
+  return {
+    name: 'jungline-drop-crossorigin',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        return html.replace(/<(?:link|script)\b[^>]*>/g, (tag) =>
+          /(?:href|src)="\/assets\//.test(tag)
+            ? tag.replace(/\s+crossorigin(?:="[^"]*")?/g, '')
+            : tag,
+        )
+      },
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [sharedShell()],
+  plugins: [sharedShell(), dropSameOriginCrossorigin()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -226,13 +253,25 @@ export default defineConfig({
       output: {
         // Kompaktes Output: kein unnötiges Whitespace in Rollup-Wrappern.
         compact: true,
-        // Chunks: CSS pro Entry isolieren (verhindert, dass Unterseiten
-        // ungenutztes CSS aus anderen Seiten mitladen, sobald Vite das
-        // Splitting unterstützt — ist bei shared-CSS im MPA-Modus heute
-        // schon aktiv, compact hält die Datei klein).
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        // Stabile Dateinamen ohne Content-Hash — bewusst gegen die übliche
+        // Empfehlung, weil diese Seite per FTP auf Hostinger hochgeladen
+        // wird und ein Upload damit nicht atomar ist.
+        //
+        // Mit Hash (site-CYi1rao6.css) verweist jede HTML-Datei auf genau
+        // einen Dateinamen. Kommt die HTML auf dem Server an, die passende
+        // CSS-Datei aber nicht — abgebrochener Upload, nur einzelne Dateien
+        // manuell ersetzt, Hash-Wechsel durch einen neuen Build —, dann
+        // läuft das Stylesheet in einen 404 und der Besucher sieht die
+        // nackte HTML ohne jedes Styling. Genau dieser Zustand war live.
+        //
+        // Ohne Hash zeigt jede HTML auf /assets/site.css. Diese Datei
+        // existiert nach dem ersten Upload immer; im schlimmsten Fall ist
+        // sie eine Version alt, die Seite bleibt aber vollständig gestylt.
+        // Die Cache-Steuerung übernimmt dafür .htaccess per Revalidierung
+        // ("no-cache" + ETag) statt über den Dateinamen.
+        assetFileNames: 'assets/[name][extname]',
+        chunkFileNames: 'assets/[name].js',
+        entryFileNames: 'assets/[name].js',
       },
     },
   },
