@@ -4,3 +4,9 @@ dist/
 .DS_Store
 .env
 public/api/cache/
+
+# Vorgebaute Dateien fuer manuelle Uploads. Liegen sie im Repo-Root, zieht
+# Vite sie als Build-Entry ein und der Build bricht an den fest eingebauten
+# Asset-Hashes ab (siehe findHtmlInputs in vite.config.js).
+index-deploy.html
+*-deploy.html
