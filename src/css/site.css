@@ -40,6 +40,24 @@
   --sp:clamp(86px,12vh,150px);
   --ease:cubic-bezier(.2,.7,.2,1);
   --ease-out:cubic-bezier(.16,1,.3,1);
+  /* Apple-Kurve (iOS-Sheets, Control Center): sehr schneller Anlauf, langes
+     weiches Ausrollen. Bewusst ohne Bounce/Elastic — Bewegung soll sich
+     beruhigen, nicht nachfedern. */
+  --ease-apple:cubic-bezier(.32,.72,0,1);
+  /* Drei Tempi statt frei gewählter Werte: Tap-Feedback, UI-Wechsel, Weg. */
+  --dur-tap:.16s;
+  --dur-ui:.28s;
+  --dur-move:.55s;
+  /* Elevation mehrlagig und weich (Kontaktschatten + Streuschatten) statt
+     eines einzelnen harten Schlagschattens. */
+  --elev-1:0 1px 2px rgba(16,22,48,.05),0 4px 12px -6px rgba(16,22,48,.10);
+  --elev-2:0 2px 6px rgba(16,22,48,.06),0 14px 34px -14px rgba(16,22,48,.18);
+  /* Semantische Ebenen — keine 999/9999-Werte mehr. */
+  --z-base:1;
+  --z-mcta:90;
+  --z-menu:95;
+  --z-nav:100;
+  --z-grain:120;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -55,7 +73,7 @@ body{
 }
 /* fine ambient grain for tactile depth */
 .grain{
-  content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:.03;
+  content:"";position:fixed;inset:0;z-index:var(--z-grain);pointer-events:none;opacity:.03;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 h1,h2,h3,h4,.display{font-family:'Bricolage Grotesque',sans-serif;line-height:1.07;letter-spacing:-.025em;text-wrap:balance}
@@ -181,8 +199,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .client-spotlight__quote cite{font-style:normal;font-size:.85rem;color:var(--dim-2);font-weight:500}
 
 /* ============ NAV ============ */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .4s,backdrop-filter .4s,border-color .4s,box-shadow .4s;border-bottom:1px solid transparent}
-.nav.scrolled{background:rgba(var(--bg-rgb),.72);backdrop-filter:blur(18px) saturate(140%);border-bottom-color:var(--border);box-shadow:0 10px 40px -24px rgba(0,0,0,.8)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:var(--z-nav);transition:background .4s,backdrop-filter .4s,border-color .4s,box-shadow .4s;border-bottom:1px solid transparent}
+/* Apple-Materiallogik für die Leiste: kräftiger Blur plus Sättigungs-Boost,
+   damit Farbe von darunter durchscheint statt milchig auszuwaschen; darunter
+   nur eine Haarlinie statt eines sichtbaren Schattens. */
+.nav.scrolled{background:rgba(var(--bg-rgb),.68);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom-color:var(--border);box-shadow:0 1px 0 rgba(16,22,48,.04),0 10px 40px -28px rgba(16,22,48,.5)}
 .nav__inner{display:flex;align-items:center;justify-content:space-between;height:76px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand__tile{width:42px;height:42px;border-radius:12px;overflow:hidden;flex:none;
@@ -203,7 +224,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .nav.open .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .nav.open .nav__toggle span:nth-child(2){opacity:0}
 .nav.open .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.mobile-menu{position:fixed;inset:76px 0 auto 0;z-index:99;background:rgba(var(--bg-rgb),.97);backdrop-filter:blur(20px);
+.mobile-menu{position:fixed;inset:76px 0 auto 0;z-index:var(--z-menu);background:rgba(var(--bg-rgb),.97);backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);transform:translateY(-130%);transition:transform .45s var(--ease)}
 .mobile-menu.show{transform:translateY(0)}
 .mobile-menu a{display:block;padding:18px 26px;font-size:1.1rem;font-weight:600;border-top:1px solid var(--border)}
@@ -1017,7 +1038,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .nav__links a.active::after{width:100%}
 
 /* ============ STICKY MOBILE CTA ============ */
-.mcta{position:fixed;left:12px;right:12px;bottom:12px;z-index:90;display:none;gap:10px;
+.mcta{position:fixed;left:12px;right:12px;bottom:12px;z-index:var(--z-mcta);display:none;gap:10px;
   visibility:hidden;transform:translateY(140%);transition:transform .45s var(--ease-out),visibility 0s .45s}
 .mcta.show{visibility:visible;transform:none;transition:transform .45s var(--ease-out)}
 .mcta .btn--primary{flex:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 16px 40px -10px rgba(0,0,0,.7),0 10px 28px -10px rgba(var(--green-rgb),.5)}
@@ -1503,3 +1524,131 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 
 /* Schriften: font-display swap als explizite Überbrückung falls optional
    greift und der User einen langsamen First Load hat. */
+
+
+/* ============================================================
+   LIVE-ICONS — ein Mechanismus für alle Icons der Seite
+   ============================================================
+   Prinzip von SF Symbols "Draw On": jedes Strich-Icon zeichnet sich beim
+   ersten Sichtkontakt selbst, interaktive Icons zeichnen bei Hover/Fokus
+   erneut. site.js misst dafür jede Form einmal per getTotalLength() und legt
+   das Ergebnis als --len am Element ab. Dadurch reicht ein einziges Keyframe
+   für jede beliebige Form — kein Icon muss von Hand vermessen werden.
+
+   Sichtbarer Grundzustand ist IMMER das fertige Icon: versteckt wird nur,
+   was site.js aktiv als .lico--pending markiert, und das räumt ein Failsafe
+   wieder ab. Bleibt JS aus oder hängt der Observer, ist das Icon da. */
+.lico [data-draw]{stroke-dasharray:var(--len,1);stroke-dashoffset:0}
+.lico--pending [data-draw]{stroke-dashoffset:var(--len,1)}
+.lico--draw [data-draw]{animation:lico-draw .62s var(--ease-apple) both;animation-delay:calc(var(--i,0)*.055s)}
+@keyframes lico-draw{from{stroke-dashoffset:var(--len,1)}to{stroke-dashoffset:0}}
+/* Flächen-Icons (fill statt stroke) lassen sich nicht zeichnen — sie
+   skalieren stattdessen aus ihrer eigenen Mitte ein. */
+.lico--pending [data-pop]{opacity:0}
+.lico--draw [data-pop]{animation:lico-pop .5s var(--ease-apple) both;animation-delay:calc(var(--i,0)*.055s);
+  transform-box:fill-box;transform-origin:center}
+@keyframes lico-pop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+/* Das Icon als Ganzes reagiert zusätzlich auf seinen interaktiven Träger.
+   Nur bei echtem Hover-Gerät — auf Touch gibt es kein Hover, dort wäre der
+   Zustand nach dem Tap "klebend". */
+.lico{transition:transform var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
+@media(hover:hover){
+  .lico-host:hover .lico{transform:scale(1.09)}
+}
+.lico-host:focus-visible .lico{transform:scale(1.09)}
+@media(prefers-reduced-motion:reduce){
+  .lico [data-draw]{stroke-dashoffset:0!important}
+  .lico [data-pop]{opacity:1!important;transform:none!important}
+  .lico{transition:none}
+}
+
+/* ============ REVEAL-FAILSAFE ============
+   .js [data-reveal] setzt opacity:0 und verlässt sich darauf, dass der
+   IntersectionObserver .in nachliefert. Passiert das nicht — In-App-Browser
+   (Instagram/Google-App), Bots, Screenshot-Renderer, abgebrochenes Skript —
+   bliebe die halbe Seite leer. site.js setzt dann html.reveal-off, und der
+   sichtbare Grundzustand gilt wieder. Gleiches beim Drucken. */
+.reveal-off [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
+@media print{
+  [data-reveal]{opacity:1!important;transform:none!important}
+  .lico [data-draw]{stroke-dashoffset:0!important}
+  .lico [data-pop]{opacity:1!important;transform:none!important}
+}
+
+/* ============ TAP- UND HOVER-VERHALTEN (Apple-Logik) ============
+   Auf iOS ist der wichtigste Zustand nicht Hover, sondern der Druckmoment:
+   das Element gibt unter dem Finger sichtbar nach und kommt weich zurück.
+   Deshalb überall ein echter :active-Zustand statt nur Hover-Effekten. */
+html{-webkit-tap-highlight-color:transparent}
+.btn:active:not(:disabled),
+.btn--primary:active:not(:disabled),
+.btn--ghost:active:not(:disabled){transform:scale(.965);transition-duration:var(--dur-tap)}
+.related__list a:active,
+.hero__trust li:active,
+.chapter__more:active,
+.fcol a:active{transform:scale(.97);transition-duration:var(--dur-tap)}
+.related__list a{transition:border-color var(--dur-ui),color var(--dur-ui),transform var(--dur-ui) var(--ease-apple),background var(--dur-ui)}
+.chapter__more{display:inline-flex;align-items:center;gap:7px;transition:color var(--dur-ui),transform var(--dur-ui) var(--ease-apple)}
+/* Hover-Effekte nur dort, wo es einen Zeiger gibt. Auf Touch führte
+   :hover sonst zu Zuständen, die nach dem Tap hängen bleiben. */
+@media(hover:none){
+  .related__list a:hover,
+  .btn--primary:hover,
+  .btn--ghost:hover{transform:none}
+}
+
+/* ============ MOBILE-FEINSCHLIFF ============ */
+/* Sticky-CTA respektiert die Home-Indicator-Zone (iPhone ohne Home-Button).
+   Ohne env() säße der Button auf der Systemgeste. */
+.mcta{padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(max-width:960px){
+  /* Fixe Leisten dürfen den Inhalt am Seitenende nicht überdecken. */
+  .footer{padding-bottom:calc(36px + 76px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:640px){
+  /* Blur ist auf Mobile der teuerste Effekt der Seite — Radius runter,
+     Optik bleibt praktisch identisch, Scroll-Performance steigt spürbar. */
+  .bg-aurora__blob{filter:blur(60px)}
+  /* Touch-Ziele: Apple-Minimum sind 44px. */
+  .nav__toggle{width:44px;height:44px}
+  .mobile-menu a{padding:17px 26px;min-height:44px;display:flex;align-items:center}
+  .footer__bottom{gap:14px 24px}
+  .footer__bottom a{padding:4px 0;display:inline-block;min-height:32px}
+}
+/* Mobile-Menü: Einträge laufen gestaffelt ein statt als ein Block —
+   dieselbe Choreografie wie iOS-Listen, die sich von oben aufbauen. */
+.js .mobile-menu a{opacity:0;transform:translateY(-8px)}
+.js .mobile-menu.show a{opacity:1;transform:none;
+  transition:opacity var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple);
+  transition-delay:calc(var(--i,0)*.04s + .08s)}
+@media(prefers-reduced-motion:reduce){
+  .js .mobile-menu a{opacity:1;transform:none}
+}
+
+/* ============ VERTIKALE RHYTHMIK ============
+   Jede Section bringt oben UND unten var(--sp) mit — zwischen zwei Sections
+   summiert sich das auf bis zu 300px reine Leere, was den Lesefluss reißen
+   lässt statt ihn zu gliedern. Der Abstand ZWISCHEN zwei Blöcken darf
+   kleiner sein als der zum Seitenanfang; ein Block braucht keinen doppelten
+   Sicherheitsabstand zu seinem Nachbarn. Innerhalb der Sections bleibt die
+   Luft unangetastet. */
+.section + .section{padding-top:calc(var(--sp)*.62)}
+.section + .section--tight{padding-top:calc(var(--sp)*.46)}
+
+/* ============ ICONS IN WEG-KARTEN UND PROZESS-SCHRITTEN ============
+   Beide Stellen hatten bisher gar kein Icon. Bewusst ohne gefüllte
+   Icon-Kachel: die Schritte tragen bereits die großen 01–04-Ziffern, eine
+   zweite schwere Marke pro Block würde mit ihnen konkurrieren statt zu
+   führen. Der freistehende Strich-Glyph ordnet sich unter. */
+.way__ico{display:block;color:var(--green-bright);opacity:.75;margin-bottom:11px;
+  transition:opacity var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple)}
+.way--hot .way__ico{opacity:1}
+.way{transition:border-color var(--dur-ui),transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui)}
+@media(hover:hover){
+  .way:hover{transform:translateY(-2px);box-shadow:var(--elev-1)}
+  .way:hover .way__ico{opacity:1}
+}
+.chapter__ico{display:block;color:var(--green-bright);margin-bottom:14px;opacity:.9}
+@media(max-width:640px){
+  .chapter__ico{width:23px;height:23px;margin-bottom:11px}
+}

@@ -970,3 +970,141 @@
 
   nums.forEach(function(el){ io.observe(el); });
 })();
+/* ============================================================
+   LIVE-ICON-ENGINE
+   ============================================================
+   Ein Durchlauf für alle Strich-Icons der Seite (alle nutzen dieselbe
+   24er-Box): jedes Icon zeichnet sich beim ersten Sichtkontakt selbst und
+   zeichnet erneut, wenn sein interaktiver Träger Hover oder Fokus bekommt.
+
+   Warum hier und nicht als Attribut im Markup: die Icons stehen verteilt in
+   23 HTML-Seiten, in vite.config.js (Branchen-Chips) und in
+   src/data/bausteine.js. Eine zentrale Stelle, die sie zur Laufzeit
+   einsammelt und vermisst, hält alle Seiten automatisch synchron — neue
+   Icons machen ohne Zusatzarbeit mit.
+
+   Sicherheitsnetz: versteckt wird ein Icon nur, wenn dieses Skript es aktiv
+   markiert. Fehlt IntersectionObserver oder springt er nicht an, bleibt der
+   sichtbare Grundzustand stehen (siehe Failsafe unten). */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+
+  // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.ba__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
+  var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
+  // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
+  var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard';
+
+  var icons = [];
+  Array.prototype.forEach.call(document.querySelectorAll('svg[viewBox="0 0 24 24"]'), function(svg){
+    if(svg.closest(SKIP)) return;
+    // Nicht gerendert (display:none, z. B. die Mobil-CTA auf dem Desktop oder
+    // eine eingeklappte FAQ-Antwort)? Dann gar nicht erst verstecken — der
+    // Observer würde dort nie anspringen und das Icon bliebe unsichtbar,
+    // sobald es später doch eingeblendet wird.
+    if(!svg.getClientRects().length) return;
+    var parts = svg.querySelectorAll(SHAPES);
+    if(!parts.length) return;
+
+    var marked = 0;
+    Array.prototype.forEach.call(parts, function(el, i){
+      // Strich oder Fläche? Der Stroke wird vom <svg> geerbt, Flächen-Icons
+      // (fill="currentColor" ohne stroke) liefern hier "none".
+      var stroked = getComputedStyle(el).stroke !== 'none';
+      el.style.setProperty('--i', i);
+      if(stroked){
+        var len = 0;
+        // getTotalLength() gibt es auf allen Grundformen (SVGGeometryElement),
+        // kann aber bei degenerierten Formen 0 oder NaN liefern.
+        try { len = el.getTotalLength(); } catch(err){ len = 0; }
+        if(!isFinite(len) || len <= 0) return;
+        el.style.setProperty('--len', len.toFixed(2));
+        el.setAttribute('data-draw', '');
+      } else {
+        el.setAttribute('data-pop', '');
+      }
+      marked++;
+    });
+    if(!marked) return;
+
+    svg.classList.add('lico', 'lico--pending');
+    icons.push(svg);
+
+    var host = svg.closest(HOSTS);
+    if(host) host.classList.add('lico-host');
+  });
+
+  if(!icons.length) return;
+
+  var play = function(svg){
+    svg.classList.remove('lico--pending');
+    // Neustart der Animation erzwingen: Klasse ab, Layout antippen, Klasse dran.
+    svg.classList.remove('lico--draw');
+    void svg.getBoundingClientRect();
+    svg.classList.add('lico--draw');
+  };
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      io.unobserve(e.target);
+      play(e.target);
+    });
+  }, {threshold:.3, rootMargin:'0px 0px -40px 0px'});
+  icons.forEach(function(svg){ io.observe(svg); });
+
+  // Failsafe: hat nach 1,8 s kein einziges Icon gezeichnet, arbeitet der
+  // Observer nicht (In-App-Browser, Bot, Screenshot-Renderer). Dann alle
+  // Icons unverzüglich sichtbar machen statt sie versteckt zu lassen.
+  setTimeout(function(){
+    if(document.querySelector('.lico--draw')) return;
+    icons.forEach(function(svg){ svg.classList.remove('lico--pending'); });
+  }, 1800);
+
+  // Erneut zeichnen bei Hover/Fokus des Trägers. Delegiert statt pro Element
+  // gebunden — auf der Startseite sind das über 60 Icons.
+  var lastHost = null;
+  document.addEventListener('pointerover', function(e){
+    if(e.pointerType === 'touch') return;
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var host = t.closest('.lico-host');
+    if(!host || host === lastHost) return;
+    lastHost = host;
+    Array.prototype.forEach.call(host.querySelectorAll('svg.lico'), play);
+  }, {passive:true});
+  document.addEventListener('pointerout', function(e){
+    if(!lastHost) return;
+    if(!e.relatedTarget || !lastHost.contains(e.relatedTarget)) lastHost = null;
+  }, {passive:true});
+  document.addEventListener('focusin', function(e){
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var host = t.closest('.lico-host');
+    if(host) Array.prototype.forEach.call(host.querySelectorAll('svg.lico'), play);
+  });
+})();
+
+/* ============================================================
+   REVEAL-FAILSAFE + MOBILE-MENÜ-STAGGER
+   ============================================================ */
+(function(){
+  // .js [data-reveal] setzt opacity:0 und verlässt sich darauf, dass der
+  // IntersectionObserver oben .in nachliefert. Bleibt das aus, wäre die halbe
+  // Seite unsichtbar — das ist der Fehler, der sich in In-App-Browsern
+  // (Instagram, Google-App) und bei Vorschau-Renderern zeigt. Hat nach 1,6 s
+  // nichts reagiert, obwohl es Reveal-Elemente gibt, schalten wir die
+  // Versteck-Regel global ab.
+  if(document.querySelector('[data-reveal]')){
+    setTimeout(function(){
+      if(!document.querySelector('[data-reveal].in')){
+        document.documentElement.classList.add('reveal-off');
+      }
+    }, 1600);
+  }
+
+  // Menüeinträge laufen gestaffelt ein (CSS liest --i).
+  var items = document.querySelectorAll('.mobile-menu a');
+  Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
+})();
