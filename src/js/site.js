@@ -994,7 +994,7 @@
   var SKIP = '.logo-scene,.map,.bam,.rankcard,.ba__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
-  var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard';
+  var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';
 
   var icons = [];
   Array.prototype.forEach.call(document.querySelectorAll('svg[viewBox="0 0 24 24"]'), function(svg){
