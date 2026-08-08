@@ -583,7 +583,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .rank-check__cta-list li{display:inline-flex;align-items:center;gap:8px;font-size:.88rem;
   color:var(--dim);background:rgba(255,255,255,.04);border:1px solid var(--border);
   border-radius:999px;padding:8px 16px}
-.rank-check__cta-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green-bright);flex:none}
+/* overflow:visible, damit die Hover-Skalierung des Live-Icons nicht an der
+   SVG-Box abgeschnitten wird. */
+.rank-check__cta-list li svg{flex:none;color:var(--green-bright);overflow:visible}
 .rank-check__cta-btn{min-width:260px}
 
 /* ============ BRANCHEN-TICKER ============ */

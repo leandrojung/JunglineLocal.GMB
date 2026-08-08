@@ -228,6 +228,12 @@
   var setCompareState = function(state){
     if(compare) compare.setAttribute('data-state', state);
     if(rankSection) rankSection.classList.toggle('rank-check--comparing', state !== 'hidden');
+    // Mit dieser Klasse wird der CTA-Block darunter erst sichtbar. Seine Icons
+    // waren beim ersten Durchlauf display:none und damit nicht vermessbar —
+    // jetzt können sie nachgezogen werden und zeichnen sich wie alle anderen.
+    if(state !== 'hidden' && typeof CustomEvent === 'function'){
+      document.dispatchEvent(new CustomEvent('lico:rescan'));
+    }
   };
 
   var fmtRating = function(r){
@@ -1106,45 +1112,6 @@
   var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';
 
   var icons = [];
-  Array.prototype.forEach.call(document.querySelectorAll('svg[viewBox="0 0 24 24"]'), function(svg){
-    if(svg.closest(SKIP)) return;
-    // Nicht gerendert (display:none, z. B. die Mobil-CTA auf dem Desktop oder
-    // eine eingeklappte FAQ-Antwort)? Dann gar nicht erst verstecken — der
-    // Observer würde dort nie anspringen und das Icon bliebe unsichtbar,
-    // sobald es später doch eingeblendet wird.
-    if(!svg.getClientRects().length) return;
-    var parts = svg.querySelectorAll(SHAPES);
-    if(!parts.length) return;
-
-    var marked = 0;
-    Array.prototype.forEach.call(parts, function(el, i){
-      // Strich oder Fläche? Der Stroke wird vom <svg> geerbt, Flächen-Icons
-      // (fill="currentColor" ohne stroke) liefern hier "none".
-      var stroked = getComputedStyle(el).stroke !== 'none';
-      el.style.setProperty('--i', i);
-      if(stroked){
-        var len = 0;
-        // getTotalLength() gibt es auf allen Grundformen (SVGGeometryElement),
-        // kann aber bei degenerierten Formen 0 oder NaN liefern.
-        try { len = el.getTotalLength(); } catch(err){ len = 0; }
-        if(!isFinite(len) || len <= 0) return;
-        el.style.setProperty('--len', len.toFixed(2));
-        el.setAttribute('data-draw', '');
-      } else {
-        el.setAttribute('data-pop', '');
-      }
-      marked++;
-    });
-    if(!marked) return;
-
-    svg.classList.add('lico', 'lico--pending');
-    icons.push(svg);
-
-    var host = svg.closest(HOSTS);
-    if(host) host.classList.add('lico-host');
-  });
-
-  if(!icons.length) return;
 
   var play = function(svg){
     svg.classList.remove('lico--pending');
@@ -1161,13 +1128,70 @@
       play(e.target);
     });
   }, {threshold:.3, rootMargin:'0px 0px -40px 0px'});
-  icons.forEach(function(svg){ io.observe(svg); });
+
+  // Wird true, wenn der Failsafe unten feststellt, dass der Observer nicht
+  // arbeitet. Danach dürfen auch nachgezogene Icons nicht mehr versteckt
+  // werden — sie würden sonst nie wieder auftauchen.
+  var observerDead = false;
+
+  var collect = function(){
+    Array.prototype.forEach.call(document.querySelectorAll('svg[viewBox="0 0 24 24"]'), function(svg){
+      if(svg.classList.contains('lico')) return;   // schon vermessen
+      if(svg.closest(SKIP)) return;
+      // Nicht gerendert (display:none, z. B. die Mobil-CTA auf dem Desktop oder
+      // eine eingeklappte FAQ-Antwort)? Dann gar nicht erst verstecken — der
+      // Observer würde dort nie anspringen und das Icon bliebe unsichtbar,
+      // sobald es später doch eingeblendet wird. Solche Icons holt der
+      // lico:rescan nach, sobald ihr Block sichtbar wird.
+      if(!svg.getClientRects().length) return;
+      var parts = svg.querySelectorAll(SHAPES);
+      if(!parts.length) return;
+
+      var marked = 0;
+      Array.prototype.forEach.call(parts, function(el, i){
+        // Strich oder Fläche? Der Stroke wird vom <svg> geerbt, Flächen-Icons
+        // (fill="currentColor" ohne stroke) liefern hier "none".
+        var stroked = getComputedStyle(el).stroke !== 'none';
+        el.style.setProperty('--i', i);
+        if(stroked){
+          var len = 0;
+          // getTotalLength() gibt es auf allen Grundformen (SVGGeometryElement),
+          // kann aber bei degenerierten Formen 0 oder NaN liefern.
+          try { len = el.getTotalLength(); } catch(err){ len = 0; }
+          if(!isFinite(len) || len <= 0) return;
+          el.style.setProperty('--len', len.toFixed(2));
+          el.setAttribute('data-draw', '');
+        } else {
+          el.setAttribute('data-pop', '');
+        }
+        marked++;
+      });
+      if(!marked) return;
+
+      svg.classList.add('lico');
+      if(!observerDead) svg.classList.add('lico--pending');
+      icons.push(svg);
+      io.observe(svg);
+
+      var host = svg.closest(HOSTS);
+      if(host) host.classList.add('lico-host');
+    });
+  };
+
+  collect();
+
+  // Blöcke, die erst nach einer Interaktion eingeblendet werden (der
+  // CTA-Block unter dem Profil-Check), waren beim ersten Durchlauf noch
+  // display:none und damit nicht vermessbar. Wer so einen Block sichtbar
+  // macht, meldet sich hier — dann werden nur die neuen Icons nachgezogen.
+  document.addEventListener('lico:rescan', collect);
 
   // Failsafe: hat nach 1,8 s kein einziges Icon gezeichnet, arbeitet der
   // Observer nicht (In-App-Browser, Bot, Screenshot-Renderer). Dann alle
   // Icons unverzüglich sichtbar machen statt sie versteckt zu lassen.
   setTimeout(function(){
     if(document.querySelector('.lico--draw')) return;
+    observerDead = true;
     icons.forEach(function(svg){ svg.classList.remove('lico--pending'); });
   }, 1800);
 
