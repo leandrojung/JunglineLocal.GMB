@@ -210,19 +210,27 @@ $rText = "Test R\n" . bkTextFacts($sample)
     . "\nKalenderdatei: " . bkIcsUrl($sample['token'])
     . "\nAbsagen: " . bkManageUrl($sample['token']);
 
+// Runde 8: Runde 7 hat den Versandweg entlastet (T über bkMail kam an) und
+// die Vorlage belastet (S über denselben Weg nicht). Der Byte-Vergleich
+// S↔T ließ vor allem zwei Gewichte übrig: den Betreff im Datum-Uhrzeit-
+// Muster ("Ihr Termin am 10.08.2026 um 19:30 Uhr" — Signatur einschlägiger
+// Terminbestätigungs-Spamwellen) und den versteckten Vorschautext, der vom
+// sichtbaren Inhalt abwich. Beides ist aus der Vorlage entfernt; U prüft
+// die neue Vorlage, V dieselbe Vorlage mit dem alten Betreff — kommt U an
+// und V nicht, war der Betreff das entscheidende Gewicht.
 $variants = [
-    'R — Referenzinhalt über den Testversand (kam bisher immer an)' => [
-        'subject' => 'R: ' . $conf['subject'],
-        'mime' => bkBuildMime($rHtml, $rText, null),
-        'from' => $from,
-    ],
-    'S — ECHTE Bestätigung über den ECHTEN Versandweg (bkMail wie book.php)' => [
-        'subject' => 'S: ' . $conf['subject'],
-        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
-    ],
-    'T — Referenzinhalt über den ECHTEN Versandweg' => [
+    'T — Referenzinhalt über bkMail (Kontrolle, kam in Runde 7 an)' => [
         'subject' => 'T: Referenz ' . $stamp,
         'bkmail' => ['html' => $rHtml, 'text' => $rText],
+    ],
+    'U — NEUE echte Bestätigung über bkMail (neutraler Betreff, Vorschau kurz)' => [
+        'subject' => 'U: ' . $conf['subject'],
+        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
+    ],
+    'V — dieselbe neue Vorlage, aber alter Datum-Uhrzeit-Betreff' => [
+        'subject' => 'V: Ihr Termin am ' . bkLocal(new DateTimeImmutable($sample['start_utc'], bkUtcTz()))->format('d.m.Y') . ' um '
+            . bkLocal(new DateTimeImmutable($sample['start_utc'], bkUtcTz()))->format('H:i') . ' Uhr',
+        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
     ],
 ];
 

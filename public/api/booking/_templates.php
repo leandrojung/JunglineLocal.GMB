@@ -168,21 +168,24 @@ function bkMailConfirmation(array $booking): array {
         . bkTextCalendarLinks($booking) . "\n\n"
         . (trim($booking['message']) !== '' ? "Ihr Anliegen:\n" . $booking['message'] . "\n\n" : '')
         . "Absagen oder verschieben: " . $manage . "\n\n"
-        // Signatur ohne Web-Adresse — mit ihr stünden VIER Adressen im
-        // Textteil, und der Ausgangsfilter des Hosters verwirft nachweislich
-        // jede Mail ab der vierten (Diagnose /mailtest: 0–3 kamen ausnahmslos
-        // an, 4–5 ausnahmslos nicht). Die Absage kommt mit zweien seit jeher
-        // durch. Der Klartext-Name bleibt; die Domain steht ohnehin im
-        // Absender und im HTML-Fuß.
-        . "Bis dahin!\nLeandro\n\n"
-        . "--\nJunglineLocal — Leandro Jung\n";
+        // Ohne Signaturblock: Die Web-Adresse darin wäre die vierte im
+        // Textteil, und ab vier verwirft der Ausgangsfilter des Hosters
+        // nachweislich jede Mail (Diagnose /mailtest: 0–3 Adressen kamen
+        // ausnahmslos an, 4–5 ausnahmslos nicht). Absender und HTML-Fuß
+        // nennen die Domain ohnehin.
+        . "Bis dahin!\nLeandro\n";
 
-    // Betreff bewusst ohne Umlaute und ohne ausgeschriebenen Monat ("März"!):
-    // Reine ASCII-Betreffe brauchen keine RFC-2047-Kodierung — eine ganze
-    // Fehlerklasse weniger auf der wichtigsten Mail des Systems.
+    // Betreff bewusst ohne Umlaute (reines ASCII braucht keine RFC-2047-
+    // Kodierung) und ohne Datum-Uhrzeit-Muster: "… am 10.08.2026 um 19:30
+    // Uhr" ist die Signatur einschlägiger Terminbestätigungs-Spamwellen und
+    // kostet beim Ausgangsfilter Punkte, die diese Mail sich nicht leisten
+    // kann. Datum und Uhrzeit stehen prominent in der Terminbox der Mail.
+    // Der Vorschautext bleibt aus demselben Grund kurz und deckungsgleich
+    // mit dem sichtbaren Inhalt — versteckter Text, der etwas anderes sagt
+    // als die Mail, ist ein klassisches Filtersignal.
     return [
-        'subject' => 'Ihr Termin am ' . bkLocal($start)->format('d.m.Y') . ' um ' . bkLocal($start)->format('H:i') . ' Uhr',
-        'html' => bkEmailShell('Ihr Erstgespräch am ' . bkFormatDate($start), 'Ihr Termin steht', $content),
+        'subject' => 'Ihr Termin bei JunglineLocal',
+        'html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $content),
         'text' => $text,
     ];
 }
