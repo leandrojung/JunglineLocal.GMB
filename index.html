@@ -804,6 +804,14 @@
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Ehrliche Einschätzung</b>, was realistisch möglich ist. Ohne Verkaufsdruck.</span></li>
         </ul>
         <div class="cal-frame">
+          <!-- Die Sprache der Buchungsstrecke steckt NICHT in dieser URL:
+               Calendly kennt keinen locale-Parameter. Sie hängt am Event-Typ
+               (Calendly → Event-Typ → ⋯ → „Sprache der Eingeladenen“ → Deutsch)
+               und gilt dann für Kalender, Bestätigungsseite und alle
+               Benachrichtigungs-Mails. Ohne diese Einstellung richtet sich
+               Calendly nach der Browsersprache des Besuchers und zeigt bei
+               vielen Englisch. Name und Beschreibung des Event-Typs übersetzt
+               Calendly nie — die müssen im Konto von Hand deutsch heißen. -->
           <div class="calendly-inline-widget"
                data-url="https://calendly.com/jungline-company/30min?hide_event_type_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=374151&primary_color=4a7a5a"
                style="min-width:0;height:560px;"></div>
