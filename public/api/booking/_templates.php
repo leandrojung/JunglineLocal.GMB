@@ -103,7 +103,7 @@ function bkEmailFactBox(array $booking): string {
  * ohnehin angenehmer als ein Download samt Öffnen-mit-Dialog.
  */
 function bkEmailCalendarLinks(array $booking): string {
-    $google = bkGoogleCalendarUrl($booking);
+    $google = bkGcalLinkUrl($booking['token']);
     $file   = bkIcsUrl($booking['token']);
 
     return '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0 4px;"><tr>'
@@ -119,7 +119,7 @@ function bkEmailCalendarLinks(array $booking): string {
 /** Dieselben zwei Wege für die Nur-Text-Fassung. */
 function bkTextCalendarLinks(array $booking): string {
     return "In den Kalender eintragen:\n"
-        . "  Google:          " . bkGoogleCalendarUrl($booking) . "\n"
+        . "  Google:          " . bkGcalLinkUrl($booking['token']) . "\n"
         . "  Apple / Outlook: " . bkIcsUrl($booking['token']);
 }
 
@@ -193,8 +193,11 @@ function bkMailConfirmation(array $booking): array {
         . "Bis dahin!\nLeandro\n\n"
         . "--\nJunglineLocal — Leandro Jung\n" . bkSiteUrl() . "\n";
 
+    // Betreff bewusst ohne Umlaute und ohne ausgeschriebenen Monat ("März"!):
+    // Reine ASCII-Betreffe brauchen keine RFC-2047-Kodierung — eine ganze
+    // Fehlerklasse weniger auf der wichtigsten Mail des Systems.
     return [
-        'subject' => 'Termin bestätigt: ' . bkFormatDate($start) . ', ' . bkLocal($start)->format('H:i') . ' Uhr',
+        'subject' => 'Ihr Termin am ' . bkLocal($start)->format('d.m.Y') . ' um ' . bkLocal($start)->format('H:i') . ' Uhr',
         'html' => bkEmailShell('Ihr Erstgespräch am ' . bkFormatDate($start), 'Ihr Termin steht', $content),
         'text' => $text,
     ];
@@ -251,7 +254,7 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
         . "Absagen: " . bkManageUrl($booking['token']) . "\n";
 
     return [
-        'subject' => 'Neue Buchung: ' . $booking['name'] . ' — ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
+        'subject' => 'Neue Buchung: ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
         'html' => bkEmailShell('Neue Buchung von ' . $booking['name'], 'Neue Buchung', $content),
         'text' => $text,
     ];
@@ -283,8 +286,9 @@ function bkMailReminder(array $booking): array {
         . "Absagen oder verschieben: " . bkManageUrl($booking['token']) . "\n\n"
         . "Bis morgen!\nLeandro\n";
 
+    // Wie bei der Bestätigung: Betreff ohne Umlaute, keine Kodierung nötig.
     return [
-        'subject' => 'Erinnerung: unser Gespräch morgen um ' . bkLocal($start)->format('H:i') . ' Uhr',
+        'subject' => 'Erinnerung: Ihr Termin morgen um ' . bkLocal($start)->format('H:i') . ' Uhr',
         'html' => bkEmailShell('Erinnerung an Ihren Termin', 'Morgen sprechen wir', $content),
         'text' => $text,
     ];
@@ -306,7 +310,7 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
             . bkTextFacts($booking) . "\n\n"
             . $booking['name'] . " · " . $booking['email'] . "\n";
         return [
-            'subject' => 'Absage: ' . $booking['name'] . ' — ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
+            'subject' => 'Absage: ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
             'html' => bkEmailShell('Ein Termin wurde abgesagt', 'Termin abgesagt', $content),
             'text' => $text,
         ];

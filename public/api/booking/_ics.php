@@ -60,6 +60,18 @@ function bkIcsUrl(string $token): string {
 }
 
 /**
+ * Der Google-Kalender-Knopf in den Mails zeigt hierher — auf die eigene
+ * Domain, die dann zu Google weiterleitet (gcal.php). Der direkte
+ * calendar.google.com/render-Link steht auf keinen Fall in die Mail: solche
+ * Links sind die Signatur einschlägiger Kalender-Spam-Wellen, und Filter
+ * werfen Mails damit stillschweigend weg. Ein Link auf die eigene,
+ * versendende Domain ist obendrein das, was Zusteller sehen wollen.
+ */
+function bkGcalLinkUrl(string $token): string {
+    return bkSiteUrl() . '/api/booking/gcal?token=' . rawurlencode($token);
+}
+
+/**
  * Fertiger "Eintragen"-Link für Google Kalender. Der Weg über eine Adresse
  * statt über eine Datei ist auf dem Handy der kürzere: ein Fingertipp, und
  * der Termin steht — kein Download, kein Öffnen-mit, keine App-Auswahl.

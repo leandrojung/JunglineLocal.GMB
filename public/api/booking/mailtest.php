@@ -248,30 +248,38 @@ function bkTestIcsPublish(array $booking): string {
     return implode("\r\n", array_map('bkIcsFold', $lines)) . "\r\n";
 }
 
-// Runde 3 prüft den zweiten gefundenen Fehler: einen Betreff, der kodiert
-// über die 75-Zeichen-Grenze aus RFC 2047 hinausläuft. Beide Varianten sind
-// bis auf die Kodierung des Betreffs identisch — kommt H an und G nicht,
-// ist der Beweis erbracht.
-$langerBetreff = 'Termin bestätigt: Freitag, 28. August 2026, ' . $stamp . ' Uhr';
+// Runde 4: Die echte Bestätigungsmail selbst — nach Betreff-Fix und ohne
+// Anhang kam sie weiterhin nicht an, während die inhaltlich schlichtere
+// Absage zugestellt wird. Verdächtig ist der calendar.google.com/render-
+// Link, den nur die Bestätigung enthielt (bekannte Kalender-Spam-Signatur).
+// Die Vorlage verlinkt inzwischen über die eigene Domain (/api/booking/gcal);
+// K stellt zum Beweis das alte Verhalten mit dem Direktlink nach.
+$conf = bkMailConfirmation($sample);
+$directGcal = bkGoogleCalendarUrl($sample);
+$redirGcal  = bkGcalLinkUrl($sample['token']);
 
 $variants = [
-    'G — überlanger Betreff am Stück kodiert (bisheriges Verhalten)' => [
-        'subject' => $langerBetreff,
-        'subject_header' => '=?UTF-8?B?' . base64_encode($langerBetreff) . '?=',
-        'mime' => bkTestMime('<p>Test G</p>', 'Test G', null, '', ''),
+    'J — echte Bestätigung, aktueller Stand (Google-Link über eigene Domain)' => [
+        'subject' => 'J: ' . $conf['subject'],
+        'mime' => bkBuildMime($conf['html'], $conf['text'], null),
         'from' => $from,
     ],
-    'H — derselbe Betreff, normgerecht auf zwei Blöcke verteilt' => [
-        'subject' => $langerBetreff,
-        'subject_header' => null,   // nutzt das reparierte bkMimeHeader()
-        'mime' => bkTestMime('<p>Test H</p>', 'Test H', null, '', ''),
+    'K — dieselbe Mail, aber mit direktem calendar.google.com-Link (alt)' => [
+        'subject' => 'K: ' . $conf['subject'],
+        'mime' => bkBuildMime(
+            str_replace(bkEsc($redirGcal), bkEsc($directGcal), $conf['html']),
+            str_replace($redirGcal, $directGcal, $conf['text']),
+            null
+        ),
         'from' => $from,
     ],
-    'I — kurzer Betreff mit Anhang (Kontrolle Anhangsperre)' => [
-        'subject' => 'Test I ' . $stamp,
-        'subject_header' => null,
-        'mime' => bkTestMime('<p>Test I</p>', 'Test I',
-            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8; method=PUBLISH', 'termin.ics'),
+    'L — Minimaltext, nur der direkte calendar.google.com-Link' => [
+        'subject' => 'L: Test ' . $stamp,
+        'mime' => bkBuildMime(
+            '<p>Test L: <a href="' . bkEsc($directGcal) . '">Kalenderlink</a></p>',
+            "Test L\n" . $directGcal,
+            null
+        ),
         'from' => $from,
     ],
 ];
@@ -308,4 +316,4 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (G, H, I) ankommt — auch im Spam-Ordner.\n";
+echo "Testmails (J, K, L) ankommt — auch im Spam-Ordner.\n";
