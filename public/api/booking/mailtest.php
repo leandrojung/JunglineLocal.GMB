@@ -218,27 +218,33 @@ $rText = "Test R\n" . bkTextFacts($sample)
 // sichtbaren Inhalt abwich. Beides ist aus der Vorlage entfernt; U prüft
 // die neue Vorlage, V dieselbe Vorlage mit dem alten Betreff — kommt U an
 // und V nicht, war der Betreff das entscheidende Gewicht.
+// Runde 9: Runde 8 hat den Betreff entlastet (W kam mit dem neuen Betreff
+// an) und den Inhalt überführt (U und V starben mit beiden Betreffen). Eine
+// Mail besteht aus zwei Teilen, die Filter getrennt bewerten — HTML und
+// reiner Text. Diese Runde halbiert genau dort und prüft zusätzlich den
+// einzigen inhaltlichen Unterschied, der kein bloßer Wortlaut ist: die
+// Bestätigung verlinkt /api/booking/calendar, die Referenz /api/booking/ics.
+$icsUrl  = bkIcsUrl($sample['token']);
+$calUrl  = bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($sample['token']);
+$confHtmlIcs = str_replace(bkEsc($calUrl), bkEsc($icsUrl), $conf['html']);
+$confTextIcs = str_replace($calUrl, $icsUrl, $conf['text']);
+
 $variants = [
-    'T — Referenzinhalt über bkMail (Kontrolle, kam in Runde 7 an)' => [
-        'subject' => 'T: Referenz ' . $stamp,
-        'bkmail' => ['html' => $rHtml, 'text' => $rText],
-    ],
-    'U — NEUE echte Bestätigung über bkMail (neutraler Betreff, Vorschau kurz)' => [
-        'subject' => 'U: ' . $conf['subject'],
+    'Y1 — Bestätigung unverändert (Kontrolle, erwartet: kommt nicht an)' => [
+        'subject' => 'Y1: ' . $conf['subject'],
         'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
     ],
-    'V — dieselbe neue Vorlage, aber alter Datum-Uhrzeit-Betreff' => [
-        'subject' => 'V: Ihr Termin am ' . bkLocal(new DateTimeImmutable($sample['start_utc'], bkUtcTz()))->format('d.m.Y') . ' um '
-            . bkLocal(new DateTimeImmutable($sample['start_utc'], bkUtcTz()))->format('H:i') . ' Uhr',
-        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
+    'Y2 — HTML der Bestätigung, Textteil der Referenz' => [
+        'subject' => 'Y2: ' . $conf['subject'],
+        'bkmail' => ['html' => $conf['html'], 'text' => $rText],
     ],
-    // Die Gegenprobe zu U: Referenzinhalt (kommt sicher an) mit dem NEUEN
-    // Betreff. Kommt W an und U nicht, ist der Betreff entlastet und der
-    // Inhalt überführt; kommt W nicht an, ist es der Betreff. Zusammen mit
-    // T und V deckt die Runde damit jede Kombination ab.
-    'W — Referenzinhalt, aber mit dem neuen Betreff' => [
-        'subject' => 'W: ' . $conf['subject'],
-        'bkmail' => ['html' => $rHtml, 'text' => $rText],
+    'Y3 — HTML der Referenz, Textteil der Bestätigung' => [
+        'subject' => 'Y3: ' . $conf['subject'],
+        'bkmail' => ['html' => $rHtml, 'text' => $conf['text']],
+    ],
+    'Y4 — Bestätigung, aber /calendar-Link durch /ics ersetzt' => [
+        'subject' => 'Y4: ' . $conf['subject'],
+        'bkmail' => ['html' => $confHtmlIcs, 'text' => $confTextIcs],
     ],
 ];
 
