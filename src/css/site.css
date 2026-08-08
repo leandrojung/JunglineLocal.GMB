@@ -1311,6 +1311,9 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
   color:var(--dim);font-size:.97rem;line-height:1.7;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .callout svg{flex:none;color:var(--green-bright);margin-top:3px}
 .callout b{color:var(--ink);font-weight:600}
+/* Modifier für Callouts außerhalb der Prosaspalte: mittig im Container statt
+   linksbündig, Breite an der Bausteine-Grid darüber ausgerichtet (.factgrid). */
+.callout--wide{max-width:940px;margin-left:auto;margin-right:auto}
 
 /* Link-Karten-Raster (Startseiten-Sektion, Ratgeber-Übersicht, Branchen-Listen) */
 .linkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}

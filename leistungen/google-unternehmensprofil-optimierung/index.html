@@ -174,9 +174,14 @@
 
     <!--BAUSTEINE_LEISTUNGEN-->
 
-    <div class="prose center" data-reveal>
-      <div class="callout"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span><b>Alles richtlinienkonform.</b> Keine gekauften Bewertungen, keine Keyword-Tricks im Firmennamen, keine Fake-Standorte. Solche Abkürzungen riskieren die Sperrung des Profils. Ich arbeite ausschließlich mit Methoden, die Googles Richtlinien und dem UWG entsprechen — nachhaltig statt kurzfristig.</span></div>
+    <!-- Eigenständig statt in der 760px-Prosaspalte: dort saß die Box links
+         im Container, weil .prose.center Text linksbündig zentriert (nur der
+         Fließtext soll linksbündig bleiben). Als eigenes Element mit
+         max-width:940px richtet sie sich stattdessen an der Bausteine-Grid
+         darüber aus und steht mittig im Container. -->
+    <div class="callout callout--wide" data-reveal><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span><b>Alles richtlinienkonform.</b> Keine gekauften Bewertungen, keine Keyword-Tricks im Firmennamen, keine Fake-Standorte. Solche Abkürzungen riskieren die Sperrung des Profils. Ich arbeite ausschließlich mit Methoden, die Googles Richtlinien und dem UWG entsprechen — nachhaltig statt kurzfristig.</span></div>
 
+    <div class="prose center" data-reveal>
       <h2>So läuft die Zusammenarbeit ab</h2>
       <p>Ein klarer Ablauf ohne monatelangen Vorlauf und ohne Agentur-Overhead. Sie haben einen festen Ansprechpartner — mich.</p>
     </div>
