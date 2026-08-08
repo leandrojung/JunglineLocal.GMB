@@ -29,11 +29,44 @@ function bkMailFromName(): string {
     return envValue('MAIL_FROM_NAME') ?? 'JunglineLocal';
 }
 
-/** RFC-2047-Kodierung für Kopfzeilen mit Umlauten (Betreff, Anzeigename). */
+/**
+ * RFC-2047-Kodierung für Kopfzeilen mit Umlauten (Betreff, Anzeigename).
+ *
+ * Ein kodiertes Wort darf höchstens 75 Zeichen lang sein — die Klammern
+ * "=?UTF-8?B?" und "?=" zählen mit und belegen davon schon 12. Längere Texte
+ * gehören auf mehrere kodierte Wörter verteilt, getrennt durch Zeilenumbruch
+ * und Leerzeichen; der Empfänger fügt sie wieder zusammen.
+ *
+ * Ohne diese Aufteilung riss ausgerechnet der wichtigste Betreff des Systems
+ * die Grenze um neun Zeichen — "Termin bestätigt: Freitag, 28. August 2026,
+ * 11:00 Uhr" — und kostete die Bestätigungsmail die Zustellung: angenommen,
+ * nie ausgeliefert, kein Bounce. Die Absage kam an, weil ihr Betreff
+ * ("Termin abgesagt: 28.08.2026, 11:00 Uhr") zufällig ohne Umlaut auskommt
+ * und deshalb gar nicht erst kodiert wurde.
+ *
+ * Geteilt wird zwischen Zeichen, nicht zwischen Bytes: Ein Schnitt mitten
+ * durch ein "ä" macht daraus beim Empfänger zwei Fragezeichen.
+ */
 function bkMimeHeader(string $value): string {
-    return preg_match('/[\x80-\xFF]/', $value)
-        ? '=?UTF-8?B?' . base64_encode($value) . '?='
-        : $value;
+    if (!preg_match('/[\x80-\xFF]/', $value)) return $value;
+
+    // 45 Byte Rohtext ergeben 60 Zeichen Base64, mit den Klammern 72 —
+    // mit Sicherheitsabstand unter der Grenze von 75.
+    $chunks = [];
+    $current = '';
+    foreach (preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $char) {
+        if (strlen($current) + strlen($char) > 45) {
+            $chunks[] = $current;
+            $current = '';
+        }
+        $current .= $char;
+    }
+    if ($current !== '') $chunks[] = $current;
+
+    return implode("\r\n ", array_map(
+        static fn (string $chunk): string => '=?UTF-8?B?' . base64_encode($chunk) . '?=',
+        $chunks
+    ));
 }
 
 function bkAddress(string $email, string $name = ''): string {

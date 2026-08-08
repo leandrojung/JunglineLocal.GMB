@@ -57,7 +57,7 @@ if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
  *
  * @param array<int,string> $log
  */
-function bkTestSmtp(string $toEmail, string $subject, array $mime, string $envelopeFrom, array &$log): bool {
+function bkTestSmtp(string $toEmail, string $subject, array $mime, string $envelopeFrom, array &$log, ?string $subjectHeader = null): bool {
     $host   = (string) envValue('SMTP_HOST');
     $user   = (string) envValue('SMTP_USER');
     $pass   = (string) envValue('SMTP_PASS');
@@ -130,7 +130,7 @@ function bkTestSmtp(string $toEmail, string $subject, array $mime, string $envel
             'Date' => date('r'),
             'From' => bkAddress($envelopeFrom, bkMailFromName()),
             'To' => $toEmail,
-            'Subject' => bkMimeHeader($subject),
+            'Subject' => $subjectHeader ?? bkMimeHeader($subject),
             'Message-ID' => '<' . bin2hex(random_bytes(12)) . '@' . $helo . '>',
             'MIME-Version' => '1.0',
         ] + $mime['headers'];
@@ -248,37 +248,30 @@ function bkTestIcsPublish(array $booking): string {
     return implode("\r\n", array_map('bkIcsFold', $lines)) . "\r\n";
 }
 
+// Runde 3 prüft den zweiten gefundenen Fehler: einen Betreff, der kodiert
+// über die 75-Zeichen-Grenze aus RFC 2047 hinausläuft. Beide Varianten sind
+// bis auf die Kodierung des Betreffs identisch — kommt H an und G nicht,
+// ist der Beweis erbracht.
+$langerBetreff = 'Termin bestätigt: Freitag, 28. August 2026, ' . $stamp . ' Uhr';
+
 $variants = [
-    'A — text/calendar + METHOD:REQUEST (Kontrolle: bisher gescheitert)' => [
-        'subject' => 'Test A ' . $stamp . ' — Einladung wie bisher',
-        'mime' => bkTestMime(
-            '<p>Test A um ' . $stamp . '.</p>', 'Test A um ' . $stamp . '.',
-            bkIcs($sample, 'REQUEST'), 'text/calendar; charset=UTF-8; method=REQUEST', 'termin.ics'
-        ),
+    'G — überlanger Betreff am Stück kodiert (bisheriges Verhalten)' => [
+        'subject' => $langerBetreff,
+        'subject_header' => '=?UTF-8?B?' . base64_encode($langerBetreff) . '?=',
+        'mime' => bkTestMime('<p>Test G</p>', 'Test G', null, '', ''),
         'from' => $from,
     ],
-    'D — dieselben Bytes, aber als neutrale Datei (application/octet-stream)' => [
-        'subject' => 'Test D ' . $stamp . ' — neutraler Dateityp',
-        'mime' => bkTestMime(
-            '<p>Test D um ' . $stamp . '.</p>', 'Test D um ' . $stamp . '.',
-            bkIcs($sample, 'REQUEST'), 'application/octet-stream', 'termin.ics'
-        ),
+    'H — derselbe Betreff, normgerecht auf zwei Blöcke verteilt' => [
+        'subject' => $langerBetreff,
+        'subject_header' => null,   // nutzt das reparierte bkMimeHeader()
+        'mime' => bkTestMime('<p>Test H</p>', 'Test H', null, '', ''),
         'from' => $from,
     ],
-    'E — text/calendar, aber METHOD:PUBLISH ohne Organizer/Attendee' => [
-        'subject' => 'Test E ' . $stamp . ' — Kalenderdatei statt Einladung',
-        'mime' => bkTestMime(
-            '<p>Test E um ' . $stamp . '.</p>', 'Test E um ' . $stamp . '.',
-            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8; method=PUBLISH', 'termin.ics'
-        ),
-        'from' => $from,
-    ],
-    'F — text/calendar ohne method-Parameter, Inhalt PUBLISH' => [
-        'subject' => 'Test F ' . $stamp . ' — ohne method im Kopf',
-        'mime' => bkTestMime(
-            '<p>Test F um ' . $stamp . '.</p>', 'Test F um ' . $stamp . '.',
-            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8', 'termin.ics'
-        ),
+    'I — kurzer Betreff mit Anhang (Kontrolle Anhangsperre)' => [
+        'subject' => 'Test I ' . $stamp,
+        'subject_header' => null,
+        'mime' => bkTestMime('<p>Test I</p>', 'Test I',
+            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8; method=PUBLISH', 'termin.ics'),
         'from' => $from,
     ],
 ];
@@ -303,7 +296,8 @@ foreach ($variants as $label => $variant) {
     $log = [];
     $ok = false;
     try {
-        $ok = bkTestSmtp($to, $variant['subject'], $variant['mime'], $variant['from'], $log);
+        $ok = bkTestSmtp($to, $variant['subject'], $variant['mime'], $variant['from'], $log,
+                         $variant['subject_header'] ?? null);
     } catch (Throwable $e) {
         $log[] = '!!! Ausnahme: ' . $e->getMessage();
     }
@@ -314,4 +308,4 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (A, D, E, F) ankommt — auch im Spam-Ordner.\n";
+echo "Testmails (G, H, I) ankommt — auch im Spam-Ordner.\n";
