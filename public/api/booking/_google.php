@@ -40,17 +40,46 @@ function bkGoogleEnabled(): bool {
  * JSON-Datei (empfohlen, liegt oberhalb des Web-Roots) oder als zwei
  * einzelne .env-Werte.
  */
+/**
+ * Wo die Schlüsseldatei liegen könnte. Der konfigurierte Pfad zuerst; danach
+ * dieselben Orte, an denen auch die .env gesucht wird — einmal mit dem
+ * konfigurierten Dateinamen, einmal mit dem Standardnamen. So funktioniert
+ * die Einrichtung auch dann, wenn der absolute Pfad in der .env nicht zur
+ * tatsächlichen Ordnerstruktur des Hosters passt (bei Hostinger liegt das
+ * Home der Domain unter /home/<user>/domains/<domain>/, nicht /home/<user>/).
+ */
+function bkGoogleKeyCandidates(): array {
+    $configured = envValue('GOOGLE_SA_KEY_FILE');
+    $candidates = $configured !== null ? [$configured] : [];
+    foreach ([dirname(__DIR__, 3), dirname(__DIR__, 2)] as $dir) {
+        if ($configured !== null) $candidates[] = $dir . '/' . basename($configured);
+        $candidates[] = $dir . '/google-kalender.json';
+    }
+    return array_values(array_unique($candidates));
+}
+
+function bkGoogleKeyFile(): ?string {
+    foreach (bkGoogleKeyCandidates() as $candidate) {
+        if (is_readable($candidate)) return $candidate;
+    }
+    return null;
+}
+
 function bkGoogleCredentials(): ?array {
     static $cache = false;
     if ($cache !== false) return $cache;
 
-    $file = envValue('GOOGLE_SA_KEY_FILE');
-    if ($file !== null && is_readable($file)) {
+    $file = bkGoogleKeyFile();
+    if ($file !== null) {
         $json = json_decode((string) file_get_contents($file), true);
         if (is_array($json) && !empty($json['client_email']) && !empty($json['private_key'])) {
             return $cache = ['email' => $json['client_email'], 'key' => $json['private_key']];
         }
         error_log('booking/google: Schlüsseldatei ' . $file . ' ist unbrauchbar.');
+    } elseif (envValue('GOOGLE_SA_KEY_FILE') !== null) {
+        // Nur melden, wenn der Abgleich offensichtlich gewollt ist.
+        error_log('booking/google: Schlüsseldatei nicht gefunden — geprüft: '
+            . implode(', ', bkGoogleKeyCandidates()));
     }
 
     $email = envValue('GOOGLE_SA_EMAIL');
