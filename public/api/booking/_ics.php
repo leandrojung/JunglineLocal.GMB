@@ -54,9 +54,43 @@ function bkIcsUid(string $token): string {
     return $token . '@jungline.de';
 }
 
+/** Adresse, unter der ein Kunde die Kalenderdatei zu seinem Termin abholt. */
+function bkIcsUrl(string $token): string {
+    return bkSiteUrl() . '/api/booking/ics?token=' . rawurlencode($token);
+}
+
+/**
+ * Fertiger "Eintragen"-Link für Google Kalender. Der Weg über eine Adresse
+ * statt über eine Datei ist auf dem Handy der kürzere: ein Fingertipp, und
+ * der Termin steht — kein Download, kein Öffnen-mit, keine App-Auswahl.
+ */
+function bkGoogleCalendarUrl(array $booking): string {
+    $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
+    $end   = new DateTimeImmutable($booking['end_utc'], bkUtcTz());
+
+    $details = ['Kostenloses Erstgespräch zur Optimierung Ihres Google-Unternehmensprofils.'];
+    if (bkMeetingUrl() !== '') $details[] = 'Videoraum: ' . bkMeetingUrl();
+    $details[] = 'Absagen oder verschieben: ' . bkManageUrl($booking['token']);
+
+    return 'https://calendar.google.com/calendar/render?' . http_build_query([
+        'action' => 'TEMPLATE',
+        'text' => BK_TITLE,
+        'dates' => $start->format('Ymd\THis\Z') . '/' . $end->format('Ymd\THis\Z'),
+        'details' => implode("\n\n", $details),
+        'location' => bkMeetingUrl(),
+    ], '', '&', PHP_QUERY_RFC3986);
+}
+
 /**
  * @param array  $booking  Datensatz aus dem Speicher
- * @param string $method   REQUEST (Einladung) oder CANCEL (Absage)
+ * @param string $method   PUBLISH (Kalenderdatei zum Ablegen), REQUEST
+ *                         (förmliche Einladung) oder CANCEL (Absage)
+ *
+ * PUBLISH ist der Normalfall für den Download: Der Kunde legt einen Termin
+ * in seinen eigenen Kalender, er wird nicht um Zu- oder Absage gebeten.
+ * ORGANIZER und ATTENDEE entfallen dabei — mit ihnen macht mancher Client
+ * aus der Datei eine Einladung samt Antwortknöpfen, die bei uns ins Leere
+ * liefe, weil wir Antworten gar nicht auswerten.
  */
 function bkIcs(array $booking, string $method = 'REQUEST'): string {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
@@ -90,11 +124,13 @@ function bkIcs(array $booking, string $method = 'REQUEST'): string {
         'SUMMARY:' . bkIcsEscape(BK_TITLE),
         'DESCRIPTION:' . bkIcsEscape(implode("\n", $description)),
         'STATUS:' . ($cancelled ? 'CANCELLED' : 'CONFIRMED'),
-        'ORGANIZER;CN=' . bkIcsEscape(bkOwnerName()) . ':mailto:' . bkOwnerEmail(),
-        'ATTENDEE;CN=' . bkIcsEscape($booking['name'])
-            . ';ROLE=REQ-PARTICIPANT;PARTSTAT=' . ($cancelled ? 'DECLINED' : 'ACCEPTED')
-            . ':mailto:' . $booking['email'],
     ];
+    if ($method !== 'PUBLISH') {
+        $lines[] = 'ORGANIZER;CN=' . bkIcsEscape(bkOwnerName()) . ':mailto:' . bkOwnerEmail();
+        $lines[] = 'ATTENDEE;CN=' . bkIcsEscape($booking['name'])
+            . ';ROLE=REQ-PARTICIPANT;PARTSTAT=' . ($cancelled ? 'DECLINED' : 'ACCEPTED')
+            . ':mailto:' . $booking['email'];
+    }
     if (bkMeetingUrl() !== '') {
         $lines[] = 'LOCATION:' . bkIcsEscape(bkMeetingUrl());
         $lines[] = 'URL:' . bkMeetingUrl();

@@ -15,6 +15,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_config.php';
+// Die Kalender-Links in den Mails kommen von dort.
+require_once __DIR__ . '/_ics.php';
 
 const BK_MAIL_INK    = '#191C21';
 const BK_MAIL_DIM    = '#59647F';
@@ -91,6 +93,36 @@ function bkEmailFactBox(array $booking): string {
     return $html . '</table>';
 }
 
+/**
+ * Die beiden Wege, den Termin in den eigenen Kalender zu bekommen.
+ *
+ * Sie ersetzen den früheren .ics-Anhang. Der Versand über das Hoster-Postfach
+ * nimmt jede Mail an und verwirft danach jede mit Anhang — anhanglose
+ * Testmails kamen an, dieselben mit Anhang nicht, unabhängig vom Dateityp.
+ * Über Links bleibt die Mail zustellbar, und auf dem Handy ist ein Fingertipp
+ * ohnehin angenehmer als ein Download samt Öffnen-mit-Dialog.
+ */
+function bkEmailCalendarLinks(array $booking): string {
+    $google = bkGoogleCalendarUrl($booking);
+    $file   = bkIcsUrl($booking['token']);
+
+    return '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0 4px;"><tr>'
+        . '<td style="padding-right:10px;">'
+        . '<a href="' . bkEsc($google) . '" style="display:inline-block;padding:11px 20px;border:1px solid ' . BK_MAIL_BORDER . ';border-radius:999px;background:#FFFFFF;font:600 14px/1 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:' . BK_MAIL_INK . ';text-decoration:none;">'
+        . 'Zu Google Kalender</a></td>'
+        . '<td>'
+        . '<a href="' . bkEsc($file) . '" style="display:inline-block;padding:11px 20px;border:1px solid ' . BK_MAIL_BORDER . ';border-radius:999px;background:#FFFFFF;font:600 14px/1 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:' . BK_MAIL_INK . ';text-decoration:none;">'
+        . 'Apple / Outlook</a></td>'
+        . '</tr></table>';
+}
+
+/** Dieselben zwei Wege für die Nur-Text-Fassung. */
+function bkTextCalendarLinks(array $booking): string {
+    return "In den Kalender eintragen:\n"
+        . "  Google:          " . bkGoogleCalendarUrl($booking) . "\n"
+        . "  Apple / Outlook: " . bkIcsUrl($booking['token']);
+}
+
 function bkEmailButton(string $href, string $label): string {
     return '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px;"><tr>'
         . '<td style="background:' . BK_MAIL_ACCENT . ';border-radius:999px;">'
@@ -121,8 +153,9 @@ function bkMailConfirmation(array $booking): array {
     $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr kostenloses Erstgespräch steht. Den Termin finden Sie im Anhang dieser Mail — ein Klick, und er liegt in Ihrem Kalender.</p>'
-        . bkEmailFactBox($booking);
+        . '<p style="margin:0;">Ihr kostenloses Erstgespräch steht. Ein Klick, und der Termin liegt in Ihrem Kalender.</p>'
+        . bkEmailFactBox($booking)
+        . bkEmailCalendarLinks($booking);
 
     if (bkMeetingUrl() !== '') {
         $content .= bkEmailButton(bkMeetingUrl(), 'Zum Videoraum');
@@ -150,6 +183,7 @@ function bkMailConfirmation(array $booking): array {
     $text = "Hallo " . $firstName . ",\n\n"
         . "Ihr kostenloses Erstgespräch steht.\n\n"
         . bkTextFacts($booking) . "\n\n"
+        . bkTextCalendarLinks($booking) . "\n\n"
         . "Was Sie mitnehmen:\n"
         . "- 3 bis 5 sofort umsetzbare Tipps für Ihr Google-Unternehmensprofil\n"
         . "- eine kurze Einschätzung zum Wettbewerb im Kartenbereich\n"
@@ -280,7 +314,7 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
 
     $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr Termin ist abgesagt — Sie müssen nichts weiter tun. Der Eintrag im Anhang entfernt ihn auch aus Ihrem Kalender.</p>'
+        . '<p style="margin:0;">Ihr Termin ist abgesagt — Sie müssen nichts weiter tun. Bitte denken Sie daran, ihn auch in Ihrem eigenen Kalender zu löschen.</p>'
         . bkEmailFactBox($booking)
         . '<p style="margin:0;">Wenn Sie mögen, suchen Sie sich einfach einen neuen Termin aus:</p>'
         . bkEmailButton($bookingUrl, 'Neuen Termin wählen')

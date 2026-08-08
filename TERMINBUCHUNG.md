@@ -162,6 +162,33 @@ brauchst du das nicht — jede Buchung und jede Absage kommt ohnehin per Mail.
 | Buchung klappt, keine Mail | SMTP-Daten prüfen, Fehlerprotokoll nach `booking/smtp` durchsuchen |
 | Termin fehlt im Google-Kalender | Freigabe aus Schritt 3b vergessen, oder Schlüsseldatei nicht lesbar; Protokoll nach `booking/google` durchsuchen |
 
+### Mails prüfen, wenn sie nicht ankommen
+
+```
+https://jungline.de/api/booking/mailtest?token=<BOOKING_CRON_TOKEN>&to=<zieladresse>
+```
+
+Die Seite verschickt Testmails und zeigt dabei das komplette Gespräch mit dem
+Mailserver — jede Zeile, inklusive der Antwort auf den Schlusspunkt, in der
+die Vorgangsnummer des Hosters steht. Damit lässt sich unterscheiden, ob eine
+Mail schon beim Absenden scheitert oder erst danach unterwegs verschwindet.
+
+### Warum die Mails keinen Kalender-Anhang haben
+
+Das Postfach bei Hostinger nimmt **jede** Mail an („250 Ok: queued"),
+stellt aber **keine mit Anhang** zu — ohne Fehlermeldung, ohne Bounce, auch
+nicht im Spam. Nachgewiesen mit der Diagnose oben: anhanglose Testmails kamen
+an, dieselben Mails mit Anhang nicht, quer über mehrere Dateitypen. Am
+Anhangformat lag es also nicht.
+
+Der Kalendereintrag steckt deshalb als **Link** in der Mail: ein Knopf für
+Google Kalender, einer für Apple/Outlook. Letzterer holt die `.ics`-Datei über
+`/api/booking/ics?token=…` direkt vom eigenen Server. Auf dem Handy ist das
+ohnehin der kürzere Weg — ein Fingertipp statt Download und Öffnen-mit.
+
+Sollte Hostinger die Anhänge irgendwann durchlassen: nichts muss zurückgebaut
+werden, die Links funktionieren unabhängig davon.
+
 Google-Ausfälle legen die Buchung nie lahm: Kann der Kalender nicht erreicht
 werden, wird trotzdem gebucht und gemailt — du bekommst in deiner
 Benachrichtigung dann einen Hinweis, den Termin von Hand einzutragen.

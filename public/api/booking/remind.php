@@ -40,10 +40,11 @@ $failed = 0;
 try {
     foreach (bkDueReminders(24) as $booking) {
         $mail = bkMailReminder($booking);
-        $ics = ['content' => bkIcs($booking, 'REQUEST'), 'method' => 'REQUEST'];
 
+        // Ohne Anhang — siehe book.php: Mails mit Anhang nimmt das
+        // Hoster-Postfach an und stellt sie nie zu.
         $ok = bkMail($booking['email'], $booking['name'], $mail['subject'],
-                     $mail['html'], $mail['text'], $ics, bkOwnerEmail());
+                     $mail['html'], $mail['text'], null, bkOwnerEmail());
 
         // Auch nach einem Fehlschlag markieren: sonst versucht es der Cron
         // stündlich erneut und der Kunde bekommt bei einer zwischenzeitlich

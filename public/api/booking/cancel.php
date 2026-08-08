@@ -68,11 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $booking !== null && $booking['stat
             bkGoogleDelete((string) $booking['gcal_event_id']);
         }
 
-        $ics = ['content' => bkIcs($cancelled, 'CANCEL'), 'method' => 'CANCEL'];
-
+        // Ohne Anhang — siehe book.php: Mails mit Anhang nimmt das
+        // Hoster-Postfach an und stellt sie nie zu.
         $toCustomer = bkMailCancelled($cancelled, false);
         bkMail($cancelled['email'], $cancelled['name'], $toCustomer['subject'],
-               $toCustomer['html'], $toCustomer['text'], $ics, bkOwnerEmail());
+               $toCustomer['html'], $toCustomer['text'], null, bkOwnerEmail());
 
         $toOwner = bkMailCancelled($cancelled, true);
         bkMail(bkOwnerEmail(), bkOwnerName(), $toOwner['subject'], $toOwner['html'], $toOwner['text']);

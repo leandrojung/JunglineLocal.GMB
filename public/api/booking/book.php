@@ -154,12 +154,18 @@ if ($isReschedule) {
 }
 
 // 4) Mails
-$ics = ['content' => bkIcs($booking, 'REQUEST'), 'method' => 'REQUEST'];
+//
+// Bewusst ohne .ics-Anhang: Das Hoster-Postfach nimmt jede Mail an ("250
+// queued") und verwirft danach jede mit Anhang, ohne Rückmeldung — belegt
+// durch /api/booking/mailtest, wo anhanglose Testmails ankamen und dieselben
+// Mails mit Anhang nicht, quer über mehrere Dateitypen. Der Kalendereintrag
+// steckt deshalb als Link in der Mail (siehe bkEmailCalendarLinks) und wird
+// über /api/booking/ics von unserem eigenen Server geholt.
 
 try {
     $confirmation = bkMailConfirmation($booking);
     $sent = bkMail($booking['email'], $booking['name'], $confirmation['subject'],
-                   $confirmation['html'], $confirmation['text'], $ics, bkOwnerEmail());
+                   $confirmation['html'], $confirmation['text'], null, bkOwnerEmail());
     if (!$sent) $warnings[] = 'Die Bestätigungsmail an ' . $booking['email'] . ' konnte nicht zugestellt werden.';
 } catch (Throwable $e) {
     error_log('booking/book: Bestätigungsmail fehlgeschlagen — ' . $e->getMessage());
@@ -168,7 +174,7 @@ try {
 
 try {
     $notice = bkMailOwnerNotice($booking, implode(' ', $warnings));
-    bkMail(bkOwnerEmail(), bkOwnerName(), $notice['subject'], $notice['html'], $notice['text'], $ics, $booking['email']);
+    bkMail(bkOwnerEmail(), bkOwnerName(), $notice['subject'], $notice['html'], $notice['text'], null, $booking['email']);
 } catch (Throwable $e) {
     error_log('booking/book: Benachrichtigung an den Betreiber fehlgeschlagen — ' . $e->getMessage());
 }

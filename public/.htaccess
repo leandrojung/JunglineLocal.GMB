@@ -35,6 +35,7 @@
   RewriteRule ^api/booking/book/?$   api/booking/book.php   [L]
   RewriteRule ^api/booking/cancel/?$ api/booking/cancel.php [L]
   RewriteRule ^api/booking/remind/?$ api/booking/remind.php [L]
+  RewriteRule ^api/booking/ics/?$    api/booking/ics.php    [L]
   RewriteRule ^api/booking/mailtest/?$ api/booking/mailtest.php [L]
 </IfModule>
 
