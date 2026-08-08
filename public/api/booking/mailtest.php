@@ -317,6 +317,28 @@ $variants = [
         ),
         'from' => $from,
     ],
+    // P (2 Links: Zoom + Absage) kam an, J/K (4 Links: Zoom + 2 Kalender-
+    // Buttons + Absage) nicht. R prüft, ob es an der Zahl liegt oder an den
+    // Kalender-Links speziell: P plus GENAU EIN zusätzlicher Kalender-Link
+    // (als schlichter Text-Link, nicht als Button gestaltet) — macht drei.
+    'R — wie P, plus genau ein Kalender-Link (3 Links statt 2 oder 4)' => [
+        'subject' => 'R: ' . $conf['subject'],
+        'mime' => bkBuildMime(
+            bkEmailShell('Test R', 'Ihr Termin steht',
+                '<p style="margin:0 0 4px;">Hallo,</p>'
+                . '<p style="margin:0;">Test R — wie P, plus ein Kalender-Link.</p>'
+                . bkEmailFactBox($sample)
+                . '<p style="margin:18px 0 0;font-size:13px;">Termin eintragen: '
+                . '<a href="' . bkEsc(bkIcsUrl($sample['token'])) . '">Kalenderdatei herunterladen</a></p>'
+                . '<p style="margin:14px 0 0;font-size:13px;">Absagen: '
+                . '<a href="' . bkEsc(bkManageUrl($sample['token'])) . '">Link</a></p>'),
+            "Test R\n" . bkTextFacts($sample)
+                . "\nKalenderdatei: " . bkIcsUrl($sample['token'])
+                . "\nAbsagen: " . bkManageUrl($sample['token']),
+            null
+        ),
+        'from' => $from,
+    ],
 ];
 
 echo "Mail-Diagnose " . date('d.m.Y H:i:s') . "\n";
@@ -351,4 +373,4 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (J, K, L, P, Q) ankommt — auch im Spam-Ordner.\n";
+echo "Testmails (J, K, L, P, Q, R) ankommt — auch im Spam-Ordner.\n";
