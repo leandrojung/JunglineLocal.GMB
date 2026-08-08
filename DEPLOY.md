@@ -56,3 +56,13 @@ dass die Seite ungestylt ausgeliefert wird.
 Der eigene Safari ist zum Prüfen ungeeignet — er zeigt oft noch die alte,
 funktionierende Version. Aussagekräftig sind ein privates Fenster, ein
 anderer Browser oder der In-App-Browser von Instagram.
+
+## Terminbuchung
+
+Der Buchungskalender braucht einmalig Zugangsdaten (SMTP, Google-Kalender,
+Videoraum, Cronjob) in einer `.env` oberhalb des Web-Roots. Die vollständige
+Klick-Anleitung steht in **[TERMINBUCHUNG.md](TERMINBUCHUNG.md)**.
+
+Wichtig beim Deploy: Die PHP-Dateien unter `public/api/booking/` und die
+`.htaccess` müssen mit hochgeladen werden — ohne die `.htaccess` fehlen die
+Routen `/api/booking/…` und der Kalender bleibt leer.

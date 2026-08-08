@@ -9,9 +9,8 @@
 <!-- Schriften lokal gehostet (DSGVO) — keine Verbindung zu Google-Servern -->
 <link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var.woff2" crossorigin fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var.woff2" crossorigin fetchpriority="high">
-<!-- Frühzeitige Verbindung zu externen Diensten (Calendly-Widget, Kontaktformular) -->
-<link rel="preconnect" href="https://assets.calendly.com" crossorigin>
-<link rel="preconnect" href="https://calendly.com" crossorigin>
+<!-- Frühzeitige Verbindung zum Kontaktformular. Die Terminbuchung läuft über
+     die eigene Domain (/api/booking/) und braucht deshalb keinen Preconnect. -->
 <link rel="dns-prefetch" href="//formspree.io">
 <link rel="stylesheet" href="/src/css/site.css">
 <script type="application/ld+json">

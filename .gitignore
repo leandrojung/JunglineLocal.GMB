@@ -10,3 +10,10 @@ public/api/cache/
 # Asset-Hashes ab (siehe findHtmlInputs in vite.config.js).
 index-deploy.html
 *-deploy.html
+
+# Datenordner der Terminbuchung (Buchungen, Google-Token). Liegt auf dem
+# Server oberhalb des Web-Roots; lokal beim Testen landet er hier.
+.jungline-data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

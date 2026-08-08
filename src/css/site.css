@@ -950,9 +950,167 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .form-status--ok{background:rgba(var(--green-rgb),.12);border:1px solid var(--green);color:var(--green-bright)}
 .form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#f0a898}
 .form-status a{text-decoration:underline;text-underline-offset:3px}
-.cal-frame{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px -30px rgba(0,0,0,.6)}
-.calendly-inline-widget{min-width:0}
+/* ================= TERMINBUCHUNG =================
+   Eigener Kalender statt eingebettetem Fremd-Widget. Er sitzt in derselben
+   Card wie der Rest der Kontaktspalte und benutzt dieselben Tokens — es gibt
+   keinen sichtbaren Übergang mehr zwischen "Website" und "Buchungstool".
+
+   Aufbau: .bk__stage ist zweispaltig, sobald ein Tag gewählt wurde
+   (.bk__stage--split). Vorher füllt der Kalender die volle Breite und rechts
+   steht nur ein Hinweis — so wandert der Blick von selbst nach rechts,
+   sobald dort etwas zu tun ist. */
+.cal-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;box-shadow:var(--elev-1)}
+/* Die Mindesthöhe hängt am Platzhalter, nicht am Widget: Sie soll den Platz
+   reservieren, solange geladen wird (kein Layoutsprung), darf aber nach dem
+   Rendern keine leere Fläche unter dem Kalender hinterlassen — der ist auf
+   breiten Bildschirmen deutlich kompakter als auf schmalen. */
+.bk{min-height:0}
+.bk__stage{display:grid;grid-template-columns:1fr;gap:22px;transition:opacity var(--dur-ui) var(--ease-apple)}
+.bk__stage.is-loading{opacity:.5;pointer-events:none}
+@media(min-width:861px){
+  .bk__stage--split{grid-template-columns:1fr 216px}
+}
+
+/* ---- Kopfzeile mit Monatswechsel ---- */
+.bk__calhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.bk__month{margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.06rem;
+  letter-spacing:-.01em;color:var(--ink);text-align:center;flex:1}
+.bk__nav{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface);color:var(--dim);cursor:pointer;
+  transition:border-color var(--dur-tap),color var(--dur-tap),background var(--dur-tap),transform var(--dur-tap) var(--ease-apple)}
+@media(hover:hover){.bk__nav:not(:disabled):hover{border-color:var(--green-bright);color:var(--green-bright);transform:scale(1.06)}}
+.bk__nav:disabled{opacity:.3;cursor:not-allowed}
+
+/* ---- Monatsraster ---- */
+.bk__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.bk__wd{display:grid;place-items:center;height:26px;font-size:.72rem;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--dim-2)}
+.bk__pad{aspect-ratio:1}
+.bk__day{position:relative;aspect-ratio:1;display:grid;place-items:center;border:0;border-radius:50%;
+  background:transparent;color:var(--dim-2);font-family:'Instrument Sans',sans-serif;
+  font-size:.94rem;font-weight:500;cursor:not-allowed;
+  transition:background var(--dur-tap),color var(--dur-tap),transform var(--dur-tap) var(--ease-apple)}
+.bk__day:not(:disabled){background:rgba(var(--green-bright-rgb),.09);color:var(--green-bright);
+  font-weight:700;cursor:pointer}
+@media(hover:hover){
+  .bk__day:not(:disabled):hover{background:rgba(var(--green-bright-rgb),.2);transform:scale(1.08)}
+}
+.bk__day:not(:disabled)::after{content:"";position:absolute;bottom:5px;left:50%;translate:-50% 0;
+  width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.55}
+.bk__day.is-active{background:var(--grad-cta);color:var(--green-ink);
+  box-shadow:0 6px 16px -6px rgba(var(--green-bright-rgb),.7)}
+.bk__day.is-active::after{opacity:0}
+.bk__day:focus-visible,.bk__nav:focus-visible,.bk__slot:focus-visible,.bk__confirm:focus-visible{
+  outline:2px solid var(--green-bright);outline-offset:2px}
+
+.bk__tz{display:flex;align-items:center;gap:7px;margin:16px 0 0;font-size:.8rem;color:var(--dim-2)}
+.bk__tz svg{flex:none;opacity:.8}
+
+/* ---- Uhrzeiten ---- */
+.bk__times{display:flex;flex-direction:column;min-width:0;min-height:0}
+.bk__timesinner{display:flex;flex-direction:column;min-height:0}
+.bk__times--empty{justify-content:center}
+@media(max-width:860px){
+  .bk__times--empty{display:none}
+  .bk__times{border-top:1px solid var(--border);padding-top:18px}
+}
+/* Desktop: Der Kalender allein bestimmt die Höhe der Zeile. Der Innen-
+   container liegt absolut in der Spalte und hat damit von sich aus keine
+   Höhe — die Uhrzeitenliste bekommt dadurch exakt die Kalenderhöhe
+   vorgegeben und scrollt darin. Ohne diesen Kniff hätte man die Wahl
+   zwischen zwei Übeln: entweder ziehen 16 Uhrzeiten die Card doppelt so
+   lang wie den Kalender, oder eine feste max-height lässt neben dem
+   Kalender eine leere Fläche stehen. */
+@media(min-width:861px){
+  .bk__stage--split .bk__times{position:relative;border-left:1px solid var(--border)}
+  .bk__stage--split .bk__timesinner{position:absolute;inset:0;padding-left:20px}
+}
+.bk__timeshead{margin:0 0 12px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:.94rem;color:var(--ink)}
+.bk__slots{display:flex;flex-direction:column;gap:8px;overflow-y:auto;
+  padding-right:4px;scrollbar-width:thin;flex:1 1 auto;min-height:0;max-height:300px}
+@media(min-width:861px){
+  .bk__stage--split .bk__slots{max-height:none}
+}
+.bk__slotrow{display:grid;grid-template-columns:1fr;gap:6px}
+.bk__slotrow.is-selected{grid-template-columns:1fr 1fr}
+.bk__slot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);
+  color:var(--green-bright);font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:.95rem;
+  cursor:pointer;transition:border-color var(--dur-tap),background var(--dur-tap),transform var(--dur-tap) var(--ease-apple)}
+@media(hover:hover){.bk__slot:hover{border-color:var(--green-bright);transform:translateY(-1px)}}
+.bk__slotrow.is-selected .bk__slot{background:var(--green-bright-2);border-color:var(--green-bright-2);color:#fff}
+.bk__slotlocal{font-size:.7rem;font-weight:500;opacity:.72;letter-spacing:.01em}
+.bk__confirm{padding:12px 10px;border-radius:12px;border:0;background:var(--grad-cta);color:var(--green-ink);
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;
+  box-shadow:0 8px 20px -10px rgba(var(--green-bright-rgb),.8)}
+
+.bk__hint{margin:0;font-size:.84rem;line-height:1.55;color:var(--dim-2)}
+.bk__hint--none{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(var(--green-rgb),.1)}
+
+/* ---- Formular ---- */
+.bk__back{display:inline-flex;align-items:center;gap:5px;margin-bottom:14px;padding:0;border:0;
+  background:none;color:var(--dim);font-family:'Instrument Sans',sans-serif;font-size:.86rem;
+  font-weight:600;cursor:pointer;transition:color var(--dur-tap)}
+@media(hover:hover){.bk__back:hover{color:var(--green-bright)}}
+.bk__summary{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:18px;
+  padding:13px 16px;border-radius:14px;background:rgba(var(--green-bright-rgb),.08);
+  border:1px solid rgba(var(--green-bright-rgb),.2);color:var(--green-bright);font-size:.93rem}
+.bk__summary svg{flex:none}
+.bk__summary b{font-family:'Bricolage Grotesque',sans-serif}
+.bk__summary span{color:var(--dim)}
+.bk__fields{display:flex;flex-direction:column;gap:13px}
+.bk__field{display:flex;flex-direction:column;gap:6px}
+.bk__label{font-size:.85rem;font-weight:600;color:var(--dim)}
+.bk__optional{font-weight:400;color:var(--dim-2)}
+.bk__field input,.bk__field textarea{width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:13px 15px;color:var(--ink);font-family:'Instrument Sans',sans-serif;
+  font-size:1rem;transition:border-color var(--dur-ui),box-shadow var(--dur-ui)}
+.bk__field textarea{resize:vertical;min-height:84px}
+.bk__field input:focus,.bk__field textarea:focus{outline:0;border-color:var(--green-bright);
+  box-shadow:0 0 0 3px rgba(var(--green-bright-rgb),.14)}
+.bk__field.has-error input,.bk__field.has-error textarea{border-color:#C4584A}
+.bk__error{font-size:.8rem;color:#94373A}
+.bk__field:not(.has-error) .bk__error{display:none}
+/* Der Honigtopf muss für Bots im DOM stehen, für Menschen und Screenreader
+   aber unerreichbar sein — deshalb nicht display:none (das überspringen
+   manche Bots gezielt), sondern aus dem Sichtfeld geschoben. */
+.bk__honey{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.bk__submit{width:100%;margin-top:4px}
+.bk__status{margin:0;font-size:.88rem;line-height:1.55}
+.bk__status--err{color:#94373A}
+.bk__status a{text-decoration:underline;text-underline-offset:3px}
+.bk__legal{margin:0;font-size:.76rem;line-height:1.5;color:var(--dim-2)}
+
+/* ---- Bestätigung ---- */
+.bk__done{text-align:center;padding:8px 0 4px}
+.bk__check{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 16px;border-radius:50%;
+  background:var(--grad-cta);color:var(--green-ink);
+  box-shadow:0 12px 30px -12px rgba(var(--green-bright-rgb),.8)}
+.bk__donetitle{margin:0 0 6px;font-size:1.35rem;letter-spacing:-.02em;color:var(--ink)}
+.bk__donesub{margin:0 auto 20px;max-width:38ch;font-size:.94rem;line-height:1.6;color:var(--dim)}
+.bk__facts{border:1px solid var(--border);border-radius:14px;overflow:hidden;text-align:left;
+  background:rgba(var(--surface-2-rgb),.5)}
+.bk__factrow{display:flex;justify-content:space-between;gap:14px;padding:12px 16px}
+.bk__factrow+.bk__factrow{border-top:1px solid var(--border)}
+.bk__factlabel{font-size:.82rem;color:var(--dim-2)}
+.bk__factvalue{font-weight:700;font-size:.94rem;color:var(--ink);text-align:right}
+.bk__joinlink{margin-top:18px;width:100%}
+.bk__manage{display:inline-block;margin-top:16px;font-size:.84rem;color:var(--dim-2);
+  text-decoration:underline;text-underline-offset:3px}
+@media(hover:hover){.bk__manage:hover{color:var(--green-bright)}}
+
+/* ---- Zustände & Verschieben-Hinweis ---- */
+.bk__msg{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  min-height:300px;padding:38px 16px;text-align:center;color:var(--dim);font-size:.94rem}
+.bk__msg--err{color:var(--ink)}
+.bk__banner{display:flex;flex-direction:column;gap:3px;margin-bottom:18px;padding:13px 16px;
+  border-radius:14px;background:rgba(var(--green-rgb),.14);border:1px solid var(--green);
+  font-size:.87rem;line-height:1.5;color:var(--dim)}
+.bk__banner b{font-family:'Bricolage Grotesque',sans-serif;color:var(--ink)}
 .cal-fallback{margin-top:16px;text-align:center}
+.cal-fallback .bk__hint{margin-bottom:10px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:.85rem;font-weight:600;color:var(--dim);margin-bottom:7px}
 .field input,.field textarea{width:100%;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:12px;

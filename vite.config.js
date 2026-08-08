@@ -114,7 +114,7 @@ function renderCtaband(h2, p) {
       <h2>${h2}</h2>
       <p>${p}</p>
       <div class="cta-row">
-        <a href="https://calendly.com/jungline-company/30min" target="_blank" rel="noopener" class="btn btn--primary btn--lg">Kostenloses Erstgespräch buchen</a>
+        <a href="/kontakt/#termin" class="btn btn--primary btn--lg">Kostenloses Erstgespräch buchen</a>
         <a href="/kontakt/" class="btn btn--ghost btn--lg">Kontakt &amp; Anfahrt</a>
       </div>
       <ul class="ctaband__trust">

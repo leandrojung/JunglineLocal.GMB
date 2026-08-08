@@ -29,6 +29,12 @@
 
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
+
+  # Terminbuchung — saubere URLs ohne .php.
+  RewriteRule ^api/booking/slots/?$  api/booking/slots.php  [L]
+  RewriteRule ^api/booking/book/?$   api/booking/book.php   [L]
+  RewriteRule ^api/booking/cancel/?$ api/booking/cancel.php [L]
+  RewriteRule ^api/booking/remind/?$ api/booking/remind.php [L]
 </IfModule>
 
 # ---------- 0b) MIME-Typen verbindlich festlegen ----------
@@ -58,6 +64,18 @@
 <FilesMatch "^\.env">
   Require all denied
 </FilesMatch>
+
+# Interne Helfer der /api-Routen (_shared.php, _config.php, _store.php, …)
+# sind keine Endpunkte. Sie würden beim direkten Aufruf zwar nur eine leere
+# Seite liefern, aber eine Fehlkonfiguration des Servers (PHP nicht aktiv)
+# würde sie im Klartext ausliefern — mitsamt der Logik dahinter.
+<FilesMatch "^_.*\.php$">
+  Require all denied
+</FilesMatch>
+
+# Der Datenordner der Terminbuchung, falls er mangels Schreibrechten
+# oberhalb des Web-Roots doch hier landet (siehe bkDataDir()).
+RedirectMatch 404 ^/\.jungline-data(/|$)
 
 # ---------- 1) Textinhalte komprimiert ausliefern ----------
 # Brotli (LiteSpeed / Apache mit mod_brotli) — deutlich besser als gzip

@@ -1,17 +1,20 @@
 (function(){
-  // load Calendly only once the booking widget is actually about to be seen
-  var widget = document.querySelector('.calendly-inline-widget');
+  // Der Buchungskalender (src/js/booking.js) wird erst geladen, wenn er in
+  // Sichtweite kommt. Auf allen Seiten ohne Widget — also überall außer
+  // Startseite und /kontakt/ — passiert hier gar nichts.
+  var widget = document.getElementById('bookingWidget');
   if(!widget) return;
   var loaded = false;
   var load = function(){
     if(loaded) return;
     loaded = true;
-    var s = document.createElement('script');
-    s.src = 'https://assets.calendly.com/assets/external/widget.js';
-    s.async = true;
-    document.body.appendChild(s);
+    import('./booking.js');
   };
-  if('IntersectionObserver' in window){
+  // Wer über den Verschieben-Link aus einer Mail kommt, landet direkt im
+  // Buchungsvorgang — hier auf den Beobachter zu warten wäre unnötige Verzögerung.
+  if(window.location.search.indexOf('verschieben=') > -1){
+    load();
+  } else if('IntersectionObserver' in window){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
     }, {rootMargin:'600px'});
@@ -781,7 +784,7 @@
     document.addEventListener('mouseover', function(e){
       var t = e.target;
       if(!(t instanceof Element)) return;
-      if(t.closest('input,textarea,select,iframe,.cal-frame')){ setCurState('off'); return; }
+      if(t.closest('input,textarea,select,iframe')){ setCurState('off'); return; }
       if(t.closest('.ba__stage')){ setCurState('drag'); return; }
       if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
       var faqQ = t.closest('.faq__q');
