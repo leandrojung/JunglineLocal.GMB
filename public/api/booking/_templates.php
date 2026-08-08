@@ -168,8 +168,14 @@ function bkMailConfirmation(array $booking): array {
         . bkTextCalendarLinks($booking) . "\n\n"
         . (trim($booking['message']) !== '' ? "Ihr Anliegen:\n" . $booking['message'] . "\n\n" : '')
         . "Absagen oder verschieben: " . $manage . "\n\n"
+        // Signatur ohne Web-Adresse — mit ihr stünden VIER Adressen im
+        // Textteil, und der Ausgangsfilter des Hosters verwirft nachweislich
+        // jede Mail ab der vierten (Diagnose /mailtest: 0–3 kamen ausnahmslos
+        // an, 4–5 ausnahmslos nicht). Die Absage kommt mit zweien seit jeher
+        // durch. Der Klartext-Name bleibt; die Domain steht ohnehin im
+        // Absender und im HTML-Fuß.
         . "Bis dahin!\nLeandro\n\n"
-        . "--\nJunglineLocal — Leandro Jung\n" . bkSiteUrl() . "\n";
+        . "--\nJunglineLocal — Leandro Jung\n";
 
     // Betreff bewusst ohne Umlaute und ohne ausgeschriebenen Monat ("März"!):
     // Reine ASCII-Betreffe brauchen keine RFC-2047-Kodierung — eine ganze

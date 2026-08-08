@@ -183,161 +183,46 @@ $sample = [
     'message' => '',
 ];
 
-/**
- * Baut eine Mail mit frei wählbarem Anhangstyp. bkBuildMime kann das nicht —
- * es schreibt fest text/calendar — und soll es auch nicht können: der
- * Produktivcode bleibt für die Diagnose unangetastet.
- */
-function bkTestMime(string $html, string $text, ?string $attachment, string $contentType, string $filename): array {
-    $mixed = 'mix_' . bin2hex(random_bytes(12));
-    $alt   = 'alt_' . bin2hex(random_bytes(12));
-
-    $alternative = "--$alt\r\n"
-        . "Content-Type: text/plain; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: base64\r\n\r\n"
-        . chunk_split(base64_encode($text), 76, "\r\n")
-        . "--$alt\r\n"
-        . "Content-Type: text/html; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: base64\r\n\r\n"
-        . chunk_split(base64_encode($html), 76, "\r\n")
-        . "--$alt--\r\n";
-
-    if ($attachment === null) {
-        return ['headers' => ['Content-Type' => "multipart/alternative; boundary=\"$alt\""], 'body' => $alternative];
-    }
-
-    $body = "--$mixed\r\n"
-        . "Content-Type: multipart/alternative; boundary=\"$alt\"\r\n\r\n"
-        . $alternative
-        . "--$mixed\r\n"
-        . "Content-Type: $contentType; name=\"$filename\"\r\n"
-        . "Content-Transfer-Encoding: base64\r\n"
-        . "Content-Disposition: attachment; filename=\"$filename\"\r\n\r\n"
-        . chunk_split(base64_encode($attachment), 76, "\r\n")
-        . "--$mixed--\r\n";
-
-    return ['headers' => ['Content-Type' => "multipart/mixed; boundary=\"$mixed\""], 'body' => $body];
-}
-
-/**
- * Eine Kalenderdatei zum Ablegen statt einer Einladung zum Beantworten:
- * METHOD:PUBLISH, ohne ORGANIZER und ohne ATTENDEE. Genau so verschickt
- * auch Calendly seine Anhänge.
- */
-function bkTestIcsPublish(array $booking): string {
-    $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
-    $end   = new DateTimeImmutable($booking['end_utc'], bkUtcTz());
-
-    $lines = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//JunglineLocal//Terminbuchung//DE',
-        'CALSCALE:GREGORIAN',
-        'METHOD:PUBLISH',
-        'BEGIN:VEVENT',
-        'UID:' . bkIcsUid($booking['token']),
-        'SEQUENCE:0',
-        'DTSTAMP:' . bkNow()->format('Ymd\THis\Z'),
-        'DTSTART:' . $start->format('Ymd\THis\Z'),
-        'DTEND:' . $end->format('Ymd\THis\Z'),
-        'SUMMARY:' . bkIcsEscape(BK_TITLE),
-        'STATUS:CONFIRMED',
-        'END:VEVENT',
-        'END:VCALENDAR',
-    ];
-    return implode("\r\n", array_map('bkIcsFold', $lines)) . "\r\n";
-}
-
-// Runde 4: Die echte Bestätigungsmail selbst — nach Betreff-Fix und ohne
-// Anhang kam sie weiterhin nicht an, während die inhaltlich schlichtere
-// Absage zugestellt wird. Verdächtig ist der calendar.google.com/render-
-// Link, den nur die Bestätigung enthielt (bekannte Kalender-Spam-Signatur).
-// Die Vorlage verlinkt inzwischen über die eigene Domain (/api/booking/gcal);
-// K stellt zum Beweis das alte Verhalten mit dem Direktlink nach.
+// Runde 7 — die Abschlussrunde. Die Regel aus sechs Runden: Der Filter des
+// Hosters verwirft (a) jede Mail mit Anhang und (b) jede Mail ab VIER
+// Web-Adressen im Textteil. 0–3 Adressen kamen ausnahmslos an (L=1, P=2,
+// R=3, Absage=2), 4–5 ausnahmslos nicht (alte Bestätigung). Die Vorlage
+// wurde daraufhin auf drei Adressen gebracht (eine Kalender-Landeseite
+// statt zwei Kalender-Links, Signatur ohne Web-Adresse).
+//
+// Diese Runde schließt die letzte Lücke zwischen Test und Wirklichkeit:
+// S verschickt die ECHTE Vorlage über den ECHTEN Versandweg bkMail() —
+// exakt der Aufruf aus book.php, samt Reply-To und Empfängername, die der
+// Testversand hier nie gesetzt hat. R bleibt als bewährte Referenz, T
+// schickt R-Inhalt über den echten Weg. Damit trennt eine einzige Runde
+// Vorlage und Versandweg sauber auf, egal wie sie ausgeht.
 $conf = bkMailConfirmation($sample);
-$directGcal = bkGoogleCalendarUrl($sample);
-$redirGcal  = bkGcalLinkUrl($sample['token']);
+
+$rHtml = bkEmailShell('Test R', 'Ihr Termin steht',
+    '<p style="margin:0 0 4px;">Hallo,</p>'
+    . '<p style="margin:0;">Test R — bewährte Referenz mit drei Adressen.</p>'
+    . bkEmailFactBox($sample)
+    . '<p style="margin:18px 0 0;font-size:13px;">Termin eintragen: '
+    . '<a href="' . bkEsc(bkIcsUrl($sample['token'])) . '">Kalenderdatei herunterladen</a></p>'
+    . '<p style="margin:14px 0 0;font-size:13px;">Absagen: '
+    . '<a href="' . bkEsc(bkManageUrl($sample['token'])) . '">Link</a></p>');
+$rText = "Test R\n" . bkTextFacts($sample)
+    . "\nKalenderdatei: " . bkIcsUrl($sample['token'])
+    . "\nAbsagen: " . bkManageUrl($sample['token']);
 
 $variants = [
-    'J — echte Bestätigung, aktueller Stand (Google-Link über eigene Domain)' => [
-        'subject' => 'J: ' . $conf['subject'],
-        'mime' => bkBuildMime($conf['html'], $conf['text'], null),
-        'from' => $from,
-    ],
-    'K — dieselbe Mail, aber mit direktem calendar.google.com-Link (alt)' => [
-        'subject' => 'K: ' . $conf['subject'],
-        'mime' => bkBuildMime(
-            str_replace(bkEsc($redirGcal), bkEsc($directGcal), $conf['html']),
-            str_replace($redirGcal, $directGcal, $conf['text']),
-            null
-        ),
-        'from' => $from,
-    ],
-    'L — Minimaltext, nur der direkte calendar.google.com-Link' => [
-        'subject' => 'L: Test ' . $stamp,
-        'mime' => bkBuildMime(
-            '<p>Test L: <a href="' . bkEsc($directGcal) . '">Kalenderlink</a></p>',
-            "Test L\n" . $directGcal,
-            null
-        ),
-        'from' => $from,
-    ],
-    // Auch nach dem Ausdünnen (kein Werbetext mehr, Zoom-Link nur einmal) blieb
-    // J im Rückstand zu L. Zwei Verdächtige bleiben, und P/Q trennen sie:
-    //
-    //   P — der volle Rahmen (Vorschautext-Trick, Branding, Fußzeile mit
-    //       Impressum/Datenschutz — DER TEIL, DEN JEDE MAIL NUTZT), aber ohne
-    //       die beiden Kalender-Knöpfe. Kommt P an, waren die Knöpfe/die
-    //       Linkzahl der Auslöser, nicht der Rahmen.
-    //   Q — L's nackter Inhalt, aber im vollen Rahmen verpackt. Kommt Q NICHT
-    //       an, ist der Rahmen selbst der Auslöser — am ehesten der
-    //       unsichtbare Vorschautext (display:none/opacity:0), eine klassische
-    //       Spam-Filter-Signatur.
-    'P — voller Rahmen, aber ohne die zwei Kalender-Knöpfe' => [
-        'subject' => 'P: ' . $conf['subject'],
-        'mime' => bkBuildMime(
-            bkEmailShell('Test P', 'Ihr Termin steht',
-                '<p style="margin:0 0 4px;">Hallo,</p>'
-                . '<p style="margin:0;">Test P — Terminbox ohne Kalender-Knöpfe.</p>'
-                . bkEmailFactBox($sample)
-                . '<p style="margin:22px 0 0;font-size:13px;">Absagen: '
-                . '<a href="' . bkEsc(bkManageUrl($sample['token'])) . '">Link</a></p>'),
-            "Test P\n" . bkTextFacts($sample) . "\nAbsagen: " . bkManageUrl($sample['token']),
-            null
-        ),
-        'from' => $from,
-    ],
-    'Q — L\'s nackter Inhalt, aber im vollen Mail-Rahmen verpackt' => [
-        'subject' => 'Q: Test ' . $stamp,
-        'mime' => bkBuildMime(
-            bkEmailShell('Test Q', 'Test Q',
-                '<p>Test Q: <a href="' . bkEsc($directGcal) . '">Kalenderlink</a></p>'),
-            "Test Q\n" . $directGcal,
-            null
-        ),
-        'from' => $from,
-    ],
-    // P (2 Links: Zoom + Absage) kam an, J/K (4 Links: Zoom + 2 Kalender-
-    // Buttons + Absage) nicht. R prüft, ob es an der Zahl liegt oder an den
-    // Kalender-Links speziell: P plus GENAU EIN zusätzlicher Kalender-Link
-    // (als schlichter Text-Link, nicht als Button gestaltet) — macht drei.
-    'R — wie P, plus genau ein Kalender-Link (3 Links statt 2 oder 4)' => [
+    'R — Referenzinhalt über den Testversand (kam bisher immer an)' => [
         'subject' => 'R: ' . $conf['subject'],
-        'mime' => bkBuildMime(
-            bkEmailShell('Test R', 'Ihr Termin steht',
-                '<p style="margin:0 0 4px;">Hallo,</p>'
-                . '<p style="margin:0;">Test R — wie P, plus ein Kalender-Link.</p>'
-                . bkEmailFactBox($sample)
-                . '<p style="margin:18px 0 0;font-size:13px;">Termin eintragen: '
-                . '<a href="' . bkEsc(bkIcsUrl($sample['token'])) . '">Kalenderdatei herunterladen</a></p>'
-                . '<p style="margin:14px 0 0;font-size:13px;">Absagen: '
-                . '<a href="' . bkEsc(bkManageUrl($sample['token'])) . '">Link</a></p>'),
-            "Test R\n" . bkTextFacts($sample)
-                . "\nKalenderdatei: " . bkIcsUrl($sample['token'])
-                . "\nAbsagen: " . bkManageUrl($sample['token']),
-            null
-        ),
+        'mime' => bkBuildMime($rHtml, $rText, null),
         'from' => $from,
+    ],
+    'S — ECHTE Bestätigung über den ECHTEN Versandweg (bkMail wie book.php)' => [
+        'subject' => 'S: ' . $conf['subject'],
+        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
+    ],
+    'T — Referenzinhalt über den ECHTEN Versandweg' => [
+        'subject' => 'T: Referenz ' . $stamp,
+        'bkmail' => ['html' => $rHtml, 'text' => $rText],
     ],
 ];
 
@@ -361,8 +246,18 @@ foreach ($variants as $label => $variant) {
     $log = [];
     $ok = false;
     try {
-        $ok = bkTestSmtp($to, $variant['subject'], $variant['mime'], $variant['from'], $log,
-                         $variant['subject_header'] ?? null);
+        if (isset($variant['bkmail'])) {
+            // Der echte Versandweg — exakt der Aufruf aus book.php, inklusive
+            // Reply-To und Empfängername. Kein Wort-für-Wort-Protokoll, dafür
+            // null Abweichung von der Wirklichkeit.
+            $log[] = '>>> über bkMail(), den Versandweg der echten Buchungen';
+            $ok = bkMail($to, 'Diagnose', $variant['subject'],
+                         $variant['bkmail']['html'], $variant['bkmail']['text'],
+                         null, bkOwnerEmail());
+        } else {
+            $ok = bkTestSmtp($to, $variant['subject'], $variant['mime'], $variant['from'], $log,
+                             $variant['subject_header'] ?? null);
+        }
     } catch (Throwable $e) {
         $log[] = '!!! Ausnahme: ' . $e->getMessage();
     }
@@ -372,5 +267,6 @@ foreach ($variants as $label => $variant) {
 }
 
 echo str_repeat('=', 68) . "\n";
-echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (J, K, L, P, Q, R) ankommt — auch im Spam-Ordner.\n";
+echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der Testmails\n";
+echo "(R, S, T) ankommen — auch im Spam-Ordner. Entscheidend ist S: das ist\n";
+echo "die echte Bestätigung über den echten Versandweg.\n";
