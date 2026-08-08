@@ -94,33 +94,27 @@ function bkEmailFactBox(array $booking): string {
 }
 
 /**
- * Die beiden Wege, den Termin in den eigenen Kalender zu bekommen.
+ * EIN Link zur Kalender-Auswahlseite statt zwei einzelner Links in der Mail.
  *
- * Sie ersetzen den früheren .ics-Anhang. Der Versand über das Hoster-Postfach
- * nimmt jede Mail an und verwirft danach jede mit Anhang — anhanglose
- * Testmails kamen an, dieselben mit Anhang nicht, unabhängig vom Dateityp.
- * Über Links bleibt die Mail zustellbar, und auf dem Handy ist ein Fingertipp
- * ohnehin angenehmer als ein Download samt Öffnen-mit-Dialog.
+ * Die Mail-Diagnose (sechs Testrunden über /mailtest) hat eine harte Schwelle
+ * beim Hoster nachgewiesen: Testmails mit vier Links kamen nach der Annahme
+ * ("250 queued") nie an, egal welche vier Links es waren; mit drei oder
+ * weniger kamen sie zuverlässig durch. Zwei einzelne, als Button gestaltete
+ * Kalender-Links rissen diese Schwelle. Beide Wege (Google Kalender,
+ * Datei für Apple/Outlook) stehen jetzt auf /api/booking/calendar — die Mail
+ * selbst verlinkt nur noch dorthin und bleibt damit unter der Schwelle.
  */
 function bkEmailCalendarLinks(array $booking): string {
-    $google = bkGcalLinkUrl($booking['token']);
-    $file   = bkIcsUrl($booking['token']);
-
-    return '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0 4px;"><tr>'
-        . '<td style="padding-right:10px;">'
-        . '<a href="' . bkEsc($google) . '" style="display:inline-block;padding:11px 20px;border:1px solid ' . BK_MAIL_BORDER . ';border-radius:999px;background:#FFFFFF;font:600 14px/1 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:' . BK_MAIL_INK . ';text-decoration:none;">'
-        . 'Zu Google Kalender</a></td>'
-        . '<td>'
-        . '<a href="' . bkEsc($file) . '" style="display:inline-block;padding:11px 20px;border:1px solid ' . BK_MAIL_BORDER . ';border-radius:999px;background:#FFFFFF;font:600 14px/1 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:' . BK_MAIL_INK . ';text-decoration:none;">'
-        . 'Apple / Outlook</a></td>'
-        . '</tr></table>';
+    $url = bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
+    return '<p style="margin:18px 0 0;font-size:13px;">'
+        . '<a href="' . bkEsc($url) . '" style="color:' . BK_MAIL_ACCENT . ';font-weight:600;">Termin zum Kalender hinzufügen</a>'
+        . ' (Google, Apple oder Outlook)</p>';
 }
 
-/** Dieselben zwei Wege für die Nur-Text-Fassung. */
+/** Derselbe eine Link für die Nur-Text-Fassung. */
 function bkTextCalendarLinks(array $booking): string {
-    return "In den Kalender eintragen:\n"
-        . "  Google:          " . bkGcalLinkUrl($booking['token']) . "\n"
-        . "  Apple / Outlook: " . bkIcsUrl($booking['token']);
+    return "Zum Kalender hinzufügen (Google, Apple, Outlook):\n"
+        . '  ' . bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
 }
 
 function bkEmailButton(string $href, string $label): string {
