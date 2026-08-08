@@ -153,21 +153,9 @@ function bkMailConfirmation(array $booking): array {
     $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr kostenloses Erstgespräch steht. Ein Klick, und der Termin liegt in Ihrem Kalender.</p>'
+        . '<p style="margin:0;">Ihr Termin steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>'
         . bkEmailFactBox($booking)
         . bkEmailCalendarLinks($booking);
-
-    if (bkMeetingUrl() !== '') {
-        $content .= bkEmailButton(bkMeetingUrl(), 'Zum Videoraum');
-        $content .= '<p style="margin:14px 0 0;font-size:13px;">Der Link funktioniert erst zur vereinbarten Zeit — Sie brauchen nichts zu installieren.</p>';
-    }
-
-    $content .= '<p style="margin:22px 0 0;"><b style="color:' . BK_MAIL_INK . ';">Was Sie mitnehmen:</b></p>'
-        . '<ul style="margin:8px 0 0;padding-left:20px;">'
-        . '<li style="margin-bottom:6px;">3 bis 5 sofort umsetzbare Tipps für Ihr Google-Unternehmensprofil</li>'
-        . '<li style="margin-bottom:6px;">eine kurze Einschätzung, wo Sie im Kartenbereich gegen die lokale Konkurrenz stehen</li>'
-        . '<li>eine ehrliche Antwort, was realistisch möglich ist — ohne Verkaufsdruck</li>'
-        . '</ul>';
 
     if (trim($booking['message']) !== '') {
         $content .= '<p style="margin:22px 0 6px;"><b style="color:' . BK_MAIL_INK . ';">Ihr Anliegen:</b></p>'
@@ -181,13 +169,9 @@ function bkMailConfirmation(array $booking): array {
         . '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
 
     $text = "Hallo " . $firstName . ",\n\n"
-        . "Ihr kostenloses Erstgespräch steht.\n\n"
+        . "Ihr Termin steht.\n\n"
         . bkTextFacts($booking) . "\n\n"
         . bkTextCalendarLinks($booking) . "\n\n"
-        . "Was Sie mitnehmen:\n"
-        . "- 3 bis 5 sofort umsetzbare Tipps für Ihr Google-Unternehmensprofil\n"
-        . "- eine kurze Einschätzung zum Wettbewerb im Kartenbereich\n"
-        . "- eine ehrliche Antwort, was realistisch möglich ist\n\n"
         . (trim($booking['message']) !== '' ? "Ihr Anliegen:\n" . $booking['message'] . "\n\n" : '')
         . "Absagen oder verschieben: " . $manage . "\n\n"
         . "Bis dahin!\nLeandro\n\n"
@@ -269,12 +253,8 @@ function bkMailReminder(array $booking): array {
     $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">kurze Erinnerung an unser Gespräch morgen.</p>'
+        . '<p style="margin:0;">kurze Erinnerung an unser Gespräch morgen. Der Videoraum-Link steht unten in der Übersicht.</p>'
         . bkEmailFactBox($booking);
-
-    if (bkMeetingUrl() !== '') {
-        $content .= bkEmailButton(bkMeetingUrl(), 'Zum Videoraum');
-    }
 
     $content .= '<p style="margin:22px 0 0;font-size:13px;">Sollte etwas dazwischenkommen: '
         . '<a href="' . bkEsc(bkManageUrl($booking['token'])) . '" style="color:' . BK_MAIL_ACCENT . ';">absagen oder verschieben</a>.</p>'
