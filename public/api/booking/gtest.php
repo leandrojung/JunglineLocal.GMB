@@ -39,10 +39,21 @@ if ($expected === null || $provided === '' || !hash_equals($expected, $provided)
     exit;
 }
 
-/** Ein API-Aufruf mit sichtbarem Ergebnis: Status und Antwort-Auszug. */
+/**
+ * Ein API-Aufruf mit sichtbarem Ergebnis: Status und Antwort-Auszug.
+ *
+ * Der Token-Tausch mit Google erwartet klassische Formulardaten
+ * (application/x-www-form-urlencoded), alle übrigen Aufrufe erwarten JSON.
+ * Ein Array-Body heißt deshalb JSON, ein String-Body heißt Formulardaten —
+ * bei Letzterem bleibt der Content-Type-Header bewusst weg, damit cURL ihn
+ * selbst korrekt setzt. Fest auf "application/json" verdrahtet hätte auch
+ * den Formular-Body als JSON angekündigt; Google lehnt das dann mit
+ * "Invalid JSON payload" ab, ohne dass die Anmeldedaten damit zu tun haben.
+ */
 function gtRequest(string $method, string $url, ?string $accessToken, $body = null): array {
-    $headers = ['Content-Type: application/json'];
+    $headers = [];
     if ($accessToken !== null) $headers[] = 'Authorization: Bearer ' . $accessToken;
+    if (is_array($body)) $headers[] = 'Content-Type: application/json';
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
