@@ -33,6 +33,9 @@
   var nameEl = document.getElementById('gbpCompanyName');
   var checklist = document.getElementById('gbpChecklist');
   var errorText = document.getElementById('gbpErrorText');
+  var stage = badge.closest ? badge.closest('.rank-check__stage') : null;
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var CIRC = 2 * Math.PI * 52;
   if(ringValue){
@@ -40,25 +43,63 @@
     ringValue.style.strokeDashoffset = CIRC.toFixed(2);
   }
 
-  var setState = function(state){ badge.setAttribute('data-state', state); };
+  // Der Radar-Scan hinter der Card gehört zum Wartezustand: er läuft, solange
+  // das Formular offen ist und während geprüft wird. Sobald das Ergebnis steht,
+  // wäre er nur noch ein Strich, der quer über die Card zieht — dann übernimmt
+  // die ruhige "geprüft"-Aura (siehe .rank-check__verified im CSS).
+  var setState = function(state){
+    badge.setAttribute('data-state', state);
+    if(stage) stage.setAttribute('data-scan', (state === 'form' || state === 'loading') ? 'on' : 'off');
+  };
 
   var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen', website:'Website verlinkt'};
   var CHECK_ORDER = ['categories', 'photos', 'hours', 'reviews', 'website'];
-  // Bewusst KEIN Prozent-Score mehr: "75%" oder "100%" vermittelt den falschen
-  // Eindruck, das Profil sei schon (fast) fertig optimiert. Die 5 Basis-Checks
-  // hier sind nur ein kleiner Ausschnitt der echten Ranking-Faktoren — der
-  // Ring zeigt deshalb ehrlich "X von 25+" statt einer Fertigstellungs-Quote,
-  // und bleibt dadurch selbst bei 5/5 sichtbar größtenteils ungefüllt.
+  // Bewusst KEIN Prozent-Score: "75%" oder "100%" vermittelt den falschen
+  // Eindruck, das Profil sei schon (fast) fertig optimiert. Der Ring zeigt
+  // deshalb "X von 25+" statt einer Fertigstellungs-Quote.
   var TOTAL_FACTORS = 25;
   var factorTotalEl = document.getElementById('gbpFactorTotal');
   if(factorTotalEl) factorTotalEl.textContent = String(TOTAL_FACTORS);
 
+  // ---- Score = Profil-Basis + Google-Platzierung --------------------------
+  // Die 5 Profil-Checks allein ergaben höchstens 5 von 25. Bei einem Betrieb,
+  // der im Vergleich daneben auf Platz 3 steht, sah der Ring damit fast leer
+  // aus — die beiden Cards widersprachen sich. Die Platzierung ist der
+  // sichtbarste Beleg dafür, dass die Grundlagen greifen, und zählt deshalb
+  // mit bis zu 10 Faktoren mit.
+  //
+  // Das Maximum bleibt bewusst 15 von 25: auch ein perfekt platziertes Profil
+  // ist nie "fertig". Die restlichen Faktoren (Beschreibung, Leistungen &
+  // Attribute, Bewertungsstrategie, NAP-Konsistenz, Monitoring) prüfen wir
+  // manuell — genau die listet der CTA-Block unter den Cards auf. So bleibt
+  // der Ring sichtbar offen, ohne einen gut rankenden Betrieb schlechtzureden.
+  var BASE_MAX = CHECK_ORDER.length;        // 5
+  var RANK_MAX = 10;
+  var SCORE_MAX = BASE_MAX + RANK_MAX;      // 15 von 25 = 60% Ringfüllung
+
+  var rankPoints = function(pos){
+    if(!pos || pos < 1) return 0;
+    if(pos <= 5) return RANK_MAX - (pos - 1);   // 1→10, 2→9, 3→8, 4→7, 5→6
+    if(pos <= 10) return 4;
+    if(pos <= 20) return 2;
+    return 0;
+  };
+
+  // rank: null = noch unbekannt (Vergleich läuft/fehlgeschlagen) → keine Zeile,
+  // 0 = nicht unter den ersten 20 Treffern, sonst die Platznummer.
+  var scoreState = {completeness: {}, base: 0, rank: null};
+
   // Ampel-Farblogik für den Ring: die ersten 25% der Skala (0-25%) dunkelrot,
   // 25-50% helleres Rot, 50-75% Orange, erst ab 75% ein GRADUELLER Übergang
-  // zu Grün (kein abruptes Umspringen auf Grün genau bei 75%). Da unser
-  // realistisches Maximum bei 5 von 25 Faktoren liegt (20%), bleibt der Ring
-  // damit praktisch immer im dunkelroten Bereich — passend zur Botschaft,
-  // dass der Basis-Check allein nie "fertig" ist.
+  // zu Grün (kein abruptes Umspringen auf Grün genau bei 75%).
+  //
+  // Wichtig: die Skala läuft über das ERREICHBARE Maximum (SCORE_MAX = 15),
+  // nicht über die 25 Gesamtfaktoren. Sonst wäre selbst das bestmögliche
+  // Ergebnis (Platz 1, alle Basis-Checks erfüllt) bei 60% noch orange. So
+  // trennen sich die beiden Aussagen sauber: die FARBE bewertet, wie gut der
+  // Betrieb in dem dasteht, was wir hier messen können — die FÜLLUNG zeigt,
+  // wie viel vom Gesamtbild damit überhaupt abgedeckt ist. Ein Betrieb auf
+  // Platz 1 sieht also einen grünen, aber nur zu 60% gefüllten Ring.
   var RING_DARK_RED = [122, 46, 40];
   var RING_LIGHT_RED = [196, 88, 74];
   var RING_ORANGE = [214, 138, 60];
@@ -80,31 +121,93 @@
     return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
   };
 
+  // Die Zahl im Ring zählt hoch statt zu springen. Das ist nicht nur Deko: der
+  // Wert kommt in zwei Schritten (erst die Profil-Basis, dann die Platzierung
+  // aus dem Vergleich) — ohne Zählung sähe der zweite Schritt wie ein Glitch aus.
+  var numFrame = null, numFailsafe = null;
+  var setScoreNum = function(to){
+    var from = parseInt(ringNum.textContent, 10) || 0;
+    if(numFrame) cancelAnimationFrame(numFrame);
+    if(numFailsafe) clearTimeout(numFailsafe);
+    if(reduceMotion || from === to || !window.requestAnimationFrame){
+      ringNum.textContent = String(to);
+      return;
+    }
+    // Failsafe: requestAnimationFrame ruht in Hintergrund-Tabs. Ohne diesen
+    // Timer bliebe im Ring eine 0 stehen, bis der Tab wieder aktiv wird.
+    numFailsafe = setTimeout(function(){ ringNum.textContent = String(to); }, 1200);
+    // Startzeit aus dem ersten Frame statt aus performance.now() davor: beide
+    // Uhren müssen nicht dieselbe sein, und ein negatives Delta würde die Zahl
+    // unter den Startwert ziehen. Zusätzlich hart auf 0..1 geklemmt.
+    var start = null, dur = 700;
+    var tick = function(now){
+      if(start === null) start = now;
+      var p = Math.max(0, Math.min(1, (now - start) / dur));
+      var eased = 1 - Math.pow(1 - p, 3);
+      ringNum.textContent = String(Math.round(from + (to - from) * eased));
+      if(p < 1) numFrame = requestAnimationFrame(tick);
+    };
+    numFrame = requestAnimationFrame(tick);
+  };
+
+  var paintScore = function(){
+    var score = scoreState.base + rankPoints(scoreState.rank);
+    setScoreNum(score);
+    if(ringValue){
+      ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(score / TOTAL_FACTORS, 1))).toFixed(2);
+      ringValue.style.stroke = ringColor((score / SCORE_MAX) * 100);
+    }
+  };
+
+  var buildCheckRow = function(label, text, good, index){
+    var li = document.createElement('li');
+    li.style.setProperty('--i', index);
+    var labelEl = document.createElement('span');
+    labelEl.textContent = label;
+    var chip = document.createElement('span');
+    chip.className = 'bam__chip ' + (good ? 'bam__chip--top' : 'bam__chip--warn');
+    chip.textContent = text;
+    li.appendChild(labelEl);
+    li.appendChild(chip);
+    return li;
+  };
+
   var renderResult = function(data){
     nameEl.textContent = data.company_name || '';
 
-    var completeness = data.completeness || {};
-    var fulfilled = CHECK_ORDER.reduce(function(n, key){ return n + (completeness[key] ? 1 : 0); }, 0);
-    var pct = (fulfilled / TOTAL_FACTORS) * 100;
-    ringNum.textContent = String(fulfilled);
-    if(ringValue){
-      ringValue.style.strokeDashoffset = (CIRC - (CIRC * Math.min(fulfilled / TOTAL_FACTORS, 1))).toFixed(2);
-      ringValue.style.stroke = ringColor(pct);
-    }
+    scoreState.completeness = data.completeness || {};
+    scoreState.base = CHECK_ORDER.reduce(function(n, key){ return n + (scoreState.completeness[key] ? 1 : 0); }, 0);
+    scoreState.rank = null;
+
+    // Bei 0 anfangen, damit Ring und Zahl sichtbar auf den Wert hochlaufen —
+    // der Check soll wie eine Prüfung wirken, die gerade durchläuft.
+    ringNum.textContent = '0';
+    if(ringValue) ringValue.style.strokeDashoffset = CIRC.toFixed(2);
 
     checklist.innerHTML = '';
-    CHECK_ORDER.forEach(function(key){
-      var ok = !!completeness[key];
-      var li = document.createElement('li');
-      var label = document.createElement('span');
-      label.textContent = CHECK_LABELS[key];
-      var chip = document.createElement('span');
-      chip.className = 'bam__chip ' + (ok ? 'bam__chip--top' : 'bam__chip--warn');
-      chip.textContent = ok ? 'Erfüllt' : 'Fehlt';
-      li.appendChild(label);
-      li.appendChild(chip);
-      checklist.appendChild(li);
+    CHECK_ORDER.forEach(function(key, i){
+      var ok = !!scoreState.completeness[key];
+      checklist.appendChild(buildCheckRow(CHECK_LABELS[key], ok ? 'Erfüllt' : 'Fehlt', ok, i));
     });
+
+    paintScore();
+  };
+
+  // Wird nachgereicht, sobald der Wettbewerbsvergleich die eigene Position
+  // kennt. pos = 0 bedeutet "nicht unter den ersten 20 Treffern".
+  var applyRank = function(pos){
+    scoreState.rank = pos;
+    var existing = checklist.querySelector('[data-rank-row]');
+    if(existing) checklist.removeChild(existing);
+    var row = buildCheckRow(
+      'Google-Platzierung',
+      pos ? ('Platz ' + pos) : 'Nicht in Top 20',
+      !!pos && pos <= 3,
+      checklist.children.length
+    );
+    row.setAttribute('data-rank-row', '');
+    checklist.appendChild(row);
+    paintScore();
   };
 
   var showError = function(message){
@@ -205,6 +308,9 @@
 
   var addGapRow = function(label, text, good){
     var li = document.createElement('li');
+    // Gleiche gestaffelte Einblendung wie die Basis-Checkliste (teilt sich
+    // .gbp-checklist): ohne --i liefen beide Zeilen gleichzeitig ein.
+    li.style.setProperty('--i', compareGaps.children.length);
     var labelEl = document.createElement('span');
     labelEl.textContent = label;
     var chip = document.createElement('span');
@@ -225,6 +331,11 @@
     var own = data.own || {found: false};
     var ownInTop3 = own.found && own.position <= 3;
 
+    // Die Platzierung fließt in den Basis-Check nebenan ein — erst hier ist
+    // sie bekannt. Schlägt der Vergleich fehl, bleibt der Ring bei der reinen
+    // Profil-Basis stehen, statt eine erfundene Platzierung zu behaupten.
+    applyRank(own.found ? own.position : 0);
+
     compareList.innerHTML = '';
     top3.forEach(function(p, i){
       compareList.appendChild(buildRow(i + 1, p.name, p.rating, p.review_count, ownInTop3 && i === own.position - 1));
@@ -244,8 +355,6 @@
 
     setCompareState('result');
   };
-
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var scrollToCompare = function(){
     // Zum Anfang der Sektion scrollen, damit beide Spalten (Vergleich links,
