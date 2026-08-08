@@ -232,6 +232,14 @@ $variants = [
             . bkLocal(new DateTimeImmutable($sample['start_utc'], bkUtcTz()))->format('H:i') . ' Uhr',
         'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
     ],
+    // Die Gegenprobe zu U: Referenzinhalt (kommt sicher an) mit dem NEUEN
+    // Betreff. Kommt W an und U nicht, ist der Betreff entlastet und der
+    // Inhalt überführt; kommt W nicht an, ist es der Betreff. Zusammen mit
+    // T und V deckt die Runde damit jede Kombination ab.
+    'W — Referenzinhalt, aber mit dem neuen Betreff' => [
+        'subject' => 'W: ' . $conf['subject'],
+        'bkmail' => ['html' => $rHtml, 'text' => $rText],
+    ],
 ];
 
 echo "Mail-Diagnose " . date('d.m.Y H:i:s') . "\n";
