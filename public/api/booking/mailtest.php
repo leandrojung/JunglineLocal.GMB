@@ -282,6 +282,41 @@ $variants = [
         ),
         'from' => $from,
     ],
+    // Auch nach dem Ausdünnen (kein Werbetext mehr, Zoom-Link nur einmal) blieb
+    // J im Rückstand zu L. Zwei Verdächtige bleiben, und P/Q trennen sie:
+    //
+    //   P — der volle Rahmen (Vorschautext-Trick, Branding, Fußzeile mit
+    //       Impressum/Datenschutz — DER TEIL, DEN JEDE MAIL NUTZT), aber ohne
+    //       die beiden Kalender-Knöpfe. Kommt P an, waren die Knöpfe/die
+    //       Linkzahl der Auslöser, nicht der Rahmen.
+    //   Q — L's nackter Inhalt, aber im vollen Rahmen verpackt. Kommt Q NICHT
+    //       an, ist der Rahmen selbst der Auslöser — am ehesten der
+    //       unsichtbare Vorschautext (display:none/opacity:0), eine klassische
+    //       Spam-Filter-Signatur.
+    'P — voller Rahmen, aber ohne die zwei Kalender-Knöpfe' => [
+        'subject' => 'P: ' . $conf['subject'],
+        'mime' => bkBuildMime(
+            bkEmailShell('Test P', 'Ihr Termin steht',
+                '<p style="margin:0 0 4px;">Hallo,</p>'
+                . '<p style="margin:0;">Test P — Terminbox ohne Kalender-Knöpfe.</p>'
+                . bkEmailFactBox($sample)
+                . '<p style="margin:22px 0 0;font-size:13px;">Absagen: '
+                . '<a href="' . bkEsc(bkManageUrl($sample['token'])) . '">Link</a></p>'),
+            "Test P\n" . bkTextFacts($sample) . "\nAbsagen: " . bkManageUrl($sample['token']),
+            null
+        ),
+        'from' => $from,
+    ],
+    'Q — L\'s nackter Inhalt, aber im vollen Mail-Rahmen verpackt' => [
+        'subject' => 'Q: Test ' . $stamp,
+        'mime' => bkBuildMime(
+            bkEmailShell('Test Q', 'Test Q',
+                '<p>Test Q: <a href="' . bkEsc($directGcal) . '">Kalenderlink</a></p>'),
+            "Test Q\n" . $directGcal,
+            null
+        ),
+        'from' => $from,
+    ],
 ];
 
 echo "Mail-Diagnose " . date('d.m.Y H:i:s') . "\n";
@@ -316,4 +351,4 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (J, K, L) ankommt — auch im Spam-Ordner.\n";
+echo "Testmails (J, K, L, P, Q) ankommt — auch im Spam-Ordner.\n";
