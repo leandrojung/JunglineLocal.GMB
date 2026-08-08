@@ -8,13 +8,13 @@
  * — der normale Versand merkt sich nur ja/nein, nicht das Gespräch dahinter.
  *
  * Diese Route schreibt jede Zeile mit, die zwischen uns und dem Server hin und
- * her geht, und probiert dabei drei Varianten derselben Mail:
+ * her geht, und verschickt dabei mehrere Varianten derselben Mail. Welche
+ * ankommt und welche nicht, grenzt die Ursache ohne Raten ein.
  *
- *   A  wie die echte Bestätigung: HTML + Text + .ics-Anhang
- *   B  nur Text, ohne Anhang        — zeigt, ob der Anhang der Auslöser ist
- *   C  nur Text, Absender klein     — zeigt, ob "Info@" vs. "info@" stört
- *
- * Kommt eine der drei an, wissen wir ohne Raten, woran es liegt.
+ * Runde 1 (A ohne/mit Anhang, B und C ohne) hat ergeben: ohne .ics kommt die
+ * Mail an, mit .ics verschwindet sie — obwohl der Server sie in beiden Fällen
+ * mit "250 queued" annimmt. Die Varianten unten trennen jetzt auf, welcher
+ * Teil des Anhangs dafür verantwortlich ist.
  *
  * Die Route ist mit demselben Token geschützt wie der Erinnerungs-Cron. Ohne
  * Schutz könnte jeder Fremde über sie beliebig Mails auslösen.
@@ -156,13 +156,22 @@ function bkTestSmtp(string $toEmail, string $subject, array $mime, string $envel
 }
 
 // ---------------------------------------------------------------------
-// Die drei Varianten
+// Varianten
+//
+// Runde 1 hat gezeigt: ohne Anhang kommt die Mail an, mit .ics nicht.
+// Die Datei selbst ist einwandfrei (alle Zeilen unter 75 Bytes, Struktur
+// vom MIME-Parser ohne Beanstandung). Bleibt die Bedeutung des Anhangs:
+// METHOD:REQUEST ist keine Kalenderdatei, sondern eine förmliche Einladung
+// mit Zusage-Aufforderung. Damit lassen sich fremde Kalender befüllen —
+// entsprechend streng gehen Filter damit um.
+//
+// Runde 2 trennt deshalb die drei Dinge, die daran hängen können:
+// der MIME-Typ, die Einladungs-Semantik und die Teilnehmerzeile.
 // ---------------------------------------------------------------------
 
 $stamp = date('H:i:s');
 $from  = bkMailFrom();
 
-// Ein Termin, der nur als Beispiel für den .ics-Anhang dient.
 $sample = [
     'token' => 'diagnose',
     'start_utc' => bkStamp(bkNow()->modify('+2 days')),
@@ -174,33 +183,103 @@ $sample = [
     'message' => '',
 ];
 
+/**
+ * Baut eine Mail mit frei wählbarem Anhangstyp. bkBuildMime kann das nicht —
+ * es schreibt fest text/calendar — und soll es auch nicht können: der
+ * Produktivcode bleibt für die Diagnose unangetastet.
+ */
+function bkTestMime(string $html, string $text, ?string $attachment, string $contentType, string $filename): array {
+    $mixed = 'mix_' . bin2hex(random_bytes(12));
+    $alt   = 'alt_' . bin2hex(random_bytes(12));
+
+    $alternative = "--$alt\r\n"
+        . "Content-Type: text/plain; charset=UTF-8\r\n"
+        . "Content-Transfer-Encoding: base64\r\n\r\n"
+        . chunk_split(base64_encode($text), 76, "\r\n")
+        . "--$alt\r\n"
+        . "Content-Type: text/html; charset=UTF-8\r\n"
+        . "Content-Transfer-Encoding: base64\r\n\r\n"
+        . chunk_split(base64_encode($html), 76, "\r\n")
+        . "--$alt--\r\n";
+
+    if ($attachment === null) {
+        return ['headers' => ['Content-Type' => "multipart/alternative; boundary=\"$alt\""], 'body' => $alternative];
+    }
+
+    $body = "--$mixed\r\n"
+        . "Content-Type: multipart/alternative; boundary=\"$alt\"\r\n\r\n"
+        . $alternative
+        . "--$mixed\r\n"
+        . "Content-Type: $contentType; name=\"$filename\"\r\n"
+        . "Content-Transfer-Encoding: base64\r\n"
+        . "Content-Disposition: attachment; filename=\"$filename\"\r\n\r\n"
+        . chunk_split(base64_encode($attachment), 76, "\r\n")
+        . "--$mixed--\r\n";
+
+    return ['headers' => ['Content-Type' => "multipart/mixed; boundary=\"$mixed\""], 'body' => $body];
+}
+
+/**
+ * Eine Kalenderdatei zum Ablegen statt einer Einladung zum Beantworten:
+ * METHOD:PUBLISH, ohne ORGANIZER und ohne ATTENDEE. Genau so verschickt
+ * auch Calendly seine Anhänge.
+ */
+function bkTestIcsPublish(array $booking): string {
+    $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
+    $end   = new DateTimeImmutable($booking['end_utc'], bkUtcTz());
+
+    $lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//JunglineLocal//Terminbuchung//DE',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        'UID:' . bkIcsUid($booking['token']),
+        'SEQUENCE:0',
+        'DTSTAMP:' . bkNow()->format('Ymd\THis\Z'),
+        'DTSTART:' . $start->format('Ymd\THis\Z'),
+        'DTEND:' . $end->format('Ymd\THis\Z'),
+        'SUMMARY:' . bkIcsEscape(BK_TITLE),
+        'STATUS:CONFIRMED',
+        'END:VEVENT',
+        'END:VCALENDAR',
+    ];
+    return implode("\r\n", array_map('bkIcsFold', $lines)) . "\r\n";
+}
+
 $variants = [
-    'A — HTML + Text + .ics (wie die echte Bestätigung)' => [
-        'subject' => 'Test A ' . $stamp . ' — mit Anhang',
-        'mime' => bkBuildMime(
-            '<p>Test A um ' . $stamp . '. Diese Variante entspricht der echten Bestätigungsmail.</p>',
-            'Test A um ' . $stamp . '. Diese Variante entspricht der echten Bestaetigungsmail.',
-            ['content' => bkIcs($sample, 'REQUEST'), 'method' => 'REQUEST']
+    'A — text/calendar + METHOD:REQUEST (Kontrolle: bisher gescheitert)' => [
+        'subject' => 'Test A ' . $stamp . ' — Einladung wie bisher',
+        'mime' => bkTestMime(
+            '<p>Test A um ' . $stamp . '.</p>', 'Test A um ' . $stamp . '.',
+            bkIcs($sample, 'REQUEST'), 'text/calendar; charset=UTF-8; method=REQUEST', 'termin.ics'
         ),
         'from' => $from,
     ],
-    'B — nur Text, ohne Anhang' => [
-        'subject' => 'Test B ' . $stamp . ' — ohne Anhang',
-        'mime' => bkBuildMime(
-            '<p>Test B um ' . $stamp . '.</p>',
-            'Test B um ' . $stamp . '.',
-            null
+    'D — dieselben Bytes, aber als neutrale Datei (application/octet-stream)' => [
+        'subject' => 'Test D ' . $stamp . ' — neutraler Dateityp',
+        'mime' => bkTestMime(
+            '<p>Test D um ' . $stamp . '.</p>', 'Test D um ' . $stamp . '.',
+            bkIcs($sample, 'REQUEST'), 'application/octet-stream', 'termin.ics'
         ),
         'from' => $from,
     ],
-    'C — nur Text, Absender kleingeschrieben' => [
-        'subject' => 'Test C ' . $stamp . ' — Absender klein',
-        'mime' => bkBuildMime(
-            '<p>Test C um ' . $stamp . '.</p>',
-            'Test C um ' . $stamp . '.',
-            null
+    'E — text/calendar, aber METHOD:PUBLISH ohne Organizer/Attendee' => [
+        'subject' => 'Test E ' . $stamp . ' — Kalenderdatei statt Einladung',
+        'mime' => bkTestMime(
+            '<p>Test E um ' . $stamp . '.</p>', 'Test E um ' . $stamp . '.',
+            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8; method=PUBLISH', 'termin.ics'
         ),
-        'from' => strtolower($from),
+        'from' => $from,
+    ],
+    'F — text/calendar ohne method-Parameter, Inhalt PUBLISH' => [
+        'subject' => 'Test F ' . $stamp . ' — ohne method im Kopf',
+        'mime' => bkTestMime(
+            '<p>Test F um ' . $stamp . '.</p>', 'Test F um ' . $stamp . '.',
+            bkTestIcsPublish($sample), 'text/calendar; charset=UTF-8', 'termin.ics'
+        ),
+        'from' => $from,
     ],
 ];
 
@@ -235,4 +314,4 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der drei\n";
-echo "Testmails (A, B, C) ankommt — auch im Spam-Ordner.\n";
+echo "Testmails (A, D, E, F) ankommt — auch im Spam-Ordner.\n";
