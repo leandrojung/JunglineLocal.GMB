@@ -1357,16 +1357,18 @@
   // auf dem ersten Bild der Choreografie stehen, also leer.
   if(!window.IntersectionObserver){ run(); return; }
 
-  var seen = false;
-  new IntersectionObserver(function(entries){
+  // Läuft genau einmal pro Seitenaufruf: sobald die Choreografie gestartet
+  // ist, wird der Observer abgehängt. Hoch- und Runterscrollen darf die
+  // Erklärtexte, den Sternenaufbau und den Bewertungszähler nicht wieder auf
+  // null setzen — beim zweiten Anschauen soll der fertige Endzustand stehen,
+  // nicht wieder der leere Anfang.
+  var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.isIntersecting){
-        if(!seen){ seen = true; run(); }
-      }else{
-        // Verlässt der Block das Bild komplett, darf er beim nächsten Mal
-        // wieder von vorn erzählen.
-        seen = false;
+        run();
+        io.disconnect();
       }
     });
-  }, {threshold:.15}).observe(stage);
+  }, {threshold:.15});
+  io.observe(stage);
 })();
