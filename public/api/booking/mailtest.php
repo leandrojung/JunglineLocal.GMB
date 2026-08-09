@@ -301,5 +301,6 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der Testmails\n";
-echo "(R, S, T) ankommen — auch im Spam-Ordner. Entscheidend ist S: das ist\n";
-echo "die echte Bestätigung über den echten Versandweg.\n";
+echo "ankommen — auch im Spam-Ordner. Jede Variante laesst genau einen\n";
+echo "Baustein weg; welche ankommt, benennt den Baustein, der die Mail\n";
+echo "bisher die Zustellung gekostet hat.\n";
