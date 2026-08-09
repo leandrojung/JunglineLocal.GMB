@@ -218,6 +218,29 @@
     setState('error');
   };
 
+  // Übersetzt die Fehlerkennung des Backends in einen Satz, den ein Kunde
+  // versteht. Bewusst ohne technische Details: Statuscodes, Google-
+  // Meldungen oder der Hinweis, WELCHE Sperre gegriffen hat, gehören nicht
+  // in die Oberfläche — sie helfen nur dem, der die Sperre umgehen will.
+  //
+  // Die Meldung soll dem ehrlichen Besucher trotzdem sagen, was er tun
+  // kann: kurz warten, es morgen erneut versuchen oder direkt anrufen.
+  var ERROR_TEXTS = {
+    not_found: 'Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.',
+    missing_fields: 'Bitte füllen Sie alle drei Felder aus — Firmenname, Ort und Leistung.',
+    invalid_body: 'Bitte füllen Sie alle drei Felder aus — Firmenname, Ort und Leistung.',
+    rate_limited: 'Sie haben den Check gerade mehrfach hintereinander gestartet. Bitte warten Sie ein paar Minuten und versuchen Sie es dann noch einmal.',
+    daily_limit_reached: 'Der kostenlose Check ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung — oder Sie schreiben mir kurz, dann prüfe ich Ihr Profil persönlich.',
+    forbidden_origin: 'Der Check lässt sich nur direkt auf jungline.de starten. Bitte laden Sie die Seite neu.',
+    service_unavailable: 'Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.'
+  };
+  var DEFAULT_ERROR = 'Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.';
+
+  var errorTextFor = function(data){
+    var key = data && typeof data.error === 'string' ? data.error : '';
+    return Object.prototype.hasOwnProperty.call(ERROR_TEXTS, key) ? ERROR_TEXTS[key] : DEFAULT_ERROR;
+  };
+
   // ---- Wettbewerbsvergleich: zweiter Block, startet automatisch sobald
   // der Profil-Check oben erfolgreich war. Eigene Backend-Route
   // /api/gbp-compare, die intern die Places API (New) Text Search nutzt. ----
@@ -373,6 +396,26 @@
     window.scrollTo({top: y, behavior: reduceMotion ? 'auto' : 'smooth'});
   };
 
+  // Der Vergleich läuft durch dieselben Sperren wie der Profil-Check und
+  // kann deshalb dieselben Gründe haben — nur mit eigenem Wortlaut, weil
+  // hier bereits ein Ergebnis auf dem Schirm steht.
+  var compareErrorText = document.getElementById('gbpCompareErrorText');
+  var COMPARE_ERROR_TEXTS = {
+    rate_limited: 'Der Vergleich wurde gerade mehrfach hintereinander gestartet. Bitte in ein paar Minuten noch einmal versuchen.',
+    daily_limit_reached: 'Der Wettbewerbsvergleich ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung.',
+    forbidden_origin: 'Der Vergleich lässt sich nur direkt auf jungline.de starten. Bitte laden Sie die Seite neu.'
+  };
+
+  var showCompareError = function(data){
+    if(compareErrorText){
+      var key = data && typeof data.error === 'string' ? data.error : '';
+      compareErrorText.textContent = Object.prototype.hasOwnProperty.call(COMPARE_ERROR_TEXTS, key)
+        ? COMPARE_ERROR_TEXTS[key]
+        : 'Der Wettbewerbsvergleich ist gerade nicht verfügbar.';
+    }
+    setCompareState('error');
+  };
+
   var fetchCompare = function(ctx){
     if(!compare) return;
     if(compareSub) compareSub.textContent = 'Basierend auf echten Google-Daten für „' + ctx.keyword + '“ in ' + ctx.city + '.';
@@ -390,10 +433,10 @@
         if(r.ok && r.data && r.data.success){
           renderCompare(r.data, ctx);
         } else {
-          setCompareState('error');
+          showCompareError(r.data);
         }
       })
-      .catch(function(){ setCompareState('error'); });
+      .catch(function(){ showCompareError(null); });
   };
 
   if(form) form.addEventListener('submit', function(ev){
@@ -420,14 +463,12 @@
             company: company, city: city, keyword: keyword,
             placeId: r.data.place_id, ownRating: r.data.rating, ownReviews: r.data.reviews
           });
-        } else if(r.data && r.data.error === 'not_found'){
-          showError('Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.');
         } else {
-          showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.');
+          showError(errorTextFor(r.data));
         }
       })
       .catch(function(){
-        showError('Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.');
+        showError(DEFAULT_ERROR);
       });
   });
 

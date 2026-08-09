@@ -4,6 +4,7 @@ import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
 import { rankcardCompetitors, rankcardExampleNote } from './src/data/rankcard-example.js'
+import { copyrightMetadata } from './scripts/stamp-copyright.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
 
@@ -237,7 +238,7 @@ function dropSameOriginCrossorigin() {
 }
 
 export default defineConfig({
-  plugins: [sharedShell(), dropSameOriginCrossorigin()],
+  plugins: [sharedShell(), dropSameOriginCrossorigin(), copyrightMetadata()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

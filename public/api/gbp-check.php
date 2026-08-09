@@ -5,6 +5,16 @@
  * ab und liefert einen Vollständigkeits-Score 0-100 zurück. Der API-Key
  * bleibt ausschließlich hier auf dem Server, nie im Response-Body.
  *
+ * Diese Route kostet bei jedem Durchlauf echtes Geld (Google rechnet pro
+ * Aufruf ab). Der komplette Schutz davor steckt in _guard.php; hier wird er
+ * nur in der richtigen Reihenfolge angewendet:
+ *
+ *   Herkunft prüfen → nur POST → Menge pro IP → Cache → Tagesbudget → Google
+ *
+ * Der Cache steht bewusst VOR dem Budget: Eine Frage, die schon einmal
+ * gestellt wurde, wird auch dann noch beantwortet, wenn das Tagesbudget
+ * längst aufgebraucht ist. Sie kostet ja nichts.
+ *
  * Diagnose (nur für den Betreiber): GET /api/gbp-check?diag=<GBP_DIAG_TOKEN>
  * führt einen echten Testaufruf gegen Google aus und zeigt die exakte
  * Fehlermeldung an — so lässt sich eine falsche Cloud-/Key-Konfiguration
@@ -14,22 +24,36 @@
 
 declare(strict_types=1);
 
-// respond(), envValue(), placesRequest(), cleanField() — siehe _shared.php.
+// respond(), envValue(), placesRequest() — siehe _shared.php.
+// guard*() — siehe _guard.php.
 // API-Key nie im Frontend, nie im Repo: entweder echte PHP-Umgebungsvariable
 // (z. B. im Hostinger hPanel gesetzt) oder .env-Datei OBERHALB des Web-Roots.
-require __DIR__ . '/_shared.php';
+require __DIR__ . '/_guard.php';
 
 // =====================================================================
 // DIAGNOSE-MODUS (nur Betreiber): GET ?diag=<token>
+//
+// Bewusst ohne Herkunftsprüfung — der Betreiber ruft die Adresse direkt im
+// Browser auf, dabei gibt es keinen Origin. Stattdessen: geheimes Token,
+// eigene Mengenbegrenzung und dasselbe Tagesbudget wie der Normalbetrieb.
+// Ohne diese Begrenzung wäre die Diagnose ein zweiter, ungeschützter Weg
+// zu kostenpflichtigen Google-Aufrufen.
 // =====================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Cache-Control: no-store, max-age=0');
+    header('X-Robots-Tag: noindex, noai, noimageai');
+
     $diagToken = envValue('GBP_DIAG_TOKEN');
-    $provided  = isset($_GET['diag']) ? (string) $_GET['diag'] : '';
+    $provided  = isset($_GET['diag']) && is_string($_GET['diag']) ? $_GET['diag'] : '';
 
     // Ohne konfiguriertes Token bzw. ohne passendes Token: keine Auskunft.
+    // hash_equals vergleicht in konstanter Zeit — ein Angreifer kann das
+    // Token nicht Zeichen für Zeichen über die Antwortzeit erraten.
     if ($diagToken === null || $provided === '' || !hash_equals($diagToken, $provided)) {
         respond(404, ['success' => false, 'error' => 'not_found']);
     }
+
+    guardRateLimit('gbp-diag');
 
     $apiKey = envValue('GOOGLE_PLACES_API_KEY');
     if ($apiKey === null) {
@@ -39,6 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'hinweis' => 'GOOGLE_PLACES_API_KEY ist auf dem Server nicht gesetzt. '
                 . 'Entweder im Hostinger hPanel als Umgebungsvariable eintragen oder '
                 . 'eine .env-Datei oberhalb des Web-Roots (public_html/../.env) anlegen.',
+        ]);
+    }
+
+    if (!guardConsumeBudget(1)) {
+        respond(200, [
+            'diagnose' => true,
+            'api_key_gefunden' => true,
+            'testaufruf' => 'uebersprungen',
+            'hinweis' => 'Das Tagesbudget von ' . guardDailyBudget() . ' Google-Aufrufen ist '
+                . 'aufgebraucht (oder der Datenordner ist nicht beschreibbar). Es wurde '
+                . 'bewusst KEIN Aufruf gemacht. Morgen früh steht das Budget wieder zur '
+                . 'Verfügung; dauerhaft ändern lässt es sich über GBP_DAILY_BUDGET in der .env.',
         ]);
     }
 
@@ -109,25 +145,43 @@ function diagHint(array $test): string {
 // =====================================================================
 // NORMALER BETRIEB: POST vom Badge
 // =====================================================================
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(405, ['success' => false, 'error' => 'method_not_allowed']);
-}
+
+// 1) Herkunft: nur jungline.de. Setzt zugleich die CORS-Header (ohne
+//    Wildcard) und beantwortet den CORS-Vorabflug.
+guardEnforceOrigin();
+
+// 2) Nur POST.
+guardRequirePost();
+
+// 3) Menge pro IP: 5 Anfragen / 10 Minuten.
+guardRateLimit('gbp-check');
 
 // ---------------------------------------------------------------------
-// Eingabe lesen & validieren
+// Eingabe lesen & streng validieren
 // ---------------------------------------------------------------------
-$raw = file_get_contents('php://input');
-$input = json_decode($raw ?: '', true);
-if (!is_array($input)) {
-    respond(400, ['success' => false, 'error' => 'invalid_body']);
-}
+$input = guardReadJsonBody();
 
-$company = cleanField($input, 'company');
-$city    = cleanField($input, 'city');
-$keyword = cleanField($input, 'keyword');
+$company = guardCleanField($input, 'company');
+$city    = guardCleanField($input, 'city');
+$keyword = guardCleanField($input, 'keyword');
 
 if ($company === null || $city === null || $keyword === null) {
     respond(400, ['success' => false, 'error' => 'missing_fields']);
+}
+
+// ---------------------------------------------------------------------
+// 4) Cache: dieselbe Frage kostet 24 h lang nichts mehr.
+//
+// Der Schlüssel ist bewusst normalisiert (Kleinschreibung, zusammen-
+// gefasste Leerzeichen), damit "Bäckerei Müller" und "bäckerei  müller"
+// denselben Eintrag treffen und nicht zweimal bezahlt werden.
+// ---------------------------------------------------------------------
+$queryKey = 'gbp-check|' . mb_strtolower($company . '|' . $city . '|' . $keyword, 'UTF-8');
+
+$cachedPayload = guardCacheGet($queryKey);
+if (is_array($cachedPayload)) {
+    $cachedPayload['cached'] = true;
+    respond(200, $cachedPayload);
 }
 
 $apiKey = envValue('GOOGLE_PLACES_API_KEY');
@@ -136,7 +190,16 @@ if ($apiKey === null) {
     respond(500, ['success' => false, 'error' => 'server_not_configured']);
 }
 
-// 1) Text Search: erstes passendes Profil finden
+// ---------------------------------------------------------------------
+// 5) Tagesbudget für die Textsuche buchen. Reicht es nicht, wird Google
+//    gar nicht erst gefragt — das ist der Punkt, an dem die Rechnung
+//    aufhört zu wachsen.
+// ---------------------------------------------------------------------
+if (!guardConsumeBudget(1)) {
+    respond(503, ['success' => false, 'error' => 'daily_limit_reached']);
+}
+
+// 5a) Text Search: erstes passendes Profil finden
 $searchResult = placesRequest(
     'POST',
     'https://places.googleapis.com/v1/places:searchText',
@@ -158,21 +221,41 @@ if (!$searchResult['ok']) {
 // Gültige Antwort, aber kein Treffer: echtes "not_found".
 $placeId = $searchResult['data']['places'][0]['id'] ?? null;
 if (!is_string($placeId) || $placeId === '') {
+    // Auch das Nicht-Ergebnis wird gecacht: Wer denselben Tippfehler noch
+    // dreimal abschickt, löst dafür keinen weiteren Google-Aufruf aus.
+    guardCachePut($queryKey, ['success' => false, 'error' => 'not_found']);
     respond(200, ['success' => false, 'error' => 'not_found']);
 }
 
-// 2) Place Details: die für den Score nötigen Felder abrufen
-$detailsResult = placesRequest(
-    'GET',
-    'https://places.googleapis.com/v1/places/' . rawurlencode($placeId),
-    $apiKey,
-    'displayName,rating,userRatingCount,photos,currentOpeningHours,websiteUri,types'
-);
+// ---------------------------------------------------------------------
+// 5b) Place Details — mit eigenem Cache pro Place-ID.
+//
+// Zwei verschiedene Suchen können beim selben Profil landen (z. B. mit und
+// ohne Rechtsform im Namen). Der Detail-Cache hängt deshalb an der
+// Place-ID, nicht an der Sucheingabe: Der zweite Weg zum selben Profil ist
+// dann kostenlos.
+// ---------------------------------------------------------------------
+$detailsKey = 'gbp-place|' . $placeId;
+$details = guardCacheGet($detailsKey);
 
-if (!$detailsResult['ok']) {
-    respond(502, ['success' => false, 'error' => 'upstream_error']);
+if (!is_array($details)) {
+    if (!guardConsumeBudget(1)) {
+        respond(503, ['success' => false, 'error' => 'daily_limit_reached']);
+    }
+
+    $detailsResult = placesRequest(
+        'GET',
+        'https://places.googleapis.com/v1/places/' . rawurlencode($placeId),
+        $apiKey,
+        'displayName,rating,userRatingCount,photos,currentOpeningHours,websiteUri,types'
+    );
+
+    if (!$detailsResult['ok']) {
+        respond(502, ['success' => false, 'error' => 'upstream_error']);
+    }
+    $details = $detailsResult['data'];
+    guardCachePut($detailsKey, $details);
 }
-$details = $detailsResult['data'];
 
 // ---------------------------------------------------------------------
 // Score berechnen (0-100)
@@ -193,7 +276,7 @@ $score += $reviewCount >= 10 ? 20 : ($reviewCount >= 5 ? 10 : ($reviewCount >= 1
 $score += $rating >= 4.5 ? 10 : ($rating >= 4.0 ? 5 : 0);
 $score = min(100, $score);
 
-respond(200, [
+$payload = [
     'success' => true,
     'company_name' => $details['displayName']['text'] ?? $company,
     'place_id' => $placeId,
@@ -209,4 +292,9 @@ respond(200, [
         'photos' => $photoCount >= 5,
         'reviews' => $reviewCount >= 10,
     ],
-]);
+];
+
+guardCachePut($queryKey, $payload);
+
+$payload['cached'] = false;
+respond(200, $payload);

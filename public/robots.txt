@@ -1,7 +1,231 @@
+# =========================================================================
 # robots.txt für https://jungline.de
-# Erlaubt allen Suchmaschinen das vollständige Crawlen der Seite
+#
+# Grundhaltung dieser Datei: Suchmaschinen und Antwort-Bots, die Besucher
+# auf die Seite BRINGEN, sind ausdrücklich willkommen. Crawler, die Inhalte
+# ausschließlich ABSAUGEN — für KI-Trainingsdatensätze oder kommerzielle
+# SEO-Datenbanken — sind es nicht.
+#
+# Wichtig für die Sichtbarkeit: Die Sperren unten treffen KEINEN einzigen
+# Bot, der Traffic liefert. Insbesondere:
+#   • "Google-Extended" ist kein Crawler. Es ist ein reiner Steuer-Token
+#     für die Nutzung bereits gecrawlter Inhalte in Gemini/Vertex-AI-
+#     Training. Ihn zu sperren hat NULL Einfluss auf Googlebot, auf das
+#     Google-Ranking oder auf die Indexierung.
+#   • Dasselbe gilt für "Applebot-Extended" gegenüber "Applebot" (Siri /
+#     Spotlight) — Applebot selbst bleibt erlaubt.
+#   • "ChatGPT-User", "OAI-SearchBot", "Claude-User", "Claude-SearchBot"
+#     und "PerplexityBot" holen Seiten ab, um sie in Antworten zu ZITIEREN
+#     und zu VERLINKEN. Sie sind erlaubt — genau darüber kommen heute
+#     zunehmend Anfragen herein.
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# NUTZUNGSVORBEHALT FÜR TEXT UND DATA MINING (§ 44b Abs. 3 UrhG)
+#
+# Der Betreiber dieser Website, Leandro Jung / JunglineLocal, Rhader Straße
+# 132, 46286 Dorsten, behält sich hiermit ausdrücklich und in maschinen-
+# lesbarer Form die Nutzung sämtlicher Inhalte dieser Website — Texte,
+# Bilder, Grafiken, Layouts, Quellcode, strukturierte Daten — für Zwecke des
+# Text und Data Mining im Sinne des § 44b UrhG sowie des Art. 4 Abs. 3 der
+# Richtlinie (EU) 2019/790 vor.
+#
+# Untersagt ist insbesondere das automatisierte Auslesen, Vervielfältigen,
+# Speichern und Auswerten dieser Inhalte zum Zweck des Trainings, der
+# Feinabstimmung, der Bewertung oder der Anreicherung generativer KI- oder
+# Machine-Learning-Systeme sowie zum Aufbau kommerzieller Datenbanken.
+#
+# Dieser Vorbehalt gilt unabhängig davon, ob ein Crawler die Regeln dieser
+# Datei beachtet. Vollständiger Text: https://jungline.de/nutzungsbedingungen/
+#
+# ---
+#
+# TEXT AND DATA MINING RESERVATION (Sec. 44b (3) German Copyright Act)
+#
+# The operator of this website, Leandro Jung / JunglineLocal, Rhader Strasse
+# 132, 46286 Dorsten, Germany, hereby expressly reserves, in machine-readable
+# form, the use of all content on this website — text, images, graphics,
+# layouts, source code and structured data — for the purposes of text and
+# data mining pursuant to Sec. 44b of the German Copyright Act (UrhG) and
+# Art. 4(3) of Directive (EU) 2019/790.
+#
+# This expressly prohibits automated extraction, reproduction, storage and
+# analysis of this content for training, fine-tuning, evaluating or
+# augmenting generative AI or machine learning systems, and for building
+# commercial databases.
+#
+# This reservation applies regardless of whether a crawler honours the rules
+# in this file. Full text: https://jungline.de/nutzungsbedingungen/
+# Machine-readable: https://jungline.de/ai.txt
+#                  https://jungline.de/.well-known/ai.txt
+#                  https://jungline.de/.well-known/tdmrep.json
+# -------------------------------------------------------------------------
+
+
+# =========================================================================
+# 1) AUSDRÜCKLICH ERLAUBT — Suchmaschinen
+#
+# Diese Gruppen stehen bewusst VOR allen Sperren und wiederholen "Allow: /".
+# Ein Crawler wertet immer nur die EINE Gruppe aus, die seinen Namen am
+# genauesten trifft; eine eigene Gruppe schützt ihn also zuverlässig davor,
+# je von einer allgemeineren Regel erfasst zu werden.
+# =========================================================================
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: Google-InspectionTool
+Allow: /
+
+User-agent: Storebot-Google
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: SeznamBot
+Allow: /
+
+User-agent: Qwantify
+Allow: /
+
+# =========================================================================
+# 2) AUSDRÜCKLICH ERLAUBT — Antwort-/Retrieval-Bots
+#
+# Diese holen eine Seite ab, um sie in einer Antwort zu zitieren und zu
+# verlinken. Das ist Sichtbarkeit, kein Datenabfluss ins Training — und
+# damit erwünscht.
+# =========================================================================
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# =========================================================================
+# 3) GESPERRT — KI-Trainings-Crawler
+#
+# Sammeln Inhalte für Trainingsdatensätze. Sie liefern keinen Traffic und
+# nennen die Quelle nicht.
+# =========================================================================
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+# =========================================================================
+# 4) GESPERRT — Scraper und kommerzielle SEO-Datenbanken
+#
+# Bauen Wettbewerbsdatenbanken aus fremden Inhalten auf und erzeugen dabei
+# spürbare Serverlast.
+# =========================================================================
+
+User-agent: Scrapy
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# =========================================================================
+# 5) ALLE ÜBRIGEN
+#
+# Standard bleibt offen: unbekannte Suchmaschinen und Werkzeuge, die
+# Besucher bringen könnten, werden nicht pauschal ausgesperrt.
+#
+# Der /api/-Pfad ist von der Indexierung ausgenommen — dort liegen
+# Endpunkte, keine Inhalte. Das spart Crawl-Budget und verhindert, dass
+# JSON-Antworten in den Suchergebnissen auftauchen.
+# =========================================================================
 
 User-agent: *
+Disallow: /api/
 Allow: /
 
 # Verweis auf die Sitemap (wichtig für die Indexierung)

@@ -1462,6 +1462,11 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
 .prose .lead{font-size:1.16rem;color:var(--ink);line-height:1.7;margin-bottom:22px}
 .prose figure{margin:22px 0}
 .prose img{border-radius:var(--r);border:1px solid var(--border)}
+/* Inline-Code in Rechtstexten (Nutzungsbedingungen zitieren Header und
+   Meta-Tags wörtlich). overflow-wrap, damit lange Tokens auf schmalen
+   Displays umbrechen statt die Seite horizontal zu verschieben. */
+.prose code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;color:var(--green-bright);
+  background:rgba(127,227,170,.08);border:1px solid var(--border);border-radius:6px;padding:1px 6px;overflow-wrap:anywhere}
 
 /* Info-/Hinweiskasten (z. B. Quellenangabe, rechtlicher Hinweis) */
 .callout{display:flex;align-items:flex-start;gap:14px;margin:26px 0;padding:20px 24px;

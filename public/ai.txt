@@ -1,0 +1,114 @@
+# ai.txt — Nutzungsvorbehalt für Text und Data Mining
+# https://jungline.de/ai.txt
+#
+# Diese Datei ist der maschinenlesbare Nutzungsvorbehalt nach
+# § 44b Abs. 3 UrhG. Sie liegt zusätzlich unter
+# https://jungline.de/.well-known/ai.txt
+#
+# Verbindlicher Volltext: https://jungline.de/nutzungsbedingungen/
+# Stand: 2026-08-09
+
+# =========================================================================
+# DEUTSCH
+# =========================================================================
+#
+# Rechteinhaber:  Leandro Jung / JunglineLocal
+# Anschrift:      Rhader Straße 132, 46286 Dorsten, Deutschland
+# Kontakt:        Info@jungline.de
+# Betrifft:       sämtliche Inhalte unter https://jungline.de/ und allen
+#                 Unterseiten — Texte, Bilder, Fotografien, Grafiken,
+#                 Logos, Layout, Quellcode, CSS, JavaScript sowie
+#                 strukturierte Daten (JSON-LD).
+#
+# NUTZUNGSVORBEHALT
+# Der Rechteinhaber behält sich hiermit ausdrücklich und in maschinen-
+# lesbarer Form gemäß § 44b Abs. 3 UrhG sowie Art. 4 Abs. 3 der Richtlinie
+# (EU) 2019/790 die Nutzung der genannten Inhalte für Zwecke des Text und
+# Data Mining vor.
+#
+# Ohne vorherige schriftliche Einwilligung ist insbesondere untersagt:
+#   1. das automatisierte Auslesen, Herunterladen, Vervielfältigen oder
+#      dauerhafte Speichern der Inhalte (Scraping, Crawling, Harvesting);
+#   2. die Verwendung der Inhalte zum Training, zur Feinabstimmung, zur
+#      Evaluierung oder zur Anreicherung generativer KI-Modelle, großer
+#      Sprachmodelle, Bildmodelle oder sonstiger Machine-Learning-Systeme;
+#   3. die Aufnahme der Inhalte in Trainings-, Referenz- oder
+#      Retrieval-Korpora, die Dritten zugänglich gemacht werden;
+#   4. die Aufnahme der Inhalte in kommerzielle Datenbanken, SEO-Indizes
+#      oder Wettbewerbsanalyse-Produkte;
+#   5. die Umgehung technischer Schutzmaßnahmen (robots.txt, HTTP-Header,
+#      User-Agent-Sperren, Zugriffsbegrenzungen der /api/-Endpunkte).
+#
+# AUSDRÜCKLICH GESTATTET
+#   • Indexierung durch allgemeine Suchmaschinen zum Zweck der Anzeige
+#     von Suchergebnissen mit Verlinkung auf jungline.de.
+#   • Abruf durch Antwort-/Retrieval-Systeme, sofern die Quelle sichtbar
+#     genannt und auf jungline.de verlinkt wird und der Inhalt NICHT
+#     dauerhaft für Trainingszwecke gespeichert wird.
+#   • Zitate im Rahmen des § 51 UrhG mit Quellenangabe.
+#
+# Dieser Vorbehalt gilt unabhängig davon, ob ein automatisiertes System die
+# Regeln der robots.txt beachtet, und er erlischt nicht durch Zeitablauf.
+# Er richtet sich an Betreiber und Auftraggeber solcher Systeme
+# gleichermaßen.
+#
+# Lizenzanfragen: Info@jungline.de
+
+# =========================================================================
+# ENGLISH
+# =========================================================================
+#
+# Rights holder: Leandro Jung / JunglineLocal
+# Address:       Rhader Strasse 132, 46286 Dorsten, Germany
+# Contact:       Info@jungline.de
+# Scope:         all content at https://jungline.de/ and all sub-pages —
+#                text, images, photographs, graphics, logos, layout, source
+#                code, CSS, JavaScript and structured data (JSON-LD).
+#
+# RESERVATION OF RIGHTS
+# The rights holder hereby expressly reserves, in machine-readable form
+# pursuant to Sec. 44b (3) of the German Copyright Act (UrhG) and Art. 4(3)
+# of Directive (EU) 2019/790, the use of the above content for the purposes
+# of text and data mining.
+#
+# Without prior written consent, the following are prohibited in particular:
+#   1. automated extraction, downloading, reproduction or persistent
+#      storage of the content (scraping, crawling, harvesting);
+#   2. use of the content for training, fine-tuning, evaluating or
+#      augmenting generative AI models, large language models, image
+#      models or other machine learning systems;
+#   3. inclusion of the content in training, reference or retrieval corpora
+#      made available to third parties;
+#   4. inclusion of the content in commercial databases, SEO indices or
+#      competitive-intelligence products;
+#   5. circumvention of technical protection measures (robots.txt, HTTP
+#      headers, user-agent blocks, access limits on the /api/ endpoints).
+#
+# EXPRESSLY PERMITTED
+#   • Indexing by general-purpose search engines for the purpose of
+#     displaying search results linking to jungline.de.
+#   • Retrieval by answer engines, provided the source is visibly named and
+#     linked to jungline.de and the content is NOT retained for training.
+#   • Quotation under Sec. 51 UrhG with attribution.
+#
+# This reservation applies regardless of whether an automated system
+# honours robots.txt, and it does not expire. It binds both the operators
+# and the commissioning parties of such systems.
+#
+# Licensing enquiries: Info@jungline.de
+
+# =========================================================================
+# STRUKTURIERTE KURZFASSUNG / STRUCTURED SUMMARY
+# =========================================================================
+
+User-Agent: *
+Disallow: train
+Disallow: ai-input
+Disallow: ai-train
+Allow: search
+
+TDM-Reservation: 1
+TDM-Policy: https://jungline.de/nutzungsbedingungen/
+Contact: Info@jungline.de
+Copyright: (c) 2026 Leandro Jung / JunglineLocal. Alle Rechte vorbehalten.
+Last-Updated: 2026-08-09

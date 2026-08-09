@@ -14,28 +14,41 @@
  * Firma), da die Trefferliste für alle Suchenden mit demselben
  * Keyword+Stadt identisch ist — das begrenzt die API-Kosten unabhängig
  * von der Anzahl der Aufrufer.
+ *
+ * Wie /api/gbp-check.php kostet auch diese Route pro Aufruf Geld und läuft
+ * deshalb durch dieselbe Schutzschicht (_guard.php): Herkunftsprüfung,
+ * nur POST, Mengenbegrenzung pro IP, gemeinsames Tagesbudget, Cache.
  */
 
 declare(strict_types=1);
 
-require __DIR__ . '/_shared.php';
+require __DIR__ . '/_guard.php';
 
-const CACHE_TTL_SECONDS = 24 * 60 * 60;
+// Der Cache lag früher in public/api/cache/ — also INNERHALB des Web-Roots
+// und damit prinzipiell über die Adresszeile abrufbar. Jetzt liegt er im
+// gemeinsamen Datenordner, bevorzugt oberhalb von public_html (siehe
+// guardDataDir()).
+guardEnforceOrigin();
+guardRequirePost();
+guardRateLimit('gbp-compare');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(405, ['success' => false, 'error' => 'method_not_allowed']);
+$input = guardReadJsonBody();
+
+$company = guardCleanField($input, 'company');
+$city    = guardCleanField($input, 'city');
+$keyword = guardCleanField($input, 'keyword');
+
+// Place-IDs von Google bestehen aus Buchstaben, Ziffern, Bindestrich und
+// Unterstrich. Alles andere ist keine Place-ID und wird verworfen, statt
+// die Anfrage abzulehnen — die ID ist optional, der Namensabgleich greift
+// dann als Rückfallebene.
+$placeId = '';
+if (isset($input['place_id']) && is_string($input['place_id'])) {
+    $candidate = trim($input['place_id']);
+    if ($candidate !== '' && preg_match('/^[A-Za-z0-9_-]{1,255}$/', $candidate)) {
+        $placeId = $candidate;
+    }
 }
-
-$raw = file_get_contents('php://input');
-$input = json_decode($raw ?: '', true);
-if (!is_array($input)) {
-    respond(400, ['success' => false, 'error' => 'invalid_body']);
-}
-
-$company = cleanField($input, 'company');
-$city    = cleanField($input, 'city');
-$keyword = cleanField($input, 'keyword');
-$placeId = isset($input['place_id']) ? trim((string) $input['place_id']) : '';
 
 if ($company === null || $city === null || $keyword === null) {
     respond(400, ['success' => false, 'error' => 'missing_fields']);
@@ -91,26 +104,21 @@ if ($apiKey === null) {
 }
 
 // ---------------------------------------------------------------------
-// Cache: ein JSON-File pro Keyword+Stadt-Kombination, 24h gültig.
+// Cache: ein Eintrag pro Keyword+Stadt-Kombination, 24h gültig.
 // ---------------------------------------------------------------------
-$cacheKey = sha1(mb_strtolower(trim($keyword), 'UTF-8') . '|' . mb_strtolower(trim($city), 'UTF-8'));
-$cacheDir = __DIR__ . '/cache';
-$cacheFile = $cacheDir . '/' . $cacheKey . '.json';
+$cacheKey = 'gbp-compare|' . mb_strtolower($keyword, 'UTF-8') . '|' . mb_strtolower($city, 'UTF-8');
 
-$places = null;
-$cached = false;
+$places = guardCacheGet($cacheKey);
+$cached = is_array($places);
 
-if (is_file($cacheFile)) {
-    $raw = file_get_contents($cacheFile);
-    $decoded = $raw !== false ? json_decode($raw, true) : null;
-    if (is_array($decoded) && isset($decoded['fetched_at'], $decoded['places'])
-        && (time() - (int) $decoded['fetched_at']) < CACHE_TTL_SECONDS) {
-        $places = $decoded['places'];
-        $cached = true;
+if (!$cached) {
+    // Erst Budget buchen, dann fragen. Ist das Tagesbudget aufgebraucht,
+    // bleibt der Vergleich aus — die Seite zeigt dann einen sauberen
+    // Hinweis statt einer wachsenden Google-Rechnung.
+    if (!guardConsumeBudget(1)) {
+        respond(503, ['success' => false, 'error' => 'daily_limit_reached']);
     }
-}
 
-if ($places === null) {
     // rankPreference bewusst NICHT gesetzt — Default RELEVANCE entspricht am
     // ehesten Googles eigener Relevanz-/Prominenz-Sortierung im Local Pack.
     $searchResult = placesRequest(
@@ -143,13 +151,7 @@ if ($places === null) {
         ];
     }
 
-    if (!is_dir($cacheDir)) {
-        mkdir($cacheDir, 0775, true);
-    }
-    @file_put_contents($cacheFile, json_encode([
-        'fetched_at' => time(),
-        'places' => $places,
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    guardCachePut($cacheKey, $places);
 }
 
 // ---------------------------------------------------------------------

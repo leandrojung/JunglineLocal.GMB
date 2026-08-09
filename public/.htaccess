@@ -20,12 +20,101 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # =======================================================================
+  # 0a) SCRAPER- UND KI-CRAWLER-SPERRE (serverseitiges 403)
+  #
+  # Die robots.txt ist eine Bitte. Diese Regel ist eine Tür. Sie greift
+  # nur bei Bots, die sich selbst zu erkennen geben — wer einen Browser-
+  # User-Agent vortäuscht, kommt hier durch (siehe Nutzungsbedingungen
+  # Ziffer 4, letzter Punkt). Das ist bewusst so: der Zweck ist, ehrliche
+  # Massen-Crawler und die von ihnen erzeugte Serverlast loszuwerden, nicht
+  # eine unüberwindbare Mauer zu bauen.
+  #
+  # AUFBAU — und der Grund dafür, dass hier ZWEI Bedingungen stehen:
+  #   Bedingung 1 prüft, ob der Bot auf der Sperrliste steht.
+  #   Bedingung 2 ist das Sicherheitsnetz: Steht im User-Agent irgendwo ein
+  #   erwünschter Bot, wird NICHT gesperrt — egal was Bedingung 1 sagt.
+  # Beide müssen zutreffen (Apache verknüpft aufeinanderfolgende
+  # RewriteCond mit UND). Ein Fehler in der Sperrliste kann damit nie dazu
+  # führen, dass Googlebot oder Bingbot ein 403 bekommen.
+  #
+  # BEWUSST NICHT IN DER SPERRLISTE:
+  #   • "Google-Extended" und "Applebot-Extended" sind KEINE Crawler,
+  #     sondern reine robots.txt-Steuertoken. Es gibt keinen Request mit
+  #     diesem User-Agent. Sie stehen deshalb ausschließlich in der
+  #     robots.txt. Jeder Versuch, sie hier per User-Agent zu treffen,
+  #     würde entweder ins Leere laufen oder Googlebot/Applebot mitreißen.
+  #   • "facebookexternalhit" (Link-Vorschau in Facebook/WhatsApp) ist
+  #     NICHT dasselbe wie "FacebookBot" (KI-Crawler). Gesperrt wird nur
+  #     der zweite — sonst gingen die Vorschaubilder beim Teilen kaputt.
+  #   • "ChatGPT-User", "OAI-SearchBot", "Claude-User", "Claude-SearchBot"
+  #     und "PerplexityBot" holen Seiten, um sie zu ZITIEREN und zu
+  #     VERLINKEN. Sie stehen in der Freigabeliste, nicht in der Sperre.
+  # =======================================================================
+
+  # Bedingung 1: steht auf der Sperrliste?
+  RewriteCond %{HTTP_USER_AGENT} (GPTBot|CCBot|ClaudeBot|anthropic-ai|Bytespider|Amazonbot|Diffbot|omgili|omgilibot|ImagesiftBot|FacebookBot|meta-externalagent|Timpibot|Scrapy|SemrushBot|AhrefsBot|MJ12bot|DotBot|PetalBot|SeekportBot|serpstatbot|BLEXBot|DataForSeoBot|Barkrowler|ZoominfoBot|magpie-crawler|Sogou|YisouSpider|VelenPublicWebCrawler|TurnitinBot|Grapeshot|linkdexbot) [NC]
+  # Bedingung 2: Sicherheitsnetz — erwünschte Bots sind ausgenommen.
+  RewriteCond %{HTTP_USER_AGENT} !(Googlebot|Google-|GoogleOther|APIs-Google|AdsBot-Google|Mediapartners-Google|FeedFetcher-Google|Storebot-Google|GoogleProducer|Chrome-Lighthouse|Bingbot|BingPreview|msnbot|adidxbot|DuckDuck|Applebot|Slurp|Yandex|Baiduspider|Seznam|Qwant|Ecosia|Mojeek|OAI-SearchBot|ChatGPT-User|Claude-User|Claude-SearchBot|Perplexity|facebookexternalhit|Twitterbot|LinkedInBot|Slackbot|WhatsApp|TelegramBot|Discordbot|Pinterest|redditbot|SkypeUriPreview|XING|curl|PageSpeed|GTmetrix|Pingdom|UptimeRobot|StatusCake) [NC]
+  RewriteRule ^ - [F,L]
+
   # Kanonische Domain ohne www. Der <link rel="canonical"> jeder Seite zeigt
   # auf https://jungline.de/ — Aufrufe über www. landen sonst auf einer
   # zweiten, für Google eigenständigen Adresse. Die Regel kann nicht in einer
   # Schleife enden, weil das Ziel selbst nie auf www. matcht.
   RewriteCond %{HTTP_HOST} ^www\.jungline\.de$ [NC]
   RewriteRule ^ https://jungline.de%{REQUEST_URI} [R=301,L]
+
+  # Die Nutzungsbedingungen liegen wie Impressum und Datenschutz als
+  # Verzeichnis (/nutzungsbedingungen/). Wer die Adresse mit .html aufruft
+  # — so steht sie in älteren Notizen —, landet per 301 an der richtigen
+  # Stelle statt in einem 404.
+  RewriteRule ^nutzungsbedingungen\.html$ /nutzungsbedingungen/ [R=301,L]
+
+  # =======================================================================
+  # 0c) VERSTECKTE DATEIEN UND ENTWICKLER-DATEIEN SPERREN
+  #
+  # Landet versehentlich ein .git-Ordner, eine .env, eine Datenbankdatei
+  # oder ein "index.html.bak" im Web-Root, ist das ein Vollzugriff auf
+  # Quellcode und Zugangsdaten. Die Regel arbeitet über den PFAD (nicht
+  # über <FilesMatch>), weil nur so /.well-known/ ausgenommen werden kann
+  # — dort liegen ai.txt, tdmrep.json und die Let's-Encrypt-Prüfdateien.
+  # =======================================================================
+
+  # Alles, was mit einem Punkt beginnt (.git, .env, .htpasswd, .DS_Store …)
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
+  RewriteRule (^|/)\.[^/]+ - [F,L]
+
+  # Konfigurations-, Daten- und Backup-Endungen.
+  # .txt und .xml fehlen hier ABSICHTLICH — robots.txt, ai.txt und
+  # sitemap.xml müssen erreichbar bleiben.
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
+  RewriteRule \.(json|md|markdown|yml|yaml|ini|log|sql|sh|bash|bak|backup|old|orig|save|swp|swo|tmp|dist|lock|sqlite|sqlite3|db|conf|config|tpl|twig|zip|tar|gz|tgz|bz2|rar|7z)$ - [F,NC,L]
+
+  # Editor-Sicherungen: index.html~
+  RewriteRule ~$ - [F,L]
+
+  # =======================================================================
+  # 0d) HOTLINK-SCHUTZ FÜR BILDER
+  #
+  # Verhindert, dass fremde Seiten Bilder direkt von hier einbinden und
+  # damit Traffic auf Kosten dieses Hostings erzeugen.
+  #
+  # Die erste Bedingung ist die wichtigste: LEERER Referrer ist erlaubt.
+  # Ohne sie bräche fast alles — der direkte Aufruf eines Bildes, die
+  # Vorschau beim Teilen in WhatsApp/LinkedIn, Googlebot-Image beim
+  # Indexieren und jeder Besucher, dessen Browser oder Datenschutz-
+  # Erweiterung den Referrer entfernt. Suchmaschinen liefern beim Crawlen
+  # generell keinen Referrer und sind damit nie betroffen.
+  # =======================================================================
+
+  RewriteCond %{HTTP_REFERER} !^$
+  RewriteCond %{HTTP_REFERER} !^https?://([a-z0-9-]+\.)?jungline\.de(/|$) [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://([a-z0-9-]+\.)?google\.([a-z]{2,3})(\.[a-z]{2})?(/|$) [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://([a-z0-9-]+\.)?(bing|duckduckgo|yandex|ecosia|startpage|qwant|brave)\.[a-z]+(/|$) [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://localhost(:[0-9]+)?(/|$) [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://127\.0\.0\.1(:[0-9]+)?(/|$) [NC]
+  RewriteRule \.(png|jpe?g|webp|avif|gif|svg|ico)$ - [F,NC,L]
 
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
@@ -41,6 +130,11 @@
   RewriteRule ^api/booking/mailtest/?$ api/booking/mailtest.php [L]
   RewriteRule ^api/booking/gtest/?$  api/booking/gtest.php  [L]
 </IfModule>
+
+# ---------- 0aa) Verzeichnis-Listing abschalten ----------
+# Ohne diese Zeile liefert Apache für einen Ordner ohne index.html eine
+# vollständige Dateiliste aus — ein kostenloser Bauplan der Seite.
+Options -Indexes
 
 # ---------- 0b) MIME-Typen verbindlich festlegen ----------
 # Weiter unten wird X-Content-Type-Options: nosniff gesetzt. Das ist richtig,
@@ -179,7 +273,34 @@ RedirectMatch 404 ^/\.jungline-data(/|$)
 
   # Permissions-Policy: nicht benötigte Browser-APIs deaktivieren.
   # Reduziert Attack-Surface und verbessert Lighthouse "Best Practices".
-  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  # browsing-topics=() nimmt die Seite zusätzlich aus Googles Topics-API
+  # heraus — das Interessenprofil der Besucher wird hier nicht mitgeschrieben.
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=()"
+
+  # frame-ancestors ist der moderne Nachfolger von X-Frame-Options und
+  # wirkt auch dort, wo X-Frame-Options ignoriert wird. Beide zusammen
+  # schließen das Einbetten in fremde iFrames zuverlässig aus. Bewusst
+  # NUR diese eine CSP-Direktive: eine vollständige Content-Security-Policy
+  # würde die Inline-Skripte der Seite blockieren.
+  Header always set Content-Security-Policy "frame-ancestors 'self'"
+
+  # Verhindert, dass Adobe-Clients (Flash/PDF) per crossdomain.xml
+  # Zugriff auf die Domain annehmen.
+  Header always set X-Permitted-Cross-Domain-Policies "none"
+
+  # ---- Nutzungsvorbehalt für Text und Data Mining (§ 44b Abs. 3 UrhG) ----
+  # Derselbe Vorbehalt, den robots.txt, /ai.txt und das <meta name="robots">
+  # jeder Seite tragen — hier zusätzlich im HTTP-Antwortkopf, damit er auch
+  # bei Bildern, PDFs und direkten Datei-Abrufen mitgeliefert wird, wo es
+  # kein HTML mit Meta-Tags gibt.
+  #
+  # Für Suchmaschinen ist das folgenlos: "noai" und "noimageai" sind für
+  # Google und Bing unbekannte Direktiven und werden nach Spezifikation
+  # ignoriert. Es steht hier bewusst KEIN "noindex" und KEIN "nosnippet" —
+  # das würde die Seite aus dem Index werfen.
+  Header always set X-Robots-Tag "noai, noimageai"
+  Header always set tdm-reservation "1"
+  Header always set tdm-policy "https://jungline.de/nutzungsbedingungen/"
 </IfModule>
 
 # ---------- 3) Fallback über mod_expires ----------
