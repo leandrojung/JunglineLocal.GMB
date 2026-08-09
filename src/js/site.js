@@ -826,7 +826,7 @@
       var t = e.target;
       if(!(t instanceof Element)) return;
       if(t.closest('input,textarea,select,iframe')){ setCurState('off'); return; }
-      if(t.closest('.ba__stage')){ setCurState('drag'); return; }
+      if(t.closest('.vnc__stage')){ setCurState('drag'); return; }
       if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
       var faqQ = t.closest('.faq__q');
       if(faqQ){ setCurState('view', faqQ.getAttribute('aria-expanded') === 'true' ? 'Schließen' : 'Öffnen'); return; }
@@ -898,65 +898,73 @@
     queueAurora();
   }
 
-  // Vorher-Nachher-Slider: eine Pointer-Logik für Maus & Touch,
-  // zusätzlich per Pfeiltasten bedienbar (role="slider").
-  var baStage = document.getElementById('baStage');
-  if(baStage){
-    var baPos = 50;
-    var baSet = function(p){
-      baPos = Math.max(0, Math.min(100, p));
-      baStage.style.setProperty('--pos', baPos + '%');
-      baStage.setAttribute('aria-valuenow', String(Math.round(baPos)));
-      baStage.setAttribute('aria-valuetext', 'Regler bei ' + Math.round(baPos) + ' %');
+  // Vorher-Nachher-Slider (Apple-Design): eine Pointer-Logik für Maus &
+  // Touch, zusätzlich per Pfeiltasten bedienbar (role="slider"). Der Griff
+  // bekommt zusätzlich einen kurzen Scale-Ausschlag waehrend des Ziehens.
+  var vncStage = document.getElementById('vncStage');
+  if(vncStage){
+    var vncGrip = document.getElementById('vncGrip');
+    var vncPos = 50;
+    var vncSet = function(p){
+      vncPos = Math.max(0, Math.min(100, p));
+      vncStage.style.setProperty('--pos', vncPos + '%');
+      vncStage.setAttribute('aria-valuenow', String(Math.round(vncPos)));
+      vncStage.setAttribute('aria-valuetext', 'Regler bei ' + Math.round(vncPos) + ' %');
     };
-    baSet(50);
-    var baFromEvent = function(e){
-      var r = baStage.getBoundingClientRect();
+    vncSet(50);
+    var vncFromEvent = function(e){
+      var r = vncStage.getBoundingClientRect();
       return ((e.clientX - r.left) / r.width) * 100;
     };
-    var baDrag = false, baRaf = null, baNext = 50;
-    var baQueue = function(p){
-      baNext = p;
-      if(!baRaf) baRaf = requestAnimationFrame(function(){ baSet(baNext); baRaf = null; });
+    var vncDrag = false, vncRaf = null, vncNext = 50;
+    var vncQueue = function(p){
+      vncNext = p;
+      if(!vncRaf) vncRaf = requestAnimationFrame(function(){ vncSet(vncNext); vncRaf = null; });
     };
-    baStage.addEventListener('pointerdown', function(e){
-      baDrag = true;
-      if(baStage.setPointerCapture){ try{ baStage.setPointerCapture(e.pointerId); }catch(_){} }
-      baQueue(baFromEvent(e));
+    vncStage.addEventListener('pointerdown', function(e){
+      vncDrag = true;
+      if(vncStage.setPointerCapture){ try{ vncStage.setPointerCapture(e.pointerId); }catch(_){} }
+      if(vncGrip) vncGrip.classList.add('is-dragging');
+      vncQueue(vncFromEvent(e));
       e.preventDefault();
     });
-    baStage.addEventListener('pointermove', function(e){ if(baDrag) baQueue(baFromEvent(e)); });
-    var baEnd = function(){ baDrag = false; };
-    baStage.addEventListener('pointerup', baEnd);
-    baStage.addEventListener('pointercancel', baEnd);
-    baStage.addEventListener('keydown', function(e){
-      if(e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ baSet(baPos - 5); e.preventDefault(); }
-      else if(e.key === 'ArrowRight' || e.key === 'ArrowUp'){ baSet(baPos + 5); e.preventDefault(); }
-      else if(e.key === 'Home'){ baSet(0); e.preventDefault(); }
-      else if(e.key === 'End'){ baSet(100); e.preventDefault(); }
+    vncStage.addEventListener('pointermove', function(e){ if(vncDrag) vncQueue(vncFromEvent(e)); });
+    var vncEnd = function(){
+      vncDrag = false;
+      if(vncGrip) vncGrip.classList.remove('is-dragging');
+    };
+    vncStage.addEventListener('pointerup', vncEnd);
+    vncStage.addEventListener('pointercancel', vncEnd);
+    vncStage.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ vncSet(vncPos - 5); e.preventDefault(); }
+      else if(e.key === 'ArrowRight' || e.key === 'ArrowUp'){ vncSet(vncPos + 5); e.preventDefault(); }
+      else if(e.key === 'Home'){ vncSet(0); e.preventDefault(); }
+      else if(e.key === 'End'){ vncSet(100); e.preventDefault(); }
     });
-    // Beim ersten Sichtbarwerden wippt der Griff einmal kurz, damit klar
-    // ist, dass man ziehen kann. Danach hat der Nutzer die Kontrolle.
+    // Beim ersten Sichtbarwerden schwingt der Griff einmal gedaempft aus,
+    // damit klar ist, dass man ziehen kann. Danach hat der Nutzer die
+    // Kontrolle.
     if(!reduce && 'IntersectionObserver' in window){
-      var baHinted = false;
-      var baIo = new IntersectionObserver(function(entries){
+      var vncHinted = false;
+      var vncIo = new IntersectionObserver(function(entries){
         entries.forEach(function(en){
-          if(!en.isIntersecting || baHinted) return;
-          baHinted = true; baIo.disconnect();
+          if(!en.isIntersecting || vncHinted) return;
+          vncHinted = true; vncIo.disconnect();
           setTimeout(function(){
-            var t0 = null, dur = 1500;
+            var t0 = null, dur = 1700;
             var swing = function(ts){
-              if(baDrag) return;
+              if(vncDrag) return;
               if(!t0) t0 = ts;
               var p = Math.min((ts - t0) / dur, 1);
-              baSet(50 + Math.sin(p * Math.PI * 2) * 12 * (1 - p));
+              var e = 1 - Math.pow(1 - p, 3);
+              vncSet(50 + Math.sin(e * Math.PI * 2) * 16 * (1 - e));
               if(p < 1) requestAnimationFrame(swing);
             };
             requestAnimationFrame(swing);
-          }, 600);
+          }, 1100);
         });
       }, {threshold:.55});
-      baIo.observe(baStage);
+      vncIo.observe(vncStage);
     }
   }
 
@@ -1150,7 +1158,7 @@
   if(!('IntersectionObserver' in window)) return;
 
   // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
-  var SKIP = '.logo-scene,.map,.bam,.rankcard,.ba__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
   var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';

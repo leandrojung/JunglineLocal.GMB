@@ -677,32 +677,118 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .result--you{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .result--you .result__body{flex:1;min-width:0;overflow:hidden}
 
-/* ============ VORHER-NACHHER-SLIDER ============ */
-.ba-slider{max-width:880px;margin:50px auto 0}
-.ba__stage{position:relative;height:470px;border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid var(--border-strong);cursor:ew-resize;
-  box-shadow:0 44px 100px -42px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);
-  touch-action:pan-y;user-select:none;-webkit-user-select:none}
-.ba__stage:focus-visible{outline:2px solid var(--green-bright);outline-offset:3px}
-.ba__side{position:absolute;inset:0;padding:22px;display:flex;align-items:center;justify-content:center}
-.ba__side--before{background:linear-gradient(158deg,var(--surface-2),var(--bg))}
-.ba__side--after{background:radial-gradient(560px circle at 72% 8%,rgba(var(--green-rgb),.16),transparent 60%),linear-gradient(158deg,rgba(var(--surface-2-rgb),.97),var(--bg));
-  clip-path:inset(0 0 0 var(--pos,50%))}
-.ba__label{position:absolute;top:16px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:.74rem;
-  letter-spacing:.1em;text-transform:uppercase;padding:7px 14px;border-radius:999px}
-.ba__label--before{left:16px;background:rgba(255,255,255,.07);color:var(--dim);border:1px solid var(--border)}
-.ba__label--after{right:16px;background:var(--grad-cta);color:var(--green-ink);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(var(--green-rgb),.6)}
-.ba__handle{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:0;pointer-events:none;z-index:3}
-.ba__line{position:absolute;top:0;bottom:0;left:-1px;width:2px;
-  background:linear-gradient(180deg,transparent,var(--green-bright) 16%,var(--green-bright) 84%,transparent)}
-.ba__grip{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;color:var(--green-ink);
-  background:var(--grad-cta);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 12px 30px -8px rgba(0,0,0,.7),0 6px 20px -6px rgba(var(--green-rgb),.55)}
-.ba__caption{text-align:center;color:var(--dim-2);font-size:.84rem;margin-top:16px}
+/* ============ VORHER-NACHHER-SLIDER (Apple-Design, Hintergrund in Website-Farben) ============
+   Bewusst eigene vnc__*-Klassen statt der frueheren ba__*-Klassen: das
+   Google-SERP-Mockup (.bam__*, direkt darunter) wird per JS auch vom
+   Wettbewerbsvergleich im GBP-Check (#gbp-compare) wiederverwendet — siehe
+   site.js. Ein Redesign dieser Karten haette also den GBP-Check mitgezogen.
+   .vnc__* ist komplett eigenstaendig, nichts sonst auf der Seite referenziert
+   diese Klassen.
 
-/* Google-SERP-Mockup im Slider (beide Seiten identisch aufgebaut) */
+   Trägt bewusst die Apple-Systemschrift statt Bricolage/Instrument Sans —
+   das Stueck soll als eigener, unverwechselbarer visueller Moment auffallen,
+   nicht wie ein weiterer Seitenabschnitt aussehen. Nur die drei grossen
+   Hintergrundflaechen (Buehnen-Panels) laufen in der Blau-Indigo-Palette der
+   Website statt in Apples neutralem Grau; Typografie, Kartenform, das
+   Apple-Blau als Akzentfarbe und alle Animationen bleiben Apple-original. */
+.vnc{max-width:940px;margin:50px auto 0;color:#1D1D1F;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif}
+.vnc__stage{position:relative;width:100%;height:min(600px,72vh);min-height:480px;border-radius:30px;overflow:hidden;
+  background:#FFF;border:1px solid rgba(0,0,0,.07);
+  box-shadow:0 2px 4px rgba(0,0,0,.04),0 24px 60px -24px rgba(0,0,0,.22),0 60px 120px -60px rgba(0,0,0,.18);
+  cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.vnc__stage:focus-visible{outline:2px solid #0071E3;outline-offset:3px}
+.vnc__side{position:absolute;inset:0;padding:34px 26px;display:flex;align-items:center;justify-content:center}
+.vnc__side--before{background:linear-gradient(180deg,var(--surface-2) 0%,var(--bg) 100%)}
+.vnc__side--after{background:radial-gradient(700px circle at 74% 6%,rgba(var(--green-bright-rgb),.09),transparent 62%),linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);
+  clip-path:inset(0 0 0 var(--pos,50%))}
+.vnc__label{position:absolute;top:20px;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 15px;border-radius:999px}
+.vnc__label--before{left:20px;font-weight:600;background:rgba(255,255,255,.72);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(0,0,0,.07);color:#6E6E73}
+.vnc__label--after{right:20px;font-weight:640;background:#0071E3;color:#FFF;box-shadow:0 10px 24px -10px rgba(0,113,227,.9)}
+.vnc__handle{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:0;pointer-events:none;z-index:3}
+.vnc__line{position:absolute;top:0;bottom:0;left:-1px;width:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.95) 12%,rgba(255,255,255,.95) 88%,rgba(255,255,255,0));
+  box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 2px 14px rgba(0,0,0,.22)}
+.vnc__grip{position:absolute;top:50%;left:0;transform:translate(-50%,-50%) scale(1);width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#1D1D1F;background:rgba(255,255,255,.7);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 1px rgba(255,255,255,.9) inset,0 10px 30px -8px rgba(0,0,0,.28);
+  transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease}
+.vnc__grip.is-dragging{transform:translate(-50%,-50%) scale(1.12);
+  box-shadow:0 1px 1px rgba(255,255,255,.9) inset,0 16px 40px -8px rgba(0,0,0,.34)}
+.vnc__caption{text-align:center;color:#86868B;font-size:14px;letter-spacing:-.005em;max-width:560px;margin:16px auto 0;text-wrap:pretty}
+
+/* Google-SERP-Mockup, eigene Kartensprache (groesser, staerker gerundet als
+   .bam__* — bewusst identisch zur Apple-Vorlage) */
+.vnc__card{width:min(560px,100%);display:flex;flex-direction:column;gap:14px}
+.vnc__pill{display:flex;align-items:center;gap:10px;background:#FFF;border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;padding:13px 18px;color:#86868B;font-size:15px;letter-spacing:-.01em;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.vnc__pill svg{flex:none;opacity:.75}
+.vnc__pill--after{color:#6E6E73;box-shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px -14px rgba(0,113,227,.5)}
+.vnc__map{position:relative;height:104px;border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.07);background:#F2EFE8}
+.vnc__map--empty{filter:saturate(.22) contrast(.96);opacity:.85}
+.vnc__map svg{position:absolute;inset:0;width:100%;height:100%}
+.vnc__pulse{position:absolute;top:50%;left:50%;width:26px;height:26px;border-radius:50%;
+  background:rgba(255,59,48,.32);animation:vncPulse 2.6s cubic-bezier(.16,1,.3,1) 1.1s infinite}
+.vnc__pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-88%);
+  filter:drop-shadow(0 7px 9px rgba(0,0,0,.28));animation:vncPinDrop .9s cubic-bezier(.2,1.1,.3,1) .5s both}
+.vnc__rows{display:flex;flex-direction:column;gap:10px}
+.vnc__row{display:flex;align-items:center;gap:14px;height:64px;padding:0 16px;border-radius:18px;
+  background:#FFF;border:1px solid rgba(0,0,0,.06)}
+.vnc__row--fade{opacity:.55}
+.vnc__row--missing{background:rgba(255,255,255,.5);border:1px dashed rgba(0,0,0,.16)}
+.vnc__row--you{background:linear-gradient(120deg,rgba(0,113,227,.1),rgba(0,113,227,.03));
+  border:1px solid rgba(0,113,227,.35);box-shadow:0 14px 34px -16px rgba(0,113,227,.55)}
+/* Einlauf-Choreografie nur auf der Nachher-Seite, nur die ersten drei Zeilen
+   (Punkte-Trenner und ausgeblendete sechste Zeile bleiben starr) — exakt wie
+   in der Apple-Vorlage. */
+.vnc__side--after .vnc__rows>.vnc__row:nth-child(1){animation:vncRise .7s .35s cubic-bezier(.16,1,.3,1) both}
+.vnc__side--after .vnc__rows>.vnc__row:nth-child(2){animation:vncRise .7s .45s cubic-bezier(.16,1,.3,1) both}
+.vnc__side--after .vnc__rows>.vnc__row:nth-child(3){animation:vncRise .7s .55s cubic-bezier(.16,1,.3,1) both}
+.vnc__rank{min-width:28px;height:28px;border-radius:9px;background:#F0F0F3;color:#86868B;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.vnc__rank--you{background:#0071E3;color:#FFF;font-weight:640}
+.vnc__rank--missing{color:#AEAEB2}
+.vnc__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.vnc__name{font-size:16px;font-weight:590;letter-spacing:-.015em;color:#1D1D1F;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vnc__row--you .vnc__name{font-weight:640}
+.vnc__name--dim{color:#86868B}
+.vnc__meta{display:flex;align-items:center;gap:7px;font-size:13px;color:#86868B;white-space:nowrap}
+.vnc__meta--dim{color:#AEAEB2}
+.vnc__stars{color:#F5A623;letter-spacing:1px;font-size:12px}
+.vnc__open{background:rgba(52,199,89,.14);color:#1B7F3B;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
+.vnc__chip{flex:none;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
+.vnc__chip--top{font-weight:640;background:#0071E3;color:#FFF}
+.vnc__chip--warn{background:rgba(255,59,48,.1);color:#D6301F}
+.vnc__dots{text-align:center;color:#C7C7CC;font-size:15px;letter-spacing:.42em;line-height:1;margin:1px 0}
+@keyframes vncPulse{0%{opacity:.5;transform:translate(-50%,-50%) scale(.6)}70%{opacity:0;transform:translate(-50%,-50%) scale(2.4)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.4)}}
+@keyframes vncPinDrop{0%{opacity:0;transform:translate(-50%,-190%) scale(.7)}60%{opacity:1;transform:translate(-50%,-80%) scale(1.04)}100%{opacity:1;transform:translate(-50%,-88%) scale(1)}}
+@keyframes vncRise{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+  .vnc__pulse{animation:none;opacity:0}
+  .vnc__pin{animation:none}
+  .vnc__side--after .vnc__rows>.vnc__row{animation:none}
+}
+@media(max-width:640px){
+  .vnc__stage{height:440px;min-height:0}
+  .vnc__side{padding:16px;padding-top:52px;align-items:flex-start}
+  .vnc__map{height:78px}
+  .vnc__row{height:52px;padding:0 11px;gap:9px}
+  .vnc__name{font-size:.88rem}
+  .vnc__meta{font-size:.72rem}
+  .vnc__chip{font-size:.66rem;padding:3px 8px}
+  .vnc__grip{width:46px;height:46px}
+  .vnc__label{top:12px;font-size:.68rem}
+  .vnc__label--before{left:12px}
+  .vnc__label--after{right:12px}
+}
+
+/* Google-SERP-Mockup im Slider (beide Seiten identisch aufgebaut) —
+   wird per JS auch vom Wettbewerbsvergleich im GBP-Check wiederverwendet
+   (site.js), deshalb hier unveraendert stehen lassen. */
 .bam{width:min(520px,100%);display:flex;flex-direction:column;gap:12px}
 .bam__pill{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border:1px solid var(--border);
   border-radius:999px;padding:9px 14px;color:var(--dim);font-size:.85rem}
@@ -747,17 +833,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .bam__row--missing .bam__rank{background:rgba(255,255,255,.04);color:var(--dim-2)}
 .bam__dots{text-align:center;color:var(--dim-2);font-size:.8rem;letter-spacing:.3em;line-height:1;margin:-2px 0}
 @media(max-width:640px){
-  .ba__stage{height:440px}
-  .ba__side{padding:16px;padding-top:52px;align-items:flex-start}
   .bam__map{height:72px}
   .bam__row{height:52px;padding:0 11px;gap:9px}
   .bam__name{font-size:.88rem}
   .bam__meta{font-size:.72rem}
   .bam__chip{font-size:.66rem;padding:3px 8px}
-  .ba__grip{width:46px;height:46px}
-  .ba__label{top:12px;font-size:.68rem}
-  .ba__label--before{left:12px}
-  .ba__label--after{right:12px}
 }
 
 /* ============ WEGE-MINI-VERGLEICH (in der Vorher-Nachher-Sektion) ============ */
@@ -1281,7 +1361,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 /* ============ CUSTOM CURSOR (nur pointer:fine, JS setzt .has-cursor) ============ */
 /* Pin-Animation nur über .btn--primary (alle CTAs); überall sonst normaler Systemcursor.
    Zum Reaktivieren des vollen Custom-Cursors:
-   1) cursor:none zurück auf body, a, button, [role="button"], .ba__stage
+   1) cursor:none zurück auf body, a, button, [role="button"], .vnc__stage
    2) Zeile einfügen: .cursor-seen .cur-dot,.cursor-seen .cur-ring{opacity:1} */
 @media (hover:hover) and (pointer:fine){
   html.has-cursor.cursor-seen .btn--primary{cursor:none}

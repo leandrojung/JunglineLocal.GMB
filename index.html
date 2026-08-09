@@ -357,122 +357,148 @@
       <h2 class="section-title-grad">Wer im Kartenbereich oben steht, bekommt den Anruf.</h2>
       <p>Unsichtbar oder Platz 1: Dieser Unterschied entscheidet, wen Ihre Kunden anrufen.</p>
     </div>
-    <div class="ba-slider" data-reveal>
-      <div class="ba__stage" id="baStage" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+    <div class="vnc" data-reveal>
+      <div class="vnc__stage" id="vncStage" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
            aria-label="Vergleich vorher und nachher: Regler ziehen, um das Profil bei Google vor und nach der Optimierung zu sehen">
         <!-- VORHER: unsichtbar, unvollständig -->
-        <div class="ba__side ba__side--before" aria-hidden="true">
-          <div class="bam">
-            <div class="bam__pill">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <div class="vnc__side vnc__side--before" aria-hidden="true">
+          <div class="vnc__card">
+            <div class="vnc__pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               Ihre Leistung · in Ihrer Stadt
             </div>
-            <div class="bam__map bam__map--empty">
-              <svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <path class="bam__road" d="M-10 24 Q 120 44 200 16 T 410 32"/>
-                <path class="bam__road" d="M40 106 Q 90 48 200 56 T 380 -8"/>
-                <path class="bam__road bam__road--thin" d="M-10 72 Q 150 56 250 76 T 410 64"/>
+            <div class="vnc__map vnc__map--empty">
+              <svg viewBox="0 0 400 104" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect x="-10" y="-10" width="420" height="124" fill="#F2EFE8"/>
+                <path d="M-10 88 Q 90 70 176 92 T 410 78 L410 114 L-10 114 Z" fill="#A9D8F5"/>
+                <path d="M-10 88 Q 90 70 176 92 T 410 78" fill="none" stroke="#8FC9EC" stroke-width="1"/>
+                <ellipse cx="66" cy="24" rx="54" ry="25" fill="#D3E7C0"/>
+                <ellipse cx="330" cy="86" rx="46" ry="20" fill="#D3E7C0"/>
+                <rect x="196" y="8" width="46" height="26" rx="3" fill="#E9E5DC"/>
+                <rect x="256" y="16" width="34" height="20" rx="3" fill="#E9E5DC"/>
+                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#E3DDD1" stroke-width="11" stroke-linecap="round"/>
+                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#E3DDD1" stroke-width="9" stroke-linecap="round"/>
+                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#E7E2D8" stroke-width="5" stroke-linecap="round"/>
+                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
+                <path d="M118 -6 L104 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
+                <path d="M118 -6 L104 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M300 -6 L288 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
+                <path d="M300 -6 L288 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="bam__rows">
-              <div class="bam__row bam__row--comp">
-                <span class="bam__rank">1</span>
-                <span class="bam__body">
-                  <span class="bam__name">Meridian Dienstleistungen</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,6 · <span class="bam__count">218 Rezensionen</span></span>
+            <div class="vnc__rows">
+              <div class="vnc__row">
+                <span class="vnc__rank">1</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Meridian Dienstleistungen</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,6 · 218 Rezensionen</span>
                 </span>
               </div>
-              <div class="bam__row bam__row--comp">
-                <span class="bam__rank">2</span>
-                <span class="bam__body">
-                  <span class="bam__name">Berger &amp; Partner</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,4 · <span class="bam__count">146 Rezensionen</span></span>
+              <div class="vnc__row">
+                <span class="vnc__rank">2</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Berger &amp; Partner</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,4 · 146 Rezensionen</span>
                 </span>
               </div>
-              <div class="bam__row bam__row--comp">
-                <span class="bam__rank">3</span>
-                <span class="bam__body">
-                  <span class="bam__name">Stadtwerk Profis</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,7 · <span class="bam__count">321 Rezensionen</span></span>
+              <div class="vnc__row">
+                <span class="vnc__rank">3</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Stadtwerk Profis</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,7 · 321 Rezensionen</span>
                 </span>
               </div>
-              <div class="bam__dots">· · ·</div>
-              <div class="bam__row bam__row--missing">
-                <span class="bam__rank">?</span>
-                <span class="bam__body">
-                  <span class="bam__name">Ihr Unternehmen</span>
-                  <span class="bam__meta">Keine Bewertungen · Profil unvollständig</span>
+              <div class="vnc__dots">···</div>
+              <div class="vnc__row vnc__row--missing">
+                <span class="vnc__rank vnc__rank--missing">?</span>
+                <span class="vnc__body">
+                  <span class="vnc__name vnc__name--dim">Ihr Unternehmen</span>
+                  <span class="vnc__meta vnc__meta--dim">Keine Bewertungen · Profil unvollständig</span>
                 </span>
-                <span class="bam__chip bam__chip--warn">Nicht sichtbar</span>
+                <span class="vnc__chip vnc__chip--warn">Nicht sichtbar</span>
               </div>
             </div>
           </div>
-          <span class="ba__label ba__label--before">Vorher</span>
+          <span class="vnc__label vnc__label--before">Vorher</span>
         </div>
         <!-- NACHHER: Platz 1 im Local Pack -->
-        <div class="ba__side ba__side--after" aria-hidden="true">
-          <div class="bam">
-            <div class="bam__pill">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <div class="vnc__side vnc__side--after" id="vncAfter" aria-hidden="true">
+          <div class="vnc__card">
+            <div class="vnc__pill vnc__pill--after">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               Ihre Leistung · in Ihrer Stadt
             </div>
-            <div class="bam__map">
-              <svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <path class="bam__road" d="M-10 24 Q 120 44 200 16 T 410 32"/>
-                <path class="bam__road" d="M40 106 Q 90 48 200 56 T 380 -8"/>
-                <path class="bam__road bam__road--thin" d="M-10 72 Q 150 56 250 76 T 410 64"/>
+            <div class="vnc__map">
+              <svg viewBox="0 0 400 104" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect x="-10" y="-10" width="420" height="124" fill="#F2EFE8"/>
+                <path d="M-10 88 Q 90 70 176 92 T 410 78 L410 114 L-10 114 Z" fill="#A9D8F5"/>
+                <path d="M-10 88 Q 90 70 176 92 T 410 78" fill="none" stroke="#8FC9EC" stroke-width="1"/>
+                <ellipse cx="66" cy="24" rx="54" ry="25" fill="#D3E7C0"/>
+                <ellipse cx="330" cy="86" rx="46" ry="20" fill="#D3E7C0"/>
+                <rect x="196" y="8" width="46" height="26" rx="3" fill="#E9E5DC"/>
+                <rect x="256" y="16" width="34" height="20" rx="3" fill="#E9E5DC"/>
+                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#E3DDD1" stroke-width="11" stroke-linecap="round"/>
+                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#E3DDD1" stroke-width="9" stroke-linecap="round"/>
+                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#E7E2D8" stroke-width="5" stroke-linecap="round"/>
+                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
+                <path d="M118 -6 L104 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
+                <path d="M118 -6 L104 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M300 -6 L288 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
+                <path d="M300 -6 L288 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
-              <span class="bam__pin">
-                <svg width="24" height="31" viewBox="0 0 28 36" fill="none" aria-hidden="true">
-                  <path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#55D396"/>
-                  <circle cx="14" cy="14" r="5.2" fill="#040605"/>
-                </svg>
+              <span class="vnc__pulse" aria-hidden="true"></span>
+              <span class="vnc__pin" aria-hidden="true">
+                <svg width="26" height="34" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#FF3B30"/><path d="M14 1.4C7.1 1.4 1.4 7.03 1.4 14c0 5 3.6 11.1 7.2 15.9C10.9 32.5 14 35.9 14 35.9V1.4z" fill="#FFFFFF" opacity=".12"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
               </span>
             </div>
-            <div class="bam__rows">
-              <div class="bam__row bam__row--you">
-                <span class="bam__rank bam__rank--you">1</span>
-                <span class="bam__body">
-                  <span class="bam__name">Ihr Unternehmen</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,9 · <span class="bam__open">Jetzt geöffnet</span></span>
+            <div class="vnc__rows">
+              <div class="vnc__row vnc__row--you">
+                <span class="vnc__rank vnc__rank--you">1</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Ihr Unternehmen</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,9 · <span class="vnc__open">Jetzt geöffnet</span></span>
                 </span>
-                <span class="bam__chip bam__chip--top">▲ Platz 1</span>
+                <span class="vnc__chip vnc__chip--top">▲ Platz 1</span>
               </div>
-              <div class="bam__row bam__row--comp">
-                <span class="bam__rank">2</span>
-                <span class="bam__body">
-                  <span class="bam__name">Meridian Dienstleistungen</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,6 · <span class="bam__count">218 Rezensionen</span></span>
-                </span>
-              </div>
-              <div class="bam__row bam__row--comp">
-                <span class="bam__rank">3</span>
-                <span class="bam__body">
-                  <span class="bam__name">Stadtwerk Profis</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,7 · <span class="bam__count">321 Rezensionen</span></span>
+              <div class="vnc__row">
+                <span class="vnc__rank">2</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Meridian Dienstleistungen</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,6 · 218 Rezensionen</span>
                 </span>
               </div>
-              <div class="bam__dots">· · ·</div>
-              <div class="bam__row bam__row--comp bam__row--fade">
-                <span class="bam__rank">6</span>
-                <span class="bam__body">
-                  <span class="bam__name">Berger &amp; Partner</span>
-                  <span class="bam__meta"><span class="bam__stars">★★★★★</span> 4,4 · <span class="bam__count">146 Rezensionen</span></span>
+              <div class="vnc__row">
+                <span class="vnc__rank">3</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Stadtwerk Profis</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,7 · 321 Rezensionen</span>
+                </span>
+              </div>
+              <div class="vnc__dots">···</div>
+              <div class="vnc__row vnc__row--fade">
+                <span class="vnc__rank">6</span>
+                <span class="vnc__body">
+                  <span class="vnc__name">Berger &amp; Partner</span>
+                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,4 · 146 Rezensionen</span>
                 </span>
               </div>
             </div>
           </div>
-          <span class="ba__label ba__label--after">Nachher</span>
+          <span class="vnc__label vnc__label--after">Nachher</span>
         </div>
         <!-- Griff -->
-        <div class="ba__handle" aria-hidden="true">
-          <span class="ba__line"></span>
-          <span class="ba__grip">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>
+        <div class="vnc__handle" id="vncHandle" aria-hidden="true">
+          <span class="vnc__line"></span>
+          <span class="vnc__grip" id="vncGrip">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
           </span>
         </div>
       </div>
-      <p class="ba__caption">Regler ziehen: links vorher, rechts nachher · Beispieldarstellung mit illustrativen Beispieldaten</p>
+      <p class="vnc__caption">Regler ziehen: links vorher, rechts nachher · Beispieldarstellung mit illustrativen Beispieldaten</p>
     </div>
     <div class="ways" data-reveal>
       <div class="way">
