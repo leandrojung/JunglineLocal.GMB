@@ -1285,3 +1285,88 @@
   var items = document.querySelectorAll('.mobile-menu a');
   Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
 })();
+
+/* ============================================================
+   GBP-SHOWCASE — Skalierung der Mockups + Animations-Zyklus
+   ============================================================ */
+(function(){
+  var stage = document.getElementById('gspStage');
+  if(!stage) return;
+
+  var screens = stage.querySelectorAll('[data-gsp-screen]');
+  var count   = document.getElementById('gspCount');
+  var FRAME_W = 414;
+  var raf = null, timer = null, pending = false;
+
+  // Die Mockups sind in festen Pixeln gebaut. Hier wird aus der wirklich
+  // verfügbaren Spaltenbreite der exakte Faktor berechnet; site.css hat dafür
+  // nur grobe Breakpoint-Stufen als Fallback.
+  function fit(){
+    pending = false;
+    Array.prototype.forEach.call(screens, function(el){
+      var avail = el.parentNode.clientWidth;
+      if(!avail) return;
+      var s = String(Math.round(Math.min(1, avail / FRAME_W) * 1000) / 1000);
+      // Nur schreiben, wenn sich etwas ändert — sonst tickt der
+      // ResizeObserver sich selbst an.
+      if(el.style.getPropertyValue('--gsp-s') !== s) el.style.setProperty('--gsp-s', s);
+    });
+  }
+  function schedule(){ if(pending) return; pending = true; requestAnimationFrame(fit); }
+
+  // Bewertungszähler des Gewinner-Profils läuft von 9 auf 187 hoch.
+  function countUp(){
+    if(!count) return;
+    var start = performance.now(), dur = 1400;
+    (function step(t){
+      var p = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      count.textContent = Math.round(9 + (187 - 9) * e);
+      if(p < 1) raf = requestAnimationFrame(step);
+    })(start);
+  }
+
+  // Ein Durchlauf: alle Teil-Animationen zurückspulen und gemeinsam starten.
+  // Bewusst kein Dauerloop — die Erklärtexte blenden sich erst nach gut sechs
+  // Sekunden ein, ein Neustart alle paar Sekunden würde sie immer wieder
+  // wegnehmen. Die Choreografie läuft einmal, wenn der Block ins Bild kommt,
+  // und bleibt danach im Endzustand stehen.
+  function run(){
+    if(timer) clearTimeout(timer);
+    if(raf) cancelAnimationFrame(raf);
+    if(stage.getAnimations){
+      stage.getAnimations({subtree:true}).forEach(function(a){
+        try{ a.cancel(); a.play(); }catch(e){}
+      });
+    }
+    stage.style.animationPlayState = 'running';
+    if(count) count.textContent = '9';
+    timer = setTimeout(countUp, 5100);
+  }
+
+  fit();
+  if(window.ResizeObserver) new ResizeObserver(schedule).observe(stage);
+  window.addEventListener('resize', schedule, {passive:true});
+
+  // Bei prefers-reduced-motion gar nicht erst starten: site.css schaltet dort
+  // global *{animation:none} und die Pausen-Regel unten greift nicht, der Block
+  // steht also bereits vollständig und ruhig im Grundzustand da — inklusive der
+  // 187 Bewertungen, die so im Markup stehen.
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Ohne IntersectionObserver gäbe es keinen Startschuss — der Block bliebe
+  // auf dem ersten Bild der Choreografie stehen, also leer.
+  if(!window.IntersectionObserver){ run(); return; }
+
+  var seen = false;
+  new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        if(!seen){ seen = true; run(); }
+      }else{
+        // Verlässt der Block das Bild komplett, darf er beim nächsten Mal
+        // wieder von vorn erzählen.
+        seen = false;
+      }
+    });
+  }, {threshold:.15}).observe(stage);
+})();
