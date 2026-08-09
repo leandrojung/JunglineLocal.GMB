@@ -240,22 +240,29 @@ $bauen = static function (string $inhalt) use ($conf): array {
     return ['html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $inhalt), 'text' => $conf['text']];
 };
 
+// Runde 11 — Gegenprobe zum Befund aus Runde 10. Dort kam von vier
+// Bausteinproben nur die ohne Kalender-Absatz an. Da Runde 9 den Link
+// bereits entlastet hatte (mit /ics statt /calendar starb dieselbe Mail),
+// blieb als Ursache die Aufzählung "(Google, Apple oder Outlook)" neben dem
+// Link — drei Markennamen unmittelbar an einer Adresse, eine der
+// geläufigsten Phishing-Signaturen.
+//
+// AA verschickt die reparierte Bestätigung, BB dieselbe Mail mit wieder
+// eingesetzten Markennamen. Kommt AA an und BB nicht, ist die Ursache
+// belegt und die Reparatur zugleich bestätigt.
+$blkKalMarken = '<p style="margin:18px 0 0;font-size:13px;">'
+    . '<a href="' . bkEsc(bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($sample['token']))
+    . '" style="color:' . BK_MAIL_ACCENT . ';font-weight:600;">Termin zum Kalender hinzufügen</a>'
+    . ' (Google, Apple oder Outlook)</p>';
+
 $variants = [
-    'Z1 — ohne Begrüßung und Einleitungssatz' => [
-        'subject' => 'Z1: ' . $conf['subject'],
-        'bkmail' => $bauen($blkBox . $blkKal . $blkAbsage . $blkGruem),
+    'AA — reparierte Bestätigung, unverändert wie sie jetzt verschickt wird' => [
+        'subject' => 'AA: ' . $conf['subject'],
+        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
     ],
-    'Z2 — ohne den Kalender-Absatz' => [
-        'subject' => 'Z2: ' . $conf['subject'],
-        'bkmail' => $bauen($blkGruss . $blkBox . $blkAbsage . $blkGruem),
-    ],
-    'Z3 — ohne den Absage-Absatz' => [
-        'subject' => 'Z3: ' . $conf['subject'],
-        'bkmail' => $bauen($blkGruss . $blkBox . $blkKal . $blkGruem),
-    ],
-    'Z4 — ohne den Schlussgruß' => [
-        'subject' => 'Z4: ' . $conf['subject'],
-        'bkmail' => $bauen($blkGruss . $blkBox . $blkKal . $blkAbsage),
+    'BB — dieselbe Mail, aber mit den Markennamen zurück im Kalender-Absatz' => [
+        'subject' => 'BB: ' . $conf['subject'],
+        'bkmail' => $bauen($blkGruss . $blkBox . $blkKalMarken . $blkAbsage . $blkGruem),
     ],
 ];
 

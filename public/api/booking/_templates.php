@@ -106,14 +106,19 @@ function bkEmailFactBox(array $booking): string {
  */
 function bkEmailCalendarLinks(array $booking): string {
     $url = bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
-    return '<p style="margin:18px 0 0;font-size:13px;">'
-        . '<a href="' . bkEsc($url) . '" style="color:' . BK_MAIL_ACCENT . ';font-weight:600;">Termin zum Kalender hinzufügen</a>'
-        . ' (Google, Apple oder Outlook)</p>';
+    // Ohne die Aufzählung "(Google, Apple oder Outlook)": Drei große
+    // Markennamen unmittelbar neben einem Link sind eine der geläufigsten
+    // Phishing-Signaturen, und genau dieser Absatz hat die Bestätigung die
+    // Zustellung gekostet — nachgewiesen in Runde 10 der Diagnose, wo die
+    // Mail ohne ihn als einzige ankam. Welche Kalender möglich sind, sagt
+    // die verlinkte Seite; in der Mail steht es nüchtern.
+    return '<p style="margin:18px 0 0;font-size:13px;">Termin eintragen: '
+        . '<a href="' . bkEsc($url) . '" style="color:' . BK_MAIL_ACCENT . ';">Kalendereintrag öffnen</a></p>';
 }
 
 /** Derselbe eine Link für die Nur-Text-Fassung. */
 function bkTextCalendarLinks(array $booking): string {
-    return "Zum Kalender hinzufügen (Google, Apple, Outlook):\n"
+    return "Termin eintragen:\n"
         . '  ' . bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
 }
 
