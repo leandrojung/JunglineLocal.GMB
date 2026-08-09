@@ -30,11 +30,10 @@ const BK_DAY_END      = '17:00'; // letzter Slot beginnt BK_SLOT_MIN davor
 const BK_BUFFER_MIN   = 0;       // Puffer vor/nach einem Termin
 
 // Schutz gegen automatisierte Massenbuchungen: mehr als so viele
-// Buchungen pro IP und Tag werden abgelehnt.
-//
-// TEMPORÄR AUF 30 ANGEHOBEN — laufende Testphase der E-Mail-/Google-Fixes.
-// Nach dem Testen wieder auf 3 zurücksetzen (siehe TERMINBUCHUNG.md).
-const BK_RATE_PER_IP_DAY = 30;
+// Buchungen pro IP und Tag werden abgelehnt. Wer einen bestehenden Termin
+// verschiebt, ist davon ausgenommen (siehe book.php) — sonst stünde ein
+// Kunde nach dem dritten Verschieben ganz ohne Termin da.
+const BK_RATE_PER_IP_DAY = 3;
 
 const BK_TITLE    = 'Kostenloses Erstgespräch — JunglineLocal';
 const BK_DURATION_LABEL = '30 Minuten';
