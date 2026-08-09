@@ -237,8 +237,58 @@ function dropSameOriginCrossorigin() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Entfernt HTML-Kommentare aus dem fertigen Build.
+//
+// Warum: Mehrere Seiten tragen vorbereitete, bewusst auskommentierte Bausteine
+// (die Case-Study-Sektion und das Zertifizierungs-Badge auf der Startseite)
+// samt Arbeitsanweisungen. Die sollen im QUELLTEXT bleiben — dort sind sie
+// eine fertige Vorlage, die nur noch eingeschaltet werden muss. Im AUSGE-
+// LIEFERTEN HTML haben sie nichts verloren: Sie sind rund 23 KB über alle
+// Seiten, die jeder Besucher mitlädt, und sie zeigen jedem, der "Seitenquell-
+// text anzeigen" klickt, interne Notizen wie "PLATZHALTER" oder "KEIN
+// Platzhalter-Badge ohne echte Zertifizierung anzeigen".
+//
+// Zwei Vorsichtsmaßnahmen:
+//   1. Inhalte von <script>, <style>, <pre> und <textarea> werden vorher
+//      herausgenommen und danach unverändert wieder eingesetzt. Stünde in
+//      einem Skript je eine Zeichenkette mit "<!--" oder "-->" (in JavaScript
+//      völlig zulässig), würde ein naives Muster mitten im Code schneiden und
+//      die Seite zerstören. In <pre> und <textarea> sind zusätzlich die
+//      Zeilenumbrüche bedeutungstragend — sie dürfen nicht zusammengefasst
+//      werden. Beide sind hier aktuell leer; die Absicherung verhindert, dass
+//      daraus ein Fehler wird, sobald dort einmal Text steht.
+//   2. Bedingte Kommentare (<!--[if …]>) und ausdrücklich markierte
+//      Kommentare (<!--! …>) bleiben stehen.
+//
+// apply:'build' — im Dev-Server bleiben die Kommentare sichtbar, dort sind sie
+// beim Arbeiten hilfreich.
+// ---------------------------------------------------------------------------
+function stripHtmlComments() {
+  return {
+    name: 'jungline-strip-html-comments',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html) {
+        // Platzhalter mit NUL-Zeichen (\u0000): das kann in HTML-Text nicht
+        // vorkommen, der Ruecktausch trifft also nie echten Seiteninhalt.
+        const geschuetzt = []
+        let out = html.replace(/<(script|style|pre|textarea)\b[^>]*>[\s\S]*?<\/\1>/gi, (treffer) => {
+          geschuetzt.push(treffer)
+          return `\u0000KEEP${geschuetzt.length - 1}\u0000`
+        })
+        out = out.replace(/<!--(?!\[if|!)[\s\S]*?-->/g, '')
+        // Die durch das Entfernen entstandenen Leerzeilen zusammenfassen.
+        out = out.replace(/\n[ \t]*(?:\n[ \t]*)+/g, '\n\n')
+        return out.replace(/\u0000KEEP(\d+)\u0000/g, (_, i) => geschuetzt[Number(i)])
+      },
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [sharedShell(), dropSameOriginCrossorigin(), copyrightMetadata()],
+  plugins: [sharedShell(), dropSameOriginCrossorigin(), copyrightMetadata(), stripHtmlComments()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
