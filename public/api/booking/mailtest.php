@@ -160,15 +160,10 @@ function bkTestSmtp(string $toEmail, string $subject, array $mime, string $envel
 // ---------------------------------------------------------------------
 // Varianten
 //
-// Runde 1 hat gezeigt: ohne Anhang kommt die Mail an, mit .ics nicht.
-// Die Datei selbst ist einwandfrei (alle Zeilen unter 75 Bytes, Struktur
-// vom MIME-Parser ohne Beanstandung). Bleibt die Bedeutung des Anhangs:
-// METHOD:REQUEST ist keine Kalenderdatei, sondern eine förmliche Einladung
-// mit Zusage-Aufforderung. Damit lassen sich fremde Kalender befüllen —
-// entsprechend streng gehen Filter damit um.
-//
-// Runde 2 trennt deshalb die drei Dinge, die daran hängen können:
-// der MIME-Typ, die Einladungs-Semantik und die Teilnehmerzeile.
+// Hier stehen die Mails, die geprueft werden sollen. Sie duerfen sich immer
+// nur in genau einer Sache unterscheiden — sonst sagt das Ergebnis nicht,
+// woran es lag. Zwei Zeilen genuegen fuer einen Vergleich: eine mit der
+// alten, eine mit der neuen Fassung.
 // ---------------------------------------------------------------------
 
 $stamp = date('H:i:s');
@@ -185,19 +180,10 @@ $sample = [
     'message' => '',
 ];
 
-// Runde 7 — die Abschlussrunde. Die Regel aus sechs Runden: Der Filter des
-// Hosters verwirft (a) jede Mail mit Anhang und (b) jede Mail ab VIER
-// Web-Adressen im Textteil. 0–3 Adressen kamen ausnahmslos an (L=1, P=2,
-// R=3, Absage=2), 4–5 ausnahmslos nicht (alte Bestätigung). Die Vorlage
-// wurde daraufhin auf drei Adressen gebracht (eine Kalender-Landeseite
-// statt zwei Kalender-Links, Signatur ohne Web-Adresse).
-//
-// Diese Runde schließt die letzte Lücke zwischen Test und Wirklichkeit:
-// S verschickt die ECHTE Vorlage über den ECHTEN Versandweg bkMail() —
-// exakt der Aufruf aus book.php, samt Reply-To und Empfängername, die der
-// Testversand hier nie gesetzt hat. R bleibt als bewährte Referenz, T
-// schickt R-Inhalt über den echten Weg. Damit trennt eine einzige Runde
-// Vorlage und Versandweg sauber auf, egal wie sie ausgeht.
+// Die echten Vorlagen und daneben eine Referenzmail, die sich ueber alle
+// Diagnoserunden hinweg als zustellbar erwiesen hat. Sie ist als Vergleich
+// nuetzlich: Kommt sie an und die Vorlage nicht, liegt es an der Vorlage;
+// kommt beides nicht an, liegt es am Server oder am Versandweg.
 $conf = bkMailConfirmation($sample);
 
 $rHtml = bkEmailShell('Test R', 'Ihr Termin steht',
@@ -212,59 +198,25 @@ $rText = "Test R\n" . bkTextFacts($sample)
     . "\nKalenderdatei: " . bkIcsUrl($sample['token'])
     . "\nAbsagen: " . bkManageUrl($sample['token']);
 
-// Runde 8: Runde 7 hat den Versandweg entlastet (T über bkMail kam an) und
-// die Vorlage belastet (S über denselben Weg nicht). Der Byte-Vergleich
-// S↔T ließ vor allem zwei Gewichte übrig: den Betreff im Datum-Uhrzeit-
-// Muster ("Ihr Termin am 10.08.2026 um 19:30 Uhr" — Signatur einschlägiger
-// Terminbestätigungs-Spamwellen) und den versteckten Vorschautext, der vom
-// sichtbaren Inhalt abwich. Beides ist aus der Vorlage entfernt; U prüft
-// die neue Vorlage, V dieselbe Vorlage mit dem alten Betreff — kommt U an
-// und V nicht, war der Betreff das entscheidende Gewicht.
-// Runde 10: Runde 9 hat den Textteil entlastet (Y3 mit Bestätigungstext kam
-// an) und das HTML überführt (Y2 und Y4 mit Bestätigungs-HTML starben; damit
-// ist auch der /calendar-Link entlastet). Das HTML der Bestätigung besteht
-// aus vier Bausteinen über der gemeinsamen Terminbox. Jede Variante lässt
-// genau einen davon weg — der Textteil bleibt überall gleich, damit nur ein
-// einziges Ding variiert.
-$manage = bkManageUrl($sample['token']);
-
-$blkGruss = '<p style="margin:0 0 4px;">Hallo Diagnose,</p>'
-    . '<p style="margin:0;">Ihr Termin steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>';
-$blkBox    = bkEmailFactBox($sample);
-$blkKal    = bkEmailCalendarLinks($sample);
-$blkAbsage = '<p style="margin:24px 0 0;font-size:13px;">Passt der Termin doch nicht? '
-    . '<a href="' . bkEsc($manage) . '" style="color:' . BK_MAIL_ACCENT . ';">Hier absagen oder verschieben</a> — '
-    . 'kein Problem, und ohne dass Sie mir schreiben müssen.</p>';
-$blkGruem  = '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
-
-/** Setzt eine Testmail aus den Bausteinen zusammen. */
-$bauen = static function (string $inhalt) use ($conf): array {
-    return ['html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $inhalt), 'text' => $conf['text']];
-};
-
-// Runde 11 — Gegenprobe zum Befund aus Runde 10. Dort kam von vier
-// Bausteinproben nur die ohne Kalender-Absatz an. Da Runde 9 den Link
-// bereits entlastet hatte (mit /ics statt /calendar starb dieselbe Mail),
-// blieb als Ursache die Aufzählung "(Google, Apple oder Outlook)" neben dem
-// Link — drei Markennamen unmittelbar an einer Adresse, eine der
-// geläufigsten Phishing-Signaturen.
-//
-// AA verschickt die reparierte Bestätigung, BB dieselbe Mail mit wieder
-// eingesetzten Markennamen. Kommt AA an und BB nicht, ist die Ursache
-// belegt und die Reparatur zugleich bestätigt.
-$blkKalMarken = '<p style="margin:18px 0 0;font-size:13px;">'
-    . '<a href="' . bkEsc(bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($sample['token']))
-    . '" style="color:' . BK_MAIL_ACCENT . ';font-weight:600;">Termin zum Kalender hinzufügen</a>'
-    . ' (Google, Apple oder Outlook)</p>';
+// Die Vorlagen so, wie der Betrieb sie verschickt. Wer an ihnen arbeitet und
+// danach unsicher ist, ob sie die drei Zustellregeln noch einhalten (kein
+// Anhang, hoechstens drei Web-Adressen im Textteil, keine Markennamen neben
+// einem Link — siehe TERMINBUCHUNG.md), setzt hier die alte und die neue
+// Fassung nebeneinander und weiss es nach einem Lauf.
+$erinnerung = bkMailReminder($sample);
 
 $variants = [
-    'AA — reparierte Bestätigung, unverändert wie sie jetzt verschickt wird' => [
+    'AA — Bestätigung, wie sie bei einer echten Buchung verschickt wird' => [
         'subject' => 'AA: ' . $conf['subject'],
         'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
     ],
-    'BB — dieselbe Mail, aber mit den Markennamen zurück im Kalender-Absatz' => [
-        'subject' => 'BB: ' . $conf['subject'],
-        'bkmail' => $bauen($blkGruss . $blkBox . $blkKalMarken . $blkAbsage . $blkGruem),
+    // Die Erinnerung ist die einzige Mailart, die im Betrieb noch nie
+    // ausgelöst wurde — sie hängt am Cronjob und braucht einen Termin, der
+    // weniger als 24 Stunden entfernt ist. Hier lässt sie sich sofort prüfen,
+    // statt beim ersten Ernstfall auf gut Glück zu vertrauen.
+    'CC — Erinnerungsmail (läuft sonst nur über den Cronjob)' => [
+        'subject' => 'CC: ' . $erinnerung['subject'],
+        'bkmail' => ['html' => $erinnerung['html'], 'text' => $erinnerung['text']],
     ],
 ];
 
