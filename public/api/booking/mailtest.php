@@ -218,33 +218,44 @@ $rText = "Test R\n" . bkTextFacts($sample)
 // sichtbaren Inhalt abwich. Beides ist aus der Vorlage entfernt; U prüft
 // die neue Vorlage, V dieselbe Vorlage mit dem alten Betreff — kommt U an
 // und V nicht, war der Betreff das entscheidende Gewicht.
-// Runde 9: Runde 8 hat den Betreff entlastet (W kam mit dem neuen Betreff
-// an) und den Inhalt überführt (U und V starben mit beiden Betreffen). Eine
-// Mail besteht aus zwei Teilen, die Filter getrennt bewerten — HTML und
-// reiner Text. Diese Runde halbiert genau dort und prüft zusätzlich den
-// einzigen inhaltlichen Unterschied, der kein bloßer Wortlaut ist: die
-// Bestätigung verlinkt /api/booking/calendar, die Referenz /api/booking/ics.
-$icsUrl  = bkIcsUrl($sample['token']);
-$calUrl  = bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($sample['token']);
-$confHtmlIcs = str_replace(bkEsc($calUrl), bkEsc($icsUrl), $conf['html']);
-$confTextIcs = str_replace($calUrl, $icsUrl, $conf['text']);
+// Runde 10: Runde 9 hat den Textteil entlastet (Y3 mit Bestätigungstext kam
+// an) und das HTML überführt (Y2 und Y4 mit Bestätigungs-HTML starben; damit
+// ist auch der /calendar-Link entlastet). Das HTML der Bestätigung besteht
+// aus vier Bausteinen über der gemeinsamen Terminbox. Jede Variante lässt
+// genau einen davon weg — der Textteil bleibt überall gleich, damit nur ein
+// einziges Ding variiert.
+$manage = bkManageUrl($sample['token']);
+
+$blkGruss = '<p style="margin:0 0 4px;">Hallo Diagnose,</p>'
+    . '<p style="margin:0;">Ihr Termin steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>';
+$blkBox    = bkEmailFactBox($sample);
+$blkKal    = bkEmailCalendarLinks($sample);
+$blkAbsage = '<p style="margin:24px 0 0;font-size:13px;">Passt der Termin doch nicht? '
+    . '<a href="' . bkEsc($manage) . '" style="color:' . BK_MAIL_ACCENT . ';">Hier absagen oder verschieben</a> — '
+    . 'kein Problem, und ohne dass Sie mir schreiben müssen.</p>';
+$blkGruem  = '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
+
+/** Setzt eine Testmail aus den Bausteinen zusammen. */
+$bauen = static function (string $inhalt) use ($conf): array {
+    return ['html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $inhalt), 'text' => $conf['text']];
+};
 
 $variants = [
-    'Y1 — Bestätigung unverändert (Kontrolle, erwartet: kommt nicht an)' => [
-        'subject' => 'Y1: ' . $conf['subject'],
-        'bkmail' => ['html' => $conf['html'], 'text' => $conf['text']],
+    'Z1 — ohne Begrüßung und Einleitungssatz' => [
+        'subject' => 'Z1: ' . $conf['subject'],
+        'bkmail' => $bauen($blkBox . $blkKal . $blkAbsage . $blkGruem),
     ],
-    'Y2 — HTML der Bestätigung, Textteil der Referenz' => [
-        'subject' => 'Y2: ' . $conf['subject'],
-        'bkmail' => ['html' => $conf['html'], 'text' => $rText],
+    'Z2 — ohne den Kalender-Absatz' => [
+        'subject' => 'Z2: ' . $conf['subject'],
+        'bkmail' => $bauen($blkGruss . $blkBox . $blkAbsage . $blkGruem),
     ],
-    'Y3 — HTML der Referenz, Textteil der Bestätigung' => [
-        'subject' => 'Y3: ' . $conf['subject'],
-        'bkmail' => ['html' => $rHtml, 'text' => $conf['text']],
+    'Z3 — ohne den Absage-Absatz' => [
+        'subject' => 'Z3: ' . $conf['subject'],
+        'bkmail' => $bauen($blkGruss . $blkBox . $blkKal . $blkGruem),
     ],
-    'Y4 — Bestätigung, aber /calendar-Link durch /ics ersetzt' => [
-        'subject' => 'Y4: ' . $conf['subject'],
-        'bkmail' => ['html' => $confHtmlIcs, 'text' => $confTextIcs],
+    'Z4 — ohne den Schlussgruß' => [
+        'subject' => 'Z4: ' . $conf['subject'],
+        'bkmail' => $bauen($blkGruss . $blkBox . $blkKal . $blkAbsage),
     ],
 ];
 
