@@ -173,21 +173,34 @@ Mailserver — jede Zeile, inklusive der Antwort auf den Schlusspunkt, in der
 die Vorgangsnummer des Hosters steht. Damit lässt sich unterscheiden, ob eine
 Mail schon beim Absenden scheitert oder erst danach unterwegs verschwindet.
 
-### Warum die Mails keinen Kalender-Anhang haben
+### Drei Regeln, an die sich jede Mail halten muss
 
-Das Postfach bei Hostinger nimmt **jede** Mail an („250 Ok: queued"),
-stellt aber **keine mit Anhang** zu — ohne Fehlermeldung, ohne Bounce, auch
-nicht im Spam. Nachgewiesen mit der Diagnose oben: anhanglose Testmails kamen
-an, dieselben Mails mit Anhang nicht, quer über mehrere Dateitypen. Am
-Anhangformat lag es also nicht.
+Der Ausgangsfilter bei Hostinger nimmt **jede** Mail an („250 Ok: queued")
+und verwirft sie danach lautlos — ohne Fehlermeldung, ohne Bounce, auch nicht
+im Spam. Elf Diagnoserunden mit jeweils fast identischen Testmails haben drei
+Regeln ergeben. Wer die Vorlagen in `_templates.php` ändert, muss sie
+einhalten, sonst kommt die Mail nicht mehr an:
 
-Der Kalendereintrag steckt deshalb als **Link** in der Mail: ein Knopf für
-Google Kalender, einer für Apple/Outlook. Letzterer holt die `.ics`-Datei über
-`/api/booking/ics?token=…` direkt vom eigenen Server. Auf dem Handy ist das
-ohnehin der kürzere Weg — ein Fingertipp statt Download und Öffnen-mit.
+1. **Kein Anhang.** Egal welcher Dateityp — mit Anhang kam keine einzige
+   Testmail durch, ohne Anhang jede.
+2. **Höchstens drei Web-Adressen in der Textfassung.** Null bis drei kamen
+   ausnahmslos an, vier und fünf ausnahmslos nicht. Deshalb hat die
+   Bestätigung keine Signaturzeile mit Domain und nur *einen*
+   Kalender-Link statt zweier.
+3. **Keine Markennamen neben einem Link.** Genau daran ist die Bestätigung
+   zuletzt gescheitert: „Termin zum Kalender hinzufügen (Google, Apple oder
+   Outlook)". Drei große Marken unmittelbar an einer Adresse sind eine
+   geläufige Phishing-Signatur. Ohne die Klammer kommt dieselbe Mail an.
 
-Sollte Hostinger die Anhänge irgendwann durchlassen: nichts muss zurückgebaut
-werden, die Links funktionieren unabhängig davon.
+Nicht schuld waren — jeweils durch Gegenprobe ausgeschlossen — der
+Versandweg, der Betreff, die Textfassung, der Zoom-Link und die verlinkte
+Zielseite.
+
+Der Kalendereintrag steckt deshalb als **ein** Link in der Mail, der auf
+`/api/booking/calendar?token=…` führt. Erst dort stehen beide Wege zur
+Auswahl (Google Kalender, Datei für Apple/Outlook) — auf einer eigenen Seite
+sind Markennamen unbedenklich. Auf dem Handy ist das ohnehin der kürzere Weg
+als ein Anhang: ein Fingertipp statt Download und Öffnen-mit.
 
 Google-Ausfälle legen die Buchung nie lahm: Kann der Kalender nicht erreicht
 werden, wird trotzdem gebucht und gemailt — du bekommst in deiner

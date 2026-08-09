@@ -9,12 +9,14 @@
  *
  * Diese Route schreibt jede Zeile mit, die zwischen uns und dem Server hin und
  * her geht, und verschickt dabei mehrere Varianten derselben Mail. Welche
- * ankommt und welche nicht, grenzt die Ursache ohne Raten ein.
+ * ankommt und welche nicht, grenzt die Ursache ohne Raten ein: Die Varianten
+ * unterscheiden sich immer nur in genau einer Sache.
  *
- * Runde 1 (A ohne/mit Anhang, B und C ohne) hat ergeben: ohne .ics kommt die
- * Mail an, mit .ics verschwindet sie — obwohl der Server sie in beiden Fällen
- * mit "250 queued" annimmt. Die Varianten unten trennen jetzt auf, welcher
- * Teil des Anhangs dafür verantwortlich ist.
+ * Elf Runden haben drei Regeln ergeben, an die sich jede Mail halten muss:
+ * kein Anhang, höchstens drei Web-Adressen in der Textfassung, keine
+ * Markennamen neben einem Link (Einzelheiten in TERMINBUCHUNG.md). Wer die
+ * Vorlagen ändert und danach unsicher ist, ob sie noch zugestellt werden,
+ * setzt hier zwei Varianten ein — alt und neu — und weiß es nach einem Lauf.
  *
  * Die Route ist mit demselben Token geschützt wie der Erinnerungs-Cron. Ohne
  * Schutz könnte jeder Fremde über sie beliebig Mails auslösen.
