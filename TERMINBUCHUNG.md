@@ -104,23 +104,50 @@ Den vollständigen Pfad zeigt dir der Dateimanager oben in der Adresszeile.
 
 ## 4. Erinnerungsmails (Cronjob)
 
-Erst denk dir einen beliebigen geheimen Wert aus und trag ihn ein:
+Erst einen langen Zufallswert eintragen — **nicht** eines deiner Passwörter,
+denn dieser Wert steht später im Cron-Befehl und in Server-Protokollen:
 
 ```
-BOOKING_CRON_TOKEN=irgendein-langer-zufallstext-2026
+BOOKING_CRON_TOKEN=<32 zufällige Buchstaben und Ziffern>
 ```
 
-hPanel → **Erweitert** → **Cronjobs** → neuer Cronjob, stündlich:
+Dieser Hosting-Tarif zeigt **keine Cronjobs im hPanel** — weder im Menü der
+Website noch über die Suche. Eingerichtet wird der Lauf deshalb per SSH
+(hPanel → **Erweitert** → *SSH-Zugang* nennt Adresse, Port und Benutzer):
 
 ```
-curl -s "https://jungline.de/api/booking/remind?token=irgendein-langer-zufallstext-2026"
+ssh -p 65002 <benutzer>@<server-ip>
 ```
 
-Der Lauf verschickt an jeden Termin genau eine Erinnerung, sobald er weniger
-als 24 Stunden entfernt ist, und löscht nebenbei Buchungen, deren Termin
-länger als sechs Monate zurückliegt (so wie es die Datenschutzerklärung
-zusagt). Ohne Cronjob funktioniert alles andere weiterhin — es gibt dann nur
-keine Erinnerung am Vortag.
+Dann in einem Zug, mit dem echten Token statt des Platzhalters:
+
+```
+printf '0 * * * * curl -s "https://jungline.de/api/booking/remind?token=<TOKEN>" >/dev/null 2>&1\n' | crontab -
+crontab -l
+```
+
+`printf` statt des sonst üblichen `crontab -l | …`: Bei noch leerem Crontab
+schreibt `crontab -l` die Zeile „no crontab for …" mit in die Eingabe, und
+`crontab` verwirft das Ganze anschließend als ungültig — kommentarlos, mit
+Rückgabewert 0. Ein anschließendes `crontab -l` ist deshalb Pflicht: Steht
+die Zeile dort nicht, wurde nichts gespeichert.
+
+Zum Prüfen die Adresse einmal selbst im Browser aufrufen; sie antwortet mit
+
+```
+{"success":true,"sent":0,"failed":0,"purged":0}
+```
+
+`sent` zählt die verschickten Erinnerungen — 0 ist richtig, solange kein
+Termin näher als 24 Stunden ist. Entscheidend ist `success:true`.
+
+Der Lauf verschickt an jeden Termin **genau eine** Erinnerung, sobald er
+weniger als 24 Stunden entfernt ist (das Feld `reminded_at` verhindert, dass
+der stündliche Lauf sie wiederholt), und löscht nebenbei Buchungen, deren
+Termin länger als sechs Monate zurückliegt — so wie es die
+Datenschutzerklärung zusagt. Ohne Cronjob funktioniert alles andere
+weiterhin; es gibt dann nur keine Erinnerung am Vortag, und die Löschfrist
+wird nicht vollzogen.
 
 ---
 
