@@ -262,6 +262,7 @@ foreach ($variants as $label => $variant) {
 
 echo str_repeat('=', 68) . "\n";
 echo "Fertig. Bitte im Postfach " . $to . " nachsehen, welche der Testmails\n";
-echo "ankommen — auch im Spam-Ordner. Jede Variante laesst genau einen\n";
-echo "Baustein weg; welche ankommt, benennt den Baustein, der die Mail\n";
-echo "bisher die Zustellung gekostet hat.\n";
+echo "ankommen — auch im Spam-Ordner.\n\n";
+echo "\"Vom Server angenommen\" heisst nur, dass der Hoster die Mail entgegen-\n";
+echo "genommen hat; verworfen wird sie gegebenenfalls erst danach, lautlos.\n";
+echo "Was zaehlt, ist allein das Postfach.\n";
