@@ -151,8 +151,10 @@ function bkMailConfirmation(array $booking): array {
     $manage = bkManageUrl($booking['token']);
     $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
 
+    $thema = bkTopic($booking)['thema'];
+
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr Termin steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>'
+        . '<p style="margin:0;">Ihr Termin zum Thema <b>' . bkEsc($thema) . '</b> steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>'
         . bkEmailFactBox($booking)
         . bkEmailCalendarLinks($booking);
 
@@ -168,7 +170,7 @@ function bkMailConfirmation(array $booking): array {
         . '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
 
     $text = "Hallo " . $firstName . ",\n\n"
-        . "Ihr Termin steht.\n\n"
+        . "Ihr Termin zum Thema " . $thema . " steht.\n\n"
         . bkTextFacts($booking) . "\n\n"
         . bkTextCalendarLinks($booking) . "\n\n"
         . (trim($booking['message']) !== '' ? "Ihr Anliegen:\n" . $booking['message'] . "\n\n" : '')
@@ -189,7 +191,7 @@ function bkMailConfirmation(array $booking): array {
     // mit dem sichtbaren Inhalt — versteckter Text, der etwas anderes sagt
     // als die Mail, ist ein klassisches Filtersignal.
     return [
-        'subject' => 'Ihr Termin bei JunglineLocal',
+        'subject' => 'Ihr Termin bei JunglineLocal (' . bkTopic($booking)['kurz'] . ')',
         'html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $content),
         'text' => $text,
     ];
@@ -203,6 +205,8 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
 
     $details = [
+        // Zuerst das Thema: es entscheidet, womit man in das Gespraech geht.
+        ['Thema', bkTopic($booking)['label']],
         ['Name', $booking['name']],
         ['E-Mail', $booking['email']],
         ['Telefon', $booking['phone'] !== '' ? $booking['phone'] : '—'],
@@ -240,13 +244,14 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
         . "Name:    " . $booking['name'] . "\n"
         . "E-Mail:  " . $booking['email'] . "\n"
         . "Telefon: " . ($booking['phone'] !== '' ? $booking['phone'] : '—') . "\n"
-        . "Firma:   " . ($booking['company'] !== '' ? $booking['company'] : '—') . "\n\n"
+        . "Firma:   " . ($booking['company'] !== '' ? $booking['company'] : '—') . "\n"
+        . "Thema:   " . bkTopic($booking)['label'] . "\n\n"
         . (trim($booking['message']) !== '' ? "Anliegen:\n" . $booking['message'] . "\n\n" : '')
         . ($warning !== '' ? "ACHTUNG: " . $warning . "\n\n" : '')
         . "Absagen: " . bkManageUrl($booking['token']) . "\n";
 
     return [
-        'subject' => 'Neue Buchung: ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
+        'subject' => 'Neue Buchung (' . bkTopic($booking)['kurz'] . '): ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
         'html' => bkEmailShell('Neue Buchung von ' . $booking['name'], 'Neue Buchung', $content),
         'text' => $text,
     ];
@@ -298,7 +303,7 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
             . bkTextFacts($booking) . "\n\n"
             . $booking['name'] . " · " . $booking['email'] . "\n";
         return [
-            'subject' => 'Absage: ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
+            'subject' => 'Absage (' . bkTopic($booking)['kurz'] . '): ' . $booking['name'] . ' - ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
             'html' => bkEmailShell('Ein Termin wurde abgesagt', 'Termin abgesagt', $content),
             'text' => $text,
         ];

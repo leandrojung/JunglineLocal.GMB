@@ -1406,12 +1406,21 @@
 
   // Jeder Seitenaufruf verraet den Zweig ueber die Navigationsleiste. Wer
   // direkt auf /webdesign/ landet, hat sich damit ebenfalls entschieden und
-  // bekommt den Startscreen spaeter nicht mehr vorgesetzt. Waehrend der
-  // Startscreen offen steht, wird bewusst nichts gemerkt — sonst waere die
-  // Entscheidung schon gefallen, bevor der Besucher sie getroffen hat.
+  // bekommt den Startscreen spaeter nicht mehr vorgesetzt.
+  //
+  // Zwei Ausnahmen, beide wichtig:
+  //  * Waehrend der Startscreen offen steht, wird nichts gemerkt — sonst waere
+  //    die Entscheidung gefallen, bevor der Besucher sie getroffen hat.
+  //  * Gemeinsame Seiten (Kontakt, Über mich, Rechtliches — gekennzeichnet
+  //    durch data-zweig-geteilt am body) gehoeren keinem Zweig. Sie tragen aus
+  //    Konvention die SEO-Navigation; wuerden sie den Zweig mitschreiben,
+  //    waere ein Webdesign-Interessent nach einem Blick ins Impressum wieder
+  //    ein SEO-Interessent — und die Themen-Vorauswahl im Buchungskalender
+  //    stuende auf dem falschen Wert.
   var nav = document.getElementById('nav');
   var seitenZweig = nav && nav.getAttribute('data-zweig');
-  if(seitenZweig && !chooserOffen) merken(seitenZweig);
+  var geteilt = document.body.hasAttribute('data-zweig-geteilt');
+  if(seitenZweig && !chooserOffen && !geteilt) merken(seitenZweig);
 
   // "?zweig=…" ist nur der Ruecktransportweg fuer Browser ohne JavaScript
   // (siehe renderChooser in vite.config.js). Gelesen wurde er im Inline-Skript,
@@ -1554,5 +1563,43 @@
     else if(e.key === 'Home'){ e.preventDefault(); eintraege[0].focus(); }
     else if(e.key === 'End'){ e.preventDefault(); eintraege[eintraege.length - 1].focus(); }
     else if(e.key === 'Tab'){ setzen(false); }
+  });
+})();
+
+/* ============================================================
+   THEMENWAHL ÜBER DEM BUCHUNGSKALENDER (nur /kontakt/)
+
+   Die Kontaktseite steht in beiden Navigationen und gehoert damit keinem
+   Zweig allein. Damit eine Webdesign-Anfrage nicht als Google-Profil-Termin
+   bei Leandro ankommt, waehlt der Besucher hier sichtbar das Thema. Der Wert
+   landet im data-topic des Widgets; booking.js liest ihn beim Absenden
+   (currentTopic) und schickt ihn mit.
+
+   Auf /webdesign/ und der Startseite gibt es diese Umschaltung bewusst NICHT:
+   dort ist das Thema durch die Seite selbst schon beantwortet.
+   ============================================================ */
+(function(){
+  var box = document.querySelector('[data-topic-switch]');
+  var widget = document.getElementById('bookingWidget');
+  if(!box || !widget) return;
+  var knoepfe = box.querySelectorAll('[data-topic-set]');
+
+  var setzen = function(thema){
+    widget.dataset.topic = thema;
+    Array.prototype.forEach.call(knoepfe, function(b){
+      var an = b.getAttribute('data-topic-set') === thema;
+      b.classList.toggle('is-active', an);
+      b.setAttribute('aria-pressed', String(an));
+    });
+  };
+
+  // Wer zuletzt im Webdesign-Zweig unterwegs war, findet das Thema bereits
+  // vorausgewaehlt — sichtbar, nicht heimlich, und mit einem Klick zu aendern.
+  try {
+    if(window.localStorage && localStorage.getItem('jl.zweig') === 'webdesign') setzen('webdesign');
+  } catch(e){ /* Speicher gesperrt — dann bleibt die Vorauswahl aus dem HTML */ }
+
+  Array.prototype.forEach.call(knoepfe, function(b){
+    b.addEventListener('click', function(){ setzen(b.getAttribute('data-topic-set')); });
   });
 })();

@@ -22,6 +22,21 @@ const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
 
 const root = document.getElementById('bookingWidget');
 
+/**
+ * Welcher Zweig bucht — 'seo' oder 'webdesign'. Steht als data-topic am
+ * Widget, damit dieselbe Buchungsstrecke auf beiden Seiten laufen kann und
+ * der Server trotzdem weiss, worum es im Gespraech geht. Der Wert wird
+ * serverseitig gegen eine feste Liste geprueft (bkTopicId), hier steht er
+ * nur zum Mitschicken.
+ *
+ * Bewusst als Funktion und nicht als Konstante: Auf der Kontaktseite kann
+ * der Besucher das Thema umschalten, bevor er bucht — dann muss der Wert
+ * zum Zeitpunkt des Absendens gelesen werden, nicht beim Laden des Moduls.
+ */
+function currentTopic() {
+  return (root && root.dataset.topic) || 'seo';
+}
+
 // Ein Monat wird nur einmal geholt. Nach einer Buchung wird der Cache
 // geleert, damit der gerade vergebene Slot nicht weiter angeboten wird.
 const monthCache = new Map();
@@ -544,6 +559,7 @@ async function submitBooking(form, submit, status) {
         company: values.company,
         message: values.message,
         website: values.website,
+        topic: currentTopic(),
         cancel_token: state.reschedule ? state.reschedule.token : '',
       }),
     });

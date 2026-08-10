@@ -241,6 +241,7 @@ function bkGoogleInsert(array $booking): string {
         'Name:     ' . $booking['name'],
         'E-Mail:   ' . $booking['email'],
         'Telefon:  ' . ($booking['phone'] !== '' ? $booking['phone'] : '—'),
+        'Thema:    ' . bkTopic($booking)['label'],
         'Firma:    ' . ($booking['company'] !== '' ? $booking['company'] : '—'),
         '',
         'Anliegen:',
@@ -250,7 +251,9 @@ function bkGoogleInsert(array $booking): string {
     ];
 
     $event = [
-        'summary' => 'Erstgespräch: ' . $booking['name'] . ($booking['company'] !== '' ? ' (' . $booking['company'] . ')' : ''),
+        // Thema vorne im Titel: In der Monatsansicht sieht man damit auf einen
+        // Blick, welcher Termin worum geht, ohne ihn zu oeffnen.
+        'summary' => bkTopic($booking)['kurz'] . ': ' . $booking['name'] . ($booking['company'] !== '' ? ' (' . $booking['company'] . ')' : ''),
         'description' => implode("\n", $lines),
         'start' => ['dateTime' => $start->format(DateTimeInterface::RFC3339), 'timeZone' => 'UTC'],
         'end'   => ['dateTime' => $end->format(DateTimeInterface::RFC3339), 'timeZone' => 'UTC'],

@@ -51,6 +51,9 @@ $message = trim((string) ($input['message'] ?? ''));
 $date    = trim((string) ($input['date'] ?? ''));
 $time    = trim((string) ($input['time'] ?? ''));
 $rescheduleToken = trim((string) ($input['cancel_token'] ?? ''));
+// Welcher Zweig gebucht hat. Kommt aus dem data-topic des Widgets, wird aber
+// wie jede Browser-Eingabe gegen die feste Liste geprueft (bkTopicId).
+$topic   = bkTopicId($input['topic'] ?? '');
 
 $errors = [];
 if (mb_strlen($name) < 2 || mb_strlen($name) > 80) $errors['name'] = 'Bitte geben Sie Ihren Namen an.';
@@ -111,6 +114,11 @@ try {
         'message' => $message,
         'created_at' => bkStamp(bkNow()),
         'ip' => $ip,
+        // Beim Verschieben zaehlt das Thema des urspruenglichen Termins. Der
+        // Kunde landet ueber den Mail-Link zwar auf der passenden Seite, kann
+        // aber vorher den Zweig gewechselt haben — das Gespraechsthema aendert
+        // sich dadurch nicht.
+        'topic' => $isReschedule ? bkTopicId($oldBooking['topic'] ?? '') : $topic,
     ];
 
     // 1) Slot sichern. false = jemand war in den letzten Millisekunden schneller.

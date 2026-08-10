@@ -33,6 +33,10 @@ export const zweige = {
     beschreibung: 'Bei Google in Ihrer Region gefunden werden',
     // Startseite des Zweigs — Ziel von Umschalter und Startscreen-Karte.
     start: '/',
+    // Ziel der "Termin buchen"-Schaltflaeche in der Navigationsleiste. Jeder
+    // Zweig fuehrt zu SEINEM Buchungsbereich — sonst landet ein
+    // Webdesign-Interessent im Kalender des SEO-Zweigs.
+    terminHref: '/kontakt/#termin',
     // Beschriftung der Auswahlkarte auf dem Startscreen. Bewusst die Worte,
     // nach denen Kunden selbst fragen — nicht die Fachbegriffe von oben.
     startscreenTitel: 'SEO Optimierung',
@@ -75,6 +79,7 @@ export const zweige = {
     titel: 'Webdesign &amp; Relaunch',
     beschreibung: 'Eine Website, die zu Ihrer Arbeit passt',
     start: '/webdesign/',
+    terminHref: '/webdesign/#termin',
     startscreenTitel: 'Webdesign',
     startscreen: 'Ihre bestehende Website von Grund auf erneuern: schneller, klarer, auf dem Handy so gut wie am Rechner — und danach gepflegt.',
     icon: '<rect x="2.5" y="4" width="19" height="14.5" rx="2.4"/><path d="M2.5 8.6h19"/><path d="M5.6 6.3h.01M8.1 6.3h.01M10.6 6.3h.01"/>',

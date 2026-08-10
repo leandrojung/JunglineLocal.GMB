@@ -134,12 +134,14 @@ function renderRankcardIllu(youLabel, ariaLabel) {
 // "DSGVO-konform") waren 18× wortidentisch copy-pasted. Jetzt eine Quelle.
 // Token-Syntax: <!--CTABAND h2="…" p="…"-->
 // ---------------------------------------------------------------------------
-function renderCtaband(h2, p) {
+function renderCtaband(h2, p, ziel) {
+  // ziel ist optional: Seiten mit eigenem Buchungsbereich (z. B. /webdesign/)
+  // geben "#termin" an und schicken damit niemanden mehr auf die Kontaktseite.
   return `<div class="ctaband" data-reveal>
       <h2>${h2}</h2>
       <p>${p}</p>
       <div class="cta-row">
-        <a href="/kontakt/#termin" class="btn btn--primary btn--lg">Kostenloses Erstgespräch buchen</a>
+        <a href="${ziel || '/kontakt/#termin'}" class="btn btn--primary btn--lg">Kostenloses Erstgespräch buchen</a>
         <a href="/kontakt/" class="btn btn--ghost btn--lg">Kontakt &amp; Anfahrt</a>
       </div>
       <ul class="ctaband__trust">
@@ -257,6 +259,7 @@ function renderNav(aktivId) {
     ZWEIG: aktiv.id,
     ZWEIG_KURZ: aktiv.kurz,
     BRAND_HREF: aktiv.start,
+    TERMIN_HREF: aktiv.terminHref,
     SWITCH: renderZweigSwitch(aktivId),
     SWITCH_MOBILE: renderZweigSwitchMobil(aktivId),
     LINKS: links,
@@ -305,6 +308,13 @@ function renderChooser() {
   return fuellen(partial('chooser.html'), { KARTEN: karten })
 }
 
+// Die fixierte Aktionsleiste am unteren Rand (nur Telefon) fuehrt zum
+// Buchungsbereich des jeweiligen Zweigs — sonst wirft sie einen
+// Webdesign-Besucher auf die Kontaktseite des SEO-Zweigs.
+function renderEndbody(aktivId) {
+  return fuellen(partial('endbody.html'), { TERMIN_HREF: zweige[aktivId].terminHref })
+}
+
 function sharedShell() {
   const tokens = {
     '<!--HEAD-->': () => partial('head.html'),
@@ -313,7 +323,8 @@ function sharedShell() {
     '<!--FOOTER-->': () => renderFooter('seo'),
     '<!--FOOTER_WEBDESIGN-->': () => renderFooter('webdesign'),
     '<!--CHOOSER-->': renderChooser,
-    '<!--ENDBODY-->': () => partial('endbody.html'),
+    '<!--ENDBODY-->': () => renderEndbody('seo'),
+    '<!--ENDBODY_WEBDESIGN-->': () => renderEndbody('webdesign'),
     '<!--BAUSTEINE_HOME-->': renderBausteineHome,
     '<!--BAUSTEINE_LEISTUNGEN-->': renderBausteineLeistungen,
     '<!--BRANCHEN_GRID_HOME-->': renderBranchenGridHome,
@@ -334,8 +345,8 @@ function sharedShell() {
           (_, youLabel, ariaLabel) => renderRankcardIllu(youLabel, ariaLabel),
         )
         html = html.replace(
-          /<!--CTABAND\s+h2="([^"]*)"\s+p="([^"]*)"-->/g,
-          (_, h2, p) => renderCtaband(h2, p),
+          /<!--CTABAND\s+h2="([^"]*)"\s+p="([^"]*)"(?:\s+ziel="([^"]*)")?-->/g,
+          (_, h2, p, ziel) => renderCtaband(h2, p, ziel),
         )
         return html
       },

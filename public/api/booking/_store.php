@@ -29,6 +29,15 @@ function bkUseSqlite(): bool {
 // SQLite
 // =====================================================================
 
+/** Spaltennamen der Buchungstabelle — fuer die Nachruest-Pruefung oben. */
+function bkDbColumns(PDO $pdo): array {
+    $namen = [];
+    foreach ($pdo->query('PRAGMA table_info(bookings)') as $spalte) {
+        if (isset($spalte['name'])) $namen[] = (string) $spalte['name'];
+    }
+    return $namen;
+}
+
 function bkDb(): PDO {
     static $pdo = null;
     if ($pdo instanceof PDO) return $pdo;
@@ -54,8 +63,19 @@ function bkDb(): PDO {
         gcal_event_id TEXT    NOT NULL DEFAULT "",
         created_at    TEXT    NOT NULL,
         reminded_at   TEXT    NOT NULL DEFAULT "",
-        ip            TEXT    NOT NULL DEFAULT ""
+        ip            TEXT    NOT NULL DEFAULT "",
+        topic         TEXT    NOT NULL DEFAULT "seo"
     )');
+    // Bestandsdatenbanken wurden ohne die Spalte topic angelegt. CREATE TABLE
+    // IF NOT EXISTS ruehrt eine vorhandene Tabelle nicht an, die Spalte muss
+    // also nachgezogen werden — sonst schlaegt auf einer bereits laufenden
+    // Installation jede Buchung fehl. PRAGMA statt try/catch, weil ein
+    // doppeltes ALTER TABLE einen Fehler wirft, den wir nicht schlucken wollen.
+    $spalten = [];
+    foreach (bkDbColumns($pdo) as $name) $spalten[$name] = true;
+    if (!isset($spalten['topic'])) {
+        $pdo->exec('ALTER TABLE bookings ADD COLUMN topic TEXT NOT NULL DEFAULT "seo"');
+    }
     // Der eigentliche Doppelbuchungs-Schutz: pro Startzeit höchstens ein
     // bestätigter Termin. Abgesagte sind ausgenommen, damit ein
     // freigewordener Slot wieder buchbar ist.
@@ -140,13 +160,14 @@ function bkInsert(array $rec): bool {
     if (bkUseSqlite()) {
         try {
             $stmt = bkDb()->prepare('INSERT INTO bookings
-                (token, start_utc, end_utc, name, email, phone, company, message, status, gcal_event_id, created_at, ip)
-                VALUES (:token,:start,:end,:name,:email,:phone,:company,:message,"confirmed","",:created,:ip)');
+                (token, start_utc, end_utc, name, email, phone, company, message, status, gcal_event_id, created_at, ip, topic)
+                VALUES (:token,:start,:end,:name,:email,:phone,:company,:message,"confirmed","",:created,:ip,:topic)');
             $stmt->execute([
                 ':token' => $rec['token'], ':start' => $rec['start_utc'], ':end' => $rec['end_utc'],
                 ':name' => $rec['name'], ':email' => $rec['email'], ':phone' => $rec['phone'],
                 ':company' => $rec['company'], ':message' => $rec['message'],
                 ':created' => $rec['created_at'], ':ip' => $rec['ip'],
+                ':topic' => bkTopicId($rec['topic'] ?? ''),
             ]);
             return true;
         } catch (PDOException $e) {
@@ -166,6 +187,7 @@ function bkInsert(array $rec): bool {
         $rec['status'] = 'confirmed';
         $rec['gcal_event_id'] = '';
         $rec['reminded_at'] = '';
+        $rec['topic'] = bkTopicId($rec['topic'] ?? '');
         $rec['id'] = count($rows) + 1;
         $rows[] = $rec;
         $ok = true;

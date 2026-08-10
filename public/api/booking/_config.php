@@ -38,6 +38,56 @@ const BK_RATE_PER_IP_DAY = 3;
 const BK_TITLE    = 'Kostenloses Erstgespräch — JunglineLocal';
 const BK_DURATION_LABEL = '30 Minuten';
 
+/**
+ * THEMEN — welcher Zweig den Termin ausgelöst hat.
+ *
+ * Die Website führt zwei Angebote (Local SEO und Webdesign) mit je einem
+ * eigenen Buchungsbereich auf der jeweiligen Seite. Beide buchen bewusst
+ * DENSELBEN Terminvorrat: Es gibt nur einen Leandro, und zwei voneinander
+ * unabhängige Kalender würden ihn zur selben Uhrzeit doppelt verplanen.
+ * Getrennt ist deshalb nicht die Verfügbarkeit, sondern das Thema — es
+ * steht in der Bestätigung, in der Benachrichtigung, im Kalendereintrag
+ * und im Betreff, damit vor dem Gespräch klar ist, worum es geht.
+ *
+ * 'seite' ist die Adresse, auf der dieses Thema gebucht wird; dorthin
+ * führt auch der Verschiebe-Link aus der Terminmail.
+ *
+ * Ein neues Thema anzulegen heißt: hier einen Eintrag ergänzen und auf der
+ * Zielseite ein Widget mit data-topic="<schlüssel>" setzen. Sonst nichts.
+ */
+const BK_TOPICS = [
+    'seo' => [
+        'label' => 'Google-Unternehmensprofil',
+        'kurz'  => 'Google-Profil',
+        'titel' => 'Erstgespräch Google-Profil — JunglineLocal',
+        'thema' => 'Optimierung Ihres Google-Unternehmensprofils',
+        'seite' => '/kontakt/#termin',
+    ],
+    'webdesign' => [
+        'label' => 'Webdesign & Relaunch',
+        'kurz'  => 'Webdesign',
+        'titel' => 'Erstgespräch Webdesign — JunglineLocal',
+        'thema' => 'Ihre neue Website',
+        'seite' => '/webdesign/#termin',
+    ],
+];
+const BK_TOPIC_DEFAULT = 'seo';
+
+/**
+ * Macht aus beliebiger Eingabe einen gültigen Themenschlüssel. Unbekanntes
+ * fällt still auf den Standard zurück — der Wert kommt aus dem Browser und
+ * darf nie ungeprüft in Betreff, Kalendereintrag oder Datenbank landen.
+ */
+function bkTopicId(mixed $raw): string {
+    $id = is_string($raw) ? strtolower(trim($raw)) : '';
+    return isset(BK_TOPICS[$id]) ? $id : BK_TOPIC_DEFAULT;
+}
+
+/** Themendaten zu einer Buchung. Alte Buchungen ohne Feld gelten als SEO. */
+function bkTopic(array $booking): array {
+    return BK_TOPICS[bkTopicId($booking['topic'] ?? '')];
+}
+
 /** Deutsche Beschriftungen — der Kalender rendert serverunabhängig deutsch. */
 const BK_WEEKDAYS_SHORT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const BK_MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',

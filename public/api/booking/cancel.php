@@ -88,7 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $booking !== null && $booking['stat
 // Seite ausgeben
 // ---------------------------------------------------------------------
 $site = bkSiteUrl();
-$bookingUrl = $site . '/kontakt/#termin';
+// Zurueck auf die Seite, auf der dieser Termin gebucht wurde — ein
+// Webdesign-Kunde soll beim Verschieben nicht im SEO-Bereich landen.
+$bookingUrl = $site . ($booking !== null ? bkTopic($booking)['seite'] : BK_TOPICS[BK_TOPIC_DEFAULT]['seite']);
 
 if ($booking === null) {
     $heading = 'Termin nicht gefunden';

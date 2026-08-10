@@ -2669,3 +2669,35 @@ body[data-zweig="webdesign"]{
   .zweig-band__ic{width:48px;height:48px;border-radius:15px}
   .zweig-band__go{grid-column:1 / -1;margin-top:2px}
 }
+
+/* ============ BUCHUNGSBEREICH DES WEBDESIGN-ZWEIGS ============
+   Eine zentrierte Spalte statt des zweispaltigen Kontakt-Rasters: Auf dieser
+   Seite gibt es genau eine Handlung — Termin aussuchen. Ein Formular daneben
+   waere eine zweite Aufforderung, die von der ersten ablenkt. */
+.wd-termin{max-width:720px;margin:50px auto 0}
+.wd-termin__contacts{max-width:720px;margin-left:auto;margin-right:auto;margin-top:20px}
+
+/* ============ THEMENWAHL ÜBER DEM KALENDER (/kontakt/) ============
+   Segment-Umschalter in derselben Sprache wie der Zweig-Umschalter im
+   Mobilmenue — gleiche Geste, gleiche Bedeutung: hier wird umgeschaltet,
+   nicht ausgeklappt. */
+.bk-topic{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-bottom:16px}
+.bk-topic__lb{font-size:.86rem;font-weight:600;color:var(--dim)}
+.bk-topic__seg{display:flex;gap:4px;padding:4px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--border)}
+.bk-topic__opt{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;
+  padding:8px 14px;border:0;border-radius:10px;background:none;cursor:pointer;
+  font-size:.9rem;font-weight:600;color:var(--dim);letter-spacing:-.012em;
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple),
+             box-shadow var(--dur-ui) var(--ease-apple);
+}
+.bk-topic__opt svg{flex:none;opacity:.75}
+.bk-topic__opt:hover{color:var(--ink)}
+.bk-topic__opt.is-active{background:var(--surface);color:var(--ink);box-shadow:var(--elev-1)}
+.bk-topic__opt.is-active svg{color:var(--green-bright);opacity:1}
+@media(max-width:520px){
+  .bk-topic{flex-direction:column;align-items:stretch;gap:8px}
+  .bk-topic__seg{width:100%}
+  .bk-topic__opt{flex:1;min-height:44px}
+}

@@ -80,13 +80,13 @@ function bkGoogleCalendarUrl(array $booking): string {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
     $end   = new DateTimeImmutable($booking['end_utc'], bkUtcTz());
 
-    $details = ['Kostenloses Erstgespräch zur Optimierung Ihres Google-Unternehmensprofils.'];
+    $details = ['Kostenloses Erstgespräch — Thema: ' . bkTopic($booking)['thema'] . '.'];
     if (bkMeetingUrl() !== '') $details[] = 'Videoraum: ' . bkMeetingUrl();
     $details[] = 'Absagen oder verschieben: ' . bkManageUrl($booking['token']);
 
     return 'https://calendar.google.com/calendar/render?' . http_build_query([
         'action' => 'TEMPLATE',
-        'text' => BK_TITLE,
+        'text' => bkTopic($booking)['titel'],
         'dates' => $start->format('Ymd\THis\Z') . '/' . $end->format('Ymd\THis\Z'),
         'details' => implode("\n\n", $details),
         'location' => bkMeetingUrl(),
@@ -133,7 +133,7 @@ function bkIcs(array $booking, string $method = 'REQUEST'): string {
         'DTSTAMP:' . $stamp,
         'DTSTART:' . $start->format('Ymd\THis\Z'),
         'DTEND:' . $end->format('Ymd\THis\Z'),
-        'SUMMARY:' . bkIcsEscape(BK_TITLE),
+        'SUMMARY:' . bkIcsEscape(bkTopic($booking)['titel']),
         'DESCRIPTION:' . bkIcsEscape(implode("\n", $description)),
         'STATUS:' . ($cancelled ? 'CANCELLED' : 'CONFIRMED'),
     ];
@@ -153,7 +153,7 @@ function bkIcs(array $booking, string $method = 'REQUEST'): string {
         $lines[] = 'BEGIN:VALARM';
         $lines[] = 'TRIGGER:-PT30M';
         $lines[] = 'ACTION:DISPLAY';
-        $lines[] = 'DESCRIPTION:' . bkIcsEscape(BK_TITLE);
+        $lines[] = 'DESCRIPTION:' . bkIcsEscape(bkTopic($booking)['titel']);
         $lines[] = 'END:VALARM';
     }
     $lines[] = 'END:VEVENT';
