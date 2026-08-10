@@ -109,6 +109,7 @@ export const zweige = {
     ],
     footerAnkerTitel: 'Webdesign-Seite',
     footerAnker: [
+      { href: '/webdesign/#check', label: 'Live-Check' },
       { href: '/webdesign/#vergleich', label: 'Vorher &amp; Nachher' },
       { href: '/webdesign/#technik', label: 'Technik' },
       { href: '/webdesign/#referenz', label: 'Arbeitsprobe' },

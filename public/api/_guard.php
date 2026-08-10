@@ -173,15 +173,30 @@ function guardEnforceOrigin(): void {
  * Gibt null zurück, wenn nichts beschreibbar ist. Der Aufrufer muss diesen
  * Fall als "kein Google-Aufruf" behandeln, nicht als "unbegrenzt".
  */
-function guardDataDir(): ?string {
-    static $dir = false;
-    if ($dir !== false) return $dir;
+function guardDataDir(string $sub = 'gbp'): ?string {
+    // Ein Cache pro Unterordner statt eines einzelnen Werts: Seit dem
+    // PageSpeed-Check ruft dieselbe Funktion mit unterschiedlichen $sub-Werten
+    // in derselben Anfrage auf. array_key_exists() statt isset(), weil ein
+    // einmal ermitteltes "kein Ordner beschreibbar" (null) dauerhaft als
+    // ermittelt gelten muss und nicht bei jedem Aufruf erneut versucht wird.
+    static $dirs = [];
+    if (array_key_exists($sub, $dirs)) return $dirs[$sub];
+
+    $override = envValue('API_DATA_DIR');
+    // Für den Standardfall 'gbp' bleibt der Override-Ordner UNVERÄNDERT ein
+    // vollständiger Pfad, exakt wie vor dieser Erweiterung — sonst würde sich
+    // bei einer bereits laufenden Installation mit gesetztem API_DATA_DIR
+    // stillschweigend der Speicherort ändern. Jeder weitere Aufrufer (z. B.
+    // 'pagespeed') bekommt seinen Unterordner an den Override gehängt, damit
+    // sich zwei Funktionen nicht denselben Override-Ordner teilen.
+    $overrideCandidate = $override === null ? null
+        : ($sub === 'gbp' ? $override : rtrim($override, '/') . '/' . $sub);
 
     $candidates = array_filter([
-        envValue('API_DATA_DIR'),
-        __DIR__ . '/../../../.jungline-data/gbp',   // eine Ebene über public_html
-        __DIR__ . '/../../.jungline-data/gbp',      // Notnagel: im Web-Root
-        sys_get_temp_dir() . '/jungline-gbp',       // letzte Rettung
+        $overrideCandidate,
+        __DIR__ . '/../../../.jungline-data/' . $sub,   // eine Ebene über public_html
+        __DIR__ . '/../../.jungline-data/' . $sub,      // Notnagel: im Web-Root
+        sys_get_temp_dir() . '/jungline-' . $sub,       // letzte Rettung
     ]);
 
     foreach ($candidates as $candidate) {
@@ -195,11 +210,11 @@ function guardDataDir(): ?string {
         if (!is_file($htaccess)) {
             @file_put_contents($htaccess, "Require all denied\n<IfModule !mod_authz_core.c>\n  Deny from all\n</IfModule>\n");
         }
-        return $dir = $candidate;
+        return $dirs[$sub] = $candidate;
     }
 
-    error_log('gbp-guard: kein beschreibbarer Datenordner gefunden — Google-Aufrufe werden blockiert');
-    return $dir = null;
+    error_log('guard: kein beschreibbarer Datenordner gefunden (' . $sub . ') — Aufrufe werden blockiert');
+    return $dirs[$sub] = null;
 }
 
 /**
@@ -352,6 +367,43 @@ function guardCleanupBudget(string $dir, string $today): void {
             @unlink($path);
         }
     }
+}
+
+/**
+ * Wie guardConsumeBudget(), aber als eigenständiger, benannter Zähler für
+ * Funktionen AUSSERHALB des GBP-Kostenschutzes — z. B. den PageSpeed-Check.
+ * Eigener Datenordner (guardDataDir($bucket)) und eigene Budgetdatei: teilt
+ * sich absichtlich NICHTS mit guardConsumeBudget()/GBP. Ein Ansturm auf den
+ * einen Check darf das Tagesbudget des anderen nicht mit aufbrauchen — anders
+ * als bei GBP geht es hier meist nicht um eine Google-Rechnung (PageSpeed
+ * Insights ist kostenlos), sondern um Serverlast: Ein einzelner Durchlauf
+ * belegt bis zu 30 Sekunden lang einen PHP-Prozess.
+ */
+function guardConsumeNamedBudget(string $bucket, int $max, int $calls = 1): bool {
+    $dir = guardDataDir($bucket);
+    if ($dir === null) return false;
+
+    $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d');
+    $file  = $dir . '/budget-' . $today . '.json';
+
+    $granted = false;
+    $ok = guardLocked($file, function (array $data) use ($calls, $max, &$granted): ?array {
+        $used = isset($data['used']) && is_int($data['used']) ? $data['used'] : 0;
+        if ($used + $calls > $max) return null;
+        $granted = true;
+        return ['used' => $used + $calls];
+    });
+
+    if (!$ok) {
+        error_log('guard: Budgetdatei nicht beschreibbar (' . $file . ')');
+        return false;
+    }
+    if (!$granted) {
+        error_log('guard: Tagesbudget "' . $bucket . '" (' . $max . ') erreicht');
+    }
+
+    guardCleanupBudget($dir, $today);
+    return $granted;
 }
 
 // =====================================================================

@@ -2812,6 +2812,62 @@ body[data-zweig="webdesign"]{
   .zweig-band__go{grid-column:1 / -1;margin-top:2px}
 }
 
+/* ============ PAGESPEED-CHECK (Live-Geschwindigkeitsmessung) ============
+   Dieselbe Zustandslogik wie beim GBP-Check auf der Startseite (ein
+   data-state-Attribut, alle vier Zustände stehen im HTML, CSS zeigt nur den
+   passenden) — aber als EIGENE, klassenbasierte Komponente statt der
+   ID-gebundenen .gbp-badge-Regeln. Zwei Gründe: Erstens gehört diese
+   Komponente zum Webdesign-Zweig und soll nicht an SEO-Zweig-Klassen hängen,
+   die an anderer Stelle unabhängig weiterentwickelt werden. Zweitens nutzt
+   sie automatisch die --green-*-Token, die body[data-zweig="webdesign"]
+   bereits auf Blau umstellt — keine einzige Farbe hier ist hartkodiert. */
+.psc{max-width:520px;margin:44px auto 0;padding:36px 32px;border-radius:var(--r-lg);
+  border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.psc .field{margin-bottom:14px}
+.psc .btn{width:100%}
+.psc__privacy{margin-top:14px;color:var(--dim-2);font-size:.8rem;line-height:1.55;text-align:center}
+
+.psc .psc__loading,.psc .psc__result,.psc .psc__error{display:none}
+.psc[data-state="loading"] .psc__form,
+.psc[data-state="result"] .psc__form,
+.psc[data-state="error"] .psc__form{display:none}
+.psc[data-state="loading"] .psc__loading{display:block;text-align:center;padding:20px 0}
+.psc[data-state="result"] .psc__result{display:block}
+.psc[data-state="error"] .psc__error{display:block;text-align:center}
+
+/* display:block ist Pflicht: der Spinner ist ein <span> (inline per Default),
+   und inline-Elemente ignorieren width/height komplett — ohne diese Zeile
+   wuerde nur ein schmaler, hochkant gequetschter Rand-"Strich" gerendert
+   statt eines Kreises. */
+.psc__spinner{display:block;width:52px;height:52px;margin:0 auto 20px;border-radius:50%;
+  border:4px solid var(--border);border-top-color:var(--green-bright);
+  animation:pscSpin .9s linear infinite}
+@keyframes pscSpin{to{transform:rotate(360deg)}}
+.psc__loading p{color:var(--dim);font-size:.94rem;line-height:1.6;max-width:32ch;margin:0 auto}
+
+.psc__eyebrow{text-align:center;color:var(--dim-2);font-size:.86rem;margin-bottom:14px;
+  overflow-wrap:anywhere}
+/* Ring-Mechanik identisch zu .gbp-ring (SVG-Kreis, stroke-dasharray), aber
+   eigenständig benannt — siehe Kommentar oben. */
+.psc-ring{position:relative;width:120px;height:120px;margin:0 auto 10px}
+.psc-ring svg{transform:rotate(-90deg)}
+.psc-ring__track{fill:none;stroke:rgba(var(--surface-2-rgb),.5);stroke-width:10}
+.psc-ring__value{fill:none;stroke:var(--green-bright);stroke-width:10;stroke-linecap:round;
+  transition:stroke-dashoffset .8s var(--ease-out),stroke .8s var(--ease-out)}
+.psc-ring__num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.7rem;color:var(--ink)}
+.psc-ring__caption{text-align:center;color:var(--dim);font-size:.82rem;line-height:1.5;
+  max-width:26ch;margin:0 auto 18px}
+.psc__lcp{text-align:center;color:var(--ink);font-size:.94rem;line-height:1.55;margin-bottom:14px}
+.psc__verdict{text-align:center;color:var(--dim);font-size:.94rem;line-height:1.6;margin-bottom:22px}
+.psc__result-actions{display:flex;flex-direction:column;gap:10px}
+.psc__error p{color:var(--dim);font-size:.95rem;line-height:1.6;margin-bottom:18px}
+
+@media(max-width:560px){
+  .psc{padding:28px 22px}
+}
+
 /* ============ BUCHUNGSBEREICH DES WEBDESIGN-ZWEIGS ============
    Eine zentrierte Spalte statt des zweispaltigen Kontakt-Rasters: Auf dieser
    Seite gibt es genau eine Handlung — Termin aussuchen. Ein Formular daneben

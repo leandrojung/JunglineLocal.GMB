@@ -25,6 +25,28 @@
 })();
 
 (function(){
+  // Das PageSpeed-Check-Widget (src/js/pagespeed-check.js) wird erst
+  // geladen, wenn es in Sichtweite kommt. Nur auf /webdesign/ vorhanden —
+  // auf allen anderen Seiten passiert hier nichts.
+  var widget = document.getElementById('pscWidget');
+  if(!widget) return;
+  var loaded = false;
+  var load = function(){
+    if(loaded) return;
+    loaded = true;
+    import('./pagespeed-check.js');
+  };
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
+    }, {rootMargin:'600px'});
+    io.observe(widget);
+  } else {
+    load();
+  }
+})();
+
+(function(){
   // GBP-Profil-Check-Badge: schickt Firmenname/Stadt/Keyword an die eigene
   // Backend-Route /api/gbp-check (kein Google-Key im Frontend) und zeigt
   // den Vollständigkeits-Score als Ring + Checkliste an.

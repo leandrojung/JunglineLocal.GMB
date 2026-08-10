@@ -43,7 +43,8 @@
     {"@type":"Question","name":"Was passiert mit meiner alten Website und meiner Internetadresse?","acceptedAnswer":{"@type":"Answer","text":"Ihre Domain bleibt Ihre Domain. Die alte Seite bleibt online, bis die neue fertig ist. Danach leiten alte Unterseiten auf die passenden neuen weiter, damit bestehende Links und Google-Treffer nicht ins Leere laufen."}},
     {"@type":"Question","name":"Kann ich die Seite später selbst ändern?","acceptedAnswer":{"@type":"Answer","text":"Kleinigkeiten wie Öffnungszeiten oder Texte übernehme ich im Pflegepaket in der Regel am selben Werktag. Wenn Sie lieber selbst bearbeiten möchten, sagen Sie das vor dem Start — dann baue ich die Seite entsprechend auf."}},
     {"@type":"Question","name":"Muss ich die Pflege mitbuchen?","acceptedAnswer":{"@type":"Answer","text":"Nein. Die Seite gehört Ihnen und läuft auch ohne mich weiter. Die Pflege ist ein Angebot für alle, die sich nicht selbst um Updates, Backups und Sicherheit kümmern möchten — monatlich kündbar."}},
-    {"@type":"Question","name":"Arbeiten Sie nur regional?","acceptedAnswer":{"@type":"Answer","text":"Ich sitze in Dorsten in NRW. Der Austausch läuft per Telefon und Video, deshalb arbeite ich bundesweit. Wer in der Nähe ist, bekommt den Termin gern persönlich."}}
+    {"@type":"Question","name":"Arbeiten Sie nur regional?","acceptedAnswer":{"@type":"Answer","text":"Ich sitze in Dorsten in NRW. Der Austausch läuft per Telefon und Video, deshalb arbeite ich bundesweit. Wer in der Nähe ist, bekommt den Termin gern persönlich."}},
+    {"@type":"Question","name":"Ist der Geschwindigkeits-Check oben auf der Seite kostenlos?","acceptedAnswer":{"@type":"Answer","text":"Ja, ohne Einschränkung. Die Prüfung läuft über die offizielle Schnittstelle PageSpeed Insights von Google — dieselbe Messung, die Google auch fürs eigene Ranking verwendet. Ihre eingegebene Adresse wird ausschließlich zur Prüfung genutzt, nicht gespeichert oder weitergegeben."}}
   ]
 }
 </script>
@@ -204,6 +205,62 @@
         <span class="wd-stake__ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 4.2 6.4v5.2c0 4.7 3.2 8.4 7.8 9.6 4.6-1.2 7.8-4.9 7.8-9.6V6.4z"/><path d="M9.6 12.2 11.4 14l3.4-3.6"/></svg></span>
         <h3>Wirkt nicht mehr seriös</h3>
         <p>Ein Design von vorgestern lässt gute Arbeit alt aussehen. Wer Sie noch nicht kennt, schließt von der Website auf den Betrieb — zu Recht oder nicht.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHECK ============
+     Live-Messung statt Behauptung: Google PageSpeed Insights (Lighthouse,
+     mobil) prüft die eingegebene Adresse wirklich und liefert einen
+     Performance-Wert 0-100 in derselben Farbskala, die Google selbst nutzt.
+     Server-seitige Route: public/api/pagespeed-check.php. Läuft nach demselben
+     Schutzmuster wie der GBP-Check auf der Startseite (Herkunftspruefung,
+     Mengenbegrenzung, 24h-Cache, eigenes Tagesbudget), aber mit einem
+     eigenständigen, von GBP unabhängigen Budget — siehe _guard.php. -->
+<section class="section section--tight" id="check">
+  <div class="container">
+    <div class="head-block center" data-reveal>
+      <span class="eyebrow"><svg class="eyebrow__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2.5 4.5 13.4h6.2l-1.4 8.1 8.7-11.1h-6.2z"/></svg>Live-Check</span>
+      <h2 class="section-title-grad">Probieren Sie es aus</h2>
+      <p>Kein Bauchgefühl — tippen Sie Ihre jetzige Adresse ein und sehen Sie in Sekunden, wie schnell Ihre Seite auf dem Handy wirklich ist. Dieselbe Messung, die Google auch fürs Ranking heranzieht.</p>
+    </div>
+    <div class="psc" id="pscWidget" data-state="form">
+      <form class="form psc__form" id="pscForm" novalidate>
+        <div class="field">
+          <label for="psc-url">Ihre Internetadresse</label>
+          <input type="text" id="psc-url" name="url" placeholder="ihre-firma.de" autocomplete="url" inputmode="url" required>
+        </div>
+        <button type="submit" class="btn btn--primary">Jetzt prüfen</button>
+        <p class="psc__privacy">Ihre Adresse wird nur an die offizielle Google-Schnittstelle „PageSpeed Insights" geschickt, um Ladezeit und Aufbau zu prüfen — sonst nichts. Kein Tracking, keine dauerhafte Speicherung Ihrer Eingabe.</p>
+      </form>
+
+      <div class="psc__loading">
+        <span class="psc__spinner" aria-hidden="true"></span>
+        <p>Ihre Seite wird geladen und geprüft — das kann bis zu 30 Sekunden dauern, weil Google sie wirklich öffnet, nicht nur simuliert.</p>
+      </div>
+
+      <div class="psc__result">
+        <p class="psc__eyebrow">Ergebnis für <span id="pscResultUrl"></span></p>
+        <div class="psc-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+            <circle class="psc-ring__track" cx="60" cy="60" r="52"/>
+            <circle class="psc-ring__value" cx="60" cy="60" r="52" id="pscRingValue"/>
+          </svg>
+          <span class="psc-ring__num" id="pscScoreNum">0</span>
+        </div>
+        <p class="psc-ring__caption">Lighthouse-Performance-Wert von Google, mobil gemessen</p>
+        <p class="psc__lcp" id="pscLcp"></p>
+        <p class="psc__verdict" id="pscVerdict"></p>
+        <div class="psc__result-actions">
+          <a href="#termin" class="btn btn--primary">Ergebnis besprechen</a>
+          <button type="button" class="btn btn--ghost" data-psc-reset>Andere Adresse prüfen</button>
+        </div>
+      </div>
+
+      <div class="psc__error">
+        <p id="pscErrorText">Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.</p>
+        <button type="button" class="btn btn--ghost" data-psc-reset>Erneut versuchen</button>
       </div>
     </div>
   </div>
@@ -681,6 +738,10 @@
       <div class="faq__item">
         <button class="faq__q" aria-expanded="false">Arbeiten Sie nur regional?<span class="faq__icon" aria-hidden="true"></span></button>
         <div class="faq__a"><div class="faq__a-inner"><p class="faq__a-text">Ich sitze in Dorsten in NRW. Der Austausch läuft per Telefon und Video, deshalb arbeite ich bundesweit. Wer in der Nähe ist, bekommt den Termin gern persönlich.</p></div></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q" aria-expanded="false">Ist der Geschwindigkeits-Check oben auf der Seite kostenlos?<span class="faq__icon" aria-hidden="true"></span></button>
+        <div class="faq__a"><div class="faq__a-inner"><p class="faq__a-text">Ja, ohne Einschränkung. Die Prüfung läuft über die offizielle Schnittstelle „PageSpeed Insights" von Google — dieselbe Messung, die Google auch fürs eigene Ranking verwendet. Ihre eingegebene Adresse wird ausschließlich zur Prüfung genutzt, nicht gespeichert oder weitergegeben (Details in der <a href="/datenschutz/">Datenschutzerklärung</a>).</p></div></div>
       </div>
     </div>
     <p class="faq__cta" data-reveal>Noch eine Frage offen? <a href="/webdesign/kontakt/">Schreiben Sie mir direkt.</a></p>
