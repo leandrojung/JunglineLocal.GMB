@@ -229,7 +229,9 @@
     <div class="vnc vnc--wd" data-reveal>
       <div class="vnc__stage" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
            aria-label="Vergleich alte und neue Website. Mit den Pfeiltasten nach links und rechts verschieben.">
-        <!-- Vorher: harte Ecken, gedeckte Farben, gedrängte Abstände, Banner -->
+        <!-- VORHER: Serifenschrift, harte Ecken, Begruessungsbanner,
+             Linkspalte und Besucherzaehler — die Merkmale einer Seite, die
+             seit über zehn Jahren niemand mehr angefasst hat. -->
         <div class="vnc__side vnc__side--before" aria-hidden="true">
           <div class="wdv">
             <div class="wd-win wd-win--alt">
@@ -238,54 +240,114 @@
                 <span class="wd-win__url">www.ihre-firma.de/index_alt.htm</span>
               </div>
               <div class="wd-win__page">
-                <div class="wdv__banner">Herzlich willkommen auf unserer Homepage!</div>
-                <div class="wdv__alt-body">
-                  <div class="wdv__alt-nav">
-                    <span class="wdv__alt-logo"></span>
-                    <span class="wdv__alt-links"><i></i><i></i><i></i><i></i><i></i></span>
+                <div class="wsa">
+                  <div class="wsa__banner">HERZLICH WILLKOMMEN AUF UNSERER HOMEPAGE!</div>
+                  <div class="wsa__head">
+                    <span class="wsa__logo">IF</span>
+                    <span class="wsa__name">
+                      <b>Ihre Firma GmbH</b>
+                      <span>Ihr Partner in Ihrer Stadt</span>
+                    </span>
+                    <span class="wsa__tel">Tel. 0000 / 00 00 00<br>Fax 0000 / 00 00 01</span>
                   </div>
-                  <span class="wdv__alt-h"></span>
-                  <span class="wdv__alt-p wdv__alt-p--a"></span>
-                  <span class="wdv__alt-p wdv__alt-p--b"></span>
-                  <span class="wdv__alt-p wdv__alt-p--c"></span>
-                  <span class="wdv__alt-p wdv__alt-p--b"></span>
-                  <div class="wdv__alt-cols"><i></i><i></i><i></i></div>
-                  <div class="wdv__alt-foot">Letzte Aktualisierung: 14.03.2011 <span class="wdv__alt-counter">000247</span></div>
+                  <div class="wsa__tabs">
+                    <i>Startseite</i><i>Über uns</i><i>Leistungen</i><i>Referenzen</i><i>Kontakt</i><i>Impressum</i>
+                  </div>
+                  <div class="wsa__body">
+                    <div class="wsa__side">
+                      <div class="wsa__box">
+                        <b>Navigation</b>
+                        <u>» Aktuelles</u><u>» Unsere Leistungen</u><u>» Anfahrt</u><u>» Gästebuch</u><u>» Links</u>
+                      </div>
+                      <div class="wsa__box">
+                        <b>Öffnungszeiten</b>
+                        <u>Mo – Do  8 – 17 Uhr</u><u>Fr  8 – 13 Uhr</u>
+                      </div>
+                      <div class="wsa__counter">
+                        Besucher
+                        <span>000247</span>
+                      </div>
+                    </div>
+                    <div class="wsa__main">
+                      <div class="wsa__h1">Willkommen auf unserer Internetpräsenz!</div>
+                      <p class="wsa__p">Schön, dass Sie den Weg auf unsere Seiten gefunden haben. Wir sind seit vielen Jahren für Sie tätig und freuen uns über Ihr Interesse an unserem Unternehmen und unseren Leistungen.</p>
+                      <p class="wsa__p">Auf den folgenden Seiten möchten wir Ihnen einen kleinen Einblick in unsere Arbeit geben. Bei Fragen erreichen Sie uns telefonisch zu den üblichen Geschäftszeiten.</p>
+                      <p class="wsa__p">Wir bitten um Verständnis, dass eine Bearbeitung von Anfragen per E-Mail nur werktags erfolgen kann. Wir freuen uns auf Ihren Anruf!</p>
+                      <div class="wsa__grid"><i>Bild 1</i><i>Bild 2</i><i>Bild 3</i></div>
+                      <p class="wsa__caption">Impressionen aus unserem Betrieb</p>
+                    </div>
+                  </div>
+                  <div class="wsa__foot">
+                    <span>Letzte Aktualisierung: 14.03.2011</span>
+                    <span>Optimiert für 1024 × 768</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <p class="wdv__cap"><b>Nicht für Handys</b> · langsam</p>
+            <p class="wdv__cap"><b>Nicht für Handys</b> · langsam · keine Anfragen</p>
           </div>
           <span class="vnc__label vnc__label--before">Vorher</span>
         </div>
 
-        <!-- Nachher: dieselbe Geometrie, aufgeräumt -->
+        <!-- NACHHER: dieselbe Geometrie, aber eine ausgestaltete Seite mit
+             echter Überschrift, farbigem Handlungsknopf, Bildfläche mit
+             aufgesetzter Bewertungskarte und Leistungskacheln. Firmenname und
+             Texte bleiben generisch ("Ihre Firma") — der Besucher soll sich
+             selbst hineinlesen, und es entsteht kein erfundenes Kundenprojekt. -->
         <div class="vnc__side vnc__side--after" aria-hidden="true">
           <div class="wdv">
             <div class="wd-win">
               <div class="wd-win__bar">
                 <span class="wd-win__dots"><i></i><i></i><i></i></span>
-                <span class="wd-win__url">ihre-firma.de</span>
+                <span class="wd-win__url"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>ihre-firma.de</span>
               </div>
               <div class="wd-win__page">
-                <div class="wd-mini">
-                  <div class="wd-mini__nav">
-                    <span class="wd-mini__logo"></span>
-                    <span class="wd-mini__links"><i></i><i></i><i></i></span>
-                    <span class="wd-mini__cta"></span>
+                <div class="wsn">
+                  <div class="wsn__nav">
+                    <span class="wsn__brand"><span class="wsn__mark"></span>Ihre Firma</span>
+                    <span class="wsn__links"><i>Leistungen</i><i>Referenzen</i><i>Kontakt</i></span>
+                    <span class="wsn__cta">Angebot anfragen</span>
                   </div>
-                  <div class="wd-mini__hero">
-                    <span class="wd-mini__h1"></span>
-                    <span class="wd-mini__h1 wd-mini__h1--short"></span>
-                    <span class="wd-mini__p"></span>
-                    <span class="wd-mini__p wd-mini__p--short"></span>
-                    <span class="wd-mini__btn"></span>
+                  <div class="wsn__hero">
+                    <div class="wsn__copy">
+                      <p class="wsn__eyebrow">Meisterbetrieb seit 1998</p>
+                      <p class="wsn__h1">Ihre Leistung.<br><span>In Ihrer Stadt.</span></p>
+                      <p class="wsn__sub">Persönlich, zuverlässig und zum Festpreis — mit einem Ansprechpartner, der zurückruft.</p>
+                      <div class="wsn__btns">
+                        <span class="wsn__btn wsn__btn--pri">Kostenlos anfragen</span>
+                        <span class="wsn__btn">Anrufen</span>
+                      </div>
+                      <div class="wsn__trust"><span class="wsn__stars">★★★★★</span> 4,9 · 87 Bewertungen</div>
+                    </div>
+                    <div class="wsn__shot">
+                      <svg viewBox="0 0 200 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                        <circle cx="156" cy="46" r="24" fill="#FFF" opacity=".32"/>
+                        <path d="M14 152 L52 122 L90 152 Z" fill="#1F4E86" opacity=".5"/>
+                        <rect x="24" y="152" width="56" height="62" fill="#1B4478" opacity=".5"/>
+                        <path d="M94 134 L142 96 L190 134 Z" fill="#123A6B" opacity=".62"/>
+                        <rect x="104" y="134" width="76" height="80" fill="#0F3363" opacity=".62"/>
+                        <rect x="42" y="168" width="13" height="15" rx="1.5" fill="#FFF" opacity=".3"/>
+                        <rect x="118" y="150" width="14" height="16" rx="1.5" fill="#FFF" opacity=".3"/>
+                        <rect x="150" y="150" width="14" height="16" rx="1.5" fill="#FFF" opacity=".3"/>
+                        <rect x="118" y="180" width="14" height="16" rx="1.5" fill="#FFF" opacity=".22"/>
+                        <rect x="150" y="180" width="14" height="16" rx="1.5" fill="#FFF" opacity=".22"/>
+                        <rect x="0" y="214" width="200" height="46" fill="#0C2A50" opacity=".55"/>
+                      </svg>
+                      <span class="wsn__badge">
+                        <span class="wsn__badge-ic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                        <span class="wsn__badge-tx"><b>Anfrage in 2 Minuten</b><span>ohne Anruf, rund um die Uhr</span></span>
+                      </span>
+                    </div>
                   </div>
-                  <div class="wd-mini__cards"><i></i><i></i><i></i></div>
+                  <div class="wsn__cards">
+                    <span class="wsn__card"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i>Beratung</span>
+                    <span class="wsn__card"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5 5L4 17v3h3l5.7-5.7a4 4 0 0 0 5-5l-2.6 2.6-2.1-.5-.5-2.1z"/></svg></i>Umsetzung</span>
+                    <span class="wsn__card"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 4.4 6.4v5.1c0 4.6 3.2 8.3 7.6 9.5 4.4-1.2 7.6-4.9 7.6-9.5V6.4z"/></svg></i>Service</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <p class="wdv__cap"><b>Überall bedienbar</b> · schnell</p>
+            <p class="wdv__cap"><b>So könnte Ihre aussehen</b> · schnell · Anfragen inklusive</p>
           </div>
           <span class="vnc__label vnc__label--after">Nachher</span>
         </div>
