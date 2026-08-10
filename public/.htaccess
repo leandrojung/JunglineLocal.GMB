@@ -119,6 +119,7 @@
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
   RewriteRule ^api/pagespeed-check/?$ api/pagespeed-check.php [L]
+  RewriteRule ^api/ping/?$ api/ping.php [L]
 
   # Terminbuchung — saubere URLs ohne .php.
   RewriteRule ^api/booking/slots/?$  api/booking/slots.php  [L]
