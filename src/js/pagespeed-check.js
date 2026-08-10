@@ -111,7 +111,11 @@ if (root) {
       setState('loading');
 
       try {
-        const res = await fetch('/api/pagespeed-check', {
+        // Bewusst MIT ".php": Die saubere Adresse /api/pagespeed-check haengt
+        // an einer RewriteRule in der .htaccess, die auf dem Live-Server nicht
+        // greift (die Datei selbst antwortet unter .php einwandfrei). Der
+        // direkte Dateiaufruf ist von keiner Server-Konfiguration abhaengig.
+        const res = await fetch('/api/pagespeed-check.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: raw }),
