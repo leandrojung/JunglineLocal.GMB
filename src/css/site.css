@@ -2384,70 +2384,94 @@ body[data-zweig="webdesign"]{
 /* ============ WEBDESIGN: GERÄTE-ATTRAPPE ============
    Reine CSS-Attrappe statt Screenshot: kein Bild zum Laden, gestochen scharf
    auf jedem Display, und sie zeigt bewusst kein echtes Kundenprojekt — es gibt
-   noch keins, und ein erfundenes wäre eine Falschangabe. Gezeigt wird die
-   Struktur einer aufgeräumten Seite, nicht ein konkreter Kunde. */
-.wd-device{position:relative;padding-bottom:26px}
-.wd-win{position:relative;border-radius:16px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);
-  box-shadow:0 2px 4px rgba(16,22,48,.04),0 24px 60px -24px rgba(16,22,48,.22),
-             0 60px 120px -60px rgba(16,22,48,.2)}
-.js .wd-hero .wd-win{animation:wdFloat 9s ease-in-out 1.4s infinite}
-.wd-win__bar{display:flex;align-items:center;gap:12px;padding:10px 13px;
-  background:var(--surface-2);border-bottom:1px solid var(--border)}
-.wd-win__dots{display:flex;gap:6px;flex:none}
-.wd-win__dots i{display:block;width:10px;height:10px;border-radius:50%;background:var(--border-strong)}
-.wd-win__url{flex:1;min-width:0;height:23px;border-radius:999px;background:var(--surface);
-  border:1px solid var(--border);display:flex;align-items:center;padding:0 11px;
-  font-size:.68rem;color:var(--dim-2);letter-spacing:-.01em;white-space:nowrap;overflow:hidden}
-.wd-win__page{padding:17px 16px 19px;background:var(--surface)}
+   noch keins, und ein erfundenes wäre eine Falschangabe.
 
-.wd-mini{display:flex;flex-direction:column;gap:13px}
-.wd-mini__nav{display:flex;align-items:center;gap:9px}
-.wd-mini__logo{flex:none;width:26px;height:26px;border-radius:8px;background:var(--grad-cta)}
-.wd-mini__links{display:flex;gap:11px;flex:1;margin-left:4px}
-.wd-mini__links i{display:block;width:32px;height:6px;border-radius:3px;background:var(--border-strong);opacity:.75}
-.wd-mini__cta{flex:none;width:58px;height:21px;border-radius:999px;background:var(--grad-cta)}
-.wd-mini__hero{display:flex;flex-direction:column;gap:9px;padding:14px 0 4px}
-.wd-mini__h1{height:15px;border-radius:5px;background:var(--ink);opacity:.85;width:84%}
-.wd-mini__h1--short{width:57%}
-.wd-mini__p{height:7px;border-radius:4px;background:var(--dim-2);opacity:.32;width:72%}
-.wd-mini__p--short{width:49%}
-.wd-mini__btn{margin-top:7px;width:106px;height:27px;border-radius:999px;background:var(--grad-cta)}
-.wd-mini__cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.wd-mini__cards i{display:block;height:54px;border-radius:11px;background:var(--surface-2);
-  border:1px solid var(--border)}
+   Gezeigt wird dieselbe ausgestaltete Website (.wsn) wie auf der Nachher-Seite
+   des Vergleichs weiter unten — eine Gestaltung, zwei Orte. Grau angedeutete
+   Bloecke sind hier bewusst verschwunden: Wer eine neue Website verkauft, darf
+   im ersten Bild der Seite keinen Rohbau zeigen.
+
+   Groessensteuerung ueber eine Container-Abfrage: .wsn bemisst alles in em,
+   und die Basis leitet sich aus der Breite der Attrappe ab. Das Motiv passt
+   sich damit jeder Spaltenbreite an, ohne dass an Breakpoints nachgemessen
+   werden muss — und ohne die Buehne des Vergleichs zu beruehren, die ihre
+   Basis aus der Fensterbreite zieht. */
+.wd-device{position:relative;container-type:inline-size}
+.wd-device__inner{position:relative;font-size:8px;padding-bottom:2.6em}
+@supports (container-type:inline-size){
+  /* 10px bei 620px Breite — dieselbe Bezugsgroesse wie im Vergleich. */
+  .wd-device__inner{font-size:min(9px,1.613cqw)}
+}
+.wd-device__inner .wd-win{height:44em}
+/* Im Hero uebernimmt das Telefon die Rolle des aufgesetzten Details; die
+   Bewertungskarte auf der Bildflaeche laege ohnehin darunter. */
+.wd-device__inner .wsn__badge{display:none}
+
+/* ---- Browserrahmen (Hero und Vergleich teilen ihn sich) ---- */
+.wd-win{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  border-radius:1.4em;background:var(--surface);border:1px solid var(--border);
+  box-shadow:0 .2em .4em rgba(16,22,48,.04),0 2.4em 6em -2.4em rgba(16,22,48,.24),
+             0 6em 12em -6em rgba(16,22,48,.2)}
+.js .wd-hero .wd-win{animation:wdFloat 9s ease-in-out 1.4s infinite}
+.wd-win__bar{flex:none;display:flex;align-items:center;gap:1.2em;padding:1em 1.3em;height:3.9em;
+  background:var(--surface-2);border-bottom:1px solid var(--border)}
+.wd-win__dots{display:flex;gap:.6em;flex:none}
+.wd-win__dots i{display:block;width:1em;height:1em;border-radius:50%;background:var(--border-strong)}
+.wd-win__url{flex:1;min-width:0;height:2.3em;border-radius:999px;background:var(--surface);
+  border:1px solid var(--border);display:flex;align-items:center;gap:.5em;padding:0 1.1em;
+  font-size:1.05em;color:var(--dim-2);letter-spacing:-.01em;white-space:nowrap;overflow:hidden}
+.wd-win__url svg{flex:none;opacity:.6}
+.wd-win__page{flex:1;min-height:0;overflow:hidden;padding:0;background:var(--surface)}
+
 /* Einlauf-Choreografie: die Seite baut sich von oben nach unten auf, so wie
    ein Besucher sie auch liest. */
-.js .wd-device .wd-mini__nav,
-.js .wd-device .wd-mini__hero>*,
-.js .wd-device .wd-mini__cards i{animation:wdRise .65s var(--ease-apple) both}
-.js .wd-device .wd-mini__nav{animation-delay:.15s}
-.js .wd-device .wd-mini__hero>*:nth-child(1){animation-delay:.26s}
-.js .wd-device .wd-mini__hero>*:nth-child(2){animation-delay:.32s}
-.js .wd-device .wd-mini__hero>*:nth-child(3){animation-delay:.38s}
-.js .wd-device .wd-mini__hero>*:nth-child(4){animation-delay:.44s}
-.js .wd-device .wd-mini__hero>*:nth-child(5){animation-delay:.52s}
-.js .wd-device .wd-mini__cards i:nth-child(1){animation-delay:.62s}
-.js .wd-device .wd-mini__cards i:nth-child(2){animation-delay:.68s}
-.js .wd-device .wd-mini__cards i:nth-child(3){animation-delay:.74s}
+.js .wd-device .wsn__nav,
+.js .wd-device .wsn__copy>*,
+.js .wd-device .wsn__shot,
+.js .wd-device .wsn__cards>*{animation:wdRise .65s var(--ease-apple) both}
+.js .wd-device .wsn__nav{animation-delay:.15s}
+.js .wd-device .wsn__copy>*:nth-child(1){animation-delay:.26s}
+.js .wd-device .wsn__copy>*:nth-child(2){animation-delay:.32s}
+.js .wd-device .wsn__copy>*:nth-child(3){animation-delay:.38s}
+.js .wd-device .wsn__copy>*:nth-child(4){animation-delay:.44s}
+.js .wd-device .wsn__copy>*:nth-child(5){animation-delay:.5s}
+.js .wd-device .wsn__shot{animation-delay:.34s}
+.js .wd-device .wsn__cards>*:nth-child(1){animation-delay:.6s}
+.js .wd-device .wsn__cards>*:nth-child(2){animation-delay:.66s}
+.js .wd-device .wsn__cards>*:nth-child(3){animation-delay:.72s}
 
-.wd-phone{position:absolute;right:-14px;bottom:4px;width:124px;padding:7px;border-radius:26px;
+/* ---- Telefon: dieselbe Seite, wie sie auf dem Handy ankommt ---- */
+.wd-phone{position:absolute;right:-2em;bottom:.5em;width:15.6em;padding:.85em;border-radius:3em;
   background:#12151C;border:1px solid rgba(255,255,255,.14);
-  box-shadow:0 18px 40px -16px rgba(16,22,48,.55),0 3px 8px rgba(16,22,48,.2)}
+  box-shadow:0 2.2em 4.6em -1.8em rgba(16,22,48,.6),0 .4em 1em rgba(16,22,48,.22)}
 .js .wd-hero .wd-phone{animation:wdFloat 9s ease-in-out 2.1s infinite}
-.wd-phone__screen{position:relative;border-radius:20px;overflow:hidden;background:var(--surface);
-  padding:16px 9px 11px;display:flex;flex-direction:column;gap:7px}
-.wd-phone__screen::before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);
-  width:34px;height:4px;border-radius:2px;background:var(--border-strong)}
-.wd-phone__bar{display:flex;align-items:center;justify-content:space-between}
-.wd-phone__logo{width:17px;height:17px;border-radius:5px;background:var(--grad-cta)}
-.wd-phone__burger{display:flex;flex-direction:column;gap:2.5px}
-.wd-phone__burger i{display:block;width:13px;height:2px;border-radius:1px;background:var(--border-strong)}
-.wd-phone__h{height:9px;border-radius:3px;background:var(--ink);opacity:.85;width:88%;margin-top:5px}
-.wd-phone__h--short{width:60%}
-.wd-phone__p{height:5px;border-radius:2.5px;background:var(--dim-2);opacity:.3;width:76%}
-.wd-phone__btn{width:100%;height:19px;border-radius:999px;background:var(--grad-cta);margin-top:3px}
-.wd-phone__card{height:30px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border)}
+.wd-phone__screen{position:relative;border-radius:2.3em;overflow:hidden;background:#FFF}
+.wsm{display:flex;flex-direction:column;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:#1D1D1F}
+.wsm__nav{display:flex;align-items:center;gap:.5em;padding:1.6em .9em .7em;
+  border-bottom:1px solid rgba(0,0,0,.07)}
+.wsm__mark{flex:none;width:1.3em;height:1.3em;border-radius:.4em;
+  background:linear-gradient(135deg,#0A84FF,#0040A0)}
+.wsm__nav b{flex:1;font-size:.95em;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.wsm__burger{flex:none;display:flex;flex-direction:column;gap:.24em}
+.wsm__burger i{display:block;width:1.1em;height:.17em;border-radius:.1em;background:#86868B}
+.wsm__body{display:flex;flex-direction:column;gap:.6em;padding:.95em .9em 1.1em}
+.wsm__h{font-size:1.4em;font-weight:700;line-height:1.12;letter-spacing:-.035em}
+.wsm__h span{color:#0071E3}
+.wsm__p{font-size:.8em;line-height:1.4;color:#6E6E73}
+.wsm__btn{display:block;text-align:center;font-size:.82em;font-weight:600;color:#FFF;
+  background:linear-gradient(135deg,#0A84FF,#0060DF);border-radius:999px;padding:.8em .5em;
+  box-shadow:0 .5em 1em -.4em rgba(0,113,227,.85)}
+.wsm__shot{position:relative;height:5em;border-radius:.8em;overflow:hidden;
+  background:linear-gradient(160deg,#CFE4FF,#3F6FB5)}
+.wsm__shot svg{position:absolute;inset:0;width:100%;height:100%}
+.wsm__card{display:flex;align-items:center;gap:.5em;font-size:.8em;font-weight:600;
+  padding:.6em .65em;border-radius:.65em;border:1px solid rgba(0,0,0,.08);background:#F7F9FC}
+.wsm__card i{flex:none;width:1.5em;height:1.5em;border-radius:.42em;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,113,227,.1);color:#0071E3;font-style:normal}
+.wsm__card svg{width:.9em;height:.9em}
+
 @keyframes wdRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes wdFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-9px,0)}}
 
@@ -2589,15 +2613,8 @@ body[data-zweig="webdesign"]{
    absolut gesetzte Bildunterschrift — damit ist der Kasten auf beiden Seiten
    pixelgleich, egal wie lang die Unterschrift umbricht. */
 .wdv{position:relative;width:62em;height:47em}
-.wdv .wd-win{height:100%;display:flex;flex-direction:column;overflow:hidden;
-  border-radius:1.4em;
+.wdv .wd-win{height:100%;
   box-shadow:0 .2em .4em rgba(0,0,0,.04),0 1.8em 4.4em -2em rgba(0,0,0,.26)}
-.wdv .wd-win__bar{flex:none;gap:1.2em;padding:1em 1.3em;height:3.9em}
-.wdv .wd-win__dots{gap:.6em}
-.wdv .wd-win__dots i{width:1em;height:1em}
-.wdv .wd-win__url{height:2.3em;border-radius:999px;padding:0 1.1em;font-size:1.05em;gap:.5em}
-.wdv .wd-win__url svg{flex:none;opacity:.6}
-.wdv .wd-win__page{flex:1;min-height:0;overflow:hidden;padding:0}
 
 /* ---------- NACHHER: die neue Seite ----------
    Bewusst KEINE grauen Balken, sondern echte Ueberschrift, echter Fliesstext,
@@ -2728,7 +2745,11 @@ body[data-zweig="webdesign"]{
 @media(max-width:980px){
   .wd-hero__inner{grid-template-columns:1fr;gap:48px}
   .wd-hero .lead{max-width:52ch}
-  .wd-device{max-width:520px;margin:0 auto}
+  /* width:100% ist hier zwingend: container-type:inline-size verbietet eine
+     inhaltsabhaengige Breite. Automatische Seitenraender machen aus dem
+     Rasterelement aber genau das — ohne definierte Breite fiel die Attrappe
+     unterhalb von 980px auf null zusammen. */
+  .wd-device{width:100%;max-width:520px;margin-left:auto;margin-right:auto}
   .wd-stakes,.wd-tech{grid-template-columns:1fr 1fr}
   .wd-steps{grid-template-columns:1fr 1fr}
   .wd-step:not(:last-child)::after{display:none}
@@ -2752,7 +2773,6 @@ body[data-zweig="webdesign"]{
   .wd-steps{grid-template-columns:1fr}
   .wd-ref{padding:28px 22px}
   .wd-pillar{padding:26px 22px 24px}
-  .wd-phone{width:104px;right:-6px}
 }
 @media(prefers-reduced-motion:reduce){
   .js .wd-device .wd-mini__nav,
