@@ -29,6 +29,20 @@ function bkEsc(string $value): string {
 }
 
 /**
+ * Die Anrede aus dem eingetippten Namen.
+ *
+ * Das erste Wort genügt fast immer. Gibt jemand "Jung, Klaus" ein — die
+ * Reihenfolge aus jedem Behördenformular —, hängt an diesem ersten Wort ein
+ * Komma, und die Mail begrüßt ihn mit "Hallo Jung,,". Satzzeichen am Ende
+ * fliegen deshalb weg. Bleibt danach nichts übrig, gilt der ganze Name.
+ */
+function bkFirstName(array $booking): string {
+    $name = trim((string) ($booking['name'] ?? ''));
+    $first = trim((string) (strtok($name, ' ') ?: ''), " \t,;.:-");
+    return $first !== '' ? $first : $name;
+}
+
+/**
  * @param string $preheader Vorschautext in der Mailübersicht — ohne ihn zeigt
  *                          der Client die ersten Zeichen des Layouts.
  */
@@ -149,7 +163,7 @@ function bkTextFacts(array $booking): string {
 function bkMailConfirmation(array $booking): array {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
     $manage = bkManageUrl($booking['token']);
-    $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
+    $firstName = bkFirstName($booking);
 
     $thema = bkTopic($booking)['thema'];
 
@@ -263,7 +277,7 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
 
 function bkMailReminder(array $booking): array {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
-    $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
+    $firstName = bkFirstName($booking);
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
         . '<p style="margin:0;">kurze Erinnerung an unser Gespräch morgen. Der Videoraum-Link steht unten in der Übersicht.</p>'
@@ -309,7 +323,7 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
         ];
     }
 
-    $firstName = strtok(trim($booking['name']), ' ') ?: $booking['name'];
+    $firstName = bkFirstName($booking);
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
         . '<p style="margin:0;">Ihr Termin ist abgesagt — Sie müssen nichts weiter tun. Bitte denken Sie daran, ihn auch in Ihrem eigenen Kalender zu löschen.</p>'
         . bkEmailFactBox($booking)

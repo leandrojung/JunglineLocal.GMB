@@ -72,10 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $booking !== null && $booking['stat
         // Hoster-Postfach an und stellt sie nie zu.
         $toCustomer = bkMailCancelled($cancelled, false);
         bkMail($cancelled['email'], $cancelled['name'], $toCustomer['subject'],
-               $toCustomer['html'], $toCustomer['text'], null, bkOwnerEmail());
+               $toCustomer['html'], $toCustomer['text'], null, bkOwnerEmail(), 'absage');
 
         $toOwner = bkMailCancelled($cancelled, true);
-        bkMail(bkOwnerEmail(), bkOwnerName(), $toOwner['subject'], $toOwner['html'], $toOwner['text']);
+        bkMail(bkOwnerEmail(), bkOwnerName(), $toOwner['subject'], $toOwner['html'],
+               $toOwner['text'], null, null, 'intern');
+
+        // Liegengebliebenes nachreichen, sobald die Seite ausgeliefert ist.
+        bkScheduleQueueFlush();
 
         $booking = $cancelled;
         $done = true;

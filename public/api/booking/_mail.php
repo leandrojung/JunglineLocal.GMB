@@ -2,243 +2,262 @@
 /**
  * Terminbuchung — Mailversand.
  *
- * Eigener, abhängigkeitsfreier SMTP-Client: auf Shared-Hosting gibt es kein
- * composer-Deploy, und PHPMailer nur für zwei Mailtypen mitzuschleppen wäre
- * unverhältnismäßig. Versendet wird über das eigene Postfach
- * (SMTP_HOST/-USER/-PASS in der .env) — Absender und Domain passen dann
- * zusammen, was der wichtigste Hebel gegen den Spam-Ordner ist.
+ * Diese Datei ist die einzige Stelle, die der Rest des Buchungssystems
+ * kennt: bkMail() rein, Wahrheit raus. Wie die Mail tatsächlich hinausgeht,
+ * steht in _transport.php.
  *
- * Ohne SMTP-Konfiguration fällt der Versand auf PHP mail() zurück. Das
- * funktioniert, landet aber spürbar häufiger im Spam; die Bestätigung eines
- * Termins ist genau die Mail, bei der das am meisten weh tut.
+ * DREI DINGE MACHEN DEN UNTERSCHIED ZU VORHER
+ * -------------------------------------------
+ * 1. MEHRERE WEGE. Scheitert der erste Versandweg, wird der nächste
+ *    probiert. Eine Störung beim Dienstleister kostet keine Buchung mehr.
  *
- * Alle Teile werden base64-kodiert. Das kostet ein Drittel mehr Bytes und
- * erspart im Gegenzug jedes Umlaut- und Zeilenlängenproblem — und das
- * Dot-Stuffing im SMTP-Datenstrom, weil base64-Zeilen nie mit "." beginnen.
+ * 2. NICHTS GEHT VERLOREN. Klappt kein Weg, wandert die Mail in den
+ *    Ausgangskorb und wird erneut versucht — stündlich, mit wachsendem
+ *    Abstand, bis zu sechsmal. Vorher war eine gescheiterte Mail einfach
+ *    weg: eine Zeile im Fehlerprotokoll, die niemand liest.
+ *
+ * 3. ES IST NACHPRÜFBAR. Jede Mail hinterlässt eine Zeile mit Weg,
+ *    Vorgangsnummer und Grund. "Der Kunde hat nichts bekommen" ist damit
+ *    keine Sackgasse mehr, sondern eine Frage mit Antwort — nachzulesen
+ *    unter /api/booking/mailtest?token=…
+ *
+ * WICHTIG BLEIBT TROTZDEM: Ein "angenommen" ist keine Zustellung. Es sagt
+ * nur, dass der Versandweg die Mail übernommen hat. Ob sie im Postfach
+ * landet, entscheidet die Absenderreputation — dafür sorgen SPF, DKIM und
+ * DMARC (Anleitung in TERMINBUCHUNG.md). Die Diagnoseseite prüft sie.
  */
 
 declare(strict_types=1);
 
 require_once __DIR__ . '/_config.php';
-
-function bkMailFrom(): string {
-    return envValue('MAIL_FROM') ?? bkOwnerEmail();
-}
-
-function bkMailFromName(): string {
-    return envValue('MAIL_FROM_NAME') ?? 'JunglineLocal';
-}
+require_once __DIR__ . '/_store.php';
+require_once __DIR__ . '/_transport.php';
 
 /**
- * RFC-2047-Kodierung für Kopfzeilen mit Umlauten (Betreff, Anzeigename).
+ * Abstände zwischen den Wiederholungsversuchen, in Minuten.
  *
- * Ein kodiertes Wort darf höchstens 75 Zeichen lang sein — die Klammern
- * "=?UTF-8?B?" und "?=" zählen mit und belegen davon schon 12. Längere Texte
- * gehören auf mehrere kodierte Wörter verteilt, getrennt durch Zeilenumbruch
- * und Leerzeichen; der Empfänger fügt sie wieder zusammen.
- *
- * Ohne diese Aufteilung riss ausgerechnet der wichtigste Betreff des Systems
- * die Grenze um neun Zeichen — "Termin bestätigt: Freitag, 28. August 2026,
- * 11:00 Uhr" — und kostete die Bestätigungsmail die Zustellung: angenommen,
- * nie ausgeliefert, kein Bounce. Die Absage kam an, weil ihr Betreff
- * ("Termin abgesagt: 28.08.2026, 11:00 Uhr") zufällig ohne Umlaut auskommt
- * und deshalb gar nicht erst kodiert wurde.
- *
- * Geteilt wird zwischen Zeichen, nicht zwischen Bytes: Ein Schnitt mitten
- * durch ein "ä" macht daraus beim Empfänger zwei Fragezeichen.
+ * Der erste Versuch passiert sofort beim Buchen. Danach wartet der Cron —
+ * kurz, falls es nur ein Schluckauf war, dann immer länger, damit eine
+ * echte Störung nicht stündlich dieselbe Mail gegen die Wand fährt. Nach
+ * dem letzten Eintrag gilt die Mail als endgültig gescheitert und bleibt
+ * als solche im Protokoll stehen.
  */
-function bkMimeHeader(string $value): string {
-    if (!preg_match('/[\x80-\xFF]/', $value)) return $value;
+const BK_MAIL_RETRIES = [5, 20, 60, 180, 480, 1440];
 
-    // 45 Byte Rohtext ergeben 60 Zeichen Base64, mit den Klammern 72 —
-    // mit Sicherheitsabstand unter der Grenze von 75.
-    $chunks = [];
-    $current = '';
-    foreach (preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $char) {
-        if (strlen($current) + strlen($char) > 45) {
-            $chunks[] = $current;
-            $current = '';
-        }
-        $current .= $char;
+/** Höchstalter eines Eintrags im Protokoll, in Tagen. */
+const BK_MAIL_LOG_DAYS = 90;
+
+/**
+ * Verschickt eine Mail über den ersten Weg, der sie annimmt.
+ *
+ * Rückgabe false heißt: kein Weg hat sie angenommen. Die Mail ist dann
+ * NICHT verloren — sie liegt im Ausgangskorb und wird wiederholt. Der
+ * Aufrufer entscheidet, ob er den Besucher darauf hinweist; eine Buchung
+ * scheitert daran nie.
+ *
+ * @param string $kind Art der Mail für das Protokoll: 'bestaetigung',
+ *                     'erinnerung', 'absage', 'intern' oder 'test'.
+ */
+function bkMail(
+    string $toEmail,
+    string $toName,
+    string $subject,
+    string $html,
+    string $text,
+    ?array $ics = null,
+    ?string $replyTo = null,
+    string $kind = 'mail'
+): bool {
+    $msg = [
+        'to_email' => $toEmail,
+        'to_name' => bkCleanName($toName),
+        'subject' => $subject,
+        'html' => $html,
+        'text' => $text,
+        'reply_to' => $replyTo,
+        'ics' => $ics,
+        'kind' => $kind,
+    ];
+
+    $result = bkDeliver($msg);
+
+    try {
+        bkMailQueueAdd([
+            'status' => $result['ok'] ? 'sent' : 'queued',
+            'attempts' => 1,
+            'next_try' => $result['ok'] ? '' : bkNextTry(1),
+            'kind' => $kind,
+            'to_email' => $toEmail,
+            'to_name' => $msg['to_name'],
+            'subject' => $subject,
+            'payload' => json_encode($msg, JSON_UNESCAPED_UNICODE) ?: '{}',
+            'transport' => $result['transport'],
+            'provider_id' => $result['id'],
+            'error' => $result['error'],
+        ]);
+    } catch (Throwable $e) {
+        // Ein kaputtes Protokoll darf niemals den Versand verhindern.
+        error_log('booking/mail: Protokolleintrag fehlgeschlagen — ' . $e->getMessage());
     }
-    if ($current !== '') $chunks[] = $current;
 
-    return implode("\r\n ", array_map(
-        static fn (string $chunk): string => '=?UTF-8?B?' . base64_encode($chunk) . '?=',
-        $chunks
-    ));
-}
-
-function bkAddress(string $email, string $name = ''): string {
-    return $name === '' ? $email : bkMimeHeader($name) . ' <' . $email . '>';
+    if (!$result['ok']) {
+        error_log('booking/mail: an ' . $toEmail . ' über keinen Weg zugestellt — ' . $result['error']);
+    }
+    return $result['ok'];
 }
 
 /**
- * Baut die vollständige MIME-Nachricht.
+ * Probiert die Versandwege der Reihe nach durch.
  *
- * @param array|null $ics ['content' => string, 'method' => 'REQUEST'|'CANCEL']
- * @return array{headers: array<string,string>, body: string}
+ * @return array{ok:bool, transport:string, id:string, error:string, log:array<int,string>}
  */
-function bkBuildMime(string $html, string $text, ?array $ics): array {
-    $boundaryMixed = 'mix_' . bin2hex(random_bytes(12));
-    $boundaryAlt   = 'alt_' . bin2hex(random_bytes(12));
-
-    $alternative = "--$boundaryAlt\r\n"
-        . "Content-Type: text/plain; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: base64\r\n\r\n"
-        . chunk_split(base64_encode($text), 76, "\r\n")
-        . "--$boundaryAlt\r\n"
-        . "Content-Type: text/html; charset=UTF-8\r\n"
-        . "Content-Transfer-Encoding: base64\r\n\r\n"
-        . chunk_split(base64_encode($html), 76, "\r\n")
-        . "--$boundaryAlt--\r\n";
-
-    if ($ics === null) {
+function bkDeliver(array $msg): array {
+    $chain = bkTransportChain();
+    if ($chain === []) {
         return [
-            'headers' => ['Content-Type' => "multipart/alternative; boundary=\"$boundaryAlt\""],
-            'body' => $alternative,
+            'ok' => false, 'transport' => '', 'id' => '',
+            'error' => 'Kein Versandweg konfiguriert (weder API-Schlüssel noch SMTP noch mail()).',
+            'log' => [],
         ];
     }
 
-    $method = $ics['method'] ?? 'REQUEST';
-    $body = "--$boundaryMixed\r\n"
-        . "Content-Type: multipart/alternative; boundary=\"$boundaryAlt\"\r\n\r\n"
-        . $alternative
-        . "--$boundaryMixed\r\n"
-        . "Content-Type: text/calendar; charset=UTF-8; method=$method; name=\"termin.ics\"\r\n"
-        . "Content-Transfer-Encoding: base64\r\n"
-        . "Content-Disposition: attachment; filename=\"termin.ics\"\r\n\r\n"
-        . chunk_split(base64_encode($ics['content']), 76, "\r\n")
-        . "--$boundaryMixed--\r\n";
+    $log = [];
+    $errors = [];
+    foreach ($chain as $id) {
+        $log[] = '=== Versuch über ' . bkTransportLabel($id);
+        try {
+            $res = bkTransportSend($id, $msg);
+        } catch (Throwable $e) {
+            $res = ['ok' => false, 'id' => '', 'error' => 'Ausnahme: ' . $e->getMessage(), 'log' => []];
+        }
+        $log = array_merge($log, $res['log']);
+
+        if ($res['ok']) {
+            return ['ok' => true, 'transport' => $id, 'id' => $res['id'], 'error' => '', 'log' => $log];
+        }
+        $errors[] = $id . ': ' . $res['error'];
+        $log[] = '!!! ' . $res['error'];
+    }
 
     return [
-        'headers' => ['Content-Type' => "multipart/mixed; boundary=\"$boundaryMixed\""],
-        'body' => $body,
+        'ok' => false, 'transport' => '', 'id' => '',
+        'error' => implode(' // ', $errors),
+        'log' => $log,
     ];
 }
 
-// =====================================================================
-// SMTP
-// =====================================================================
-
-function bkSmtpConfigured(): bool {
-    return (envValue('SMTP_HOST') ?? '') !== '' && (envValue('SMTP_USER') ?? '') !== '';
+/** Zeitpunkt des nächsten Versuchs nach $attempts bisherigen Versuchen. */
+function bkNextTry(int $attempts): string {
+    $index = min(max($attempts, 1), count(BK_MAIL_RETRIES)) - 1;
+    return bkStamp(bkNow()->modify('+' . BK_MAIL_RETRIES[$index] . ' minutes'));
 }
-
-/** Liest eine — auch mehrzeilige — Serverantwort und liefert den Statuscode. */
-function bkSmtpRead($fp): int {
-    $code = 0;
-    while (($line = fgets($fp, 1024)) !== false) {
-        $code = (int) substr($line, 0, 3);
-        // "250-" heißt: es folgen weitere Zeilen, "250 " beendet die Antwort.
-        if (strlen($line) < 4 || $line[3] !== '-') break;
-    }
-    return $code;
-}
-
-function bkSmtpCmd($fp, string $command, int $expected): bool {
-    fwrite($fp, $command . "\r\n");
-    $code = bkSmtpRead($fp);
-    if ($code !== $expected) {
-        // Passwörter dürfen nie ins Log — deshalb nur das Verb protokollieren.
-        error_log('booking/smtp: "' . strtok($command, ' ') . '" ergab ' . $code . ', erwartet ' . $expected);
-        return false;
-    }
-    return true;
-}
-
-function bkSmtpSend(string $toEmail, string $toName, string $subject, array $mime, ?string $replyTo): bool {
-    $host   = (string) envValue('SMTP_HOST');
-    $user   = (string) envValue('SMTP_USER');
-    $pass   = (string) envValue('SMTP_PASS');
-    $secure = strtolower(envValue('SMTP_SECURE') ?? 'ssl');
-    $port   = (int) (envValue('SMTP_PORT') ?? ($secure === 'ssl' ? 465 : 587));
-
-    $endpoint = ($secure === 'ssl' ? 'ssl://' : '') . $host . ':' . $port;
-    $fp = @stream_socket_client($endpoint, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
-    if (!$fp) {
-        error_log('booking/smtp: Verbindung zu ' . $endpoint . ' fehlgeschlagen — ' . $errstr);
-        return false;
-    }
-    stream_set_timeout($fp, 15);
-
-    try {
-        if (bkSmtpRead($fp) !== 220) return false;
-
-        $helo = parse_url(bkSiteUrl(), PHP_URL_HOST) ?: 'jungline.de';
-        if (!bkSmtpCmd($fp, 'EHLO ' . $helo, 250)) return false;
-
-        if ($secure === 'tls') {
-            if (!bkSmtpCmd($fp, 'STARTTLS', 220)) return false;
-            if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                error_log('booking/smtp: STARTTLS-Handshake fehlgeschlagen.');
-                return false;
-            }
-            // Nach dem Wechsel auf TLS verlangt der Standard ein neues EHLO.
-            if (!bkSmtpCmd($fp, 'EHLO ' . $helo, 250)) return false;
-        }
-
-        if (!bkSmtpCmd($fp, 'AUTH LOGIN', 334)) return false;
-        if (!bkSmtpCmd($fp, base64_encode($user), 334)) return false;
-        if (!bkSmtpCmd($fp, base64_encode($pass), 235)) return false;
-
-        if (!bkSmtpCmd($fp, 'MAIL FROM:<' . bkMailFrom() . '>', 250)) return false;
-        if (!bkSmtpCmd($fp, 'RCPT TO:<' . $toEmail . '>', 250)) return false;
-        if (!bkSmtpCmd($fp, 'DATA', 354)) return false;
-
-        $headers = [
-            'Date' => date('r'),
-            'From' => bkAddress(bkMailFrom(), bkMailFromName()),
-            'To' => bkAddress($toEmail, $toName),
-            'Subject' => bkMimeHeader($subject),
-            'Message-ID' => '<' . bin2hex(random_bytes(12)) . '@' . $helo . '>',
-            'MIME-Version' => '1.0',
-        ] + $mime['headers'];
-        if ($replyTo !== null) $headers['Reply-To'] = $replyTo;
-
-        $raw = '';
-        foreach ($headers as $key => $value) $raw .= $key . ': ' . $value . "\r\n";
-        $raw .= "\r\n" . $mime['body'];
-
-        fwrite($fp, $raw . "\r\n.\r\n");
-        if (bkSmtpRead($fp) !== 250) {
-            error_log('booking/smtp: Server hat die Nachricht abgelehnt.');
-            return false;
-        }
-
-        bkSmtpCmd($fp, 'QUIT', 221);
-        return true;
-    } finally {
-        fclose($fp);
-    }
-}
-
-// =====================================================================
-// Öffentliche Schnittstelle
-// =====================================================================
 
 /**
- * Verschickt eine Mail. Rückgabe false heißt: nicht zugestellt — der
- * Aufrufer entscheidet, ob das die Buchung scheitern lässt (tut es nicht;
- * ein gebuchter Termin bleibt gebucht, auch wenn die Mail klemmt).
+ * Arbeitet den Ausgangskorb ab. Läuft im Cron zusammen mit den
+ * Erinnerungen (remind.php) und beiläufig nach jeder Buchung
+ * (bkScheduleQueueFlush).
+ *
+ * @return array{sent:int, still_queued:int, failed:int}
  */
-function bkMail(string $toEmail, string $toName, string $subject, string $html, string $text, ?array $ics = null, ?string $replyTo = null): bool {
-    $mime = bkBuildMime($html, $text, $ics);
+function bkFlushMailQueue(int $limit = 25): array {
+    $sent = 0;
+    $stillQueued = 0;
+    $failed = 0;
 
-    if (bkSmtpConfigured()) {
-        return bkSmtpSend($toEmail, $toName, $subject, $mime, $replyTo);
+    foreach (bkMailQueueDue($limit) as $row) {
+        $msg = json_decode((string) $row['payload'], true);
+        $attempts = (int) $row['attempts'] + 1;
+
+        if (!is_array($msg) || ($msg['to_email'] ?? '') === '') {
+            bkMailQueueUpdate((int) $row['id'], [
+                'status' => 'failed',
+                'attempts' => $attempts,
+                'next_try' => '',
+                'error' => 'Der gespeicherte Inhalt der Mail ist unlesbar.',
+            ]);
+            $failed++;
+            continue;
+        }
+
+        $result = bkDeliver($msg);
+
+        if ($result['ok']) {
+            bkMailQueueUpdate((int) $row['id'], [
+                'status' => 'sent',
+                'attempts' => $attempts,
+                'next_try' => '',
+                'transport' => $result['transport'],
+                'provider_id' => $result['id'],
+                'error' => '',
+            ]);
+            $sent++;
+            continue;
+        }
+
+        $exhausted = $attempts >= count(BK_MAIL_RETRIES);
+        bkMailQueueUpdate((int) $row['id'], [
+            'status' => $exhausted ? 'failed' : 'queued',
+            'attempts' => $attempts,
+            'next_try' => $exhausted ? '' : bkNextTry($attempts),
+            'error' => $result['error'],
+        ]);
+        $exhausted ? $failed++ : $stillQueued++;
     }
 
-    $headers = [
-        'From' => bkAddress(bkMailFrom(), bkMailFromName()),
-        'MIME-Version' => '1.0',
-    ] + $mime['headers'];
-    if ($replyTo !== null) $headers['Reply-To'] = $replyTo;
+    return ['sent' => $sent, 'still_queued' => $stillQueued, 'failed' => $failed];
+}
 
-    $raw = '';
-    foreach ($headers as $key => $value) $raw .= $key . ': ' . $value . "\r\n";
+/**
+ * Arbeitet ein paar liegengebliebene Mails ab, NACHDEM der Besucher seine
+ * Antwort schon hat.
+ *
+ * Der Cronjob ist der eigentliche Motor des Ausgangskorbs. Auf diesem
+ * Hosting-Tarif lässt er sich aber nur über SSH einrichten (siehe
+ * TERMINBUCHUNG.md) — und was von Hand eingerichtet werden muss, ist
+ * irgendwann nicht eingerichtet. Damit der Korb auch dann leerläuft, hängt
+ * sich diese Funktion ans Ende eines ohnehin stattfindenden Aufrufs.
+ *
+ * Zwei Vorkehrungen, damit das nie jemanden warten lässt:
+ *   • Gearbeitet wird erst, wenn die Antwort raus ist (finish_request).
+ *     Kann der Server das nicht, passiert hier gar nichts — ein
+ *     Buchungsformular, das wegen einer fremden Mail hängt, wäre der
+ *     schlechtere Tausch.
+ *   • Höchstens alle fünf Minuten, höchstens drei Mails.
+ */
+function bkScheduleQueueFlush(int $limit = 3): void {
+    $finish = match (true) {
+        function_exists('litespeed_finish_request') => 'litespeed_finish_request',
+        function_exists('fastcgi_finish_request') => 'fastcgi_finish_request',
+        default => null,
+    };
+    if ($finish === null) return;
 
-    $sent = @mail($toEmail, bkMimeHeader($subject), $mime['body'], rtrim($raw), '-f' . bkMailFrom());
-    if (!$sent) error_log('booking/mail: mail() an ' . $toEmail . ' fehlgeschlagen.');
-    return $sent;
+    register_shutdown_function(static function () use ($finish, $limit): void {
+        try {
+            $finish();
+
+            // Zeitsperre: eine Datei, deren Änderungszeit den letzten Lauf
+            // festhält. Der exklusive Lock verhindert, dass zwei parallele
+            // Aufrufe denselben Korb gleichzeitig abarbeiten.
+            $marker = bkDataDir() . '/mailflush.lock';
+            $fp = @fopen($marker, 'c+');
+            if ($fp === false) return;
+            try {
+                if (!flock($fp, LOCK_EX | LOCK_NB)) return;
+                $last = (int) (stream_get_contents($fp) ?: 0);
+                if (time() - $last < 300) return;
+                ftruncate($fp, 0);
+                rewind($fp);
+                fwrite($fp, (string) time());
+                fflush($fp);
+            } finally {
+                flock($fp, LOCK_UN);
+                fclose($fp);
+            }
+
+            bkFlushMailQueue($limit);
+        } catch (Throwable $e) {
+            error_log('booking/mail: Nachlauf des Ausgangskorbs — ' . $e->getMessage());
+        }
+    });
 }

@@ -13,10 +13,10 @@ Bis die Werte da sind, verhält sich das Tool so:
 
 | Fehlt | Folge |
 | --- | --- |
-| SMTP | Mails gehen über PHP `mail()` — kommen an, landen aber öfter im Spam |
+| Maildienst | Mails gehen über das Hoster-Postfach — **kommen bei vielen Empfängern nicht an** (siehe Abschnitt 1) |
 | Google | Kalender zeigt nur die über die Website gebuchten Termine, dein privater Google-Kalender wird nicht berücksichtigt |
 | `MEETING_URL` | Bestätigung und Kalendereintrag enthalten keinen Videolink |
-| Cron | Keine Erinnerungsmails am Vortag |
+| Cron | Keine Erinnerungsmails am Vortag, und liegengebliebene Mails werden seltener wiederholt |
 
 Buchen, Bestätigen, Absagen und Verschieben funktionieren auch ohne alles davon.
 
@@ -24,10 +24,73 @@ Buchen, Bestätigen, Absagen und Verschieben funktionieren auch ohne alles davon
 
 ## 1. Mailversand (wichtigster Punkt)
 
-hPanel → **E-Mails** → **E-Mail-Konten** → bei `Info@jungline.de` auf
-**Konfigurationseinstellungen** → *Manuelle Konfiguration*.
+### Warum das Hoster-Postfach nicht reicht
 
-Dort stehen Server und Port. In die `.env`:
+Der Versand lief bisher über `Info@jungline.de` bei Hostinger. Dessen
+Ausgangsfilter nimmt **jede** Mail an — die Antwort lautet immer
+„250 Ok: queued" — und verwirft sie danach lautlos: keine Fehlermeldung,
+kein Bounce, kein Spam-Ordner. Elf Diagnoserunden haben daraus Faustregeln
+abgeleitet (kein Anhang, höchstens drei Adressen im Text, keine Markennamen
+neben einem Link). Die stimmen alle, kurieren aber nur das Symptom: Sie
+schieben die Mail knapp unter eine Schwelle, die niemand sehen kann und die
+sich jederzeit verschieben darf.
+
+Genau das ist dann auch passiert — dieselbe Bestätigung kam bei dem einen
+Empfänger an und beim nächsten nicht.
+
+Die Ursache liegt nicht im Text, sondern im Weg. Gmail und Yahoo verlangen
+seit Februar 2024 von **jedem** Absender, dass er sich ausweist: SPF, DKIM
+und DMARC müssen zusammenpassen. Tun sie das nicht zweifelsfrei, wird die
+Mail je nach Anbieter einsortiert, in den Spam geschoben oder stillschweigend
+weggeworfen. Deshalb war es „bei manchen ja, bei manchen nein".
+
+### Was stattdessen zu tun ist
+
+Ein Transaktionsmail-Dienst dazwischen. Der unterschreibt jede Mail mit DKIM
+für jungline.de, verschickt über gepflegte IP-Adressen — und sagt zu jeder
+einzelnen Mail, ob sie zugestellt, abgelehnt oder als Spam eingestuft wurde.
+Genau diese Auskunft fehlte bisher.
+
+**Empfehlung: Brevo.** Server in der EU (DSGVO), 300 Mails am Tag kostenlos,
+deutschsprachige Oberfläche. Für den Bedarf hier ist das dauerhaft gratis.
+
+1. Auf [brevo.com](https://www.brevo.com/de/) ein Konto anlegen.
+2. Links **Senders, Domains & Dedicated IPs** → Reiter **Domains** →
+   **Add a domain** → `jungline.de` eintragen.
+3. Brevo zeigt jetzt **drei bis vier DNS-Einträge** an (zwei `_domainkey`,
+   ein `dmarc`, einer zur Bestätigung). Diese Einträge müssen ins DNS von
+   jungline.de: hPanel → **Domains** → *DNS-Zonenverwaltung* → für jeden
+   Eintrag **Neuen Eintrag hinzufügen**, Typ und Werte genau abtippen.
+4. Zurück bei Brevo auf **Authenticate** klicken. Bis alle Häkchen grün
+   sind, können ein paar Minuten bis zwei Stunden vergehen — DNS braucht das.
+5. Links **SMTP & API** → Reiter **API Keys** → **Generate a new API key**.
+   Den Wert kopieren; er wird nur einmal angezeigt.
+6. In die `.env`:
+
+```
+BREVO_API_KEY=xkeysib-....
+MAIL_FROM=Info@jungline.de
+MAIL_FROM_NAME=JunglineLocal
+OWNER_EMAIL=Info@jungline.de
+SITE_URL=https://jungline.de
+```
+
+Das ist alles. Der Rest passiert von selbst.
+
+> **Schritt 3 ist der entscheidende.** Ohne die DNS-Einträge verschickt auch
+> Brevo nur unsignierte Mails, und dann ist nichts gewonnen. Wer die
+> Einträge setzt und wartet, bis Brevo grün meldet, hat das Problem an der
+> Wurzel gelöst.
+
+Statt Brevo gehen genauso **Resend** (`RESEND_API_KEY`, 3.000 Mails im
+Monat frei), **Postmark** (`POSTMARK_TOKEN`, beste Zustellquote, ab 15 $) und
+**Mailjet** (`MAILJET_API_KEY` + `MAILJET_SECRET_KEY`). Es genügt genau
+einer. Die Einrichtung ist bei allen dieselbe: Domain eintragen, DNS-Einträge
+setzen, Schlüssel kopieren.
+
+### Das Auffangnetz dahinter
+
+Die SMTP-Daten des Hoster-Postfachs dürfen in der `.env` stehen bleiben:
 
 ```
 SMTP_HOST=smtp.hostinger.com
@@ -35,18 +98,34 @@ SMTP_PORT=465
 SMTP_SECURE=ssl
 SMTP_USER=Info@jungline.de
 SMTP_PASS=<das Passwort des Postfachs>
-MAIL_FROM=Info@jungline.de
-MAIL_FROM_NAME=JunglineLocal
-OWNER_EMAIL=Info@jungline.de
-SITE_URL=https://jungline.de
 ```
 
-Nutzt dein Anbieter Port 587 statt 465, dann `SMTP_PORT=587` **und**
-`SMTP_SECURE=tls` setzen — die beiden gehören immer zusammen.
+Sie sind ab jetzt aber nur noch die zweite Reihe. Fällt der Dienst einmal
+aus, geht die Mail über SMTP hinaus — mit den bekannten Einschränkungen,
+aber besser als gar nicht. Nutzt dein Anbieter Port 587 statt 465, dann
+`SMTP_PORT=587` **und** `SMTP_SECURE=tls` setzen; die beiden gehören immer
+zusammen.
 
-Danach eine Testbuchung auf dich selbst machen. Kommt keine Mail an, steht
-der Grund im Fehlerprotokoll (hPanel → **Erweitert** → *PHP-Konfiguration* →
-Fehlerprotokoll), Suchwort `booking/smtp`.
+### Nichts geht mehr verloren
+
+Klappt kein einziger Weg, ist die Mail trotzdem nicht weg: Sie wandert in
+einen Ausgangskorb und wird wiederholt — nach 5 Minuten, dann nach 20, nach
+1, 3, 8 und 24 Stunden. Wiederholt wird sie vom stündlichen Cronjob
+(Abschnitt 4) und nebenbei nach jeder weiteren Buchung. Erst nach dem
+sechsten vergeblichen Versuch gilt sie als gescheitert — und steht dann als
+solche im Protokoll, statt spurlos zu verschwinden.
+
+### Prüfen
+
+```
+https://jungline.de/api/booking/mailtest?token=<BOOKING_CRON_TOKEN>
+```
+
+Die Seite zeigt auf einen Blick: welche Versandwege eingerichtet sind, ob
+SPF, DKIM und DMARC für jungline.de stehen, und was mit den zuletzt
+verschickten Mails passiert ist. Mit `&to=deine@adresse.de` verschickt sie
+zusätzlich Bestätigung, Erinnerung und Absage — genau so, wie eine echte
+Buchung sie verschickt.
 
 ## 2. Videoraum
 
@@ -135,19 +214,31 @@ die Zeile dort nicht, wurde nichts gespeichert.
 Zum Prüfen die Adresse einmal selbst im Browser aufrufen; sie antwortet mit
 
 ```
-{"success":true,"sent":0,"failed":0,"purged":0}
+{"success":true,"sent":0,"failed":0,
+ "queue":{"sent":0,"still_queued":0,"failed":0},"purged":0}
 ```
 
 `sent` zählt die verschickten Erinnerungen — 0 ist richtig, solange kein
-Termin näher als 24 Stunden ist. Entscheidend ist `success:true`.
+Termin näher als 24 Stunden ist. `queue` zählt die liegengebliebenen Mails,
+die dieser Lauf nachgereicht hat. Entscheidend ist `success:true`.
 
-Der Lauf verschickt an jeden Termin **genau eine** Erinnerung, sobald er
-weniger als 24 Stunden entfernt ist (das Feld `reminded_at` verhindert, dass
-der stündliche Lauf sie wiederholt), und löscht nebenbei Buchungen, deren
-Termin länger als sechs Monate zurückliegt — so wie es die
-Datenschutzerklärung zusagt. Ohne Cronjob funktioniert alles andere
-weiterhin; es gibt dann nur keine Erinnerung am Vortag, und die Löschfrist
-wird nicht vollzogen.
+Der Lauf macht dreierlei:
+
+* Er verschickt an jeden Termin **genau eine** Erinnerung, sobald er weniger
+  als 24 Stunden entfernt ist (das Feld `reminded_at` verhindert, dass der
+  stündliche Lauf sie wiederholt).
+* Er **arbeitet den Ausgangskorb ab** — jede Bestätigung, Absage oder
+  Erinnerung, die beim ersten Versuch nicht rausging, bekommt hier ihre
+  Wiederholung.
+* Er löscht Buchungen, deren Termin länger als sechs Monate zurückliegt —
+  so wie es die Datenschutzerklärung zusagt — und kürzt das Mailprotokoll
+  auf 90 Tage.
+
+Ohne Cronjob funktioniert alles andere weiterhin. Es gibt dann keine
+Erinnerung am Vortag, die Löschfrist wird nicht vollzogen, und
+liegengebliebene Mails werden nur noch beiläufig wiederholt — nämlich beim
+nächsten Buchungsvorgang, höchstens alle fünf Minuten und höchstens drei auf
+einmal. **Der Cronjob ist deshalb keine Kür.**
 
 ---
 
@@ -176,6 +267,11 @@ kein Besucher kommt dort heran. Falls dein Hoster dort kein Schreibrecht
 gibt, legt das Tool den Ordner innerhalb des Web-Roots an und sperrt ihn per
 `.htaccess`; das passiert automatisch.
 
+In derselben Datei liegt auch das Mailprotokoll (Tabelle `mail_queue`) —
+jede verschickte Mail mit Weg, Vorgangsnummer und Status. Lesbar ist es
+bequemer über die Diagnoseseite (siehe unten); herunterladen musst du dafür
+nichts.
+
 Zum Reinschauen: hPanel-Dateimanager, Datei `bookings.sqlite` herunterladen
 und mit [sqlitebrowser.org](https://sqlitebrowser.org) öffnen. Im Alltag
 brauchst du das nicht — jede Buchung und jede Absage kommt ohnehin per Mail.
@@ -186,48 +282,72 @@ brauchst du das nicht — jede Buchung und jede Absage kommt ohnehin per Mail.
 | --- | --- |
 | „Die freien Termine lassen sich gerade nicht laden" | `/api/booking/slots` erreichbar? `.htaccess` mit hochgeladen? |
 | Kalender zeigt gar keine Tage | Alle Slots durch Google-Termine belegt, oder `BK_LEAD_HOURS`/`BK_WORKDAYS` zu eng |
-| Buchung klappt, keine Mail | SMTP-Daten prüfen, Fehlerprotokoll nach `booking/smtp` durchsuchen |
+| Buchung klappt, keine Mail | Diagnoseseite aufrufen (siehe unten) — sie sagt genau, woran es lag |
 | Termin fehlt im Google-Kalender | Freigabe aus Schritt 3b vergessen, oder Schlüsseldatei nicht lesbar; Protokoll nach `booking/google` durchsuchen |
 
-### Mails prüfen, wenn sie nicht ankommen
+### Wenn ein Kunde keine Mail bekommen hat
 
 ```
-https://jungline.de/api/booking/mailtest?token=<BOOKING_CRON_TOKEN>&to=<zieladresse>
+https://jungline.de/api/booking/mailtest?token=<BOOKING_CRON_TOKEN>
 ```
 
-Die Seite verschickt Testmails und zeigt dabei das komplette Gespräch mit dem
-Mailserver — jede Zeile, inklusive der Antwort auf den Schlusspunkt, in der
-die Vorgangsnummer des Hosters steht. Damit lässt sich unterscheiden, ob eine
-Mail schon beim Absenden scheitert oder erst danach unterwegs verschwindet.
+Diese eine Seite beantwortet vier Fragen:
 
-### Drei Regeln, an die sich jede Mail halten muss
+1. **Welcher Weg?** Welche Versandwege eingerichtet sind und in welcher
+   Reihenfolge sie probiert werden.
+2. **Darf ich das?** Ob SPF, DKIM und DMARC für jungline.de im DNS stehen.
+   Fehlt davon etwas, ist genau das der Grund, warum eine Mail bei dem einen
+   ankommt und beim nächsten nicht.
+3. **Was ist passiert?** Das Protokoll der zuletzt verschickten Mails — mit
+   Empfänger, Weg, Vorgangsnummer und, im Fehlerfall, dem Grund im Klartext.
+4. **Geht es jetzt?** Mit `&to=…` verschickt sie Bestätigung, Erinnerung und
+   Absage über denselben Weg wie eine echte Buchung.
 
-Der Ausgangsfilter bei Hostinger nimmt **jede** Mail an („250 Ok: queued")
-und verwirft sie danach lautlos — ohne Fehlermeldung, ohne Bounce, auch nicht
-im Spam. Elf Diagnoserunden mit jeweils fast identischen Testmails haben drei
-Regeln ergeben. Wer die Vorlagen in `_templates.php` ändert, muss sie
-einhalten, sonst kommt die Mail nicht mehr an:
+Weitere Schalter:
 
-1. **Kein Anhang.** Egal welcher Dateityp — mit Anhang kam keine einzige
-   Testmail durch, ohne Anhang jede.
+| Schalter | Wirkung |
+| --- | --- |
+| `&to=adresse@example.de` | die drei Kundenmails testweise verschicken |
+| `&flush=1` | liegengebliebene Mails sofort wiederholen, statt auf den Cron zu warten |
+| `&resend=<Nr>` | eine bestimmte Mail aus dem Protokoll noch einmal verschicken |
+| `&resend=<Nr>&to=…` | dieselbe Mail an eine andere Adresse — etwa nach einem Tippfehler |
+| `&dkim=1` | zusätzlich nach DKIM-Selektoren im DNS suchen (dauert einen Moment) |
+
+Die DKIM-Suche ist bewusst nicht voreingestellt: DNS kennt keine Auflistung
+der Selektoren einer Domain, geraten werden muss also einzeln, und eine
+einzige hängende Abfrage würde die ganze Seite blockieren. Ob DKIM greift,
+sagt ohnehin die Oberfläche des Maildienstes zuverlässiger.
+
+Steht im Protokoll eine Vorgangsnummer, lässt sich der weitere Weg beim
+Dienst selbst nachlesen: Brevo, Resend, Postmark und Mailjet zeigen zu jeder
+Nummer, ob die Mail zugestellt, abgelehnt oder als Spam eingestuft wurde.
+Genau diese Auskunft gab es beim Versand über das Hoster-Postfach nicht —
+deshalb war eine verschwundene Bestätigung dort nicht aufklärbar.
+
+### Die drei alten Zustellregeln
+
+Aus elf Diagnoserunden gegen den Ausgangsfilter des Hosters stammen drei
+Regeln, an die sich die Vorlagen in `_templates.php` bis heute halten:
+
+1. **Kein Anhang.** Mit Anhang kam keine einzige Testmail durch, ohne Anhang
+   jede.
 2. **Höchstens drei Web-Adressen in der Textfassung.** Null bis drei kamen
-   ausnahmslos an, vier und fünf ausnahmslos nicht. Deshalb hat die
-   Bestätigung keine Signaturzeile mit Domain und nur *einen*
-   Kalender-Link statt zweier.
-3. **Keine Markennamen neben einem Link.** Genau daran ist die Bestätigung
-   zuletzt gescheitert: „Termin zum Kalender hinzufügen (Google, Apple oder
-   Outlook)". Drei große Marken unmittelbar an einer Adresse sind eine
-   geläufige Phishing-Signatur. Ohne die Klammer kommt dieselbe Mail an.
+   ausnahmslos an, vier und fünf ausnahmslos nicht.
+3. **Keine Markennamen neben einem Link.** „Termin zum Kalender hinzufügen
+   (Google, Apple oder Outlook)" — drei große Marken unmittelbar an einer
+   Adresse sind eine geläufige Phishing-Signatur.
 
-Nicht schuld waren — jeweils durch Gegenprobe ausgeschlossen — der
-Versandweg, der Betreff, die Textfassung, der Zoom-Link und die verlinkte
-Zielseite.
+Über einen richtigen Maildienst gelten sie **nicht mehr**. Sie beschreiben
+das Verhalten des Hoster-Postfachs, und das ist ab jetzt nur noch das
+Auffangnetz. Die Vorlagen bleiben trotzdem so, wie sie sind: Sie lesen sich
+gut, und solange das Auffangnetz gelegentlich greift, schadet die Rücksicht
+nicht. Wer sie ändert, sollte hinterher einmal `&to=` aufrufen.
 
 Der Kalendereintrag steckt deshalb als **ein** Link in der Mail, der auf
 `/api/booking/calendar?token=…` führt. Erst dort stehen beide Wege zur
-Auswahl (Google Kalender, Datei für Apple/Outlook) — auf einer eigenen Seite
-sind Markennamen unbedenklich. Auf dem Handy ist das ohnehin der kürzere Weg
-als ein Anhang: ein Fingertipp statt Download und Öffnen-mit.
+Auswahl (Google Kalender, Datei für Apple/Outlook). Auf dem Handy ist das
+ohnehin der kürzere Weg als ein Anhang: ein Fingertipp statt Download und
+Öffnen-mit.
 
 Google-Ausfälle legen die Buchung nie lahm: Kann der Kalender nicht erreicht
 werden, wird trotzdem gebucht und gemailt — du bekommst in deiner

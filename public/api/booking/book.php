@@ -169,12 +169,19 @@ if ($isReschedule) {
 // Mails mit Anhang nicht, quer über mehrere Dateitypen. Der Kalendereintrag
 // steckt deshalb als Link in der Mail (siehe bkEmailCalendarLinks) und wird
 // über /api/booking/ics von unserem eigenen Server geholt.
+//
+// Scheitert der Versand, ist die Mail nicht verloren: bkMail() legt sie in
+// den Ausgangskorb, und der Cron wiederholt sie (siehe _mail.php).
 
 try {
     $confirmation = bkMailConfirmation($booking);
     $sent = bkMail($booking['email'], $booking['name'], $confirmation['subject'],
-                   $confirmation['html'], $confirmation['text'], null, bkOwnerEmail());
-    if (!$sent) $warnings[] = 'Die Bestätigungsmail an ' . $booking['email'] . ' konnte nicht zugestellt werden.';
+                   $confirmation['html'], $confirmation['text'], null, bkOwnerEmail(),
+                   'bestaetigung');
+    if (!$sent) {
+        $warnings[] = 'Die Bestätigungsmail an ' . $booking['email']
+            . ' ging nicht sofort raus und liegt im Ausgangskorb — sie wird automatisch wiederholt.';
+    }
 } catch (Throwable $e) {
     error_log('booking/book: Bestätigungsmail fehlgeschlagen — ' . $e->getMessage());
     $warnings[] = 'Die Bestätigungsmail an ' . $booking['email'] . ' konnte nicht zugestellt werden.';
@@ -182,10 +189,14 @@ try {
 
 try {
     $notice = bkMailOwnerNotice($booking, implode(' ', $warnings));
-    bkMail(bkOwnerEmail(), bkOwnerName(), $notice['subject'], $notice['html'], $notice['text'], null, $booking['email']);
+    bkMail(bkOwnerEmail(), bkOwnerName(), $notice['subject'], $notice['html'], $notice['text'],
+           null, $booking['email'], 'intern');
 } catch (Throwable $e) {
     error_log('booking/book: Benachrichtigung an den Betreiber fehlgeschlagen — ' . $e->getMessage());
 }
+
+// Liegengebliebenes nachreichen, sobald der Besucher seine Antwort hat.
+bkScheduleQueueFlush();
 
 respond(200, [
     'success' => true,

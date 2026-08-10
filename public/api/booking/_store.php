@@ -82,6 +82,26 @@ function bkDb(): PDO {
     $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS bookings_slot
                 ON bookings(start_utc) WHERE status = "confirmed"');
     $pdo->exec('CREATE INDEX IF NOT EXISTS bookings_range ON bookings(start_utc, status)');
+
+    // Der Ausgangskorb: jede verschickte Mail hinterlässt hier eine Zeile —
+    // erfolgreiche wie fehlgeschlagene. Siehe bkMailQueueAdd().
+    $pdo->exec('CREATE TABLE IF NOT EXISTS mail_queue (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at  TEXT    NOT NULL,
+        updated_at  TEXT    NOT NULL,
+        status      TEXT    NOT NULL,
+        attempts    INTEGER NOT NULL DEFAULT 0,
+        next_try    TEXT    NOT NULL DEFAULT "",
+        kind        TEXT    NOT NULL DEFAULT "",
+        to_email    TEXT    NOT NULL,
+        to_name     TEXT    NOT NULL DEFAULT "",
+        subject     TEXT    NOT NULL DEFAULT "",
+        payload     TEXT    NOT NULL,
+        transport   TEXT    NOT NULL DEFAULT "",
+        provider_id TEXT    NOT NULL DEFAULT "",
+        error       TEXT    NOT NULL DEFAULT ""
+    )');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS mail_queue_due ON mail_queue(status, next_try)');
     return $pdo;
 }
 
@@ -93,14 +113,20 @@ function bkJsonFile(): string {
     return bkDataDir() . '/bookings.json';
 }
 
+function bkMailJsonFile(): string {
+    return bkDataDir() . '/mailqueue.json';
+}
+
 /**
- * Liest die Buchungen, übergibt sie an $fn und schreibt zurück, was $fn
+ * Liest eine Datensatzdatei, übergibt sie an $fn und schreibt zurück, was $fn
  * zurückgibt — alles innerhalb einer exklusiven Sperre. Gibt $fn null
  * zurück, bleibt die Datei unverändert. Der Rückgabewert von bkJsonTx ist
  * das, was $fn über $out meldet.
+ *
+ * Ohne $file gilt die Buchungsdatei; der Ausgangskorb übergibt seine eigene.
  */
-function bkJsonTx(callable $fn, mixed &$out = null): void {
-    $file = bkJsonFile();
+function bkJsonTx(callable $fn, mixed &$out = null, ?string $file = null): void {
+    $file ??= bkJsonFile();
     $fp = fopen($file, 'c+');
     if ($fp === false) throw new RuntimeException('Buchungsdatei nicht beschreibbar.');
     try {
@@ -335,4 +361,156 @@ function bkMarkReminded(string $token): void {
         }
         return $rows;
     });
+}
+
+// =====================================================================
+// Ausgangskorb
+//
+// Jede Mail bekommt hier eine Zeile — die zugestellte genauso wie die
+// gescheiterte. Das ist der Unterschied zwischen "die Mail ist irgendwo
+// verschwunden" und "die Mail ging um 14:07 über Brevo raus, Vorgangsnummer
+// XY". Fehlgeschlagene Mails bleiben mit status='queued' liegen und werden
+// vom stündlichen Cron erneut versucht (siehe bkFlushMailQueue()).
+// =====================================================================
+
+/** Legt einen Eintrag an und liefert seine ID. */
+function bkMailQueueAdd(array $entry): int {
+    $now = bkStamp(bkNow());
+    $row = [
+        'created_at' => $now,
+        'updated_at' => $now,
+        'status' => $entry['status'] ?? 'queued',
+        'attempts' => (int) ($entry['attempts'] ?? 0),
+        'next_try' => (string) ($entry['next_try'] ?? ''),
+        'kind' => (string) ($entry['kind'] ?? ''),
+        'to_email' => (string) $entry['to_email'],
+        'to_name' => (string) ($entry['to_name'] ?? ''),
+        'subject' => (string) ($entry['subject'] ?? ''),
+        'payload' => (string) ($entry['payload'] ?? '{}'),
+        'transport' => (string) ($entry['transport'] ?? ''),
+        'provider_id' => (string) ($entry['provider_id'] ?? ''),
+        'error' => (string) ($entry['error'] ?? ''),
+    ];
+
+    if (bkUseSqlite()) {
+        $stmt = bkDb()->prepare('INSERT INTO mail_queue
+            (created_at, updated_at, status, attempts, next_try, kind, to_email, to_name,
+             subject, payload, transport, provider_id, error)
+            VALUES (:created_at,:updated_at,:status,:attempts,:next_try,:kind,:to_email,:to_name,
+                    :subject,:payload,:transport,:provider_id,:error)');
+        $stmt->execute($row);
+        return (int) bkDb()->lastInsertId();
+    }
+
+    $id = 0;
+    bkJsonTx(static function (array $rows) use ($row, &$id): array {
+        $id = 1;
+        foreach ($rows as $r) $id = max($id, (int) ($r['id'] ?? 0) + 1);
+        $row['id'] = $id;
+        $rows[] = $row;
+        return $rows;
+    }, $ignored, bkMailJsonFile());
+    return $id;
+}
+
+/** Schreibt einzelne Felder eines Eintrags fort. */
+function bkMailQueueUpdate(int $id, array $fields): void {
+    $fields['updated_at'] = bkStamp(bkNow());
+
+    if (bkUseSqlite()) {
+        $allowed = ['status', 'attempts', 'next_try', 'transport', 'provider_id', 'error', 'updated_at'];
+        $set = [];
+        $params = [':id' => $id];
+        foreach ($fields as $key => $value) {
+            if (!in_array($key, $allowed, true)) continue;
+            $set[] = $key . ' = :' . $key;
+            $params[':' . $key] = $value;
+        }
+        if ($set === []) return;
+        $stmt = bkDb()->prepare('UPDATE mail_queue SET ' . implode(', ', $set) . ' WHERE id = :id');
+        $stmt->execute($params);
+        return;
+    }
+
+    bkJsonTx(static function (array $rows) use ($id, $fields): array {
+        foreach ($rows as &$r) {
+            if ((int) ($r['id'] ?? 0) === $id) $r = array_merge($r, $fields);
+        }
+        return $rows;
+    }, $ignored, bkMailJsonFile());
+}
+
+/**
+ * Liegengebliebene Mails, deren nächster Versuch fällig ist.
+ *
+ * @return array<int,array>
+ */
+function bkMailQueueDue(int $limit = 25): array {
+    $now = bkStamp(bkNow());
+
+    if (bkUseSqlite()) {
+        $stmt = bkDb()->prepare('SELECT * FROM mail_queue
+                                 WHERE status = "queued" AND next_try <= ?
+                                 ORDER BY id LIMIT ?');
+        $stmt->bindValue(1, $now);
+        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    $due = [];
+    bkJsonTx(static function (array $rows) use ($now, $limit, &$due): null {
+        foreach ($rows as $r) {
+            if (($r['status'] ?? '') !== 'queued') continue;
+            if (($r['next_try'] ?? '') > $now) continue;
+            $due[] = $r;
+            if (count($due) >= $limit) break;
+        }
+        return null;
+    }, $ignored, bkMailJsonFile());
+    return $due;
+}
+
+/**
+ * Die zuletzt verschickten Mails — das Protokoll für die Diagnoseseite.
+ *
+ * @return array<int,array>
+ */
+function bkMailQueueRecent(int $limit = 40): array {
+    if (bkUseSqlite()) {
+        $stmt = bkDb()->prepare('SELECT * FROM mail_queue ORDER BY id DESC LIMIT ?');
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    $all = [];
+    bkJsonTx(static function (array $rows) use (&$all): null {
+        $all = $rows;
+        return null;
+    }, $ignored, bkMailJsonFile());
+    return array_slice(array_reverse($all), 0, $limit);
+}
+
+/**
+ * Räumt erledigte Einträge nach $days Tagen weg. Liegengebliebene bleiben
+ * unangetastet — was nie zugestellt wurde, soll sichtbar bleiben.
+ */
+function bkMailQueuePurge(int $days = 90): int {
+    $cutoff = bkStamp(bkNow()->modify('-' . $days . ' days'));
+
+    if (bkUseSqlite()) {
+        $stmt = bkDb()->prepare('DELETE FROM mail_queue WHERE status != "queued" AND created_at < ?');
+        $stmt->execute([$cutoff]);
+        return $stmt->rowCount();
+    }
+
+    $removed = 0;
+    bkJsonTx(static function (array $rows) use ($cutoff, &$removed): array {
+        $kept = array_values(array_filter($rows, static fn (array $r): bool =>
+            ($r['status'] ?? '') === 'queued' || ($r['created_at'] ?? '') >= $cutoff));
+        $removed = count($rows) - count($kept);
+        return $kept;
+    }, $ignored, bkMailJsonFile());
+    return $removed;
 }
