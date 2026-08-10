@@ -546,11 +546,60 @@
     });
   });
 
-  // reveal on scroll
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
-  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+  // ---- reveal on scroll ----------------------------------------------------
+  // Der Beobachter allein reicht nicht. Bei schnellem Wischen darf der Browser
+  // Zwischenzustände auslassen: Ein Element, das zwischen zwei Messungen
+  // komplett durchs Bild rauscht, bekommt nie einen Rückruf — und weil
+  // ".js [data-reveal]" auf opacity:0 steht, bleibt dann ein ganzer Abschnitt
+  // dauerhaft unsichtbar auf der Seite stehen. Genau das war reproduzierbar:
+  // "Ein aktueller Kunde", der Vorher/Nachher-Kopf und der vierte Schritt
+  // fehlten nach einem schnellen Durchscrollen komplett.
+  //
+  // Der vorhandene reveal-off-Failsafe (weiter unten) greift dagegen nicht: Er
+  // prüft nur, ob ÜBERHAUPT etwas sichtbar wurde. Sobald ein Teil der Elemente
+  // normal aufgetaucht ist, hält er die Lage für in Ordnung.
+  //
+  // Deshalb: Beobachter wie bisher als Auslöser für die Choreografie, plus ein
+  // Nachlauf, der alles einsammelt, was die Auslöselinie schon überschritten
+  // hat. Der Nachlauf kostet nichts pro Bild — er läuft nur, wenn ohnehin ein
+  // Rückruf kommt, und einmal kurz nachdem das Scrollen zur Ruhe kommt.
+  var offen = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+  if(offen.length){
+    var LINIE = 50;   // identisch zum rootMargin unten
+    var zeigen = function(el){
+      var i = offen.indexOf(el);
+      if(i < 0) return;
+      offen.splice(i, 1);
+      el.classList.add('in');
+    };
+    var nachlauf = function(){
+      var grenze = window.innerHeight - LINIE;
+      for(var i = offen.length - 1; i >= 0; i--){
+        if(offen[i].getBoundingClientRect().top < grenze) zeigen(offen[i]);
+      }
+      if(!offen.length){
+        window.removeEventListener('scroll', angestossen);
+        window.removeEventListener('resize', angestossen);
+      }
+    };
+    var ruheTimer = null;
+    var angestossen = function(){
+      if(ruheTimer) clearTimeout(ruheTimer);
+      ruheTimer = setTimeout(nachlauf, 140);
+    };
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); zeigen(e.target); } });
+        nachlauf();
+      }, {threshold:.14, rootMargin:'0px 0px -' + LINIE + 'px 0px'});
+      offen.slice().forEach(function(el){ io.observe(el); });
+      window.addEventListener('scroll', angestossen, {passive:true});
+      window.addEventListener('resize', angestossen, {passive:true});
+      nachlauf();
+    } else {
+      offen.slice().forEach(zeigen);
+    }
+  }
 
   // hero entrance: Schreibmaschinen-Effekt (skipped bei reduced motion — dann
   // ist alles sofort als vollständiger Text sichtbar). Die .js-Klasse sitzt als
@@ -691,13 +740,44 @@
     // der Schwelle hängen und zählte nie hoch. Gleiche, bereits bewährte
     // Trigger-Logik wie beim allgemeinen Reveal-Observer: niedrigere
     // Schwelle + rootMargin statt harter Pixelwerte.
+    //
+    // Plus derselbe Nachlauf wie beim Reveal und den Live-Icons: Der Browser
+    // darf Zwischenzustände bei schnellem Wischen auslassen. Ohne Nachlauf
+    // bliebe eine übersprungene Kennzahl für immer bei "0" stehen — der
+    // HTML-Fallback-Wert wird ja gerade erst durch runCount() gesetzt.
+    var countsOffen = Array.prototype.slice.call(counts);
+    var countsNachlauf = function(){
+      var grenze = window.innerHeight - 50;
+      for(var i = countsOffen.length - 1; i >= 0; i--){
+        if(countsOffen[i].getBoundingClientRect().top < grenze){
+          cio.unobserve(countsOffen[i]);
+          runCount(countsOffen[i]);
+          countsOffen.splice(i, 1);
+        }
+      }
+      if(!countsOffen.length) window.removeEventListener('scroll', countsAngestossen);
+    };
+    var countsRuheTimer = null;
+    var countsAngestossen = function(){
+      if(countsRuheTimer) clearTimeout(countsRuheTimer);
+      countsRuheTimer = setTimeout(countsNachlauf, 140);
+    };
     var cio = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){ if(e.isIntersecting){ runCount(e.target); cio.unobserve(e.target); } });
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        cio.unobserve(e.target);
+        var i = countsOffen.indexOf(e.target);
+        if(i > -1) countsOffen.splice(i, 1);
+        runCount(e.target);
+      });
+      countsNachlauf();
     }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
     counts.forEach(function(el){
       el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
       cio.observe(el);
     });
+    window.addEventListener('scroll', countsAngestossen, {passive:true});
+    countsNachlauf();
   }
 
   // hero parallax + rankcard tilt (fine pointer only)
@@ -1198,13 +1278,43 @@
     svg.classList.add('lico--draw');
   };
 
+  // Alle noch nicht gezeichneten Icons. Wie beim Reveal weiter oben gilt: Was
+  // der Beobachter beim schnellen Wischen überspringt, bliebe sonst dauerhaft
+  // als leere Fläche stehen — ein Icon in .lico--pending ist unsichtbar.
+  var offen = [];
+  var abhaken = function(svg){
+    var i = offen.indexOf(svg);
+    if(i > -1) offen.splice(i, 1);
+  };
+
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(!e.isIntersecting) return;
       io.unobserve(e.target);
+      abhaken(e.target);
       play(e.target);
     });
+    nachlauf();
   }, {threshold:.3, rootMargin:'0px 0px -40px 0px'});
+
+  var nachlauf = function(){
+    if(!offen.length) return;
+    var grenze = window.innerHeight - 40;
+    for(var i = offen.length - 1; i >= 0; i--){
+      var svg = offen[i];
+      if(svg.getBoundingClientRect().top >= grenze) continue;
+      io.unobserve(svg);
+      offen.splice(i, 1);
+      play(svg);
+    }
+    if(!offen.length) window.removeEventListener('scroll', angestossen);
+  };
+  var ruheTimer = null;
+  var angestossen = function(){
+    if(ruheTimer) clearTimeout(ruheTimer);
+    ruheTimer = setTimeout(nachlauf, 160);
+  };
+  window.addEventListener('scroll', angestossen, {passive:true});
 
   // Wird true, wenn der Failsafe unten feststellt, dass der Observer nicht
   // arbeitet. Danach dürfen auch nachgezogene Icons nicht mehr versteckt
@@ -1248,6 +1358,7 @@
       svg.classList.add('lico');
       if(!observerDead) svg.classList.add('lico--pending');
       icons.push(svg);
+      offen.push(svg);
       io.observe(svg);
 
       var host = svg.closest(HOSTS);
@@ -1373,7 +1484,9 @@
     }
     stage.style.animationPlayState = 'running';
     if(count) count.textContent = '9';
-    timer = setTimeout(countUp, 5100);
+    // Muss mit der Choreografie im HTML zusammenpassen: Der Zähler läuft in dem
+    // Moment hoch, in dem die Bewertungszeile des Gewinner-Profils steht.
+    timer = setTimeout(countUp, 3570);
   }
 
   fit();
@@ -1395,15 +1508,33 @@
   // Erklärtexte, den Sternenaufbau und den Bewertungszähler nicht wieder auf
   // null setzen — beim zweiten Anschauen soll der fertige Endzustand stehen,
   // nicht wieder der leere Anfang.
+  var gestartet = false;
+  var starten = function(){
+    if(gestartet) return;
+    gestartet = true;
+    io.disconnect();
+    window.removeEventListener('scroll', angestossen);
+    run();
+  };
+  // Wie beim Reveal und den Live-Icons: Der Beobachter ist der Auslöser, der
+  // Nachlauf die Absicherung. Wird der Rückruf beim schnellen Wischen
+  // ausgelassen, bliebe die ganze Bühne im Anfangsbild der Choreografie
+  // stehen — und das ist opacity:0, also eine leere Fläche in voller
+  // Sektionshöhe.
+  var ruheTimer = null;
+  var nachlauf = function(){
+    var r = stage.getBoundingClientRect();
+    if(r.top < window.innerHeight && r.bottom > 0) starten();
+  };
+  var angestossen = function(){
+    if(ruheTimer) clearTimeout(ruheTimer);
+    ruheTimer = setTimeout(nachlauf, 160);
+  };
   var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        run();
-        io.disconnect();
-      }
-    });
+    entries.forEach(function(e){ if(e.isIntersecting) starten(); });
   }, {threshold:.15});
   io.observe(stage);
+  window.addEventListener('scroll', angestossen, {passive:true});
 })();
 
 /* ============================================================

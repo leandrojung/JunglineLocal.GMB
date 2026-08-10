@@ -39,7 +39,7 @@ export const zweige = {
     terminHref: '/kontakt/#termin',
     // Beschriftung der Auswahlkarte auf dem Startscreen. Bewusst die Worte,
     // nach denen Kunden selbst fragen — nicht die Fachbegriffe von oben.
-    startscreenTitel: 'SEO Optimierung',
+    startscreenTitel: 'SEO-Optimierung',
     // Zusatzzeile nur auf dem Startscreen (etwas ausführlicher als oben).
     startscreen: 'Ihr Google-Unternehmensprofil so aufstellen, dass Kunden Sie im Kartenbereich zuerst sehen — statt den Wettbewerb.',
     icon: '<path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/>',
@@ -52,7 +52,7 @@ export const zweige = {
     ],
     // Fließtext unter dem Logo im Footer und die kleine Zeile ganz unten.
     claim: '<b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich bringe regionale Unternehmen bei Google nach oben: persönlich, transparent, messbar.',
-    claimKlein: 'Google Unternehmensprofil Optimierung · bundesweit',
+    claimKlein: 'Google-Unternehmensprofil-Optimierung · bundesweit',
     // Erste Footer-Spalte: das Angebot des Zweigs.
     footerTitel: 'Local SEO',
     footerLinks: [
