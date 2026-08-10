@@ -1054,6 +1054,17 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   .bk__stage--split{grid-template-columns:1fr 216px}
 }
 
+/* Die Tageszellen sind quadratisch (aspect-ratio:1) und wachsen deshalb mit
+   der Spaltenbreite mit. In einer breiten, einspaltigen Umgebung — etwa dem
+   Buchungsbereich der Webdesign-Seite — wurde der Kalender dadurch riesig
+   (85px pro Tag statt 61px auf der Kontaktseite). Ein Deckel auf der
+   Kalenderbreite begrenzt das an der Wurzel, unabhaengig davon, wie breit die
+   Umgebung spaeter einmal wird. Zentriert, damit kein Rest links stehenbleibt. */
+/* width:100% ist noetig: Automatische Seitenraender nehmen einem Rasterelement
+   die Streckung, es faellt dann auf seine Inhaltsbreite zurueck — der Kalender
+   waere ueberall geschrumpft statt nur dort gedeckelt, wo er zu breit wird. */
+.bk__cal{width:100%;max-width:420px;margin-inline:auto}
+
 /* ---- Kopfzeile mit Monatswechsel ---- */
 .bk__calhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
 .bk__month{margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.06rem;
@@ -2785,8 +2796,11 @@ body[data-zweig="webdesign"]{
    Eine zentrierte Spalte statt des zweispaltigen Kontakt-Rasters: Auf dieser
    Seite gibt es genau eine Handlung — Termin aussuchen. Ein Formular daneben
    waere eine zweite Aufforderung, die von der ersten ablenkt. */
-.wd-termin{max-width:720px;margin:50px auto 0}
-.wd-termin__contacts{max-width:720px;margin-left:auto;margin-right:auto;margin-top:20px}
+/* Breite bewusst nah an der Buchungsspalte der Kontaktseite (dort rund 550px):
+   Ein Formular liest sich in einer schmalen Spalte besser, und der Kalender
+   bekommt damit dieselben Proportionen, die sich dort bewaehrt haben. */
+.wd-termin{max-width:580px;margin:50px auto 0}
+.wd-termin__contacts{max-width:580px;margin-left:auto;margin-right:auto;margin-top:20px}
 
 /* ============ THEMENWAHL ÜBER DEM KALENDER (/kontakt/) ============
    Segment-Umschalter in derselben Sprache wie der Zweig-Umschalter im
