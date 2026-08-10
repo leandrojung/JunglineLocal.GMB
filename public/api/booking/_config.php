@@ -68,7 +68,7 @@ const BK_TOPICS = [
         'kurz'  => 'Webdesign',
         'titel' => 'Erstgespräch Webdesign — JunglineLocal',
         'thema' => 'Ihre neue Website',
-        'seite' => '/webdesign/#termin',
+        'seite' => '/webdesign/kontakt/#termin',
     ],
 ];
 const BK_TOPIC_DEFAULT = 'seo';

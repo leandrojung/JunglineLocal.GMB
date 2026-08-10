@@ -79,16 +79,23 @@ export const zweige = {
     titel: 'Webdesign &amp; Relaunch',
     beschreibung: 'Eine Website, die zu Ihrer Arbeit passt',
     start: '/webdesign/',
-    terminHref: '/webdesign/#termin',
+    // Der Zweig hat eine eigene Kontaktseite — die Schaltflaeche fuehrt dorthin
+    // und nicht mehr in den Buchungsbereich der Zweig-Startseite. So wie im
+    // SEO-Zweig, wo sie auf /kontakt/#termin zeigt.
+    terminHref: '/webdesign/kontakt/#termin',
     startscreenTitel: 'Webdesign',
     startscreen: 'Ihre bestehende Website von Grund auf erneuern: schneller, klarer, auf dem Handy so gut wie am Rechner — und danach gepflegt.',
     icon: '<rect x="2.5" y="4" width="19" height="14.5" rx="2.4"/><path d="M2.5 8.6h19"/><path d="M5.6 6.3h.01M8.1 6.3h.01M10.6 6.3h.01"/>',
+    // "Über mich" und "Kontakt" sind eigene Seiten INNERHALB des Zweigs.
+    // Vorher zeigten sie auf die gemeinsamen Seiten /ueber-mich/ und
+    // /kontakt/ — die tragen aus Konvention die SEO-Navigation und haben den
+    // Besucher damit aus dem Webdesign-Zweig herauskatapultiert.
     links: [
       { href: '/webdesign/#leistungen', label: 'Leistungen' },
       { href: '/webdesign/#ablauf', label: 'Ablauf' },
       { href: '/webdesign/#preise', label: 'Preise' },
-      { href: '/ueber-mich/', label: 'Über mich' },
-      { href: '/kontakt/', label: 'Kontakt' },
+      { href: '/webdesign/ueber-mich/', label: 'Über mich' },
+      { href: '/webdesign/kontakt/', label: 'Kontakt' },
     ],
     claim: '<b>Neu gebaut. Nicht neu gestrichen.</b> Ich erneuere Websites regionaler Unternehmen von Grund auf — und pflege sie danach weiter.',
     claimKlein: 'Webdesign, Relaunch &amp; Pflege · bundesweit',
@@ -97,8 +104,8 @@ export const zweige = {
       { href: '/webdesign/#leistungen', label: 'Leistungen' },
       { href: '/webdesign/#ablauf', label: 'Ablauf' },
       { href: '/webdesign/#preise', label: 'Preise' },
-      { href: '/ueber-mich/', label: 'Über mich' },
-      { href: '/kontakt/', label: 'Kontakt' },
+      { href: '/webdesign/ueber-mich/', label: 'Über mich' },
+      { href: '/webdesign/kontakt/', label: 'Kontakt' },
     ],
     footerAnkerTitel: 'Webdesign-Seite',
     footerAnker: [
