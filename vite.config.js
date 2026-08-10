@@ -4,9 +4,33 @@ import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
 import { rankcardCompetitors, rankcardExampleNote } from './src/data/rankcard-example.js'
+import { zweige, zweigListe } from './src/data/zweige.js'
 import { copyrightMetadata } from './scripts/stamp-copyright.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
+
+// Jedes Partial nur einmal pro Änderungsstand von der Platte lesen statt für
+// jede der ~18 Seiten erneut. Der Cache invalidiert sich über mtime + Größe der
+// Datei, damit im Dev-Server Änderungen an Partials sofort greifen.
+const partialCache = new Map()
+
+function partial(name) {
+  const abs = resolve(root, 'partials', name)
+  const { mtimeMs, size } = statSync(abs)
+  const hit = partialCache.get(name)
+  if (hit && hit.mtimeMs === mtimeMs && hit.size === size) return hit.html
+  const html = readFileSync(abs, 'utf-8')
+  partialCache.set(name, { mtimeMs, size, html })
+  return html
+}
+
+// {{PLATZHALTER}} in einer Partial-Vorlage ersetzen. Funktions-Ersatz statt
+// String-Ersatz, damit "$&"/"$1" in Texten nicht als Referenz interpretiert wird.
+function fuellen(vorlage, werte) {
+  return vorlage.replace(/\{\{([A-Z_]+)\}\}/g, (treffer, schluessel) =>
+    Object.prototype.hasOwnProperty.call(werte, schluessel) ? werte[schluessel] : treffer,
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Multi-Page-App: jede echte index.html im Projekt wird zu einer eigenen,
@@ -162,24 +186,133 @@ function renderBranchenGridLeistungen() {
   return `<div class="related__list">\n        ${renderBranchenLinks(branchenList)}\n      </div>`
 }
 
+// ---------------------------------------------------------------------------
+// ZWEIG-UMSCHALTER (Local SEO <-> Webdesign)
+//
+// Seit dem Webdesign-Angebot hat die Seite zwei getrennte Zweige. Damit ein
+// Besucher jederzeit wechseln kann — und nicht nur einmal auf dem Startscreen
+// entscheidet —, steht der Umschalter in JEDER Navigationsleiste:
+//   Desktop/Tablet: Aufklappmenü direkt neben dem Logo
+//   Telefon:        Segment-Umschalter oben im Menü (ein Tipp statt zwei)
+// Beide Varianten kommen aus derselben Datenquelle (src/data/zweige.js).
+// ---------------------------------------------------------------------------
+const SVG_CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
+const SVG_CHEVRON = '<svg class="zweig__chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
+
+function zweigIcon(z, size, stroke = 1.9) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${z.icon}</svg>`
+}
+
+function renderZweigSwitch(aktivId) {
+  const aktiv = zweige[aktivId]
+  const items = zweigListe.map((z) => {
+    const an = z.id === aktivId
+    return `<a class="zweig__item${an ? ' is-active' : ''}" href="${z.start}" role="menuitem"${an ? ' aria-current="true"' : ''}>
+          <span class="zweig__item-ic">${zweigIcon(z, 18)}</span>
+          <span class="zweig__item-tx"><b>${z.titel}</b><small>${z.beschreibung}</small></span>
+          <span class="zweig__item-ck" aria-hidden="true">${SVG_CHECK}</span>
+        </a>`
+  }).join('\n        ')
+  return `<div class="zweig" data-zweig-switch>
+        <button class="zweig__btn" id="zweigBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="zweigMenu">
+          <span class="zweig__btn-ic" aria-hidden="true">${zweigIcon(aktiv, 15, 2.1)}</span>
+          <span class="zweig__btn-lb">${aktiv.kurz}</span>
+          <span class="u-sr">— Bereich wechseln</span>
+          ${SVG_CHEVRON}
+        </button>
+        <div class="zweig__menu" id="zweigMenu" role="menu" aria-labelledby="zweigBtn">
+          <p class="zweig__menu-head">Wofür interessieren Sie sich?</p>
+          ${items}
+        </div>
+      </div>`
+}
+
+function renderZweigSwitchMobil(aktivId) {
+  const opts = zweigListe.map((z) => {
+    const an = z.id === aktivId
+    return `<a href="${z.start}" class="zweig-seg__opt${an ? ' is-active' : ''}"${an ? ' aria-current="true"' : ''}>${zweigIcon(z, 16, 2.1)}${z.kurz}</a>`
+  }).join('\n    ')
+  return `<div class="zweig-seg" role="group" aria-label="Bereich wählen">
+    ${opts}
+  </div>`
+}
+
+// Hinweiszeile im Footer, die auf den jeweils ANDEREN Zweig zeigt. Der
+// Umschalter oben ist ein Bedienelement; hier steht der Wechsel noch einmal
+// als ausformulierter Satz — für alle, die bis ans Seitenende gelesen haben.
+function renderZweigWechsel(aktivId) {
+  const andere = zweigListe.filter((z) => z.id !== aktivId)
+  return andere.map((z) => `<a class="footer__zweig" href="${z.start}">
+          <span class="footer__zweig-ic">${zweigIcon(z, 17)}</span>
+          <span class="footer__zweig-tx"><small>Ich biete außerdem</small><b>${z.titel}</b></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg>
+        </a>`).join('\n        ')
+}
+
+function renderNav(aktivId) {
+  const aktiv = zweige[aktivId]
+  const links = aktiv.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join('\n      ')
+  const mobil = aktiv.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join('\n  ')
+  return fuellen(partial('nav.html'), {
+    ZWEIG: aktiv.id,
+    ZWEIG_KURZ: aktiv.kurz,
+    BRAND_HREF: aktiv.start,
+    SWITCH: renderZweigSwitch(aktivId),
+    SWITCH_MOBILE: renderZweigSwitchMobil(aktivId),
+    LINKS: links,
+    MOBILE_LINKS: mobil,
+  })
+}
+
+function renderFooter(aktivId) {
+  const aktiv = zweige[aktivId]
+  const liste = (items) => items.map((l) => `<a href="${l.href}">${l.label}</a>`).join('\n          ')
+  return fuellen(partial('footer.html'), {
+    BRAND_HREF: aktiv.start,
+    CLAIM: aktiv.claim,
+    ZWEIG_WECHSEL: renderZweigWechsel(aktivId),
+    FOOTER_TITEL: aktiv.footerTitel,
+    FOOTER_LINKS: liste(aktiv.footerLinks),
+    ANKER_TITEL: aktiv.footerAnkerTitel,
+    ANKER_LINKS: liste(aktiv.footerAnker),
+    FOOTER_CLAIM_KLEIN: aktiv.claimKlein,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// STARTSCREEN ("Wofür interessieren Sie sich?")
+//
+// Liegt als Overlay ÜBER der Startseite, statt sie zu ersetzen: "/" trägt die
+// Rankings und Backlinks des SEO-Zweigs und bleibt deshalb inhaltlich
+// unverändert — der Seiteninhalt steht vollständig im HTML und ist für
+// Suchmaschinen normal lesbar. Wann das Overlay erscheint, entscheidet allein
+// das Skript in partials/chooser.html.
+// ---------------------------------------------------------------------------
+function renderChooser() {
+  const karten = zweigListe.map((z, i) => {
+    // Das Overlay liegt auf "/". Die Karte, die auf genau diese Seite zeigt,
+    // bekommt "?zweig=…" ans Ziel: ohne JavaScript waere der Klick sonst ein
+    // Neuladen derselben Seite und der Startscreen erschiene sofort wieder.
+    // Mit JavaScript wird der Klick abgefangen, die Adresse bleibt sauber.
+    const ziel = z.start === '/' ? `/?zweig=${z.id}` : z.start
+    return `<a class="chooser__card" href="${ziel}" data-zweig-wahl="${z.id}" style="--i:${i}">
+        <span class="chooser__card-ic" aria-hidden="true">${zweigIcon(z, 26, 1.7)}</span>
+        <span class="chooser__card-tt">${z.startscreenTitel}</span>
+        <span class="chooser__card-tx">${z.startscreen}</span>
+        <span class="chooser__card-go">Ansehen<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg></span>
+      </a>`
+  }).join('\n      ')
+  return fuellen(partial('chooser.html'), { KARTEN: karten })
+}
+
 function sharedShell() {
-  // Jedes Partial nur einmal pro Änderungsstand lesen statt für jede der
-  // ~17 Seiten erneut. Der Cache invalidiert sich über mtime + Größe der
-  // Datei, damit im Dev-Server Änderungen an Partials sofort greifen.
-  const cache = new Map()
-  const partial = (name) => {
-    const abs = resolve(root, 'partials', name)
-    const { mtimeMs, size } = statSync(abs)
-    const hit = cache.get(name)
-    if (hit && hit.mtimeMs === mtimeMs && hit.size === size) return hit.html
-    const html = readFileSync(abs, 'utf-8')
-    cache.set(name, { mtimeMs, size, html })
-    return html
-  }
   const tokens = {
     '<!--HEAD-->': () => partial('head.html'),
-    '<!--NAV-->': () => partial('nav.html'),
-    '<!--FOOTER-->': () => partial('footer.html'),
+    '<!--NAV-->': () => renderNav('seo'),
+    '<!--NAV_WEBDESIGN-->': () => renderNav('webdesign'),
+    '<!--FOOTER-->': () => renderFooter('seo'),
+    '<!--FOOTER_WEBDESIGN-->': () => renderFooter('webdesign'),
+    '<!--CHOOSER-->': renderChooser,
     '<!--ENDBODY-->': () => partial('endbody.html'),
     '<!--BAUSTEINE_HOME-->': renderBausteineHome,
     '<!--BAUSTEINE_LEISTUNGEN-->': renderBausteineLeistungen,

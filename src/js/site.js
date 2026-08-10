@@ -901,9 +901,12 @@
   // Vorher-Nachher-Slider (Apple-Design): eine Pointer-Logik für Maus &
   // Touch, zusätzlich per Pfeiltasten bedienbar (role="slider"). Der Griff
   // bekommt zusätzlich einen kurzen Scale-Ausschlag waehrend des Ziehens.
-  var vncStage = document.getElementById('vncStage');
-  if(vncStage){
-    var vncGrip = document.getElementById('vncGrip');
+  // Seit dem Webdesign-Zweig gibt es zwei dieser Slider (Startseite: Google-
+  // Ergebnisse, /webdesign/: alte gegen neue Website). Deshalb pro .vnc__stage
+  // eine eigene, in sich geschlossene Instanz statt der frueheren festen
+  // Bindung an die IDs #vncStage/#vncGrip.
+  Array.prototype.forEach.call(document.querySelectorAll('.vnc__stage'), function(vncStage){
+    var vncGrip = vncStage.querySelector('.vnc__grip');
     var vncPos = 50;
     var vncSet = function(p){
       vncPos = Math.max(0, Math.min(100, p));
@@ -966,7 +969,7 @@
       }, {threshold:.55});
       vncIo.observe(vncStage);
     }
-  }
+  });
 
   // Punkt-Indikatoren für die swipebare Baustein-Reihe (nur Mobile sichtbar)
   var svcRow = document.querySelector('.services__grid');
@@ -1379,4 +1382,177 @@
     });
   }, {threshold:.15});
   io.observe(stage);
+})();
+
+/* ============================================================
+   ZWEI ZWEIGE — STARTSCREEN UND UMSCHALTER
+
+   Die Seite fuehrt zwei Angebote: Local SEO ("/") und Webdesign
+   ("/webdesign/"). Dieser Block macht die Entscheidung zwischen beiden
+   bedienbar und merkt sie sich. Ob der Startscreen ueberhaupt erscheint,
+   entscheidet NICHT dieses Modul, sondern das Inline-Skript in
+   partials/chooser.html — es laeuft vor dem ersten Bildaufbau und setzt die
+   Klasse .zweig-wahl auf <html>. Hier geht es nur um das Verhalten danach.
+   ============================================================ */
+(function(){
+  var SCHLUESSEL = 'jl.zweig';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var speicher = null;
+  try { speicher = window.localStorage; } catch(e){ /* Speicher gesperrt */ }
+  var merken = function(wert){ try { if(speicher) speicher.setItem(SCHLUESSEL, wert); } catch(e){} };
+
+  var wurzel = document.documentElement;
+  var chooserOffen = wurzel.classList.contains('zweig-wahl');
+
+  // Jeder Seitenaufruf verraet den Zweig ueber die Navigationsleiste. Wer
+  // direkt auf /webdesign/ landet, hat sich damit ebenfalls entschieden und
+  // bekommt den Startscreen spaeter nicht mehr vorgesetzt. Waehrend der
+  // Startscreen offen steht, wird bewusst nichts gemerkt — sonst waere die
+  // Entscheidung schon gefallen, bevor der Besucher sie getroffen hat.
+  var nav = document.getElementById('nav');
+  var seitenZweig = nav && nav.getAttribute('data-zweig');
+  if(seitenZweig && !chooserOffen) merken(seitenZweig);
+
+  // "?zweig=…" ist nur der Ruecktransportweg fuer Browser ohne JavaScript
+  // (siehe renderChooser in vite.config.js). Gelesen wurde er im Inline-Skript,
+  // in der Adresszeile hat er danach nichts mehr verloren. Andere Parameter
+  // — etwa "?verschieben=" aus den Terminmails — bleiben unangetastet.
+  if(/[?&]zweig=/.test(location.search) && window.history && history.replaceState){
+    try {
+      var adresse = new URL(location.href);
+      adresse.searchParams.delete('zweig');
+      history.replaceState(null, '', adresse.pathname + adresse.search + adresse.hash);
+    } catch(e){}
+  }
+
+  /* ---------- Startscreen ---------- */
+  var chooser = document.getElementById('chooser');
+  if(chooser && chooserOffen){
+    var seite = document.querySelector('.page');
+    var zweigBtn = document.getElementById('zweigBtn');
+
+    // Der Rest der Seite ist waehrenddessen weder vorlesbar noch bedienbar.
+    // inert deckt Maus, Tastatur und Screenreader in einem Zug ab; das
+    // aria-hidden daneben ist der Rueckfall fuer aeltere Browser.
+    if(seite){
+      seite.setAttribute('aria-hidden', 'true');
+      if('inert' in HTMLElement.prototype) seite.inert = true;
+    }
+
+    var geschlossen = false;
+    var schliessen = function(wert){
+      if(geschlossen) return;
+      geschlossen = true;
+      merken(wert);
+      chooser.classList.add('is-closing');
+      document.removeEventListener('keydown', aufEscape);
+      window.setTimeout(function(){
+        wurzel.classList.remove('zweig-wahl');
+        chooser.classList.remove('is-closing');
+        if(seite){
+          seite.removeAttribute('aria-hidden');
+          if('inert' in HTMLElement.prototype) seite.inert = false;
+        }
+        // Der Fokus wandert auf den Umschalter in der Leiste: genau dort laesst
+        // sich die eben getroffene Entscheidung jederzeit wieder aendern.
+        if(zweigBtn && zweigBtn.focus) zweigBtn.focus({preventScroll:true});
+      // Feste Dauer statt transitionend: unter prefers-reduced-motion laeuft
+      // gar keine Animation, das Ereignis kaeme also nie.
+      }, reduce ? 0 : 480);
+    };
+
+    var aufEscape = function(e){
+      if(e.key === 'Escape' || e.key === 'Esc') schliessen('uebersprungen');
+    };
+    document.addEventListener('keydown', aufEscape);
+
+    var karten = chooser.querySelectorAll('.chooser__card');
+    Array.prototype.forEach.call(karten, function(karte){
+      karte.addEventListener('click', function(e){
+        var wahl = karte.getAttribute('data-zweig-wahl');
+        // Fuehrt die Karte auf eine andere Seite, uebernimmt der Browser: das
+        // Overlay bleibt bis zum Seitenwechsel stehen, es blitzt nichts auf.
+        if(karte.pathname !== location.pathname){ merken(wahl); return; }
+        e.preventDefault();
+        schliessen(wahl);
+      });
+    });
+
+    var spaeter = chooser.querySelector('[data-zweig-skip]');
+    if(spaeter){
+      spaeter.addEventListener('click', function(e){
+        e.preventDefault();
+        schliessen('uebersprungen');
+      });
+    }
+
+    // Fokusfalle: Tab laeuft im Startscreen im Kreis, statt hinter das Overlay
+    // auf die verdeckte Seite zu springen.
+    chooser.addEventListener('keydown', function(e){
+      if(e.key !== 'Tab') return;
+      var liste = chooser.querySelectorAll('a[href]');
+      if(!liste.length) return;
+      var erste = liste[0], letzte = liste[liste.length - 1];
+      if(e.shiftKey && document.activeElement === erste){ letzte.focus(); e.preventDefault(); }
+      else if(!e.shiftKey && document.activeElement === letzte){ erste.focus(); e.preventDefault(); }
+    });
+
+    // Fokus auf den Dialog selbst, NICHT auf die erste Karte: Chrome zeigt bei
+    // programmatischem Fokus direkt nach dem Laden den Fokusrahmen an, und ein
+    // Rahmen um "SEO Optimierung" saehe aus, als waere die Wahl schon getroffen.
+    // So liest ein Screenreader den Dialog vor, Tab beginnt trotzdem bei der
+    // ersten Karte — und optisch ist nichts vorbelegt.
+    window.setTimeout(function(){
+      if(chooser.focus) chooser.focus({preventScroll:true});
+    }, reduce ? 0 : 420);
+  }
+
+  /* ---------- Umschalter in der Navigationsleiste ---------- */
+  var box = document.querySelector('[data-zweig-switch]');
+  if(!box) return;
+  var btn = box.querySelector('.zweig__btn');
+  var menu = box.querySelector('.zweig__menu');
+  if(!btn || !menu) return;
+  var eintraege = menu.querySelectorAll('.zweig__item');
+  var offen = false;
+
+  var setzen = function(auf){
+    offen = auf;
+    box.classList.toggle('open', auf);
+    btn.setAttribute('aria-expanded', String(auf));
+  };
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setzen(!offen);
+  });
+
+  document.addEventListener('click', function(e){
+    if(offen && !box.contains(e.target)) setzen(false);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(offen && (e.key === 'Escape' || e.key === 'Esc')){ setzen(false); btn.focus(); }
+  });
+
+  // Tastaturbedienung wie bei einem Systemmenue: Pfeil ab oeffnet und springt
+  // auf den ersten Eintrag, Pfeil auf auf den letzten.
+  btn.addEventListener('keydown', function(e){
+    if(e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    setzen(true);
+    var ziel = e.key === 'ArrowDown' ? eintraege[0] : eintraege[eintraege.length - 1];
+    // Ein Bild abwarten: solange das Menue noch visibility:hidden traegt,
+    // laesst sich darin nichts fokussieren.
+    requestAnimationFrame(function(){ if(ziel) ziel.focus(); });
+  });
+
+  menu.addEventListener('keydown', function(e){
+    var i = Array.prototype.indexOf.call(eintraege, document.activeElement);
+    if(e.key === 'ArrowDown'){ e.preventDefault(); eintraege[(i + 1) % eintraege.length].focus(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); eintraege[(i - 1 + eintraege.length) % eintraege.length].focus(); }
+    else if(e.key === 'Home'){ e.preventDefault(); eintraege[0].focus(); }
+    else if(e.key === 'End'){ e.preventDefault(); eintraege[eintraege.length - 1].focus(); }
+    else if(e.key === 'Tab'){ setzen(false); }
+  });
 })();

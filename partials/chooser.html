@@ -1,0 +1,67 @@
+<!-- Vorlage, KEIN fertiges HTML: {{KARTEN}} füllt vite.config.js (renderChooser)
+     aus src/data/zweige.js. Eingebunden über das CHOOSER-Token, das nur auf der
+     Startseite steht — direkt hinter dem oeffnenden body-Tag. -->
+<script>
+/* Entscheidet VOR dem ersten Bildaufbau, ob der Startscreen erscheint. Muss
+   hier inline stehen und nicht in site.js: site.js wird als Modul geladen und
+   liefe erst nach dem Aufbau der Seite — der Startscreen würde dann sichtbar
+   nachträglich aufpoppen. Die Klasse landet stattdessen auf <html>, bevor das
+   Overlay überhaupt geparst ist. Ohne JavaScript erscheint der Startscreen
+   folglich gar nicht: Der Besucher landet direkt auf der SEO-Startseite und
+   kann über die Navigationsleiste wechseln.
+
+   Der Startscreen erscheint NUR, wenn alles davon zutrifft:
+     * wir sind wirklich auf "/" (nicht auf einer Unterseite)
+     * es gibt noch keine gespeicherte Entscheidung
+     * der Aufruf hat kein "#abschnitt" (Deeplink — dorthin will der Besucher)
+     * der Besucher kommt nicht aus einer Suchmaschine (siehe unten)
+
+   "?zweig=neu" an der Adresse erzwingt ihn jederzeit — zum Ansehen und
+   Vorführen, ohne den Browserspeicher löschen zu müssen. */
+(function () {
+  /* Wer aus einem Google-Treffer kommt, hat seine Frage schon gestellt: Er hat
+     nach etwas Bestimmtem gesucht und soll dafür keinen Zwischenschritt
+     bekommen. Das ist zugleich die Absicherung gegen Googles Bewertung
+     aufdringlicher Zwischenseiten ("intrusive interstitials"), die sich
+     ausdrücklich auf Besucher aus der Suche bezieht.
+     Auf false setzen, wenn der Startscreen ausnahmslos jedem erscheinen soll. */
+  var SUCHTREFFER_AUSNEHMEN = true;
+  var SCHLUESSEL = 'jl.zweig';
+
+  var speicher = null;
+  try { speicher = window.localStorage; } catch (e) { /* Speicher gesperrt */ }
+
+  var treffer = /[?&]zweig=([a-z]+)/.exec(location.search);
+  if (treffer) {
+    if (treffer[1] === 'neu') { document.documentElement.classList.add('zweig-wahl'); return; }
+    /* Rückweg ohne JavaScript-Interaktion: Die Karte wurde angeklickt, die
+       Seite neu geladen, die Wahl steht in der Adresse. Merken und den
+       Startscreen nicht erneut zeigen. */
+    try { if (speicher) speicher.setItem(SCHLUESSEL, treffer[1]); } catch (e) {}
+    return;
+  }
+
+  var pfad = location.pathname;
+  if (pfad !== '/' && pfad !== '/index.html') return;
+  if (location.hash) return;
+  try { if (speicher && speicher.getItem(SCHLUESSEL)) return; } catch (e) {}
+  if (SUCHTREFFER_AUSNEHMEN &&
+      /^https?:\/\/([^/]*\.)?(google|bing|duckduckgo|ecosia|yahoo|startpage|qwant|brave)\./i.test(document.referrer || '')) return;
+
+  document.documentElement.classList.add('zweig-wahl');
+})();
+</script>
+<div class="chooser" id="chooser" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="chooserTitle" aria-describedby="chooserSub">
+  <div class="chooser__inner">
+    <span class="chooser__brand">
+      <span class="chooser__brand-tile"><img draggable="false" src="/logo-mark.png" alt="" width="160" height="171" decoding="async"></span>
+      <span class="chooser__brand-name">Jungline<b>Local</b></span>
+    </span>
+    <h1 class="chooser__title" id="chooserTitle">Wofür interessieren Sie sich?</h1>
+    <p class="chooser__sub" id="chooserSub">Zwei Wege, ein Ziel. Wechseln können Sie jederzeit oben in der Leiste.</p>
+    <div class="chooser__grid">
+      {{KARTEN}}
+    </div>
+    <a class="chooser__skip" href="/?zweig=uebersprungen" data-zweig-skip>Später entscheiden</a>
+  </div>
+</div>

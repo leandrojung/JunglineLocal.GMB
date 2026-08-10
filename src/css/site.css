@@ -58,6 +58,8 @@
   --z-menu:95;
   --z-nav:100;
   --z-grain:120;
+  /* Der Startscreen liegt über allem, auch über Korn und Navigationsleiste. */
+  --z-chooser:200;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -2115,4 +2117,558 @@ html{-webkit-tap-highlight-color:transparent}
   .gsp__stage,.gsp__stage *{animation:none!important}
   .gsp-win{border-color:#34C759!important}
   .gsp-sweep{opacity:0}
+}
+
+
+/* ============================================================================
+   ZWEI ZWEIGE: STARTSCREEN, UMSCHALTER, WEBDESIGN-SEITE
+   ----------------------------------------------------------------------------
+   Die Seite führt zwei getrennte Angebote: Local SEO (der ältere Zweig, dem die
+   Startseite "/" gehört) und Webdesign ("/webdesign/"). Alles in diesem Block
+   dient dem Wechsel zwischen beiden oder gehört zum Webdesign-Zweig.
+
+   Gestaltungssprache: bewusst Apple. Große Radien, Materialflächen mit Blur
+   plus Sättigungs-Boost statt Deckfarbe, mehrlagige weiche Schatten, eine
+   einzige Bewegungskurve (--ease-apple) und drei feste Tempi (--dur-tap /
+   --dur-ui / --dur-move) — keine frei erfundenen Zwischenwerte.
+   ============================================================================ */
+
+/* Nur für Screenreader — sichtbar bleibt der kurze Knopftext. */
+.u-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* ============ NAV: LOGO + UMSCHALTER ALS EINE GRUPPE ============ */
+.nav__lead{display:flex;align-items:center;gap:14px;min-width:0}
+
+/* ============ ZWEIG-UMSCHALTER (Aufklappmenü, ab Tablet) ============
+   Sitzt direkt neben dem Logo statt in der Linkliste: Er wechselt nicht die
+   Seite innerhalb eines Angebots, sondern das Angebot selbst — dieselbe
+   Hierarchiestufe wie die Marke, deshalb dieselbe Position. */
+.zweig{position:relative;flex:none}
+.zweig__btn{
+  display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px 0 10px;
+  border-radius:999px;border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  color:var(--dim);font-size:.86rem;font-weight:600;letter-spacing:-.012em;cursor:pointer;
+  transition:background var(--dur-tap) var(--ease-apple),border-color var(--dur-tap) var(--ease-apple),
+             color var(--dur-tap) var(--ease-apple),transform var(--dur-tap) var(--ease-apple);
+}
+.zweig__btn:hover{color:var(--ink);border-color:var(--border-strong);background:var(--surface)}
+/* Tap-Feedback wie in iOS: der Knopf gibt unter dem Finger leicht nach. */
+.zweig__btn:active{transform:scale(.97)}
+.zweig__btn-ic{display:flex;color:var(--green-bright)}
+.zweig__btn-lb{white-space:nowrap}
+.zweig__chev{opacity:.55;transition:transform var(--dur-ui) var(--ease-apple)}
+.zweig.open .zweig__btn{color:var(--ink);border-color:var(--border-strong);background:var(--surface)}
+.zweig.open .zweig__chev{transform:rotate(180deg)}
+
+.zweig__menu{
+  position:absolute;top:calc(100% + 10px);left:0;width:min(346px,calc(100vw - 36px));
+  padding:7px;border-radius:18px;border:1px solid var(--border);
+  background:rgba(var(--bg-rgb),.82);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:var(--elev-2);
+  /* visibility statt display: nimmt die Links aus der Tab-Reihenfolge, lässt
+     aber eine Übergangsanimation zu. Beim Schließen wird sie verzögert
+     geschaltet, damit das Ausblenden noch sichtbar ist. */
+  opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);transform-origin:16px top;
+  transition:opacity var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple),
+             visibility 0s linear var(--dur-ui);
+}
+.zweig.open .zweig__menu{opacity:1;visibility:visible;transform:none;transition-delay:0s,0s,0s}
+.zweig__menu-head{padding:9px 12px 8px;font-size:.7rem;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--dim-2)}
+.zweig__item{
+  display:grid;grid-template-columns:32px 1fr 18px;align-items:center;gap:12px;
+  padding:11px 12px;border-radius:13px;
+  transition:background var(--dur-tap) var(--ease-apple);
+}
+.zweig__item:hover,.zweig__item:focus-visible{background:rgba(var(--green-rgb),.16)}
+.zweig__item-ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--green-bright-rgb),.1);color:var(--green-bright);
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
+.zweig__item-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.zweig__item-tx b{font-size:.92rem;font-weight:640;color:var(--ink);letter-spacing:-.018em;line-height:1.25}
+.zweig__item-tx small{font-size:.775rem;color:var(--dim-2);line-height:1.35;text-wrap:pretty}
+.zweig__item-ck{display:flex;opacity:0;color:var(--green-bright);
+  transition:opacity var(--dur-ui) var(--ease-apple)}
+.zweig__item.is-active .zweig__item-ck{opacity:1}
+.zweig__item.is-active .zweig__item-ic{background:var(--grad-cta);color:var(--green-ink)}
+
+/* ============ ZWEIG-UMSCHALTER (Segment-Variante im Mobilmenü) ============
+   Auf dem Telefon wäre ein Aufklappmenü im ohnehin aufgeklappten Menü ein
+   Klick zu viel. Stattdessen ein Segment-Umschalter wie in iOS: beide
+   Möglichkeiten sichtbar, ein Tipp genügt. */
+.zweig-seg{display:flex;gap:4px;margin:14px 26px 2px;padding:4px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--border)}
+.mobile-menu .zweig-seg__opt{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;
+  padding:10px 6px;border-top:0;border-radius:10px;
+  font-size:.92rem;font-weight:600;color:var(--dim);
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple),
+             box-shadow var(--dur-ui) var(--ease-apple);
+}
+.mobile-menu .zweig-seg__opt svg{flex:none;opacity:.8}
+.mobile-menu .zweig-seg__opt.is-active{background:var(--surface);color:var(--ink);box-shadow:var(--elev-1)}
+.mobile-menu .zweig-seg__opt.is-active svg{color:var(--green-bright);opacity:1}
+
+@media(max-width:640px){
+  /* Auf schmalen Telefonen konkurriert der Umschalter mit Logo und Menüknopf um
+     die Breite — dort übernimmt der Segment-Umschalter im Menü. */
+  .zweig{display:none}
+}
+
+/* ============ FOOTER: HINWEIS AUF DEN ANDEREN ZWEIG ============ */
+.footer__zweig{
+  display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:11px 16px 11px 12px;
+  border-radius:15px;border:1px solid var(--border);background:var(--card-2);
+  transition:border-color var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple),
+             box-shadow var(--dur-ui) var(--ease-apple);
+}
+.footer__zweig:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:var(--elev-1)}
+.footer__zweig-ic{flex:none;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;background:rgba(var(--green-bright-rgb),.1);color:var(--green-bright)}
+.footer__zweig-tx{display:flex;flex-direction:column;gap:1px;text-align:left}
+.footer__zweig-tx small{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim-2);font-weight:600}
+.footer__zweig-tx b{font-size:.95rem;font-weight:650;color:var(--ink);letter-spacing:-.015em}
+.footer__zweig>svg:last-child{flex:none;color:var(--green-bright);
+  transition:transform var(--dur-ui) var(--ease-apple)}
+.footer__zweig:hover>svg:last-child{transform:translateX(3px)}
+
+/* ============ STARTSCREEN „Wofür interessieren Sie sich?“ ============
+   Liegt ÜBER der Startseite statt an ihrer Stelle: "/" bleibt inhaltlich die
+   SEO-Seite und behält ihre Rankings. Sichtbar wird das Overlay nur, wenn das
+   Skript in partials/chooser.html die Klasse .zweig-wahl auf <html> setzt —
+   ohne JavaScript erscheint es nie, der Inhalt dahinter steht trotzdem
+   vollständig im HTML. */
+.chooser{display:none}
+.zweig-wahl{overflow:hidden}
+.zweig-wahl body{overflow:hidden}
+.zweig-wahl .chooser{
+  display:flex;position:fixed;inset:0;z-index:var(--z-chooser);
+  align-items:center;justify-content:center;padding:32px 20px;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:rgba(var(--bg-rgb),.7);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);backdrop-filter:blur(40px) saturate(180%);
+  animation:chooserIn var(--dur-ui) var(--ease-apple) both;
+}
+/* Beim Schließen wandert die Fläche nach oben weg statt einfach zu verschwinden
+   — dieselbe Geste wie beim Wegwischen eines iOS-Sheets. */
+.zweig-wahl .chooser.is-closing{
+  animation:chooserOut var(--dur-move) var(--ease-apple) both;pointer-events:none;
+}
+/* Der Dialogkasten selbst bekommt den Fokus (siehe site.js), ist aber kein
+   Bedienelement — ein Fokusrahmen um die ganze Flaeche waere sinnlos. Die
+   Karten darin behalten ihren Rahmen aus der globalen :focus-visible-Regel. */
+.chooser:focus{outline:none}
+.chooser__inner{margin:auto;width:100%;max-width:820px;text-align:center;
+  display:flex;flex-direction:column;align-items:center}
+.chooser__brand{display:inline-flex;align-items:center;gap:10px;
+  animation:chooserRise var(--dur-move) var(--ease-apple) both}
+.chooser__brand-tile{width:38px;height:38px;border-radius:11px;background:var(--surface);flex:none;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--elev-1)}
+.chooser__brand-tile img{width:22px;height:auto}
+.chooser__brand-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.06rem;
+  letter-spacing:-.03em}
+.chooser__brand-name b{color:var(--green-bright);font-weight:800}
+.chooser__title{margin-top:26px;font-size:clamp(1.9rem,5.2vw,3.05rem);font-weight:700;letter-spacing:-.038em;
+  animation:chooserRise var(--dur-move) .05s var(--ease-apple) both}
+.chooser__sub{margin:15px auto 0;max-width:540px;color:var(--dim);font-size:1.02rem;line-height:1.6;
+  text-wrap:pretty;animation:chooserRise var(--dur-move) .1s var(--ease-apple) both}
+.chooser__grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;margin-top:40px}
+.chooser__card{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:9px;text-align:left;
+  padding:26px 24px 22px;border-radius:24px;border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--elev-1);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple),
+             border-color var(--dur-ui) var(--ease-apple);
+  animation:chooserRise .6s var(--ease-apple) both;
+  animation-delay:calc(.16s + var(--i,0)*.07s);
+}
+.chooser__card:hover{transform:translateY(-4px);box-shadow:var(--elev-2);border-color:var(--green)}
+.chooser__card:active{transform:translateY(-1px) scale(.99)}
+.chooser__card-ic{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--green-bright-rgb),.1);color:var(--green-bright);margin-bottom:4px;
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
+.chooser__card:hover .chooser__card-ic{background:var(--grad-cta);color:var(--green-ink)}
+.chooser__card-tt{font-family:'Bricolage Grotesque',sans-serif;font-size:1.35rem;font-weight:700;
+  letter-spacing:-.03em;line-height:1.2}
+.chooser__card-tx{color:var(--dim);font-size:.94rem;line-height:1.6;text-wrap:pretty}
+.chooser__card-go{display:inline-flex;align-items:center;gap:7px;margin-top:6px;
+  color:var(--green-bright);font-size:.9rem;font-weight:650}
+.chooser__card-go svg{transition:transform var(--dur-ui) var(--ease-apple)}
+.chooser__card:hover .chooser__card-go svg{transform:translateX(4px)}
+.chooser__skip{margin-top:30px;padding:10px 18px;border-radius:999px;color:var(--dim-2);font-size:.9rem;
+  font-weight:550;transition:color var(--dur-ui) var(--ease-apple),background var(--dur-ui) var(--ease-apple);
+  animation:chooserRise var(--dur-move) .34s var(--ease-apple) both}
+.chooser__skip:hover{color:var(--ink);background:var(--card-2)}
+/* Solange der Startscreen offen ist, hat nichts anderes eine Bedienrolle: Die
+   fixierte Aktionsleiste auf dem Telefon wuerde sonst als verschwommener
+   Streifen durch die Milchglasflaeche schimmern. */
+.zweig-wahl .mcta{display:none!important}
+@keyframes chooserIn{from{opacity:0}to{opacity:1}}
+@keyframes chooserOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-18px)}}
+@keyframes chooserRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media(max-width:700px){
+  /* Auf dem Telefon muss die Entscheidung ohne Scrollen sichtbar sein. Deshalb
+     wandert das Symbol neben die Ueberschrift statt darueber — das spart pro
+     Karte rund 55 Pixel und laesst beide Karten samt Fussnote in einen
+     Bildschirm passen. */
+  .chooser__grid{grid-template-columns:1fr;gap:12px;margin-top:26px}
+  .chooser__card{
+    display:grid;grid-template-columns:44px 1fr;column-gap:14px;row-gap:8px;
+    grid-template-areas:"ic tt" "tx tx" "go go";align-items:center;
+    padding:18px 18px 16px;border-radius:20px}
+  .chooser__card-ic{grid-area:ic;width:44px;height:44px;border-radius:13px;margin-bottom:0}
+  .chooser__card-tt{grid-area:tt;font-size:1.16rem}
+  .chooser__card-tx{grid-area:tx;font-size:.9rem;line-height:1.55}
+  .chooser__card-go{grid-area:go;margin-top:0}
+  .chooser__title{margin-top:20px;font-size:clamp(1.75rem,6.4vw,3.05rem)}
+  .chooser__sub{font-size:.96rem;margin-top:12px}
+  .chooser__skip{margin-top:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  .zweig-wahl .chooser,.chooser__brand,.chooser__title,.chooser__sub,.chooser__card,.chooser__skip{
+    animation:none!important;opacity:1;transform:none}
+  .zweig-wahl .chooser.is-closing{opacity:0}
+}
+
+/* ============ WEBDESIGN-ZWEIG: EIGENE AKZENTFARBE ============
+   Der Zweig erbt das komplette Layout- und Komponenten-System der Seite und
+   tauscht nur die Akzent-Token. Dadurch wirkt er sofort als eigener Bereich,
+   ohne dass eine einzige Komponente doppelt gepflegt werden müsste: Buttons,
+   Aurora-Hintergrund, Rahmen und Icons ziehen automatisch mit.
+
+   Farbe ist Apple-Blau statt des tiefen Indigo des SEO-Zweigs. Für Fließtext
+   ist bewusst der dunklere Ton #0066CC gesetzt (5,2:1 auf dem Seitenhintergrund
+   — WCAG AA), das hellere #0071E3 nur als Flächenfarbe in Verläufen, wo weißer
+   Text darauf liegt. */
+body[data-zweig="webdesign"]{
+  --green:#7EA9DE;
+  --green-rgb:126,169,222;
+  --green-bright:#0066CC;
+  --green-bright-rgb:0,102,204;
+  --green-deep:#2E6FB5;
+  --green-bright-2:#00397A;
+  --grad-cta:linear-gradient(135deg,#0071E3,#0A4FA8);
+}
+
+/* ============ WEBDESIGN: HERO ============ */
+.wd-hero{position:relative;padding:calc(76px + 86px) 0 100px;overflow:hidden;isolation:isolate;z-index:1}
+.wd-hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 86% at 60% 24%,transparent 52%,rgba(var(--bg-rgb),.5) 100%)}
+.wd-hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.03fr .97fr;
+  gap:56px;align-items:center}
+.wd-hero h1{font-size:clamp(2.45rem,4.7vw,3.85rem);font-weight:800;letter-spacing:-.04em;
+  margin:22px 0 18px}
+.wd-hero h1 .hl{background:linear-gradient(110deg,var(--green-deep),var(--green-bright));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.wd-hero .lead{color:var(--dim);font-size:1.13rem;line-height:1.65;max-width:33ch;text-wrap:pretty}
+.wd-hero__trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:26px;
+  color:var(--dim-2);font-size:.88rem;font-weight:550}
+.wd-hero__trust li{display:flex;align-items:center;gap:7px}
+.wd-hero__trust svg{color:var(--green-bright);flex:none}
+
+/* ============ WEBDESIGN: GERÄTE-ATTRAPPE ============
+   Reine CSS-Attrappe statt Screenshot: kein Bild zum Laden, gestochen scharf
+   auf jedem Display, und sie zeigt bewusst kein echtes Kundenprojekt — es gibt
+   noch keins, und ein erfundenes wäre eine Falschangabe. Gezeigt wird die
+   Struktur einer aufgeräumten Seite, nicht ein konkreter Kunde. */
+.wd-device{position:relative;padding-bottom:26px}
+.wd-win{position:relative;border-radius:16px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);
+  box-shadow:0 2px 4px rgba(16,22,48,.04),0 24px 60px -24px rgba(16,22,48,.22),
+             0 60px 120px -60px rgba(16,22,48,.2)}
+.js .wd-hero .wd-win{animation:wdFloat 9s ease-in-out 1.4s infinite}
+.wd-win__bar{display:flex;align-items:center;gap:12px;padding:10px 13px;
+  background:var(--surface-2);border-bottom:1px solid var(--border)}
+.wd-win__dots{display:flex;gap:6px;flex:none}
+.wd-win__dots i{display:block;width:10px;height:10px;border-radius:50%;background:var(--border-strong)}
+.wd-win__url{flex:1;min-width:0;height:23px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--border);display:flex;align-items:center;padding:0 11px;
+  font-size:.68rem;color:var(--dim-2);letter-spacing:-.01em;white-space:nowrap;overflow:hidden}
+.wd-win__page{padding:17px 16px 19px;background:var(--surface)}
+
+.wd-mini{display:flex;flex-direction:column;gap:13px}
+.wd-mini__nav{display:flex;align-items:center;gap:9px}
+.wd-mini__logo{flex:none;width:26px;height:26px;border-radius:8px;background:var(--grad-cta)}
+.wd-mini__links{display:flex;gap:11px;flex:1;margin-left:4px}
+.wd-mini__links i{display:block;width:32px;height:6px;border-radius:3px;background:var(--border-strong);opacity:.75}
+.wd-mini__cta{flex:none;width:58px;height:21px;border-radius:999px;background:var(--grad-cta)}
+.wd-mini__hero{display:flex;flex-direction:column;gap:9px;padding:14px 0 4px}
+.wd-mini__h1{height:15px;border-radius:5px;background:var(--ink);opacity:.85;width:84%}
+.wd-mini__h1--short{width:57%}
+.wd-mini__p{height:7px;border-radius:4px;background:var(--dim-2);opacity:.32;width:72%}
+.wd-mini__p--short{width:49%}
+.wd-mini__btn{margin-top:7px;width:106px;height:27px;border-radius:999px;background:var(--grad-cta)}
+.wd-mini__cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.wd-mini__cards i{display:block;height:54px;border-radius:11px;background:var(--surface-2);
+  border:1px solid var(--border)}
+/* Einlauf-Choreografie: die Seite baut sich von oben nach unten auf, so wie
+   ein Besucher sie auch liest. */
+.js .wd-device .wd-mini__nav,
+.js .wd-device .wd-mini__hero>*,
+.js .wd-device .wd-mini__cards i{animation:wdRise .65s var(--ease-apple) both}
+.js .wd-device .wd-mini__nav{animation-delay:.15s}
+.js .wd-device .wd-mini__hero>*:nth-child(1){animation-delay:.26s}
+.js .wd-device .wd-mini__hero>*:nth-child(2){animation-delay:.32s}
+.js .wd-device .wd-mini__hero>*:nth-child(3){animation-delay:.38s}
+.js .wd-device .wd-mini__hero>*:nth-child(4){animation-delay:.44s}
+.js .wd-device .wd-mini__hero>*:nth-child(5){animation-delay:.52s}
+.js .wd-device .wd-mini__cards i:nth-child(1){animation-delay:.62s}
+.js .wd-device .wd-mini__cards i:nth-child(2){animation-delay:.68s}
+.js .wd-device .wd-mini__cards i:nth-child(3){animation-delay:.74s}
+
+.wd-phone{position:absolute;right:-14px;bottom:4px;width:124px;padding:7px;border-radius:26px;
+  background:#12151C;border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 40px -16px rgba(16,22,48,.55),0 3px 8px rgba(16,22,48,.2)}
+.js .wd-hero .wd-phone{animation:wdFloat 9s ease-in-out 2.1s infinite}
+.wd-phone__screen{position:relative;border-radius:20px;overflow:hidden;background:var(--surface);
+  padding:16px 9px 11px;display:flex;flex-direction:column;gap:7px}
+.wd-phone__screen::before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);
+  width:34px;height:4px;border-radius:2px;background:var(--border-strong)}
+.wd-phone__bar{display:flex;align-items:center;justify-content:space-between}
+.wd-phone__logo{width:17px;height:17px;border-radius:5px;background:var(--grad-cta)}
+.wd-phone__burger{display:flex;flex-direction:column;gap:2.5px}
+.wd-phone__burger i{display:block;width:13px;height:2px;border-radius:1px;background:var(--border-strong)}
+.wd-phone__h{height:9px;border-radius:3px;background:var(--ink);opacity:.85;width:88%;margin-top:5px}
+.wd-phone__h--short{width:60%}
+.wd-phone__p{height:5px;border-radius:2.5px;background:var(--dim-2);opacity:.3;width:76%}
+.wd-phone__btn{width:100%;height:19px;border-radius:999px;background:var(--grad-cta);margin-top:3px}
+.wd-phone__card{height:30px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border)}
+@keyframes wdRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes wdFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-9px,0)}}
+
+/* ============ WEBDESIGN: WAS EINE ALTE SEITE KOSTET ============ */
+.wd-stakes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:52px}
+.wd-stake{padding:28px 26px;border-radius:var(--r-lg);border:1px solid var(--border);
+  background:var(--card-2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple),
+             border-color var(--dur-ui) var(--ease-apple)}
+.wd-stake:hover{transform:translateY(-3px);box-shadow:var(--elev-1);border-color:var(--border-strong)}
+.wd-stake__ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  background:rgba(214,48,31,.09);color:#C0301F;margin-bottom:16px}
+.wd-stake h3{font-size:1.14rem;font-weight:700;letter-spacing:-.022em;margin-bottom:8px}
+.wd-stake p{color:var(--dim);font-size:.96rem;line-height:1.65;text-wrap:pretty}
+
+/* ============ WEBDESIGN: DIE VIER SÄULEN ============ */
+.wd-pillars{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px}
+.wd-pillar{position:relative;overflow:hidden;padding:32px 30px 30px;border-radius:var(--r-lg);
+  border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple),
+             border-color var(--dur-ui) var(--ease-apple)}
+.wd-pillar:hover{transform:translateY(-4px);box-shadow:var(--elev-2);border-color:var(--green)}
+.wd-pillar__ic{width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--green-bright-rgb),.1);color:var(--green-bright);margin-bottom:18px;
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
+.wd-pillar:hover .wd-pillar__ic{background:var(--grad-cta);color:var(--green-ink)}
+.wd-pillar h3{font-size:1.28rem;font-weight:700;letter-spacing:-.026em;margin-bottom:6px}
+.wd-pillar__claim{color:var(--green-bright);font-size:.92rem;font-weight:620;margin-bottom:12px}
+.wd-pillar p{color:var(--dim);font-size:.99rem;line-height:1.68;text-wrap:pretty}
+.wd-pillar ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.wd-pillar li{display:flex;gap:10px;color:var(--dim);font-size:.94rem;line-height:1.5}
+.wd-pillar li svg{flex:none;margin-top:4px;color:var(--green-bright)}
+
+/* ============ WEBDESIGN: ABLAUF ============ */
+.wd-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:54px}
+.wd-step{position:relative;display:flex;flex-direction:column;padding:28px 24px 26px;
+  border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2)}
+/* Der Fliesstext streckt sich, damit die Kennzeichnung darunter in allen vier
+   Karten auf derselben Linie sitzt — auch wenn die Texte verschieden lang sind. */
+.wd-step p{flex:1}
+/* Verbindungslinie zwischen den Schritten — endet bewusst vor dem letzten. */
+.wd-step:not(:last-child)::after{content:"";position:absolute;top:47px;right:-16px;width:16px;height:1px;
+  background:linear-gradient(90deg,var(--border-strong),transparent)}
+.wd-step__num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+  border-radius:11px;background:var(--grad-cta);color:var(--green-ink);
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:16px}
+.wd-step h3{font-size:1.08rem;font-weight:700;letter-spacing:-.022em;margin-bottom:7px}
+.wd-step p{color:var(--dim);font-size:.93rem;line-height:1.62;text-wrap:pretty}
+.wd-step__meta{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:4px 10px;
+  border-radius:999px;background:rgba(var(--green-bright-rgb),.08);color:var(--green-bright);
+  font-size:.76rem;font-weight:620}
+
+/* ============ WEBDESIGN: TECHNIK & QUALITÄT ============ */
+.wd-tech{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:52px;
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--border)}
+.wd-tech__item{padding:28px 26px;background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:background var(--dur-ui) var(--ease-apple)}
+.wd-tech__item:hover{background:var(--surface)}
+.wd-tech__item h3{display:flex;align-items:center;gap:10px;font-size:1.03rem;font-weight:680;
+  letter-spacing:-.02em;margin-bottom:9px}
+.wd-tech__item h3 svg{flex:none;color:var(--green-bright)}
+.wd-tech__item p{color:var(--dim);font-size:.93rem;line-height:1.62;text-wrap:pretty}
+/* Der Querverweis auf den SEO-Zweig steht mitten im Fliesstext und muss als
+   Link erkennbar sein — sonst klickt ihn niemand. */
+.wd-tech__item p a{color:var(--green-bright);font-weight:600;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.wd-tech__item p a:hover{text-decoration-thickness:2px}
+
+/* ============ WEBDESIGN: PREISE ============ */
+/* align-items bewusst NICHT auf start: die drei Karten sollen gleich hoch sein,
+   damit die Schaltflaechen auf einer Linie stehen. Den Hoehenausgleich uebernimmt
+   die Merkmalsliste (flex:1 weiter unten). */
+.wd-prices{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:54px}
+.wd-price{position:relative;display:flex;flex-direction:column;padding:32px 28px 30px;
+  border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple)}
+.wd-price:hover{transform:translateY(-3px);box-shadow:var(--elev-1)}
+.wd-price--top{border-color:var(--green);box-shadow:var(--elev-2)}
+.wd-price--top:hover{box-shadow:var(--elev-2)}
+.wd-price__flag{position:absolute;top:-13px;left:28px;padding:5px 13px;border-radius:999px;
+  background:var(--grad-cta);color:var(--green-ink);font-size:.72rem;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase}
+.wd-price h3{font-size:1.24rem;font-weight:700;letter-spacing:-.026em}
+.wd-price__für{color:var(--dim-2);font-size:.9rem;margin-top:5px;line-height:1.5;text-wrap:pretty}
+.wd-price__amount{display:flex;align-items:baseline;gap:7px;margin:22px 0 4px}
+.wd-price__ab{color:var(--dim-2);font-size:.88rem;font-weight:550}
+.wd-price__val{font-family:'Bricolage Grotesque',sans-serif;font-size:2.15rem;font-weight:800;
+  letter-spacing:-.04em;line-height:1}
+.wd-price__unit{color:var(--dim-2);font-size:.88rem}
+.wd-price__note{color:var(--dim-2);font-size:.8rem;line-height:1.5;margin-bottom:22px}
+.wd-price ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:26px;flex:1}
+.wd-price li{display:flex;gap:10px;color:var(--dim);font-size:.93rem;line-height:1.5}
+.wd-price li svg{flex:none;margin-top:4px;color:var(--green-bright)}
+.wd-price .btn{width:100%}
+.wd-prices__legal{margin-top:22px;text-align:center;color:var(--dim-2);font-size:.85rem;
+  line-height:1.6;text-wrap:pretty}
+
+/* ============ WEBDESIGN: ARBEITSPROBE ============ */
+.wd-ref{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;margin-top:48px;
+  padding:40px 42px;border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.wd-ref h2{font-size:clamp(1.7rem,3vw,2.3rem);font-weight:700;letter-spacing:-.032em;margin-bottom:14px}
+.wd-ref p{color:var(--dim);font-size:1.02rem;line-height:1.7;text-wrap:pretty}
+.wd-ref__list{list-style:none;display:grid;gap:12px;margin-top:4px}
+.wd-ref__list li{display:flex;gap:9px;color:var(--dim);font-size:.93rem;line-height:1.45}
+.wd-ref__list svg{flex:none;margin-top:3px;color:var(--green-bright)}
+
+/* ============ WEBDESIGN: VORHER/NACHHER-INHALT ============
+   Nutzt die vorhandene Slider-Mechanik (.vnc__*, siehe oben) und tauscht nur
+   den Inhalt der beiden Seiten aus: links eine in die Jahre gekommene Seite,
+   rechts dieselbe Seite neu gebaut. Beide Seiten tragen exakt dieselbe
+   Geometrie, sonst würde der Wischbalken einen Versatz sichtbar machen. */
+/* Beide Seiten MUESSEN dieselbe Geometrie haben, sonst zeigt der Wischbalken
+   einen Versatz statt eines Uebergangs. Deshalb hier eine feste Hoehe fuer den
+   Block und eine absolut gesetzte Bildunterschrift: Der Fensterkasten ist damit
+   auf beiden Seiten pixelgleich, egal wie lang die Unterschrift umbricht. */
+.wdv{position:relative;width:min(560px,100%);height:330px}
+.wdv .wd-win{height:100%;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 2px 4px rgba(0,0,0,.04),0 18px 44px -20px rgba(0,0,0,.24)}
+.wdv .wd-win__bar{flex:none}
+.wdv .wd-win__page{flex:1;min-height:0;overflow:hidden;padding:14px 14px 16px}
+.wdv .wd-mini{gap:11px}
+.wdv .wd-mini__cards i{height:46px}
+/* Eigene Buehnenhoehe: das Motiv ist flacher als das Google-Ergebnis-Mockup
+   der Startseite, die geerbten 600px liessen die halbe Flaeche leer. */
+.vnc--wd .vnc__stage{height:min(520px,68vh);min-height:460px}
+/* Die alte Seite: harte Ecken, gedeckte Farben, gedrängte Abstände, ein
+   schreiendes Banner — die üblichen Merkmale einer Seite von vorgestern. */
+.wd-win--alt{border-radius:7px;border-color:#C9C6BC}
+.wd-win--alt .wd-win__bar{background:#DAD7CE;border-bottom-color:#C9C6BC}
+.wd-win--alt .wd-win__dots i{background:#A9A499}
+.wd-win--alt .wd-win__url{background:#F0EEE7;border-color:#C9C6BC;color:#8A857A;border-radius:3px}
+.wd-win--alt .wd-win__page{background:#F0EEE7;padding:0 0 13px}
+.wdv__banner{background:#B0261E;color:#FFE9E7;font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;text-align:center;padding:6px 8px;font-family:Georgia,'Times New Roman',serif}
+.wdv__alt-body{padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+.wdv__alt-nav{display:flex;align-items:center;gap:7px;padding-bottom:8px;border-bottom:2px solid #C9C6BC}
+.wdv__alt-logo{flex:none;width:22px;height:22px;background:#7C7C7C;border-radius:2px}
+.wdv__alt-links{display:flex;gap:6px;flex:1}
+.wdv__alt-links i{display:block;width:26px;height:5px;background:#9A958A;border-radius:0}
+.wdv__alt-h{height:9px;width:64%;background:#3A3A38;border-radius:0}
+.wdv__alt-p{height:5px;background:#8B8781;border-radius:0}
+.wdv__alt-p--a{width:96%}
+.wdv__alt-p--b{width:92%}
+.wdv__alt-p--c{width:88%}
+.wdv__alt-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:3px}
+.wdv__alt-cols i{display:block;height:34px;background:#DDDAD1;border:1px solid #C9C6BC}
+.wdv__alt-foot{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:7px;
+  border-top:1px solid #C9C6BC;font-family:Georgia,'Times New Roman',serif;
+  font-size:.55rem;color:#8A857A;letter-spacing:.02em}
+.wdv__alt-counter{background:#111;color:#39FF6A;font-family:'Courier New',monospace;font-size:.52rem;
+  padding:1px 4px;letter-spacing:.1em}
+/* Jede Seite traegt ihre eigene Unterschrift. Sie ziehen deshalb nach AUSSEN
+   statt in die Mitte: stuenden beide zentriert, wuerden sie sich in der
+   Mittelstellung des Reglers ueberlagern und zu einer unlesbaren Mischzeile. */
+.wdv__cap{position:absolute;top:calc(100% + 14px);left:0;right:0;
+  font-size:.78rem;line-height:1.5;color:#86868B;letter-spacing:-.005em}
+.vnc__side--before .wdv__cap{text-align:left}
+.vnc__side--after .wdv__cap{text-align:right}
+.wdv__cap b{font-weight:620;color:#1D1D1F}
+
+@media(max-width:980px){
+  .wd-hero__inner{grid-template-columns:1fr;gap:48px}
+  .wd-hero .lead{max-width:52ch}
+  .wd-device{max-width:520px;margin:0 auto}
+  .wd-stakes,.wd-tech{grid-template-columns:1fr 1fr}
+  .wd-steps{grid-template-columns:1fr 1fr}
+  .wd-step:not(:last-child)::after{display:none}
+  .wd-prices{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto}
+  .wd-ref{grid-template-columns:1fr;gap:34px;padding:34px 30px}
+}
+@media(max-width:760px){
+  .wd-pillars{grid-template-columns:1fr}
+  .wd-stakes,.wd-tech{grid-template-columns:1fr}
+  .wd-hero{padding:calc(76px + 54px) 0 74px}
+}
+@media(max-width:640px){
+  .vnc--wd .vnc__stage{height:420px;min-height:0}
+  .wdv{height:288px}
+  .wdv .wd-win__page{padding:11px 11px 12px}
+  .wdv .wd-mini{gap:9px}
+  .wdv .wd-mini__cards i{height:38px}
+  /* Die alte Seite traegt mehr Zeilen als die neue und lief unten aus dem
+     Fensterkasten heraus — auf dem Telefon deshalb enger gesetzt. */
+  .wd-win--alt .wd-win__page{padding:0 0 9px}
+  .wdv__alt-body{padding:9px 10px;gap:6px}
+  .wdv__alt-cols i{height:26px}
+  .wdv__alt-foot{margin-top:2px;padding-top:5px}
+}
+@media(max-width:560px){
+  .wd-steps{grid-template-columns:1fr}
+  .wd-ref{padding:28px 22px}
+  .wd-pillar{padding:26px 22px 24px}
+  .wd-phone{width:104px;right:-6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .js .wd-device .wd-mini__nav,
+  .js .wd-device .wd-mini__hero>*,
+  .js .wd-device .wd-mini__cards i{opacity:1;transform:none}
+}
+
+/* ============ HINWEISBAND AUF DEN ANDEREN ZWEIG (im Lesefluss) ============
+   Steht auf der Startseite an der Stelle, an der die Argumentation zum
+   Google-Profil abgeschlossen ist. Bewusst eine ruhige Zeile statt einer
+   zweiten grossen Sektion: das zweite Angebot soll auffallen, aber der
+   Startseite nicht die Aussage streitig machen. */
+.zweig-band{
+  display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:20px;
+  max-width:920px;margin:0 auto;padding:22px 26px;
+  border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple),
+             border-color var(--dur-ui) var(--ease-apple);
+}
+.zweig-band:hover{transform:translateY(-3px);box-shadow:var(--elev-2);border-color:var(--green)}
+.zweig-band__ic{width:56px;height:56px;border-radius:17px;display:flex;align-items:center;justify-content:center;
+  background:rgba(var(--green-bright-rgb),.1);color:var(--green-bright);
+  transition:background var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
+.zweig-band:hover .zweig-band__ic{background:var(--grad-cta);color:var(--green-ink)}
+.zweig-band__tx{display:flex;flex-direction:column;gap:5px;min-width:0}
+.zweig-band__tx b{font-family:'Bricolage Grotesque',sans-serif;font-size:1.16rem;font-weight:700;
+  letter-spacing:-.026em;line-height:1.25}
+.zweig-band__tx small{color:var(--dim);font-size:.94rem;line-height:1.55;text-wrap:pretty}
+.zweig-band__go{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  color:var(--green-bright);font-weight:650;font-size:.95rem}
+.zweig-band__go svg{transition:transform var(--dur-ui) var(--ease-apple)}
+.zweig-band:hover .zweig-band__go svg{transform:translateX(4px)}
+@media(max-width:760px){
+  .zweig-band{grid-template-columns:48px 1fr;gap:16px;padding:20px 20px}
+  .zweig-band__ic{width:48px;height:48px;border-radius:15px}
+  .zweig-band__go{grid-column:1 / -1;margin-top:2px}
 }

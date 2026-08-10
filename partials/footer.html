@@ -1,28 +1,24 @@
+<!-- Vorlage, KEIN fertiges HTML: die {{…}}-Platzhalter füllt vite.config.js
+     (renderFooter) pro Zweig aus src/data/zweige.js. -->
 <footer class="footer">
   <div class="container">
     <div class="footer__top">
       <div>
-        <a href="/" class="brand">
+        <a href="{{BRAND_HREF}}" class="brand">
           <span class="brand__tile"><img draggable="false" src="/logo-mark.png" alt="JunglineLocal Logo" width="160" height="171" decoding="async" loading="lazy"></span>
           <span class="brand__name">Jungline<b>Local</b></span>
         </a>
-        <p class="footer__claim"><b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich bringe regionale Unternehmen bei Google nach oben: persönlich, transparent, messbar.</p>
+        <p class="footer__claim">{{CLAIM}}</p>
+        {{ZWEIG_WECHSEL}}
       </div>
       <div class="footer__cols">
         <div class="fcol">
-          <h3>Angebot</h3>
-          <a href="/leistungen/google-unternehmensprofil-optimierung/">Leistungen</a>
-          <a href="/#branchen">Branchen</a>
-          <a href="/ratgeber/">Ratgeber</a>
-          <a href="/ueber-mich/">Über mich</a>
-          <a href="/kontakt/">Kontakt</a>
+          <h3>{{FOOTER_TITEL}}</h3>
+          {{FOOTER_LINKS}}
         </div>
         <div class="fcol">
-          <h3>Startseite</h3>
-          <a href="/#vorher-nachher">Vorher &amp; Nachher</a>
-          <a href="/#vorgehen">Vorgehen</a>
-          <a href="/#ergebnisse">Ergebnisse</a>
-          <a href="/#faq">FAQ</a>
+          <h3>{{ANKER_TITEL}}</h3>
+          {{ANKER_LINKS}}
         </div>
         <div class="fcol">
           <h3>Kontakt</h3>
@@ -40,7 +36,7 @@
     </div>
     <div class="footer__bottom">
       <span>© <span id="year"></span> JunglineLocal. Alle Rechte vorbehalten.</span>
-      <span>Google Unternehmensprofil Optimierung · bundesweit</span>
+      <span>{{FOOTER_CLAIM_KLEIN}}</span>
     </div>
   </div>
 </footer>
