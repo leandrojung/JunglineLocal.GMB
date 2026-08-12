@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Nur fuer Inhaber"
+AuthUserFile /home/u339639747/domains/jungline.de/public_html/admin/.htpasswd
+Require valid-user

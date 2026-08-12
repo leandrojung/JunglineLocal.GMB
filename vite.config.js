@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
@@ -431,8 +431,85 @@ function stripHtmlComments() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Das Admin-Dashboard (/admin/) muss jeden Deploy überleben.
+//
+// Vorgeschichte: Die Datei lag früher nur von Hand nach public_html/admin/
+// hochgeladen auf dem Server. Der Deploy ersetzt public_html/ aber vollständig
+// durch den Inhalt von dist/ — alles, was nicht aus der Vite-Quelle stammt,
+// war danach weg. Die Dateien liegen deshalb jetzt in public/admin/ und sind
+// damit regulärer Teil des Builds.
+//
+// Warum trotzdem dieser Plugin, obwohl Vite public/ ohnehin nach dist/
+// kopiert: Vite kopiert dabei nachweislich AUCH Dateien, die mit einem Punkt
+// beginnen (geprüft — .htaccess und .htpasswd landen ohne Zutun in dist/).
+// Verlassen wollen wir uns darauf nicht. Fehlt eine der drei Dateien im
+// Build, ist das Dashboard entweder offline (HTML fehlt) oder — deutlich
+// schlimmer — ohne Passwortschutz öffentlich erreichbar (.htaccess/.htpasswd
+// fehlen). Beides würde im Build-Log unter ~40 Zeilen Dateiliste niemandem
+// auffallen.
+//
+// Der Plugin kopiert deshalb fehlende Dateien selbst nach und bricht den
+// Build mit Klartext ab, falls danach immer noch etwas fehlt. Kein
+// zusätzliches npm-Paket nötig (vite-plugin-static-copy wäre eine Abhängigkeit
+// für Arbeit, die Vite bereits erledigt) — und ein stiller Regressionsfehler
+// wird zum lauten Build-Abbruch.
+// ---------------------------------------------------------------------------
+const ADMIN_PFLICHTDATEIEN = ['dashboard-protected.html', '.htaccess', '.htpasswd']
+
+function adminDateienSichern() {
+  let outDir = 'dist'
+  return {
+    name: 'jungline-admin-dateien-sichern',
+    apply: 'build',
+    configResolved(config) {
+      // outDir aus der aufgelösten Konfiguration statt hart verdrahtet —
+      // damit der Plugin auch nach einer Umstellung von build.outDir greift.
+      outDir = config.build.outDir
+    },
+    // closeBundle läuft nach dem Schreiben des Bundles UND nach dem
+    // publicDir-Kopieren von Vite. Früher (z. B. writeBundle) wäre die
+    // Prüfung wertlos, weil die Dateien dann noch gar nicht da sein können.
+    closeBundle() {
+      const quelle = resolve(root, 'public', 'admin')
+      const ziel = resolve(root, outDir, 'admin')
+      mkdirSync(ziel, { recursive: true })
+
+      const fehlend = []
+      for (const datei of ADMIN_PFLICHTDATEIEN) {
+        const von = resolve(quelle, datei)
+        const nach = resolve(ziel, datei)
+
+        if (!existsSync(von)) {
+          fehlend.push(`public/admin/${datei} — die QUELLE fehlt`)
+          continue
+        }
+        if (!existsSync(nach)) copyFileSync(von, nach)
+        if (!existsSync(nach)) fehlend.push(`${outDir}/admin/${datei} — Kopieren fehlgeschlagen`)
+      }
+
+      if (fehlend.length > 0) {
+        this.error(
+          'Das Admin-Dashboard ist im Build unvollständig:\n' +
+            fehlend.map((z) => `  - ${z}`).join('\n') +
+            '\n\nOhne .htaccess/.htpasswd wäre /admin/ nach dem Deploy OHNE ' +
+            'Passwortschutz öffentlich erreichbar. Der Build bricht deshalb ab.',
+        )
+      }
+
+      console.log(`[admin] ${ADMIN_PFLICHTDATEIEN.length} Dateien in ${outDir}/admin/ bestätigt`)
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [sharedShell(), dropSameOriginCrossorigin(), copyrightMetadata(), stripHtmlComments()],
+  plugins: [
+    sharedShell(),
+    dropSameOriginCrossorigin(),
+    copyrightMetadata(),
+    stripHtmlComments(),
+    adminDateienSichern(),
+  ],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

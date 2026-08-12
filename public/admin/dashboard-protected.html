@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Diese Seite darf NIE in einem Suchindex landen. noindex/nofollow bleibt
+     drin — zusaetzlich sperrt der Basic-Auth-Schutz aus admin/.htaccess
+     Crawler schon vor dem Ausliefern des HTML aus. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+
+<title>Dashboard — Jungline Local</title>
+
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --line: #262b36;
+    --text: #e8eaf0;
+    --muted: #9aa3b2;
+    --accent: #d9762b;
+    --warn: #3a2a12;
+    --warn-line: #7a5520;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+  }
+  h1 { margin: 0 0 6px; font-size: 20px; }
+  p.sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--muted); }
+  input[type="password"] {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: #0d0f14;
+    color: var(--text);
+    font-size: 16px;
+  }
+  input[type="password"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    margin-top: 14px;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .fehler { margin-top: 12px; color: #ff8f8f; font-size: 14px; min-height: 20px; }
+  .hinweis {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border: 1px solid var(--warn-line);
+    background: var(--warn);
+    border-radius: 10px;
+    font-size: 14px;
+    color: #f0d8b4;
+  }
+  .hinweis code { background: #0d0f14; padding: 1px 5px; border-radius: 4px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ===================== Passwortabfrage ===================== -->
+<main class="card" id="gate">
+  <h1>Dashboard</h1>
+  <p class="sub">Bitte Passwort eingeben.</p>
+
+  <form id="form" autocomplete="off">
+    <label for="pw">Passwort</label>
+    <input type="password" id="pw" name="pw" required autofocus>
+    <button type="submit">Anmelden</button>
+    <div class="fehler" id="fehler" role="alert"></div>
+  </form>
+</main>
+
+<!-- ===================== Dashboard-Inhalt ===================== -->
+<main class="card" id="inhalt" hidden>
+  <h1>Dashboard</h1>
+  <p class="sub">Angemeldet.</p>
+
+  <div class="hinweis">
+    <strong>Platzhalter — bitte ersetzen.</strong><br>
+    Diese Datei ist ein funktionsfaehiges Geruest, weil beim Anlegen des
+    Deploy-Schutzes keine echte <code>dashboard-protected.html</code>
+    beigelegen hat. Der Inhalt dieser Datei einfach vollstaendig durch das
+    echte Dashboard ersetzen — Pfad, Basic-Auth und Build-Kopie bleiben
+    unveraendert bestehen.
+  </div>
+</main>
+
+<script>
+  // Das Passwort steht im Klartext im Quelltext dieser Seite — wer sie
+  // ausliefert bekommt, kann es lesen. Der eigentliche Schutz ist deshalb
+  // der Basic-Auth-Riegel aus admin/.htaccess, der schon vor dem Ausliefern
+  // greift. Diese Abfrage hier ist die zweite, bequemere Ebene.
+  const DASHBOARD_PASSWORD = "Cube-240";
+
+  const form = document.getElementById('form');
+  const gate = document.getElementById('gate');
+  const inhalt = document.getElementById('inhalt');
+  const fehler = document.getElementById('fehler');
+  const pw = document.getElementById('pw');
+
+  // Einmal freigeschaltet, bleibt es fuer die Dauer des Tabs offen —
+  // sessionStorage, damit nach dem Schliessen wieder gefragt wird.
+  const SCHLUESSEL = 'jl-dashboard-frei';
+
+  function freischalten() {
+    gate.hidden = true;
+    inhalt.hidden = false;
+  }
+
+  if (sessionStorage.getItem(SCHLUESSEL) === '1') freischalten();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (pw.value === DASHBOARD_PASSWORD) {
+      sessionStorage.setItem(SCHLUESSEL, '1');
+      fehler.textContent = '';
+      freischalten();
+    } else {
+      fehler.textContent = 'Falsches Passwort.';
+      pw.value = '';
+      pw.focus();
+    }
+  });
+</script>
+
+</body>
+</html>
