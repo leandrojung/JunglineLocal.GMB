@@ -1,152 +1,380 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Diese Seite darf NIE in einem Suchindex landen. noindex/nofollow bleibt
-     drin — zusaetzlich sperrt der Basic-Auth-Schutz aus admin/.htaccess
-     Crawler schon vor dem Ausliefern des HTML aus. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JunglineLocal — Ranking Dashboard</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="googlebot" content="noindex, nofollow">
-
-<title>Dashboard — Jungline Local</title>
-
 <style>
   :root {
-    --bg: #0f1115;
-    --card: #171a21;
-    --line: #262b36;
-    --text: #e8eaf0;
-    --muted: #9aa3b2;
-    --accent: #d9762b;
-    --warn: #3a2a12;
-    --warn-line: #7a5520;
+    --bg: #05070a;
+    --green: #7FE3AA;
+    --green-bright: #9CF0BE;
+    --green-deep: #1a3d2a;
+    --green-glow: rgba(127, 227, 170, 0.18);
+    --white: #f5f7f6;
+    --muted: #8b968f;
+    --muted-2: #5a655e;
+    --card: #0d1310;
+    --card-border: rgba(255,255,255,0.07);
+    --red: #f2867a;
+    --red-bg: rgba(242, 134, 122, 0.12);
+    --amber: #f0c674;
+    --amber-bg: rgba(240, 198, 116, 0.12);
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    margin: 0;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 24px;
     background: var(--bg);
-    color: var(--text);
-    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-image:
+      radial-gradient(circle at 15% 0%, var(--green-glow) 0%, transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(127,227,170,0.08) 0%, transparent 40%);
+    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    color: var(--white);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
-  .card {
-    width: 100%;
-    max-width: 460px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 28px;
+
+  /* ===== LOGIN GATE ===== */
+  #login-gate {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 50% 30%, var(--green-glow) 0%, transparent 55%);
   }
-  h1 { margin: 0 0 6px; font-size: 20px; }
-  p.sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
-  label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--muted); }
-  input[type="password"] {
-    width: 100%;
-    padding: 11px 12px;
-    border-radius: 9px;
-    border: 1px solid var(--line);
-    background: #0d0f14;
-    color: var(--text);
-    font-size: 16px;
+  .login-box {
+    width: 100%; max-width: 340px; padding: 40px 32px;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 20px; text-align: center;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
   }
-  input[type="password"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  button {
-    margin-top: 14px;
-    width: 100%;
-    padding: 11px 12px;
-    border: 0;
-    border-radius: 9px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
+  .login-mark {
+    width: 48px; height: 48px; border-radius: 13px; margin: 0 auto 20px;
+    background: linear-gradient(160deg, #ffffff 0%, #dcefe3 100%);
+    display: flex; align-items: center; justify-content: center;
   }
-  .fehler { margin-top: 12px; color: #ff8f8f; font-size: 14px; min-height: 20px; }
-  .hinweis {
-    margin-top: 22px;
-    padding: 14px 16px;
-    border: 1px solid var(--warn-line);
-    background: var(--warn);
-    border-radius: 10px;
-    font-size: 14px;
-    color: #f0d8b4;
+  .login-mark svg { width: 24px; height: 24px; }
+  .login-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  #pw-input {
+    width: 100%; padding: 13px 16px; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+    color: var(--white); font-size: 14px; margin-bottom: 12px;
+    font-family: inherit; outline: none;
   }
-  .hinweis code { background: #0d0f14; padding: 1px 5px; border-radius: 4px; }
-  [hidden] { display: none !important; }
+  #pw-input:focus { border-color: var(--green); }
+  #login-btn {
+    width: 100%; border: none; border-radius: 10px; padding: 13px;
+    font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    background: linear-gradient(135deg, var(--green-bright), var(--green));
+    color: #06170f;
+  }
+  #login-error {
+    color: var(--red); font-size: 12.5px; margin-top: 12px; display: none;
+  }
+
+  #dashboard { display: none; padding: 32px 20px 60px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .topnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; flex-wrap: wrap; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(160deg, #ffffff 0%, #dcefe3 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .brand-name { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-name span { color: var(--green); }
+  .nav-actions { display: flex; gap: 10px; align-items: center; }
+  .btn { border: none; border-radius: 999px; padding: 12px 22px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .btn:active { transform: scale(0.97); }
+  .btn-ghost { background: rgba(255,255,255,0.06); color: var(--white); border: 1px solid rgba(255,255,255,0.09); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+  .btn-primary { background: linear-gradient(135deg, var(--green-bright), var(--green)); color: #06170f; box-shadow: 0 8px 24px -6px rgba(127,227,170,0.45); }
+  .btn-primary:hover { box-shadow: 0 8px 30px -4px rgba(127,227,170,0.6); }
+  .btn-primary:disabled { background: #26302b; color: #6b756f; cursor: not-allowed; box-shadow: none; }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 18px; }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .hero-row { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px; margin-bottom: 36px; }
+  .headline { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; max-width: 640px; }
+  .headline .accent { color: var(--green); }
+  .sub { font-size: 14.5px; color: var(--muted); margin-top: 10px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px 22px; position: relative; overflow: hidden; }
+  .stat-num { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .stat-num.green { color: var(--green); }
+  .stat-num.red { color: var(--red); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+  .table-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6); }
+  .window-bar { display: flex; align-items: center; justify-content: center; position: relative; padding: 16px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--card-border); }
+  .window-dots { display: flex; gap: 7px; position: absolute; left: 20px; }
+  .window-dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .window-dots span:nth-child(1) { background: #e5786b; }
+  .window-dots span:nth-child(2) { background: #e3c467; }
+  .window-dots span:nth-child(3) { background: var(--green); }
+  .window-title { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+  th { font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted-2); padding: 14px 20px 10px; text-align: left; white-space: nowrap; }
+  td { padding: 16px 20px; border-top: 1px solid var(--card-border); vertical-align: middle; color: #cfd6d1; white-space: nowrap; }
+  tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .rank-badge { width: 28px; height: 28px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; background: rgba(255,255,255,0.06); color: var(--muted); }
+  .rank-badge.top { background: var(--green-deep); color: var(--green-bright); }
+  .name { font-weight: 700; color: var(--white); font-size: 14px; }
+  .stars { color: var(--amber); font-size: 12px; letter-spacing: 1px; }
+  .stars .empty { color: rgba(255,255,255,0.15); }
+  .pos-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .pos-pill.top3 { background: var(--green-deep); color: var(--green-bright); }
+  .pos-pill.top5 { background: rgba(127,227,170,0.1); color: var(--green); }
+  .pos-pill.top10 { background: var(--amber-bg); color: var(--amber); }
+  .pos-pill.out { background: var(--red-bg); color: var(--red); }
+  .pos-pill.err { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .change-up { color: var(--green); font-weight: 700; font-size: 12.5px; }
+  .change-down { color: var(--red); font-weight: 700; font-size: 12.5px; }
+  .contact { color: var(--muted); font-size: 12.5px; }
+  .contact a { color: var(--green); text-decoration: none; }
+  .contact a:hover { text-decoration: underline; }
+  .empty-state { padding: 70px 40px; text-align: center; color: var(--muted); font-size: 14px; }
+  .footer-note { text-align: center; margin-top: 22px; font-size: 11.5px; color: var(--muted-2); line-height: 1.7; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--card-border); color: var(--white); padding: 13px 24px; border-radius: 12px; font-size: 13px; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeUp 0.5s ease both; }
+
+  @media (max-width: 760px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .headline { font-size: 30px; }
+    .hero-row { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===================== Passwortabfrage ===================== -->
-<main class="card" id="gate">
-  <h1>Dashboard</h1>
-  <p class="sub">Bitte Passwort eingeben.</p>
-
-  <form id="form" autocomplete="off">
-    <label for="pw">Passwort</label>
-    <input type="password" id="pw" name="pw" required autofocus>
-    <button type="submit">Anmelden</button>
-    <div class="fehler" id="fehler" role="alert"></div>
-  </form>
-</main>
-
-<!-- ===================== Dashboard-Inhalt ===================== -->
-<main class="card" id="inhalt" hidden>
-  <h1>Dashboard</h1>
-  <p class="sub">Angemeldet.</p>
-
-  <div class="hinweis">
-    <strong>Platzhalter — bitte ersetzen.</strong><br>
-    Diese Datei ist ein funktionsfaehiges Geruest, weil beim Anlegen des
-    Deploy-Schutzes keine echte <code>dashboard-protected.html</code>
-    beigelegen hat. Der Inhalt dieser Datei einfach vollstaendig durch das
-    echte Dashboard ersetzen — Pfad, Basic-Auth und Build-Kopie bleiben
-    unveraendert bestehen.
+<!-- ===== LOGIN GATE ===== -->
+<div id="login-gate">
+  <div class="login-box">
+    <div class="login-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#0a2818" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M12 12L21 7M12 12V22M12 12L3 7" stroke="#0a2818" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="login-title">JunglineLocal Dashboard</div>
+    <div class="login-sub">Nur für den Inhaber zugänglich.</div>
+    <input type="password" id="pw-input" placeholder="Passwort eingeben" autocomplete="off">
+    <button id="login-btn" onclick="checkPassword()">Entsperren</button>
+    <div id="login-error">Falsches Passwort. Versuch's nochmal.</div>
   </div>
-</main>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard">
+<div class="wrap">
+
+  <div class="topnav fade-in">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#0a2818" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 12L21 7M12 12V22M12 12L3 7" stroke="#0a2818" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-name">Jungline<span>Local</span></div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="loadData()">Aktualisieren</button>
+      <button class="btn btn-primary" id="trigger-btn" onclick="triggerWorkflow()">Jetzt prüfen</button>
+      <button class="btn btn-ghost" onclick="logout()" title="Abmelden">⎋</button>
+    </div>
+  </div>
+
+  <div class="hero-row fade-in" style="animation-delay:.05s">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Ranking Dashboard · Live</div>
+      <div class="headline">Wo Ihre Kunden<br>gerade <span class="accent">stehen.</span></div>
+      <div class="sub" id="last-updated">Daten werden geladen…</div>
+    </div>
+  </div>
+
+  <div class="stats-row fade-in" style="animation-delay:.1s">
+    <div class="stat-card"><div class="stat-num green" id="stat-top3">–</div><div class="stat-label">Top 3</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-gesamt">–</div><div class="stat-label">Kunden gesamt</div></div>
+    <div class="stat-card"><div class="stat-num red" id="stat-out">–</div><div class="stat-label">Nicht Top 20</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-datum">–</div><div class="stat-label">Letzte Messung</div></div>
+  </div>
+
+  <div class="table-card fade-in" style="animation-delay:.15s">
+    <div class="window-bar">
+      <div class="window-dots"><span></span><span></span><span></span></div>
+      <div class="window-title">Alle Kunden · Live-Ranking</div>
+    </div>
+    <div class="table-scroll" id="table-container">
+      <div class="empty-state">Lade Daten…</div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    JunglineLocal, Dorsten &middot; Datenquelle: Google Places API (New) &middot; Aktualisiert automatisch alle 5 Minuten
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  // Das Passwort steht im Klartext im Quelltext dieser Seite — wer sie
-  // ausliefert bekommt, kann es lesen. Der eigentliche Schutz ist deshalb
-  // der Basic-Auth-Riegel aus admin/.htaccess, der schon vor dem Ausliefern
-  // greift. Diese Abfrage hier ist die zweite, bequemere Ebene.
-  const DASHBOARD_PASSWORD = "Cube-240";
+// ====== ZUGANG ======
+// Dein Passwort - aendere es hier auf etwas, das nur du kennst
+const DASHBOARD_PASSWORD = "Cube-240";
+// =====================
 
-  const form = document.getElementById('form');
-  const gate = document.getElementById('gate');
-  const inhalt = document.getElementById('inhalt');
-  const fehler = document.getElementById('fehler');
-  const pw = document.getElementById('pw');
+// ====== N8N KONFIGURATION ======
+const N8N_BASE_URL = "https://161.35.21.68.nip.io";
+const DATA_PATH = "/webhook/jungline-dashboard-data";
+const TRIGGER_PATH = "/webhook/jungline-manual-trigger";
+// ================================
 
-  // Einmal freigeschaltet, bleibt es fuer die Dauer des Tabs offen —
-  // sessionStorage, damit nach dem Schliessen wieder gefragt wird.
-  const SCHLUESSEL = 'jl-dashboard-frei';
+function checkPassword() {
+  const input = document.getElementById('pw-input').value;
+  if (input === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem('jl_authed', 'yes');
+    unlockDashboard();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
 
-  function freischalten() {
-    gate.hidden = true;
-    inhalt.hidden = false;
+function unlockDashboard() {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadData();
+  setInterval(loadData, 5 * 60 * 1000);
+}
+
+function logout() {
+  sessionStorage.removeItem('jl_authed');
+  location.reload();
+}
+
+document.getElementById('pw-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+
+// Wenn schon in dieser Browser-Sitzung eingeloggt, direkt durchlassen
+if (sessionStorage.getItem('jl_authed') === 'yes') {
+  unlockDashboard();
+}
+
+function pillClass(status) {
+  if (status === 'Top 3') return 'top3';
+  if (status === 'Top 5') return 'top5';
+  if (status === 'Top 10') return 'top10';
+  if (status === 'API-Fehler') return 'err';
+  return 'out';
+}
+function rankBadgeClass(status) {
+  return (status === 'Top 3' || status === 'Top 5') ? 'rank-badge top' : 'rank-badge';
+}
+function starsHtml(rating) {
+  const r = parseFloat(rating);
+  if (!r || isNaN(r)) return '<span class="stars empty">–</span>';
+  const full = Math.round(r);
+  let html = '<span class="stars">';
+  for (let i = 0; i < 5; i++) html += i < full ? '★' : '<span class="empty">★</span>';
+  html += '</span>';
+  return html;
+}
+function veraenderungHtml(v) {
+  if (String(v).startsWith('+')) return '<span class="change-up">' + v + ' ▲</span>';
+  if (String(v).startsWith('-')) return '<span class="change-down">' + v + ' ▼</span>';
+  return '<span style="color:#5a655e">–</span>';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(N8N_BASE_URL + DATA_PATH);
+    if (!res.ok) throw new Error('Server antwortete mit ' + res.status);
+    const json = await res.json();
+    render(json);
+  } catch (err) {
+    document.getElementById('table-container').innerHTML =
+      '<div class="empty-state">Konnte Daten nicht laden. Prüfe, ob n8n läuft und die Webhook-URL stimmt.<br><small style="color:#5a655e">' + err.message + '</small></div>';
+  }
+}
+
+function render(payload) {
+  const daten = payload.daten || [];
+  const updated = payload.aktualisiert ? new Date(payload.aktualisiert) : new Date();
+  document.getElementById('last-updated').textContent =
+    'Zuletzt aktualisiert um ' + updated.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+
+  const top3 = daten.filter(d => d.Status === 'Top 3').length;
+  const out = daten.filter(d => d.Status === 'Nicht in Top 20' || d.Status === 'API-Fehler').length;
+  const letzteDatum = daten.length ? daten.reduce((a, b) => a.Datum > b.Datum ? a : b).Datum : '–';
+
+  document.getElementById('stat-top3').textContent = top3;
+  document.getElementById('stat-gesamt').textContent = daten.length;
+  document.getElementById('stat-out').textContent = out;
+  document.getElementById('stat-datum').textContent = letzteDatum;
+
+  if (daten.length === 0) {
+    document.getElementById('table-container').innerHTML = '<div class="empty-state">Noch keine Ranking-Daten vorhanden.</div>';
+    return;
   }
 
-  if (sessionStorage.getItem(SCHLUESSEL) === '1') freischalten();
+  const rows = daten.map((r) => {
+    const website = r.Website ? '<a href="' + r.Website + '" target="_blank">Website</a>' : '–';
+    const pos = r.Position || '–';
+    return '<tr>'
+      + '<td><span class="' + rankBadgeClass(r.Status) + '">' + pos + '</span></td>'
+      + '<td><div class="name">' + (r.Kunde || '–') + '</div></td>'
+      + '<td class="contact">' + (r.Keyword || '–') + '</td>'
+      + '<td>' + starsHtml(r.Eigene_Bewertung) + '</td>'
+      + '<td style="text-align:center">' + veraenderungHtml(r.Veraenderung) + '</td>'
+      + '<td><span class="pos-pill ' + pillClass(r.Status) + '">' + (r.Status || '–') + '</span></td>'
+      + '<td class="contact">' + (r.Telefon || '–') + '</td>'
+      + '<td class="contact">' + website + '</td>'
+      + '<td class="contact">' + (r.Email || '–') + '</td>'
+      + '<td class="contact">' + (r.Adresse || '–') + '</td>'
+      + '</tr>';
+  }).join('');
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (pw.value === DASHBOARD_PASSWORD) {
-      sessionStorage.setItem(SCHLUESSEL, '1');
-      fehler.textContent = '';
-      freischalten();
-    } else {
-      fehler.textContent = 'Falsches Passwort.';
-      pw.value = '';
-      pw.focus();
-    }
-  });
+  document.getElementById('table-container').innerHTML =
+    '<table><thead><tr>'
+    + '<th></th><th>Kunde</th><th>Keyword</th><th>Bewertung</th>'
+    + '<th style="text-align:center">Änderung</th><th>Status</th>'
+    + '<th>Telefon</th><th>Web</th><th>Email</th><th>Adresse</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+async function triggerWorkflow() {
+  const btn = document.getElementById('trigger-btn');
+  btn.disabled = true;
+  btn.textContent = 'Läuft…';
+  try {
+    const res = await fetch(N8N_BASE_URL + TRIGGER_PATH, { method: 'POST' });
+    if (!res.ok) throw new Error('Server antwortete mit ' + res.status);
+    showToast('Ranking-Check gestartet — das dauert ein paar Sekunden.');
+    setTimeout(loadData, 8000);
+  } catch (err) {
+    showToast('Fehler beim Starten: ' + err.message);
+  } finally {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = 'Jetzt prüfen';
+    }, 5000);
+  }
+}
 </script>
 
 </body>
