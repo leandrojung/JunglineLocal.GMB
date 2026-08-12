@@ -149,10 +149,10 @@
      Fliesstext vergeben. Statt eines erfundenen Satzes steht dort nur der
      Firmenname (.client-spotlight__name). Nicht "auffuellen".
 
-     Achtung Bilder: Energieberatung liegt als WebP + PNG vor und nutzt
-     deshalb <picture>. Sicitalia hat nur PNG — kein <source> ergaenzen,
-     solange keine .webp-Datei existiert, sonst laeuft der Browser in die
-     fehlende Quelle statt auf das PNG zurueckzufallen. -->
+     Beide Logos liegen als WebP + PNG vor (<picture> mit <source>). Ein
+     <source> nur ergaenzen, wenn die .webp-Datei wirklich existiert: der
+     Browser faellt NICHT auf das PNG zurueck, wenn die WebP-Quelle 404t,
+     sondern zeigt ein kaputtes Bild. -->
 <section class="section section--tight client-spotlight" id="kundenbeispiel">
   <div class="container">
     <div class="head-block center" data-reveal>
@@ -185,7 +185,10 @@
 
       <div class="client-spotlight__card" data-reveal data-d="1">
         <div class="client-spotlight__logo-wrap">
-          <img draggable="false" class="client-spotlight__logo" src="/clients/sicitalia.png" alt="Logo Sicitalia – So schmeckt der Süden" loading="lazy" decoding="async">
+          <picture>
+            <source srcset="/clients/sicitalia.webp" type="image/webp">
+            <img draggable="false" class="client-spotlight__logo" src="/clients/sicitalia.png" alt="Logo Sicitalia – So schmeckt der Süden" width="420" height="172" loading="lazy" decoding="async">
+          </picture>
         </div>
         <div class="client-spotlight__content">
           <div class="client-spotlight__header">
