@@ -141,35 +141,65 @@
 </header>
 
 <!-- ============ KUNDENBEISPIEL ============
-     Zitat ist noch Platzhalter — bitte NICHT live schalten/mergen,
-     bevor der echte Kundentext eingesetzt wurde. Ebenso ist der
-     Google-Profil-Link unten noch ein Platzhalter (href="#"). -->
+     Zwei Referenzkunden nebeneinander. Beide Zahlen (Bewertungsschnitt,
+     Anzahl, Ranking-Keyword) stammen aus dem jeweiligen Google-Profil und
+     muessen bei Aenderung dort hier nachgezogen werden.
+
+     Sicitalia hat bewusst KEIN Zitat: der Kunde hat fuenf Sterne ohne
+     Fliesstext vergeben. Statt eines erfundenen Satzes steht dort nur der
+     Firmenname (.client-spotlight__name). Nicht "auffuellen".
+
+     Achtung Bilder: Energieberatung liegt als WebP + PNG vor und nutzt
+     deshalb <picture>. Sicitalia hat nur PNG — kein <source> ergaenzen,
+     solange keine .webp-Datei existiert, sonst laeuft der Browser in die
+     fehlende Quelle statt auf das PNG zurueckzufallen. -->
 <section class="section section--tight client-spotlight" id="kundenbeispiel">
   <div class="container">
     <div class="head-block center" data-reveal>
-      <h2 class="section-title-grad">Ein aktueller Kunde</h2>
+      <h2 class="section-title-grad">Aktuelle Kunden</h2>
     </div>
-    <div class="client-spotlight__card" data-reveal>
-      <div class="client-spotlight__logo-wrap">
-        <picture>
-          <source srcset="/clients/lll.webp" type="image/webp">
-          <img draggable="false" class="client-spotlight__logo" src="/clients/lll.png" alt="Logo Energieberatung Nordbayern" width="200" height="200" loading="lazy" decoding="async">
-        </picture>
-      </div>
-      <div class="client-spotlight__content">
-        <div class="client-spotlight__header">
-          <div class="client-spotlight__rating">
-            <span class="client-spotlight__stars" aria-hidden="true">★★★★★</span>
-            <span class="client-spotlight__score">5,0</span>
-          </div>
-          <p class="client-spotlight__meta">24 Bewertungen · Platz 1 bei Google für „Energieberatung Nürnberg“</p>
+    <div class="client-spotlight__grid">
+
+      <div class="client-spotlight__card" data-reveal>
+        <div class="client-spotlight__logo-wrap">
+          <picture>
+            <source srcset="/clients/lll.webp" type="image/webp">
+            <img draggable="false" class="client-spotlight__logo" src="/clients/lll.png" alt="Logo Energieberatung Nordbayern" width="200" height="200" loading="lazy" decoding="async">
+          </picture>
         </div>
-        <blockquote class="client-spotlight__quote">
-          <p>„Sehr empfehlenswert – fünf Sterne!“</p>
-          <cite>Energieberatung Nordbayern</cite>
-        </blockquote>
-        <a href="https://maps.google.com/maps/search/Energieberatung+Nordbayern/" class="btn btn--ghost client-spotlight__cta" target="_blank" rel="noopener">Zum Profil</a>
+        <div class="client-spotlight__content">
+          <div class="client-spotlight__header">
+            <div class="client-spotlight__rating">
+              <span class="client-spotlight__stars" aria-hidden="true">★★★★★</span>
+              <span class="client-spotlight__score">5,0</span>
+            </div>
+            <p class="client-spotlight__meta">24 Bewertungen · Platz 1 bei Google für „Energieberatung Nürnberg“</p>
+          </div>
+          <blockquote class="client-spotlight__quote">
+            <p>„Sehr empfehlenswert – fünf Sterne!“</p>
+            <cite>Energieberatung Nordbayern</cite>
+          </blockquote>
+          <a href="https://maps.google.com/maps/search/Energieberatung+Nordbayern/" class="btn btn--ghost client-spotlight__cta" target="_blank" rel="noopener">Zum Profil</a>
+        </div>
       </div>
+
+      <div class="client-spotlight__card" data-reveal data-d="1">
+        <div class="client-spotlight__logo-wrap">
+          <img draggable="false" class="client-spotlight__logo" src="/clients/sicitalia.png" alt="Logo Sicitalia – So schmeckt der Süden" loading="lazy" decoding="async">
+        </div>
+        <div class="client-spotlight__content">
+          <div class="client-spotlight__header">
+            <div class="client-spotlight__rating">
+              <span class="client-spotlight__stars" aria-hidden="true">★★★★★</span>
+              <span class="client-spotlight__score">5,0</span>
+            </div>
+            <p class="client-spotlight__meta">Platz 1 bei Google für „Großhandel Italienischer Backwaren Duisburg“</p>
+          </div>
+          <p class="client-spotlight__name">Sicitalia — So schmeckt der Süden</p>
+          <a href="https://www.google.com/maps/place/Sicitalia+-+So+schmeckt+der+S%C3%BCden/@51.3555518,6.7756117,17z/data=!3m1!4b1!4m6!3m5!1s0x47b8e9dd1f73f467:0xd67128ca58cc4146!8m2!3d51.3555485!4d6.7781866!16s%2Fg%2F1v5fq_kw" class="btn btn--ghost client-spotlight__cta" target="_blank" rel="noopener">Zum Profil</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
