@@ -700,6 +700,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   padding:4px 9px;border-radius:999px;white-space:nowrap;
   opacity:0;transform:scale(.85);transition:opacity .45s,transform .45s var(--ease-out)}
 .result--you.is-top .climb-badge{opacity:1;transform:scale(1)}
+/* Aufstiegs-Pfeil statt frueherem Dreieck-Glyph: als Inline-SVG gestochen scharf
+   und in currentColor, 1em skaliert automatisch mit der Badge-Schriftgroesse. */
+.climb-badge svg{width:1em;height:1em;flex:none}
 /* row wrapper: rank | body | badge — no overlap */
 .result--you{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .result--you .result__body{flex:1;min-width:0;overflow:hidden}
@@ -787,7 +790,8 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .vnc__meta--dim{color:#AEAEB2}
 .vnc__stars{color:#F5A623;letter-spacing:1px;font-size:12px}
 .vnc__open{background:rgba(52,199,89,.14);color:#1B7F3B;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
-.vnc__chip{flex:none;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
+.vnc__chip{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
+.vnc__chip svg{width:1em;height:1em;flex:none}
 .vnc__chip--top{font-weight:640;background:#0071E3;color:#FFF}
 .vnc__chip--warn{background:rgba(255,59,48,.1);color:#D6301F}
 .vnc__dots{text-align:center;color:#C7C7CC;font-size:15px;letter-spacing:.42em;line-height:1;margin:1px 0}
