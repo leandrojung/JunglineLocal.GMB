@@ -42,6 +42,11 @@
      Gestaltung, sondern die Bedeutung selbst. Sie steht deshalb hier und
      nicht versteckt in einer Komponente. 7,14:1 auf Weiß. */
   --danger:#A03024;
+  /* Bewertungssterne. Ebenfalls keine Gestaltungsentscheidung: Gold ist
+     bei Google, Amazon und jedem Bewertungsportal die Konvention, an der
+     Besucher eine Sternleiste ueberhaupt erst als solche erkennen. Sie in
+     der Marke einzufaerben wuerde sie unlesbar machen, nicht stimmiger. */
+  --star:#E8A400;
 
   --n-0:#FFFFFF;       /* Karten und Flächen, die vorne liegen             */
   --n-1:#F2F4F9;       /* Seitengrund                                      */
