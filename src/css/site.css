@@ -741,43 +741,100 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 @media(max-width:760px){.ways{grid-template-columns:1fr;max-width:460px}}
 
 /* ============ KAPITEL (So funktioniert's, zink-Stil) ============ */
-.chapters{margin-top:var(--head-y)}
-.chapter{position:relative;display:grid;grid-template-columns:minmax(170px,300px) minmax(0,560px);gap:var(--sp-5) var(--sp-7);
+.steplist{margin-top:var(--head-y)}
+.step{position:relative;display:grid;grid-template-columns:minmax(170px,300px) minmax(0,560px);gap:var(--sp-5) var(--sp-7);
   align-items:center;padding:clamp(30px,3.6vw,50px) 0;border-top:1px solid var(--border)}
 /* Erster und letzter Schritt: Die Section bringt oben und unten bereits ihre
    volle Polsterung mit. Die Eigenpolsterung des Kapitels kam dort obendrauf
    und riss vor "01" und hinter "04" ein sichtbar größeres Loch als zwischen
    den Schritten — genau die Stelle, an der die Aufzählung optisch ausfranst. */
-.chapter:first-child{border-top:0;padding-top:0}
-.chapter:last-child{padding-bottom:0}
-.chapter:nth-child(even){grid-template-columns:minmax(0,560px) minmax(170px,300px);justify-content:end}
-.chapter:nth-child(even) .chapter__num{order:2;text-align:right}
-.chapter:nth-child(even) .chapter__body{order:1}
-.chapter__num{line-height:1}
-.chapter__num span{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+.step:first-child{border-top:0;padding-top:0}
+.step:last-child{padding-bottom:0}
+.step:nth-child(even){grid-template-columns:minmax(0,560px) minmax(170px,300px);justify-content:end}
+.step:nth-child(even) .step__num{order:2;text-align:right}
+.step:nth-child(even) .step__body{order:1}
+.step__num{line-height:1}
+.step__num span{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
   font-size:var(--fs-1);letter-spacing:-.05em;line-height:.9;padding-right:.15em;
   background:linear-gradient(160deg,color-mix(in srgb,var(--primary) 55%,transparent),color-mix(in srgb,var(--primary) 5%,transparent) 85%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.chapter__body h3{font-size:var(--fs-2);font-weight:700;margin-bottom:var(--sp-3);letter-spacing:-.02em}
-.chapter__body p{color:var(--body);font-size:var(--fs-4);line-height:1.65;max-width:480px}
-.chapter__more{display:inline-flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-4);
+.step__body h3{font-size:var(--fs-2);font-weight:700;margin-bottom:var(--sp-3);letter-spacing:-.02em}
+.step__body p{color:var(--body);font-size:var(--fs-4);line-height:1.65;max-width:480px}
+/* Zusatzangabe je Schritt ("30 Min · kostenlos"). Kam aus der frueheren
+   Webdesign-Variante und ist die einzige Eigenschaft, die dort fehlte —
+   deshalb hierher uebernommen statt eine zweite Komponente zu behalten. */
+.step__meta{display:block;margin-top:var(--sp-3);font-size:var(--fs-5);font-weight:600;
+  color:var(--primary);letter-spacing:.02em}
+.step__more{display:inline-flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-4);
   color:var(--primary);font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:var(--fs-4)}
-.chapter__more svg{transition:transform .3s var(--ease)}
-.chapter__more:hover svg{transform:translateX(4px)}
-.chapter__glow{position:absolute;top:50%;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:-1;
+.step__more svg{transition:transform .3s var(--ease)}
+.step__more:hover svg{transform:translateX(4px)}
+.step__glow{position:absolute;top:50%;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:-1;
   background:radial-gradient(circle,color-mix(in srgb,var(--primary-tint) 16%,transparent),transparent 65%);filter:blur(40px);
   transform:translateY(-50%)}
-.chapter:nth-child(odd) .chapter__glow{left:-120px}
-.chapter:nth-child(even) .chapter__glow{right:-120px}
+.step:nth-child(odd) .step__glow{left:-120px}
+.step:nth-child(even) .step__glow{right:-120px}
 @media(min-width:961px){
-  .chapter__num{padding-left:clamp(0px,4vw,40px)}
-  .chapter:nth-child(even) .chapter__num{padding-left:0;padding-right:clamp(0px,4vw,40px)}
+  .step__num{padding-left:clamp(0px,4vw,40px)}
+  .step:nth-child(even) .step__num{padding-left:0;padding-right:clamp(0px,4vw,40px)}
 }
 @media(max-width:960px){
-  .chapter,.chapter:nth-child(even){grid-template-columns:1fr;justify-content:start;gap:var(--sp-2);padding:clamp(26px,5vw,34px) 0}
-  .chapter:nth-child(even) .chapter__num{order:0;text-align:left}
-  .chapter:nth-child(even) .chapter__body{order:0}
-  .chapter__num span{font-size:var(--fs-1)}
+  .step,.step:nth-child(even){grid-template-columns:1fr;justify-content:start;gap:var(--sp-2);padding:clamp(26px,5vw,34px) 0}
+  .step:nth-child(even) .step__num{order:0;text-align:left}
+  .step:nth-child(even) .step__body{order:0}
+  .step__num span{font-size:var(--fs-1)}
+}
+
+/* ============ PROZESS-PFAD (Checklisten mit Unterpunkten) ============
+   Zweite und letzte Schritt-Komponente neben .step. Bewusst NICHT mit ihr
+   zusammengelegt: .step erzaehlt vier Schritte mit grossen Ziffern und viel
+   Luft (Startseite, /webdesign/, /leistungen/), .step-path traegt 3 bis 6
+   Punkte mit Unterlisten kompakt untereinander (12 Unterseiten).
+   In eine Komponente gezwungen waeren entweder die Checklisten riesig oder
+   die Erzaehlung gedraengt - das waere keine Ordnung, sondern ein Verlust. */
+/* ============================================================
+   SCHRITT-PFAD — nummerierte Schritte an geschwungener Linie
+   Knoten bleiben mittig (Grid: Text | Knoten | Text), der Text
+   wechselt links/rechts. Die SVG-Linie ist prozentual (viewBox
+   0 0 100 100, preserveAspectRatio=none) und dehnt sich auf die
+   tatsächliche Höhe — funktioniert unabhängig von Schrittzahl.
+   ============================================================ */
+.step-path{position:relative;max-width:880px;margin:var(--head-y) auto 0}
+.step-path__line{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  stroke:var(--border-strong);stroke-width:.35;vector-effect:non-scaling-stroke;fill:none;opacity:.8}
+.step-path__item{position:relative;z-index:1;display:grid;grid-template-columns:1fr 72px 1fr;
+  gap:0 var(--sp-5);align-items:center;padding:clamp(20px,2.4vw,30px) 0}
+.step-path__item:first-child{padding-top:var(--sp-1)}
+.step-path__item:last-child{padding-bottom:var(--sp-1)}
+.step-path__node{grid-column:2;justify-self:center}
+.step-path__body{grid-column:1;text-align:right}
+.step-path__item:nth-child(even) .step-path__body{grid-column:3;text-align:left}
+.step-path__dot{position:relative;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--surface),var(--surface-fill));border:1px solid var(--border-strong);color:var(--primary);
+  box-shadow:0 14px 32px -16px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.05)}
+.step-path__dot svg{width:24px;height:24px}
+.step-path__num{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 5px;border-radius:7px;
+  background:var(--grad-cta);color:var(--on-primary);display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:var(--fs-5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px -3px rgba(0,0,0,.5)}
+.step-path__body h3{font-size:var(--fs-4);font-weight:700;margin-bottom:var(--sp-1);letter-spacing:-.01em}
+.step-path__body p{color:var(--body);font-size:var(--fs-4);line-height:1.62}
+.step-path__body ul{margin:0;padding-left:var(--sp-4);display:grid;gap:5px}
+.step-path__body li{color:var(--body);font-size:var(--fs-5);line-height:var(--lh)}
+.step-path__body li::marker{color:var(--primary-tint)}
+.step-path__body:has(ul){text-align:left}
+@media(max-width:800px){
+  .step-path{max-width:460px}
+  .step-path__line{display:none}
+  .step-path::before{content:"";position:absolute;left:21px;top:6px;bottom:6px;width:2px;z-index:0;
+    background:linear-gradient(180deg,transparent,var(--border-strong) 6%,var(--border-strong) 94%,transparent)}
+  .step-path__item,.step-path__item:nth-child(even){grid-template-columns:44px 1fr;gap:var(--sp-4);padding:var(--sp-4) 0}
+  .step-path__item:first-child{padding-top:0}
+  .step-path__node,.step-path__item:nth-child(even) .step-path__node{grid-column:1}
+  .step-path__body,.step-path__item:nth-child(even) .step-path__body{grid-column:2;text-align:left}
+  .step-path__dot{width:44px;height:44px}
+  .step-path__dot svg{width:18px;height:18px}
+  .step-path__num{width:19px;height:19px;min-width:19px;font-size:var(--fs-5);top:-5px;right:-5px}
 }
 
 /* ============ PROOF / ERGEBNISSE ============ */
@@ -1451,51 +1508,6 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .skip-link:focus{top:12px;outline:2px solid var(--on-primary);outline-offset:3px}
 
 /* ============================================================
-   SCHRITT-PFAD — nummerierte Schritte an geschwungener Linie
-   Knoten bleiben mittig (Grid: Text | Knoten | Text), der Text
-   wechselt links/rechts. Die SVG-Linie ist prozentual (viewBox
-   0 0 100 100, preserveAspectRatio=none) und dehnt sich auf die
-   tatsächliche Höhe — funktioniert unabhängig von Schrittzahl.
-   ============================================================ */
-.step-path{position:relative;max-width:880px;margin:var(--head-y) auto 0}
-.step-path__line{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
-  stroke:var(--border-strong);stroke-width:.35;vector-effect:non-scaling-stroke;fill:none;opacity:.8}
-.step-path__item{position:relative;z-index:1;display:grid;grid-template-columns:1fr 72px 1fr;
-  gap:0 var(--sp-5);align-items:center;padding:clamp(20px,2.4vw,30px) 0}
-.step-path__item:first-child{padding-top:var(--sp-1)}
-.step-path__item:last-child{padding-bottom:var(--sp-1)}
-.step-path__node{grid-column:2;justify-self:center}
-.step-path__body{grid-column:1;text-align:right}
-.step-path__item:nth-child(even) .step-path__body{grid-column:3;text-align:left}
-.step-path__dot{position:relative;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,var(--surface),var(--surface-fill));border:1px solid var(--border-strong);color:var(--primary);
-  box-shadow:0 14px 32px -16px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.05)}
-.step-path__dot svg{width:24px;height:24px}
-.step-path__num{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 5px;border-radius:7px;
-  background:var(--grad-cta);color:var(--on-primary);display:flex;align-items:center;justify-content:center;
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:var(--fs-5);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px -3px rgba(0,0,0,.5)}
-.step-path__body h3{font-size:var(--fs-4);font-weight:700;margin-bottom:var(--sp-1);letter-spacing:-.01em}
-.step-path__body p{color:var(--body);font-size:var(--fs-4);line-height:1.62}
-.step-path__body ul{margin:0;padding-left:var(--sp-4);display:grid;gap:5px}
-.step-path__body li{color:var(--body);font-size:var(--fs-5);line-height:var(--lh)}
-.step-path__body li::marker{color:var(--primary-tint)}
-.step-path__body:has(ul){text-align:left}
-@media(max-width:800px){
-  .step-path{max-width:460px}
-  .step-path__line{display:none}
-  .step-path::before{content:"";position:absolute;left:21px;top:6px;bottom:6px;width:2px;z-index:0;
-    background:linear-gradient(180deg,transparent,var(--border-strong) 6%,var(--border-strong) 94%,transparent)}
-  .step-path__item,.step-path__item:nth-child(even){grid-template-columns:44px 1fr;gap:var(--sp-4);padding:var(--sp-4) 0}
-  .step-path__item:first-child{padding-top:0}
-  .step-path__node,.step-path__item:nth-child(even) .step-path__node{grid-column:1}
-  .step-path__body,.step-path__item:nth-child(even) .step-path__body{grid-column:2;text-align:left}
-  .step-path__dot{width:44px;height:44px}
-  .step-path__dot svg{width:18px;height:18px}
-  .step-path__num{width:19px;height:19px;min-width:19px;font-size:var(--fs-5);top:-5px;right:-5px}
-}
-
-/* ============================================================
    ILLUSTRATIONS-SET — kompakte Inline-SVG-Veranschaulichungen
    statt Stockfotos. Karte/Pin/Pulse/Ergebniszeilen sind dieselben
    Bausteine wie im Hero (nur kleiner), damit alles wie eine
@@ -1646,10 +1658,10 @@ html{-webkit-tap-highlight-color:transparent}
 .btn--ghost:active:not(:disabled){transform:scale(.965);transition-duration:var(--dur-tap)}
 .related__list a:active,
 .hero__trust li:active,
-.chapter__more:active,
+.step__more:active,
 .fcol a:active{transform:scale(.97);transition-duration:var(--dur-tap)}
 .related__list a{transition:border-color var(--dur-ui),color var(--dur-ui),transform var(--dur-ui) var(--ease-apple),background var(--dur-ui)}
-.chapter__more{display:inline-flex;align-items:center;gap:var(--sp-2);transition:color var(--dur-ui),transform var(--dur-ui) var(--ease-apple)}
+.step__more{display:inline-flex;align-items:center;gap:var(--sp-2);transition:color var(--dur-ui),transform var(--dur-ui) var(--ease-apple)}
 /* Hover-Effekte nur dort, wo es einen Zeiger gibt. Auf Touch führte
    :hover sonst zu Zuständen, die nach dem Tap hängen bleiben. */
 @media(hover:none){
@@ -1727,9 +1739,9 @@ html{-webkit-tap-highlight-color:transparent}
   .way:hover{transform:translateY(-2px);box-shadow:var(--elev-1)}
   .way:hover .way__ico{opacity:1}
 }
-.chapter__ico{display:block;color:var(--primary);margin-bottom:var(--sp-3);opacity:.9}
+.step__ico{display:block;color:var(--primary);margin-bottom:var(--sp-3);opacity:.9}
 @media(max-width:640px){
-  .chapter__ico{width:23px;height:23px;margin-bottom:var(--sp-3)}
+  .step__ico{width:23px;height:23px;margin-bottom:var(--sp-3)}
 }
 
 /* ============ GBP-SHOWCASE „Platz 1 ist kein Zufall" (Startseite) ============
@@ -2163,25 +2175,6 @@ html{-webkit-tap-highlight-color:transparent}
 .wd-pillar li{display:flex;gap:var(--sp-2);color:var(--body);font-size:var(--fs-4);line-height:var(--lh)}
 .wd-pillar li svg{flex:none;margin-top:var(--sp-1);color:var(--primary)}
 
-/* ============ WEBDESIGN: ABLAUF ============ */
-.wd-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-4);margin-top:var(--head-y)}
-.wd-step{position:relative;display:flex;flex-direction:column;padding:var(--sp-5) var(--sp-5) var(--sp-5);
-  border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2)}
-/* Der Fliesstext streckt sich, damit die Kennzeichnung darunter in allen vier
-   Karten auf derselben Linie sitzt — auch wenn die Texte verschieden lang sind. */
-.wd-step p{flex:1}
-/* Verbindungslinie zwischen den Schritten — endet bewusst vor dem letzten. */
-.wd-step:not(:last-child)::after{content:"";position:absolute;top:47px;right:-16px;width:16px;height:1px;
-  background:linear-gradient(90deg,var(--border-strong),transparent)}
-.wd-step__num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
-  border-radius:11px;background:var(--grad-cta);color:var(--on-primary);
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:var(--fs-4);margin-bottom:var(--sp-4)}
-.wd-step h3{font-size:var(--fs-4);font-weight:700;letter-spacing:-.022em;margin-bottom:var(--sp-2)}
-.wd-step p{color:var(--body);font-size:var(--fs-4);line-height:1.62;text-wrap:pretty}
-.wd-step__meta{align-self:flex-start;display:inline-flex;align-items:center;gap:var(--sp-1);margin-top:var(--sp-4);padding:var(--sp-1) var(--sp-2);
-  border-radius:999px;background:color-mix(in srgb,var(--primary) 8%,transparent);color:var(--primary);
-  font-size:var(--fs-5);font-weight:620}
-
 /* ============ WEBDESIGN: TECHNIK & QUALITÄT ============ */
 .wd-tech{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:var(--head-y);
   border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--border)}
@@ -2414,8 +2407,6 @@ html{-webkit-tap-highlight-color:transparent}
      unterhalb von 980px auf null zusammen. */
   .wd-device{width:100%;max-width:520px;margin-left:auto;margin-right:auto}
   .wd-stakes,.wd-tech{grid-template-columns:1fr 1fr}
-  .wd-steps{grid-template-columns:1fr 1fr}
-  .wd-step:not(:last-child)::after{display:none}
   .wd-prices{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto}
   .wd-ref{grid-template-columns:1fr;gap:34px;padding:34px 30px}
 }
@@ -2433,7 +2424,6 @@ html{-webkit-tap-highlight-color:transparent}
   .vnc--wd .vnc__side{padding:0}
 }
 @media(max-width:560px){
-  .wd-steps{grid-template-columns:1fr}
   .wd-ref{padding:var(--sp-5) var(--sp-5)}
   .wd-pillar{padding:var(--sp-5) var(--sp-5) var(--sp-5)}
 }
