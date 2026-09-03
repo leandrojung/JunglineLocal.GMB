@@ -549,61 +549,6 @@
     });
   });
 
-  // ---- reveal on scroll ----------------------------------------------------
-  // Der Beobachter allein reicht nicht. Bei schnellem Wischen darf der Browser
-  // Zwischenzustände auslassen: Ein Element, das zwischen zwei Messungen
-  // komplett durchs Bild rauscht, bekommt nie einen Rückruf — und weil
-  // ".js [data-reveal]" auf opacity:0 steht, bleibt dann ein ganzer Abschnitt
-  // dauerhaft unsichtbar auf der Seite stehen. Genau das war reproduzierbar:
-  // "Ein aktueller Kunde", der Vorher/Nachher-Kopf und der vierte Schritt
-  // fehlten nach einem schnellen Durchscrollen komplett.
-  //
-  // Der vorhandene reveal-off-Failsafe (weiter unten) greift dagegen nicht: Er
-  // prüft nur, ob ÜBERHAUPT etwas sichtbar wurde. Sobald ein Teil der Elemente
-  // normal aufgetaucht ist, hält er die Lage für in Ordnung.
-  //
-  // Deshalb: Beobachter wie bisher als Auslöser für die Choreografie, plus ein
-  // Nachlauf, der alles einsammelt, was die Auslöselinie schon überschritten
-  // hat. Der Nachlauf kostet nichts pro Bild — er läuft nur, wenn ohnehin ein
-  // Rückruf kommt, und einmal kurz nachdem das Scrollen zur Ruhe kommt.
-  var offen = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
-  if(offen.length){
-    var LINIE = 50;   // identisch zum rootMargin unten
-    var zeigen = function(el){
-      var i = offen.indexOf(el);
-      if(i < 0) return;
-      offen.splice(i, 1);
-      el.classList.add('in');
-    };
-    var nachlauf = function(){
-      var grenze = window.innerHeight - LINIE;
-      for(var i = offen.length - 1; i >= 0; i--){
-        if(offen[i].getBoundingClientRect().top < grenze) zeigen(offen[i]);
-      }
-      if(!offen.length){
-        window.removeEventListener('scroll', angestossen);
-        window.removeEventListener('resize', angestossen);
-      }
-    };
-    var ruheTimer = null;
-    var angestossen = function(){
-      if(ruheTimer) clearTimeout(ruheTimer);
-      ruheTimer = setTimeout(nachlauf, 140);
-    };
-    if('IntersectionObserver' in window){
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); zeigen(e.target); } });
-        nachlauf();
-      }, {threshold:.14, rootMargin:'0px 0px -' + LINIE + 'px 0px'});
-      offen.slice().forEach(function(el){ io.observe(el); });
-      window.addEventListener('scroll', angestossen, {passive:true});
-      window.addEventListener('resize', angestossen, {passive:true});
-      nachlauf();
-    } else {
-      offen.slice().forEach(zeigen);
-    }
-  }
-
   // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
   // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
   var counts = document.querySelectorAll('.count');
@@ -1234,23 +1179,9 @@
 })();
 
 /* ============================================================
-   REVEAL-FAILSAFE + MOBILE-MENÜ-STAGGER
+   MOBILE-MENÜ-STAGGER
    ============================================================ */
 (function(){
-  // .js [data-reveal] setzt opacity:0 und verlässt sich darauf, dass der
-  // IntersectionObserver oben .in nachliefert. Bleibt das aus, wäre die halbe
-  // Seite unsichtbar — das ist der Fehler, der sich in In-App-Browsern
-  // (Instagram, Google-App) und bei Vorschau-Renderern zeigt. Hat nach 1,6 s
-  // nichts reagiert, obwohl es Reveal-Elemente gibt, schalten wir die
-  // Versteck-Regel global ab.
-  if(document.querySelector('[data-reveal]')){
-    setTimeout(function(){
-      if(!document.querySelector('[data-reveal].in')){
-        document.documentElement.classList.add('reveal-off');
-      }
-    }, 1600);
-  }
-
   // Menüeinträge laufen gestaffelt ein (CSS liest --i).
   var items = document.querySelectorAll('.mobile-menu a');
   Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
