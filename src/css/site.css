@@ -553,7 +553,14 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    nicht wie ein weiterer Seitenabschnitt aussehen. Nur die drei grossen
    Hintergrundflaechen (Buehnen-Panels) laufen in der Blau-Indigo-Palette der
    Website statt in Apples neutralem Grau; Typografie, Kartenform, das
-   Apple-Blau als Akzentfarbe und alle Animationen bleiben Apple-original. */
+   Apple-Blau als Akzentfarbe und alle Animationen bleiben Apple-original.
+
+   NICHT TOKENISIEREN. Die Hex-Werte in diesem Block (#1D1D1F, #6B6B70,
+   #86868B, #C7C7CC, #0071E3 …) sind Apples Systemfarben und Googles
+   Ergebnisdarstellung. Sie gehoeren nicht zu diesem Design und duerfen
+   sich nicht mitaendern, wenn die Marke wechselt — genau das waere aber
+   die Folge, wenn sie auf --primary oder --n-* zeigen wuerden. Sie
+   bleiben literal und stehen bewusst nicht in tokens.css. */
 .vnc{max-width:940px;margin:var(--head-y) auto 0;color:#1D1D1F;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif}
 .vnc__stage{position:relative;width:100%;height:min(600px,72vh);min-height:480px;border-radius:30px;overflow:hidden;
@@ -658,7 +665,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .bam__stars{color:#fbbc05;letter-spacing:1px;font-size:.74rem}
 .bam__chip{flex:none;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
 .bam__chip--top{background:color-mix(in srgb,var(--primary-tint) 16%,transparent);color:var(--primary)}
-.bam__chip--warn{background:rgba(230,110,90,.12);color:#A03024}
+.bam__chip--warn{background:var(--danger-fill);color:var(--danger)}
 .bam__row--you{background:linear-gradient(120deg,color-mix(in srgb,var(--primary-tint) 17%,transparent),color-mix(in srgb,var(--primary-tint) 5%,transparent));
   border:1px solid var(--primary-tint);box-shadow:0 14px 34px -14px color-mix(in srgb,var(--primary-tint) 45%,transparent)}
 @media(max-width:640px){
@@ -846,7 +853,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .form-status{display:none;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:12px;font-size:.92rem;line-height:1.55}
 .form-status.show{display:flex}
 .form-status--ok{background:color-mix(in srgb,var(--primary-tint) 12%,transparent);border:1px solid var(--primary-tint);color:var(--primary)}
-.form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#A03024}
+.form-status--err{background:var(--danger-fill);border:1px solid color-mix(in srgb,var(--danger) 45%,transparent);color:var(--danger)}
 .form-status a{text-decoration:underline;text-underline-offset:3px}
 /* ================= TERMINBUCHUNG =================
    Eigener Kalender statt eingebettetem Fremd-Widget. Er sitzt in derselben
@@ -1670,7 +1677,7 @@ html{-webkit-tap-highlight-color:transparent}
    Drei Layouts: ab 1440 px Notizen seitlich neben den Geräten (Originalbild),
    ab 760 px beide Geräte nebeneinander mit Notizen darunter, darunter alles
    einspaltig in Lesereihenfolge Gerät → zugehörige Notizen. */
-.gsp{--gsp-warn:#C0392B}
+.gsp{--gsp-warn:var(--danger)}
 .gsp__stage{position:relative;margin-top:var(--head-y);padding:0 26px}
 .gsp__grid{display:grid;grid-template-columns:minmax(0,1fr);gap:34px;align-items:center;
   max-width:var(--maxw);margin:0 auto}
@@ -2270,7 +2277,13 @@ html{-webkit-tap-highlight-color:transparent}
    Harte Ecken, Serifenschrift, gedeckte Farben, ein schreiendes Begruessungs-
    banner, eine Linkspalte am Rand, Fliesstext im Blocksatz und ein
    Besucherzaehler. Alles zusammen die Merkmale einer Seite, die seit ueber
-   zehn Jahren niemand mehr angefasst hat. */
+   zehn Jahren niemand mehr angefasst hat.
+
+   NICHT TOKENISIEREN. Die Beige- und Grautoene hier (#B9B5AA, #6B6760,
+   #C9C6BC, #E9E6DD …) sind der Punkt der Darstellung: Sie sollen fremd
+   und veraltet wirken. Zoege dieser Block das Farbsystem der Seite mit,
+   saehe die "alte" Website plotzlich aus wie die neue — und der Vergleich
+   daneben haette keine Aussage mehr. */
 .wd-win--alt{border-radius:.5em;border-color:#C9C6BC;
   box-shadow:0 .2em .4em rgba(0,0,0,.05),0 1.2em 2.6em -1.4em rgba(0,0,0,.3)}
 .wd-win--alt .wd-win__bar{background:#DAD7CE;border-bottom-color:#C9C6BC}

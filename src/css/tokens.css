@@ -35,6 +35,14 @@
   --primary:#3A4E9C;   /* Marke: Links, CTAs, Akzentflächen                */
   --accent:#0E6B3D;    /* Signal: erreicht, geöffnet, Platz 1              */
 
+  /* ABWEICHUNG VOM AUFTRAG, bewusst und einzeln:
+     --danger ist eine achte Farbe. Ein Formularfehler, ein "fehlt"-Chip
+     oder ein abgelehnter Termin lässt sich weder in der Marke noch im
+     Akzent noch in Grau zeigen — Rot ist an dieser Stelle keine
+     Gestaltung, sondern die Bedeutung selbst. Sie steht deshalb hier und
+     nicht versteckt in einer Komponente. 7,14:1 auf Weiß. */
+  --danger:#A03024;
+
   --n-0:#FFFFFF;       /* Karten und Flächen, die vorne liegen             */
   --n-1:#F2F4F9;       /* Seitengrund                                      */
   --n-2:#C7CFE4;       /* Haarlinien, Trenner (dekorativ, kein Bedienrand) */
@@ -54,6 +62,8 @@
   /* Fläche hinter Akzenttext ("Jetzt geöffnet", "Platz 1").
      --accent darauf: 5,67:1 — WCAG AA auch bei kleiner Schrift. */
   --accent-fill:color-mix(in srgb, var(--accent) 10%, var(--n-0));
+  /* --danger darauf: 6,07:1. */
+  --danger-fill:color-mix(in srgb, var(--danger) 10%, var(--n-0));
 
   /* ---------- 4. MASS ------------------------------------------------- */
 
