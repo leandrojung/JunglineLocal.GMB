@@ -831,15 +831,6 @@
 })();
 
 /* ============================================================
-   MOBILE-MENÜ-STAGGER
-   ============================================================ */
-(function(){
-  // Menüeinträge laufen gestaffelt ein (CSS liest --i).
-  var items = document.querySelectorAll('.mobile-menu a');
-  Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
-})();
-
-/* ============================================================
    ZWEI ZWEIGE — STARTSCREEN UND UMSCHALTER
 
    Die Seite fuehrt zwei Angebote: Local SEO ("/") und Webdesign
