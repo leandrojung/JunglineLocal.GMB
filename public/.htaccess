@@ -14,6 +14,13 @@
 #      bis lange Lebensdauer, je nachdem wie wahrscheinlich Änderungen sind.
 # =========================================================================
 
+# ---------- Eigene Fehlerseite ----------
+# Ohne diese Zeile liefert der Server die nackte Apache-/LiteSpeed-Seite aus:
+# schwarzer Text auf weiss, kein Weg zurueck. /404.html traegt Navigation,
+# Fussbereich und die drei Hauptbereiche — der Besucher landet nicht in einer
+# Sackgasse. Die Seite selbst steht auf noindex, follow.
+ErrorDocument 404 /404.html
+
 # ---------- 0) Kanonische Domain + saubere URL für die GBP-Check-API ----------
 # /api/gbp-check bzw. /api/gbp-compare (ohne .php) intern auf die
 # tatsächlichen PHP-Dateien mappen.
