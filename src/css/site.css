@@ -550,13 +550,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 }
 
 /* rankcard */
-.rankcard-wrap{perspective:1200px;will-change:transform}
+.rankcard-wrap{position:relative}
 .rankcard{position:relative;background:linear-gradient(158deg,rgba(var(--surface-2-rgb),.92),rgba(var(--bg-rgb),.94));
   border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;
   box-shadow:0 44px 100px -42px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);
-  backdrop-filter:blur(10px);transform-style:preserve-3d;transition:transform .25s var(--ease-out);
-  animation:floaty 7s ease-in-out infinite}
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  backdrop-filter:blur(10px)}
 .rankcard::before{content:"";position:absolute;inset:0;border-radius:var(--r-lg);padding:1px;
   background:linear-gradient(150deg,rgba(var(--green-bright-rgb),.35),transparent 40%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
@@ -574,13 +572,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .map .road.thin{stroke:rgba(var(--green-rgb),.1);stroke-width:3}
 .pin{position:absolute;top:50%;left:50%;z-index:3}
 .pin__marker{position:absolute;left:0;top:0;transform:translate(-50%,-100%);filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));z-index:3}
-.pulse{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--green-bright);
-  transform:translate(-50%,-50%);animation:pulse 4.5s var(--ease) infinite}
-.pulse.d2{animation-delay:1s}.pulse.d3{animation-delay:2s}
-@keyframes pulse{0%{opacity:.7;width:18px;height:18px}100%{opacity:0;width:150px;height:150px}}
 .results{position:relative;height:200px}
 .result{position:absolute;left:0;right:0;display:flex;align-items:center;gap:12px;height:58px;padding:0 14px;
-  border-radius:13px;transition:transform .9s var(--ease),opacity .6s,background .6s,border-color .6s}
+  border-radius:13px}
 .result[data-slot="0"]{transform:translateY(0)}
 .result[data-slot="1"]{transform:translateY(70px)}
 .result[data-slot="2"]{transform:translateY(140px)}
@@ -606,9 +600,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .openchip{background:#DCF2E3;color:#12633A;border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
 .climb-badge{display:flex;align-items:center;gap:5px;flex:none;
   background:rgba(var(--green-rgb),.16);color:var(--green-bright);font-size:.74rem;font-weight:700;
-  padding:4px 9px;border-radius:999px;white-space:nowrap;
-  opacity:0;transform:scale(.85);transition:opacity .45s,transform .45s var(--ease-out)}
-.result--you.is-top .climb-badge{opacity:1;transform:scale(1)}
+  padding:4px 9px;border-radius:999px;white-space:nowrap}
 /* Aufstiegs-Pfeil statt frueherem Dreieck-Glyph: als Inline-SVG gestochen scharf
    und in currentColor, 1em skaliert automatisch mit der Badge-Schriftgroesse. */
 .climb-badge svg{width:1em;height:1em;flex:none}
