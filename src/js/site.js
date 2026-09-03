@@ -683,44 +683,6 @@
 
   var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-  // premium pointer micro-interactions (fine pointer + motion ok)
-  if(finePointer && !reduce){
-    // cursor-following spotlight on cards & panels
-    document.querySelectorAll('.panel, .linkcard').forEach(function(el){
-      el.addEventListener('mousemove', function(e){
-        var r = el.getBoundingClientRect();
-        el.style.setProperty('--sx', ((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
-        el.style.setProperty('--sy', ((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
-      }, {passive:true});
-      el.addEventListener('mouseleave', function(){ el.style.setProperty('--sy','-40%'); });
-    });
-    // magnetic primary buttons — schwächerer Zug (0.22/0.30 -> 0.1/0.13) und
-    // per Lerp sanft nachgeführt statt den Button beim ersten Mousemove
-    // sofort auf den vollen Zielwert zu springen (das wirkte "hingezogen").
-    document.querySelectorAll('.btn--primary').forEach(function(btn){
-      var tx=0, ty=0, cx=0, cy=0, running=false;
-      var loop = function(){
-        cx += (tx-cx)*0.16; cy += (ty-cy)*0.16;
-        btn.style.transform = 'translate('+cx.toFixed(2)+'px,'+(cy-2).toFixed(2)+'px)';
-        if(Math.abs(tx-cx) > 0.05 || Math.abs(ty-cy) > 0.05){
-          requestAnimationFrame(loop);
-        } else {
-          running = false;
-        }
-      };
-      btn.addEventListener('mousemove', function(e){
-        var r = btn.getBoundingClientRect();
-        tx = (e.clientX-(r.left+r.width/2))*0.1;
-        ty = (e.clientY-(r.top+r.height/2))*0.13;
-        if(!running){ running = true; requestAnimationFrame(loop); }
-      }, {passive:true});
-      btn.addEventListener('mouseleave', function(){
-        tx = 0; ty = 0;
-        if(!running){ running = true; requestAnimationFrame(loop); }
-      });
-    });
-  }
-
   // ranking climb animation (nur Startseite — Unterseiten haben keine Rankcard)
   var you = document.getElementById('you');
   if(you){
