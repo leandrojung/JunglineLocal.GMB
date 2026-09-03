@@ -365,7 +365,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .rank-check__beam{position:absolute;left:50%;top:50%;width:2px;height:220px;
   background:linear-gradient(to bottom, rgba(var(--green-bright-rgb),.5), transparent 70%);
   transform-origin:top center;transform:translate(-50%,0) rotate(0deg);
-  animation:rank-check-spin 4s linear infinite;pointer-events:none}
+  animation:rank-check-spin 4s linear infinite;animation-play-state:paused;pointer-events:none}
+/* Nur waehrend tatsaechlich geprueft wird. Ohne diese Zeile liefe der
+   Scan-Strahl auch dann weiter, wenn der Radar per opacity/visibility
+   ausgeblendet ist — unsichtbare Arbeit auf jeder Startseite. */
+.rank-check__stage[data-scan="on"] .rank-check__beam{animation-play-state:running}
 @keyframes rank-check-spin{to{transform:translate(-50%,0) rotate(360deg)}}
 
 /* ============ SCAN AUS, GEPRÜFT AN ============
@@ -556,7 +560,12 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .pin{position:absolute;top:50%;left:50%;z-index:3}
 .pin__marker{position:absolute;left:0;top:0;transform:translate(-50%,-100%);filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));z-index:3}
 .results{position:relative;height:200px}
-.result{position:absolute;left:0;right:0;display:flex;align-items:center;gap:12px;height:58px;padding:0 14px;
+/* top:0 explizit: ohne die Angabe stuenden die absolut positionierten Zeilen
+   auf ihrer "statischen" Position, also dort, wo sie im Fluss gelandet waeren.
+   Das haengt von der DOM-Reihenfolge und davon ab, ob eine vorangehende
+   Zeile im Fluss steht (.result--you ist position:relative). Die Position
+   einer Zeile soll sich allein aus ihrem data-slot ergeben. */
+.result{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;height:58px;padding:0 14px;
   border-radius:13px}
 .result[data-slot="0"]{transform:translateY(0)}
 .result[data-slot="1"]{transform:translateY(70px)}
@@ -588,7 +597,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    und in currentColor, 1em skaliert automatisch mit der Badge-Schriftgroesse. */
 .climb-badge svg{width:1em;height:1em;flex:none}
 /* row wrapper: rank | body | badge — no overlap */
-.result--you{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.result--you{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .result--you .result__body{flex:1;min-width:0;overflow:hidden}
 
 /* ============ VORHER-NACHHER-SLIDER (Apple-Design, Hintergrund in Website-Farben) ============
@@ -756,7 +765,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .chapter__more:hover svg{transform:translateX(4px)}
 .chapter__glow{position:absolute;top:50%;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:-1;
   background:radial-gradient(circle,rgba(var(--green-rgb),.16),transparent 65%);filter:blur(40px);
-  transform:translateY(-50%);will-change:transform}
+  transform:translateY(-50%)}
 .chapter:nth-child(odd) .chapter__glow{left:-120px}
 .chapter:nth-child(even) .chapter__glow{right:-120px}
 @media(min-width:961px){
