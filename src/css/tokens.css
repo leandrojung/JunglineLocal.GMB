@@ -51,6 +51,9 @@
   --ink:var(--n-4);
   --body:var(--n-3);
   --on-primary:var(--n-0);
+  /* Fläche hinter Akzenttext ("Jetzt geöffnet", "Platz 1").
+     --accent darauf: 5,67:1 — WCAG AA auch bei kleiner Schrift. */
+  --accent-fill:color-mix(in srgb, var(--accent) 10%, var(--n-0));
 
   /* ---------- 4. MASS ------------------------------------------------- */
 

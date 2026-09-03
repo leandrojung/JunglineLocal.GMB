@@ -529,7 +529,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    jetzt deckende Flaechen statt halbtransparenter Toene: so haengt die
    Lesbarkeit nicht mehr davon ab, welcher Verlauf zufaellig dahinterliegt.
    Jede Kombination liegt bei mindestens 4,5:1 (WCAG AA fuer Fliesstext). */
-.openchip{background:#DCF2E3;color:#12633A;border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.openchip{background:var(--accent-fill);color:var(--accent);border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
 .climb-badge{display:flex;align-items:center;gap:5px;flex:none;
   background:color-mix(in srgb,var(--primary-tint) 16%,transparent);color:var(--primary);font-size:.74rem;font-weight:700;
   padding:4px 9px;border-radius:999px;white-space:nowrap}
@@ -617,7 +617,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .vnc__meta{display:flex;align-items:center;gap:7px;font-size:13px;color:#6B6B70;white-space:nowrap}
 .vnc__meta--dim{color:#75757A}
 .vnc__stars{color:#F5A623;letter-spacing:1px;font-size:12px}
-.vnc__open{background:#DCF2E3;color:#12633A;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
+.vnc__open{background:var(--accent-fill);color:var(--accent);border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
 .vnc__chip{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
 .vnc__chip svg{width:1em;height:1em;flex:none}
 .vnc__chip--top{font-weight:640;background:#0071E3;color:#FFF}
