@@ -1690,45 +1690,20 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
    greift und der User einen langsamen First Load hat. */
 
 
-/* ============================================================
-   LIVE-ICONS — ein Mechanismus für alle Icons der Seite
-   ============================================================
-   Prinzip von SF Symbols "Draw On": jedes Strich-Icon zeichnet sich beim
-   ersten Sichtkontakt selbst, interaktive Icons zeichnen bei Hover/Fokus
-   erneut. site.js misst dafür jede Form einmal per getTotalLength() und legt
-   das Ergebnis als --len am Element ab. Dadurch reicht ein einziges Keyframe
-   für jede beliebige Form — kein Icon muss von Hand vermessen werden.
-
-   Sichtbarer Grundzustand ist IMMER das fertige Icon: versteckt wird nur,
-   was site.js aktiv als .lico--pending markiert, und das räumt ein Failsafe
-   wieder ab. Bleibt JS aus oder hängt der Observer, ist das Icon da. */
-.lico [data-draw]{stroke-dasharray:var(--len,1);stroke-dashoffset:0}
-.lico--pending [data-draw]{stroke-dashoffset:var(--len,1)}
-.lico--draw [data-draw]{animation:lico-draw .62s var(--ease-apple) both;animation-delay:calc(var(--i,0)*.055s)}
-@keyframes lico-draw{from{stroke-dashoffset:var(--len,1)}to{stroke-dashoffset:0}}
-/* Flächen-Icons (fill statt stroke) lassen sich nicht zeichnen — sie
-   skalieren stattdessen aus ihrer eigenen Mitte ein. */
-.lico--pending [data-pop]{opacity:0}
-.lico--draw [data-pop]{animation:lico-pop .5s var(--ease-apple) both;animation-delay:calc(var(--i,0)*.055s);
-  transform-box:fill-box;transform-origin:center}
-@keyframes lico-pop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
-/* Das Icon als Ganzes reagiert zusätzlich auf seinen interaktiven Träger.
-   Nur bei echtem Hover-Gerät — auf Touch gibt es kein Hover, dort wäre der
-   Zustand nach dem Tap "klebend". */
+/* ============ ICON-HOVER ============
+   Frueher zeichnete sich hier jedes Strich-Icon der Seite beim ersten
+   Sichtkontakt selbst (SF-Symbols-Prinzip: site.js mass jede Form per
+   getTotalLength und legte --len ab, ein Keyframe fuhr stroke-dashoffset
+   herunter). Das traf potenziell alle 445 SVGs im Projekt und war der
+   Effekt, der die Seite am deutlichsten nach Baukasten aussehen liess.
+   Geblieben ist die Hover-Reaktion auf interaktiven Traegern. */
 .lico{transition:transform var(--dur-ui) var(--ease-apple),color var(--dur-ui) var(--ease-apple)}
 @media(hover:hover){
   .lico-host:hover .lico{transform:scale(1.09)}
 }
 .lico-host:focus-visible .lico{transform:scale(1.09)}
 @media(prefers-reduced-motion:reduce){
-  .lico [data-draw]{stroke-dashoffset:0!important}
-  .lico [data-pop]{opacity:1!important;transform:none!important}
   .lico{transition:none}
-}
-
-@media print{
-  .lico [data-draw]{stroke-dashoffset:0!important}
-  .lico [data-pop]{opacity:1!important;transform:none!important}
 }
 
 /* ============ TAP- UND HOVER-VERHALTEN (Apple-Logik) ============
