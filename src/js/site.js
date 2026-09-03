@@ -601,105 +601,6 @@
     }
   }
 
-  // hero entrance: Schreibmaschinen-Effekt (skipped bei reduced motion — dann
-  // ist alles sofort als vollständiger Text sichtbar). Die .js-Klasse sitzt als
-  // winziges Inline-Script in head.html (vor dem ersten Paint), damit Hero-Text
-  // nie erst aufblitzt und dann durch die Reveal-Regeln verschwindet.
-  var mkCursor = function(){
-    var c = document.createElement('span');
-    c.className = 'lead__cursor';
-    c.setAttribute('aria-hidden', 'true');
-    return c;
-  };
-
-  if(!reduce){
-    // ---- Headline: einmaliger Schreibmaschinen-Effekt --------------------
-    // Tippt erst den normalen Teil, dann den grün hervorgehobenen (.hl) und
-    // hält danach an (kein Loop). Der volle Satz steht als aria-label, damit
-    // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
-    // bekommen.
-    var h1 = document.getElementById('heroTitle');
-    var startLead;
-
-    var runLead = function(){ if(startLead) startLead(); };
-
-    if(h1){
-      var hlEl = h1.querySelector('.hl');
-      var hlText = hlEl ? hlEl.textContent : '';
-      var plainStr = '';
-      if(hlEl){
-        Array.prototype.slice.call(h1.childNodes).forEach(function(n){
-          if(n === hlEl) return;
-          if(n.nodeType === 3) plainStr += n.textContent;
-        });
-      } else {
-        plainStr = h1.textContent;
-      }
-
-      // Full text as accessible label so screen readers get the complete sentence.
-      h1.setAttribute('aria-label', (plainStr + hlText).replace(/\s+/g, ' ').trim());
-      h1.textContent = '';
-
-      var plainSpan = document.createElement('span');
-      var hlSpan = document.createElement('span');
-      // hlSpan intentionally has NO 'hl' class during typing. background-clip:text
-      // makes any child text contribute to the gradient mask regardless of
-      // visibility/opacity, so hidden chars would bleed through. We apply solid
-      // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
-      hlSpan.style.color = 'var(--green-bright)';
-      h1.appendChild(plainSpan);
-      h1.appendChild(hlSpan);
-
-      // Pre-populate both spans with invisible char spans so all text occupies
-      // its final layout positions from the very first frame. Chars are revealed
-      // in sequence by removing .tc--h (visibility:hidden → visible). No reflow,
-      // no word-shift during typing.
-      var buildCharSpans = function(el, text){
-        var spans = [];
-        for(var i = 0; i < text.length; i++){
-          var s = document.createElement('span');
-          s.className = 'tc tc--h';
-          s.setAttribute('aria-hidden', 'true');
-          s.textContent = text.charAt(i);
-          el.appendChild(s);
-          spans.push(s);
-        }
-        return spans;
-      };
-
-      var allChars = buildCharSpans(plainSpan, plainStr).concat(buildCharSpans(hlSpan, hlText));
-      var ci = 0;
-      var typeHead = function(){
-        if(ci >= allChars.length){
-          // All chars typed: activate shimmer on the highlighted span. Läuft
-          // per CSS (animation-iteration-count:1, ease-out) nur einmal und
-          // hält per forwards am Ende — kein harter Klassenwechsel danach,
-          // das Ausklingen ist Teil derselben, weich auslaufenden Animation.
-          hlSpan.className = 'hl';
-          hlSpan.style.color = '';
-          runLead();
-          return;
-        }
-        allChars[ci].classList.remove('tc--h');
-        ci++;
-        setTimeout(typeHead, 14);
-      };
-      // Kürzere initiale Wartezeit: LCP-Text erscheint ca. 530 ms früher
-      // als bei den alten Werten (260 ms Initial + 42 ms/Zeichen).
-      setTimeout(typeHead, 80);
-    }
-
-    // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.
-    if(!h1) runLead();
-
-    var heroEl = document.querySelector('.hero');
-    if(heroEl){
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        heroEl.classList.add('hero-live');
-      }); });
-    }
-  }
-
   // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
   // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
   var counts = document.querySelectorAll('.count');
@@ -780,23 +681,7 @@
     countsNachlauf();
   }
 
-  // hero parallax + rankcard tilt (fine pointer only)
   var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-  if(finePointer && !reduce){
-    var heroBg = document.getElementById('heroBg');
-    var card = document.getElementById('rankcard');
-    var tx=0,ty=0, raf=null;
-    var apply = function(){
-      if(heroBg){ heroBg.style.setProperty('--mx', tx.toFixed(3)); heroBg.style.setProperty('--my', ty.toFixed(3)); }
-      if(card){ card.style.transform = 'rotateY('+(tx*5).toFixed(2)+'deg) rotateX('+(-ty*5).toFixed(2)+'deg)'; }
-      raf=null;
-    };
-    window.addEventListener('mousemove', function(e){
-      tx = (e.clientX/window.innerWidth - .5)*2;
-      ty = (e.clientY/window.innerHeight - .5)*2;
-      if(!raf) raf = requestAnimationFrame(apply);
-    }, {passive:true});
-  }
 
   // premium pointer micro-interactions (fine pointer + motion ok)
   if(finePointer && !reduce){

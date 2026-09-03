@@ -40,7 +40,7 @@
 
 <!-- ============ HERO ============ -->
 <header class="hero">
-  <div class="hero__bg" id="heroBg">
+  <div class="hero__bg">
     <div class="hero__dots" data-par="0.4"></div>
     <div class="glow-wash" aria-hidden="true"></div>
     <div class="logo-scene" aria-hidden="true">
@@ -50,18 +50,8 @@
             <stop offset="0%" style="stop-color:var(--green-bright)"/>
             <stop offset="100%" style="stop-color:var(--green-bright-2)"/>
           </linearGradient>
-          <filter id="jlBlur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="7"/>
-          </filter>
         </defs>
         <path id="logo-fill" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
-        <path id="logo-glow" pathLength="1000" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
-        <path id="logo-path" pathLength="1000" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
-        <circle class="logo-spark" r="6" fill="#ffffff" filter="url(#jlBlur)">
-          <animateMotion dur="2.6s" begin="0.2s" fill="freeze" calcMode="spline" keySplines="0.65 0 0.35 1" keyTimes="0;1" keyPoints="0;1">
-            <mpath href="#logo-path"/>
-          </animateMotion>
-        </circle>
       </svg>
     </div>
     <div class="glow glow--a" data-par="1.1"></div>
@@ -69,14 +59,14 @@
   </div>
   <div class="container hero__inner">
     <div class="hero__copy">
-      <span class="eyebrow h-anim"><svg class="eyebrow__icon eyebrow__icon--pin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/></svg>Google-Unternehmensprofil-Optimierung</span>
-      <h1 id="heroTitle" aria-label="Kunden und Bewerber suchen… und finden die Konkurrenz.">Kunden und Bewerber suchen… <span class="hl">und finden die Konkurrenz.</span></h1>
+      <span class="eyebrow"><svg class="eyebrow__icon eyebrow__icon--pin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/></svg>Google-Unternehmensprofil-Optimierung</span>
+      <h1>Kunden und Bewerber suchen… <span class="hl">und finden die Konkurrenz.</span></h1>
       <p class="lead">Wir verbessern Ihre lokale Sichtbarkeit, damit Kunden und Bewerber zuerst Sie finden.</p>
-      <div class="cta-row h-anim" style="--hd:.6s">
+      <div class="cta-row">
         <a href="#kontakt" class="btn btn--primary btn--lg">Kostenloses Erstgespräch sichern</a>
         <a href="#vorgehen" class="hero__minor">So funktioniert’s <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
       </div>
-      <ul class="hero__trust h-anim" style="--hd:.75s">
+      <ul class="hero__trust">
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kostenlos &amp; unverbindlich</li>
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</li>
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Persönlich aus der Region</li>
