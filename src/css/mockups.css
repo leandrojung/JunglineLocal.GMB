@@ -1,0 +1,925 @@
+/* ============================================================
+   ATTRAPPEN UND ILLUSTRATIONEN — nicht render-blockierend
+   ============================================================
+   Alles hier liegt auf jeder Seite unterhalb des sichtbaren Bereichs:
+   die Google-Ergebnis-Attrappe, die beiden iPhone-Mockups, die
+   absichtlich veraltete "alte Website", die Karten-Illustrationen der
+   Branchenseiten und das PageSpeed-Widget.
+
+   WARUM EIGENE DATEI
+   site.css blockierte das Rendern gemessene 724 ms, und das LCP-Element
+   der Startseite ist Text — LCP haengt also zu 100 % daran, wann das
+   Stylesheet da ist. Ein Fuenftel der Regeln beschreibt aber Bauteile,
+   die der Besucher erst nach dem Scrollen sieht. Die laden jetzt
+   asynchron nach (siehe partials/head.html) und halten den kritischen
+   Pfad frei.
+
+   Die Tokens stehen in tokens.css und werden ueber site.css geladen;
+   Custom Properties gelten dokumentweit, diese Datei erbt sie also. */
+
+
+
+/* ---- ZEILENLÄNGE ----
+   Fließtext bekommt eine Obergrenze in ch, nicht in px: die Grenze hängt
+   damit an der Schrift, nicht am Zufall. 68ch liegt im Bereich von 60–75
+   Zeichen, ab dem das Auge beim Zeilenwechsel den Anfang noch sicher
+   wiederfindet. Ohne die Grenze liefen Absätze auf einem breiten Fenster
+   über 130 Zeichen — dort verliert man die Zeile.
+   Bewusst nicht auf .container: Karten, Raster und Attrappen sollen die
+   volle Breite behalten, nur zusammenhängender Lesetext wird schmal. */
+.prose p,.prose li,.head-block p,.about__text p,.lead,
+.section>.container>p,.gsp__foot p{max-width:var(--measure)}
+
+/* Ohne Bewegung bricht die Leiste um statt zu laufen. Bei 93 Branchen × 2
+   Gruppen wäre das eine Textwand über ein Dutzend Zeilen — deshalb entfällt
+   die (ohnehin nur dekorative) Zweitgruppe und die Höhe wird auf zwei Zeilen
+   begrenzt. Der Charakter bleibt: eine Bandbreite an Branchen, kein Katalog. */
+/* rankcard */
+.rankcard-wrap{position:relative}
+
+.rankcard{position:relative;background:linear-gradient(158deg,color-mix(in srgb,var(--surface-fill) 92%,transparent),color-mix(in srgb,var(--bg) 94%,transparent));
+  border:1px solid var(--border);border-radius:var(--r-lg);padding:var(--sp-4);
+  box-shadow:0 44px 100px -42px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(10px)}
+
+.rankcard::before{content:"";position:absolute;inset:0;border-radius:var(--r-lg);padding:1px;
+  background:linear-gradient(150deg,color-mix(in srgb,var(--primary) 35%,transparent),transparent 40%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+.rankcard__head{display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+
+.gpill{position:relative;display:flex;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:999px;padding:var(--sp-2) var(--sp-3);flex:1;color:var(--body);font-size:var(--fs-5)}
+
+.gpill__dots{display:flex;align-items:center;gap:var(--sp-2);flex:none}
+
+.gpill__label{position:absolute;left:14px;right:14px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+
+.gdot{width:9px;height:9px;border-radius:50%}
+
+.gdot.r{background:#ea4335}
+.gdot.y{background:#fbbc05}
+.gdot.g{background:#34a853}
+
+.map{position:relative;height:120px;border-radius:14px;overflow:hidden;margin-bottom:var(--sp-3);
+  background:linear-gradient(135deg,var(--surface-fill),var(--bg));border:1px solid var(--border)}
+
+.map>svg{position:absolute;inset:0;width:100%;height:100%}
+
+.map .road{stroke:color-mix(in srgb,var(--primary-tint) 18%,transparent);stroke-width:6;fill:none;stroke-linecap:round}
+
+.map .road.thin{stroke:color-mix(in srgb,var(--primary-tint) 10%,transparent);stroke-width:3}
+
+.pin{position:absolute;top:50%;left:50%;z-index:3}
+
+.results{position:relative;height:200px}
+
+/* top:0 explizit: ohne die Angabe stuenden die absolut positionierten Zeilen
+   auf ihrer "statischen" Position, also dort, wo sie im Fluss gelandet waeren.
+   Das haengt von der DOM-Reihenfolge und davon ab, ob eine vorangehende
+   Zeile im Fluss steht (.result--you ist position:relative). Die Position
+   einer Zeile soll sich allein aus ihrem data-slot ergeben. */
+.result{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:var(--sp-3);height:58px;padding:0 var(--sp-3);
+  border-radius:13px}
+
+.result[data-slot="0"]{transform:translateY(0)}
+
+.result[data-slot="1"]{transform:translateY(70px)}
+
+.result[data-slot="2"]{transform:translateY(140px)}
+
+.result--ghost{background:rgba(255,255,255,.03);border:1px solid var(--border)}
+
+.result--ghost .rank{min-width:24px;height:24px;padding:0 5px;border-radius:7px;background:rgba(255,255,255,.06);flex:none;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-5);color:var(--body)}
+
+.result--ghost .name{font-size:var(--fs-5);font-weight:600;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.result--you{background:linear-gradient(120deg,color-mix(in srgb,var(--primary-tint) 17%,transparent),color-mix(in srgb,var(--primary-tint) 5%,transparent));
+  border:1px solid var(--primary-tint);box-shadow:0 14px 34px -14px color-mix(in srgb,var(--primary-tint) 45%,transparent)}
+
+.result--you .rank{min-width:28px;height:26px;padding:0 var(--sp-1);border-radius:8px;background:var(--primary-tint);color:var(--ink);flex:none;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Bricolage Grotesque';font-size:var(--fs-5)}
+
+.result--you .name{font-family:'Bricolage Grotesque';font-weight:700;font-size:var(--fs-4);color:var(--ink)}
+
+.stars{letter-spacing:1px;color:var(--star);font-size:var(--fs-5)}
+
+/* ---- CHIP-/BADGE-FARBEN: Kontrast ----
+   Die hellen Pastelltoene (#7fdc9c, #f0a898, #86868B, #AEAEB2) stammen aus
+   dem frueheren dunklen Farbschema. Auf den heutigen hellen Karten lagen sie
+   bei 1,6-3,6:1 und waren nur mit Muehe zu lesen. Die Statuschips tragen
+   jetzt deckende Flaechen statt halbtransparenter Toene: so haengt die
+   Lesbarkeit nicht mehr davon ab, welcher Verlauf zufaellig dahinterliegt.
+   Jede Kombination liegt bei mindestens 4,5:1 (WCAG AA fuer Fliesstext). */
+.openchip{background:var(--accent-fill);color:var(--accent);border-radius:6px;padding:1px var(--sp-2);font-size:var(--fs-5);font-weight:600;white-space:nowrap}
+
+.climb-badge{display:flex;align-items:center;gap:5px;flex:none;
+  background:color-mix(in srgb,var(--primary-tint) 16%,transparent);color:var(--primary);font-size:var(--fs-5);font-weight:700;
+  padding:var(--sp-1) var(--sp-2);border-radius:999px;white-space:nowrap}
+
+/* Aufstiegs-Pfeil statt frueherem Dreieck-Glyph: als Inline-SVG gestochen scharf
+   und in currentColor, 1em skaliert automatisch mit der Badge-Schriftgroesse. */
+.climb-badge svg{width:1em;height:1em;flex:none}
+
+/* row wrapper: rank | body | badge — no overlap */
+.result--you{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:nowrap}
+
+.result--you .result__body{flex:1;min-width:0;overflow:hidden}
+
+
+/* ============ VORHER-NACHHER-SLIDER (Apple-Design, Hintergrund in Website-Farben) ============
+   Bewusst eigene vnc__*-Klassen statt der frueheren ba__*-Klassen: das
+   Google-SERP-Mockup (.bam__*, direkt darunter) wird per JS auch vom
+   Wettbewerbsvergleich im GBP-Check (#gbp-compare) wiederverwendet — siehe
+   site.js. Ein Redesign dieser Karten haette also den GBP-Check mitgezogen.
+   .vnc__* ist komplett eigenstaendig, nichts sonst auf der Seite referenziert
+   diese Klassen.
+
+   Trägt bewusst die Apple-Systemschrift statt Bricolage/Instrument Sans —
+   das Stueck soll als eigener, unverwechselbarer visueller Moment auffallen,
+   nicht wie ein weiterer Seitenabschnitt aussehen. Nur die drei grossen
+   Hintergrundflaechen (Buehnen-Panels) laufen in der Blau-Indigo-Palette der
+   Website statt in Apples neutralem Grau; Typografie, Kartenform, das
+   Apple-Blau als Akzentfarbe und alle Animationen bleiben Apple-original.
+
+   NICHT TOKENISIEREN. Die Hex-Werte in diesem Block (#1D1D1F, #6B6B70,
+   #86868B, #C7C7CC, #0071E3 …) sind Apples Systemfarben und Googles
+   Ergebnisdarstellung. Sie gehoeren nicht zu diesem Design und duerfen
+   sich nicht mitaendern, wenn die Marke wechselt — genau das waere aber
+   die Folge, wenn sie auf --primary oder --n-* zeigen wuerden. Sie
+   bleiben literal und stehen bewusst nicht in tokens.css. */
+.vnc{max-width:940px;margin:var(--head-y) auto 0;color:#1D1D1F;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+.vnc__stage{position:relative;width:100%;height:min(600px,72vh);min-height:480px;border-radius:30px;overflow:hidden;
+  background:#FFF;border:1px solid rgba(0,0,0,.07);
+  box-shadow:0 2px 4px rgba(0,0,0,.04),0 24px 60px -24px rgba(0,0,0,.22),0 60px 120px -60px rgba(0,0,0,.18);
+  cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+
+.vnc__stage:focus-visible{outline:2px solid #0071E3;outline-offset:3px}
+
+.vnc__side{position:absolute;inset:0;padding:var(--sp-6) var(--sp-5);display:flex;align-items:center;justify-content:center}
+
+.vnc__side--before{background:linear-gradient(180deg,var(--surface-fill) 0%,var(--bg) 100%)}
+
+.vnc__side--after{background:radial-gradient(700px circle at 74% 6%,color-mix(in srgb,var(--primary) 9%,transparent),transparent 62%),linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);
+  clip-path:inset(0 0 0 var(--pos,50%))}
+
+.vnc__label{position:absolute;top:20px;font-size:var(--fs-5);letter-spacing:.1em;text-transform:uppercase;padding:var(--sp-2) var(--sp-4);border-radius:999px}
+
+.vnc__label--before{left:20px;font-weight:600;background:rgba(255,255,255,.72);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(0,0,0,.07);color:#6E6E73}
+
+.vnc__label--after{right:20px;font-weight:640;background:#0071E3;color:#FFF;box-shadow:0 10px 24px -10px rgba(0,113,227,.9)}
+
+.vnc__handle{position:absolute;top:0;bottom:0;left:var(--pos,50%);width:0;pointer-events:none;z-index:3}
+
+.vnc__line{position:absolute;top:0;bottom:0;left:-1px;width:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.95) 12%,rgba(255,255,255,.95) 88%,rgba(255,255,255,0));
+  box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 2px 14px rgba(0,0,0,.22)}
+
+.vnc__grip{position:absolute;top:50%;left:0;transform:translate(-50%,-50%) scale(1);width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#1D1D1F;background:rgba(255,255,255,.7);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 1px rgba(255,255,255,.9) inset,0 10px 30px -8px rgba(0,0,0,.28);
+  transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease}
+
+.vnc__grip.is-dragging{transform:translate(-50%,-50%) scale(1.12);
+  box-shadow:0 1px 1px rgba(255,255,255,.9) inset,0 16px 40px -8px rgba(0,0,0,.34)}
+
+.vnc__caption{text-align:center;color:#6B6B70;font-size:var(--fs-5);letter-spacing:-.005em;max-width:560px;margin:var(--sp-4) auto 0;text-wrap:pretty}
+
+
+/* Google-SERP-Mockup, eigene Kartensprache (groesser, staerker gerundet als
+   .bam__* — bewusst identisch zur Apple-Vorlage) */
+.vnc__card{width:min(560px,100%);display:flex;flex-direction:column;gap:var(--sp-3)}
+
+.vnc__pill{display:flex;align-items:center;gap:var(--sp-2);background:#FFF;border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;padding:var(--sp-3) var(--sp-4);color:#6B6B70;font-size:var(--fs-4);letter-spacing:-.01em;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+
+.vnc__pill svg{flex:none;opacity:.75}
+
+.vnc__pill--after{color:#6E6E73;box-shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px -14px rgba(0,113,227,.5)}
+
+.vnc__map{position:relative;height:104px;border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.07);background:#F2EFE8}
+
+.vnc__map--empty{filter:saturate(.22) contrast(.96);opacity:.85}
+
+.vnc__map svg{position:absolute;inset:0;width:100%;height:100%}
+
+.vnc__pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-88%);
+  filter:drop-shadow(0 7px 9px rgba(0,0,0,.28))}
+
+.vnc__rows{display:flex;flex-direction:column;gap:var(--sp-2)}
+
+.vnc__row{display:flex;align-items:center;gap:var(--sp-3);height:64px;padding:0 var(--sp-4);border-radius:18px;
+  background:#FFF;border:1px solid rgba(0,0,0,.06)}
+
+.vnc__row--fade{opacity:.55}
+
+.vnc__row--missing{background:rgba(255,255,255,.5);border:1px dashed rgba(0,0,0,.16)}
+
+.vnc__row--you{background:linear-gradient(120deg,rgba(0,113,227,.1),rgba(0,113,227,.03));
+  border:1px solid rgba(0,113,227,.35);box-shadow:0 14px 34px -16px rgba(0,113,227,.55)}
+
+/* Einlauf-Choreografie nur auf der Nachher-Seite, nur die ersten drei Zeilen
+   (Punkte-Trenner und ausgeblendete sechste Zeile bleiben starr) — exakt wie
+   in der Apple-Vorlage. */
+.vnc__rank{min-width:28px;height:28px;border-radius:9px;background:#F0F0F3;color:#5F5F65;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:var(--fs-5);font-weight:600}
+
+.vnc__rank--you{background:#0071E3;color:#FFF;font-weight:640}
+
+.vnc__rank--missing{color:#6B6B70}
+
+.vnc__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+
+.vnc__name{font-size:var(--fs-4);font-weight:590;letter-spacing:-.015em;color:#1D1D1F;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.vnc__row--you .vnc__name{font-weight:640}
+
+.vnc__name--dim{color:#6B6B70}
+
+.vnc__meta{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-5);color:#6B6B70;white-space:nowrap}
+
+.vnc__meta--dim{color:#75757A}
+
+.vnc__stars{color:#F5A623;letter-spacing:1px;font-size:var(--fs-5)}
+
+.vnc__open{background:var(--accent-fill);color:var(--accent);border-radius:7px;padding:2px var(--sp-2);font-size:var(--fs-5);font-weight:590}
+
+.vnc__chip{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-5);font-weight:590;padding:5px var(--sp-3);border-radius:999px;white-space:nowrap}
+
+.vnc__chip svg{width:1em;height:1em;flex:none}
+
+.vnc__chip--top{font-weight:640;background:#0071E3;color:#FFF}
+
+.vnc__chip--warn{background:rgba(255,59,48,.1);color:#D6301F}
+
+.vnc__dots{text-align:center;color:#C7C7CC;font-size:var(--fs-4);letter-spacing:.42em;line-height:1;margin:1px 0}
+
+@media(max-width:640px){
+  .vnc__stage{height:440px;min-height:0}
+
+  .vnc__side{padding:var(--sp-4);padding-top:var(--sp-6);align-items:flex-start}
+
+  .vnc__map{height:78px}
+
+  .vnc__row{height:52px;padding:0 var(--sp-3);gap:var(--sp-2)}
+
+  .vnc__name{font-size:var(--fs-5)}
+
+  .vnc__meta{font-size:var(--fs-5)}
+
+  .vnc__chip{font-size:var(--fs-5);padding:3px var(--sp-2)}
+
+  .vnc__grip{width:46px;height:46px}
+
+  .vnc__label{top:12px;font-size:var(--fs-5)}
+
+  .vnc__label--before{left:12px}
+
+  .vnc__label--after{right:12px}}
+
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:960px){
+  .rankcard-wrap{max-width:440px;margin:0 auto}}
+
+@media(max-width:560px){
+  .rankcard-wrap{max-width:100%}
+
+  /* Die Pill bleibt hier schmaler als der zentrierte Titel lang ist —
+     die drei Ampel-Punkte wuerden mit dem Text kollidieren. Auf Mobile
+     daher ohne Punkte, Titel bleibt sauber zentriert. */
+  .gpill__dots{display:none}
+
+  .map{height:104px}
+
+  .results{height:218px}
+
+  .result{height:64px}
+
+  .result[data-slot="0"]{transform:translateY(0)}
+
+  .result[data-slot="1"]{transform:translateY(77px)}
+
+  .result[data-slot="2"]{transform:translateY(154px)}
+
+  .result--you .name{font-size:var(--fs-5)}
+
+  .stars{font-size:var(--fs-5)}
+
+  .openchip{font-size:var(--fs-5);padding:1px var(--sp-1)}
+
+  .climb-badge{display:none}}
+
+/* ≤400px: Rankcard/Local-Pack-Karten wirkten gequetscht (Name/Sterne
+   dicht an dicht) — Innenabstände und Rang-Badges verschlanken statt
+   Positionen auszublenden, damit alle 3 Einträge lesbar bleiben. */
+@media(max-width:400px){
+  .rankcard{padding:var(--sp-3)}
+
+  .result{padding:0 var(--sp-2);gap:var(--sp-2)}
+
+  .result--ghost .rank,.result--you .rank{min-width:22px;height:22px;padding:0 var(--sp-1);font-size:var(--fs-5)}
+
+  .result--you{gap:var(--sp-2)}}
+
+
+/* ============================================================
+   ILLUSTRATIONS-SET — kompakte Inline-SVG-Veranschaulichungen
+   statt Stockfotos. Karte/Pin/Pulse/Ergebniszeilen sind dieselben
+   Bausteine wie im Hero (nur kleiner), damit alles wie eine
+   Familie wirkt.
+   ============================================================ */
+.illu{background:linear-gradient(158deg,color-mix(in srgb,var(--surface-fill) 85%,transparent),color-mix(in srgb,var(--bg) 90%,transparent));border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:var(--sp-4);box-shadow:0 30px 70px -42px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(8px)}
+
+.illu__caption{margin-top:var(--sp-3);font-size:var(--fs-5);color:var(--body);text-align:center;line-height:var(--lh)}
+
+.illu__caption--example{font-style:italic}
+
+.illu--narrow{max-width:460px;margin:var(--sp-5) auto 0}
+
+.prose-illu.rev .illu{order:-1}
+
+@media(max-width:860px){
+  .prose-illu.rev .illu{order:0}}
+
+
+/* Servicegebiet-Radius (Mini-Karte mit Pin + konzentrischen Ringen) */
+.illu-radius .map{height:150px;margin-bottom:0}
+
+
+/* Mini-Ablauf-Kette (z. B. Anruf → Antwort → Auftrag) */
+.flow-strip{display:flex;align-items:flex-start;justify-content:center;gap:var(--sp-2)}
+
+.flow-strip__step{display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);font-size:var(--fs-5);color:var(--body);
+  text-align:center;width:88px;line-height:1.35}
+
+.flow-strip__ic{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,var(--surface),var(--surface-fill));border:1px solid var(--border-strong);color:var(--primary)}
+
+.flow-strip__ic svg{width:20px;height:20px}
+
+.flow-strip__arrow{color:var(--body);font-size:var(--fs-4);flex:none;margin-top:var(--sp-3)}
+
+@media(max-width:480px){
+  .flow-strip{flex-direction:column;align-items:center}
+
+  .flow-strip__arrow{transform:rotate(90deg);margin-top:0}}
+
+
+/* ============================================================
+   PERFORMANCE: MOBILE — GPU-EFFEKTE REDUZIEREN
+   filter:blur() auf den Aurora-Blobs und backdrop-filter auf
+   Karten verursachen auf mobilen GPUs messbare Paint- und
+   Compositing-Kosten. Unter 960 px werden sie durch günstigere
+   Alternativen ersetzt oder vollständig entfernt.
+   Das visuelle Fundament (bg-flow, bg-grid, Farb-Tokens) bleibt
+   erhalten — nur die GPU-teure Renderarbeit entfällt.
+   ============================================================ */
+@media(max-width:960px){
+
+  /* backdrop-filter auf Karten und Panels entfernen.
+     Nav (.nav.scrolled) und Mobile-Menü behalten ihren Blur, da sie
+     UX-kritisch sind. mcta__tel behält einen leichten Blur (Kontrast).
+     Portrait-Badge: leicht reduziert, aber erhalten (liegt über Foto). */
+  .rankcard,
+  .services__note,
+  .faq__item,
+  .way,
+  .pledge,
+  .callout,
+  .related,
+  .linkcard,
+  .infocard,
+  .illu,
+  .tcard,
+  .client-spotlight__card{backdrop-filter:none}}
+
+
+/* ============ GBP-SHOWCASE „Platz 1 ist kein Zufall" (Startseite) ============
+   Zwei iPhone-Mockups (Suchergebnis + Profil-Detail) mit erklärenden Notizen
+   links und rechts. Bewusst ohne eigenen Hintergrund: Verlauf, Raster, Aurora
+   und Grain der Seite laufen durch, sonst säße hier ein sichtbarer Kasten in
+   einer ansonsten durchgehenden Fläche.
+
+   Die Mockups sind in festen 414x868 px gebaut — Innenleben in absoluten
+   Pixeln, wie ein Screenshot. Statt das nachzubauen, wird der ganze Rahmen
+   über --gsp-s herunterskaliert. site.js rechnet den Faktor aus der real
+   verfügbaren Spaltenbreite; die Media-Queries unten sind die Näherung für
+   den Fall, dass das JS nicht läuft.
+
+   Drei Layouts: ab 1440 px Notizen seitlich neben den Geräten (Originalbild),
+   ab 760 px beide Geräte nebeneinander mit Notizen darunter, darunter alles
+   einspaltig in Lesereihenfolge Gerät → zugehörige Notizen. */
+.gsp{--gsp-warn:var(--danger)}
+
+.gsp__stage{position:relative;margin-top:var(--head-y);padding:0 var(--sp-5)}
+
+.gsp__grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-6);align-items:center;
+  max-width:var(--maxw);margin:0 auto}
+
+.gsp__device{display:flex;flex-direction:column;align-items:center;gap:var(--sp-5);margin:0}
+
+.gsp__device--a{order:1}
+
+.gsp__notes--left{order:2}
+
+.gsp__device--b{order:3}
+
+.gsp__notes--right{order:4}
+
+.gsp__caption{font-size:var(--fs-4);color:var(--body);text-align:center}
+
+
+/* Bühne: --gsp-s treibt Platzbedarf (Breite/Höhe des Platzhalters) und
+   Skalierung des Rahmens gemeinsam, damit im Fluss kein Loch entsteht. */
+.gsp__screen{--gsp-s:1;position:relative;margin:0 auto;
+  width:calc(414px*var(--gsp-s));height:calc(868px*var(--gsp-s))}
+
+.gsp__frame{position:absolute;top:0;left:0;width:414px;height:868px;
+  transform-origin:top left;transform:scale(var(--gsp-s));
+  border-radius:66px;padding:var(--sp-3);
+  background:linear-gradient(160deg,#3A3A3C,#1C1C1E 40%,#2C2C2E);
+  box-shadow:0 42px 80px rgba(25,28,33,.22),0 8px 24px rgba(46,51,87,.12),0 0 0 1px rgba(255,255,255,.5)}
+
+
+.gsp__notes{display:flex;flex-direction:column;gap:var(--sp-4)}
+
+.gsp__note{display:flex;align-items:center}
+
+.gsp__note-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+
+.gsp__note-title{font-size:var(--fs-4);font-weight:600;color:var(--ink);line-height:1.3}
+
+.gsp__note p{font-size:var(--fs-4);line-height:var(--lh);color:var(--body)}
+
+.gsp__note--warn .gsp__note-title{color:var(--gsp-warn)}
+
+.gsp__note-line{display:none;flex:none;width:44px;height:1px;
+  background:linear-gradient(90deg,var(--border),var(--primary));
+}
+
+.gsp__note--warn .gsp__note-line{background:linear-gradient(90deg,var(--border),var(--gsp-warn))}
+
+.gsp__notes--right .gsp__note-line{background:linear-gradient(270deg,var(--border),var(--gsp-warn))}
+
+.gsp__disclaimer{margin-top:var(--sp-5);text-align:center;color:var(--body);font-size:var(--fs-5)}
+
+
+.gsp__foot{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);
+  margin-top:var(--head-y);padding-top:var(--sp-5);border-top:1px solid var(--border)}
+
+.gsp__foot p{font-size:var(--fs-4);line-height:var(--lh);color:var(--body);max-width:820px;text-wrap:pretty}
+
+.gsp__cta{display:inline-flex;align-items:center;gap:var(--sp-2);font-weight:600;
+  color:var(--primary);white-space:nowrap}
+
+.gsp__cta svg{transition:transform var(--dur-ui) var(--ease-apple)}
+
+@media(hover:hover){.gsp__cta:hover svg{transform:translateX(4px)}}
+
+
+/* Skalierungs-Fallback ohne JS — aufsteigend, größere Breite gewinnt. */
+@media(max-width:479px){.gsp__screen{--gsp-s:.78}}
+
+@media(min-width:480px) and (max-width:639px){.gsp__screen{--gsp-s:.92}}
+
+@media(min-width:760px){
+  /* Enger als der Seiten-Container: zwei 414-px-Geräte nebeneinander sollen
+     sich nicht über die volle Breite auseinanderziehen. */
+  .gsp__grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-6);max-width:960px}
+
+  .gsp__device--a{order:1}
+
+  .gsp__device--b{order:2}
+
+  .gsp__notes--left{order:3}
+
+  .gsp__notes--right{order:4}
+
+  .gsp__screen{--gsp-s:.8}}
+
+@media(min-width:900px){.gsp__screen{--gsp-s:.95}}
+
+@media(min-width:1024px){.gsp__screen{--gsp-s:1}}
+
+@media(min-width:1440px){
+  .gsp__stage{max-width:1560px;margin-left:auto;margin-right:auto}
+
+  .gsp__grid{grid-template-columns:minmax(0,280px) minmax(0,1fr) minmax(0,1fr) minmax(0,280px);
+    max-width:none;gap:var(--sp-6)}
+
+  .gsp__notes--left{order:1;text-align:right}
+
+  .gsp__device--a{order:2}
+
+  .gsp__device--b{order:3}
+
+  .gsp__notes--right{order:4}
+
+  .gsp__notes{gap:var(--sp-7)}
+
+  .gsp__note-line{display:block}
+
+  .gsp__screen{--gsp-s:.85}}
+
+@media(min-width:1560px){.gsp__screen{--gsp-s:1}}
+
+@media(max-width:760px){
+  .gsp__foot{flex-direction:column;align-items:flex-start;gap:var(--sp-4)}
+
+  .gsp__stage{margin-top:var(--head-y)}}
+
+
+/* ============ WEBDESIGN: GERÄTE-ATTRAPPE ============
+   Reine CSS-Attrappe statt Screenshot: kein Bild zum Laden, gestochen scharf
+   auf jedem Display, und sie zeigt bewusst kein echtes Kundenprojekt — es gibt
+   noch keins, und ein erfundenes wäre eine Falschangabe.
+
+   Gezeigt wird dieselbe ausgestaltete Website (.wsn) wie auf der Nachher-Seite
+   des Vergleichs weiter unten — eine Gestaltung, zwei Orte. Grau angedeutete
+   Bloecke sind hier bewusst verschwunden: Wer eine neue Website verkauft, darf
+   im ersten Bild der Seite keinen Rohbau zeigen.
+
+   Groessensteuerung ueber eine Container-Abfrage: .wsn bemisst alles in em,
+   und die Basis leitet sich aus der Breite der Attrappe ab. Das Motiv passt
+   sich damit jeder Spaltenbreite an, ohne dass an Breakpoints nachgemessen
+   werden muss — und ohne die Buehne des Vergleichs zu beruehren, die ihre
+   Basis aus der Fensterbreite zieht. */
+.wd-device{position:relative;container-type:inline-size}
+
+.wd-device__inner{position:relative;font-size:var(--fs-5);padding-bottom:2.6em}
+
+@supports (container-type:inline-size){
+  /* 10px bei 620px Breite — dieselbe Bezugsgroesse wie im Vergleich. */
+  .wd-device__inner{font-size:min(9px,1.613cqw)}}
+
+.wd-device__inner .wd-win{height:44em}
+
+/* Im Hero uebernimmt das Telefon die Rolle des aufgesetzten Details; die
+   Bewertungskarte auf der Bildflaeche laege ohnehin darunter. */
+.wd-device__inner .wsn__badge{display:none}
+
+
+/* ---- Browserrahmen (Hero und Vergleich teilen ihn sich) ---- */
+.wd-win{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  border-radius:1.4em;background:var(--surface);border:1px solid var(--border);
+  box-shadow:0 .2em .4em rgba(16,22,48,.04),0 2.4em 6em -2.4em rgba(16,22,48,.24),
+             0 6em 12em -6em rgba(16,22,48,.2)}
+
+
+.wd-win__bar{flex:none;display:flex;align-items:center;gap:1.2em;padding:1em 1.3em;height:3.9em;
+  background:var(--surface-fill);border-bottom:1px solid var(--border)}
+
+.wd-win__dots{display:flex;gap:.6em;flex:none}
+
+.wd-win__dots i{display:block;width:1em;height:1em;border-radius:50%;background:var(--border-strong)}
+
+.wd-win__url{flex:1;min-width:0;height:2.3em;border-radius:999px;background:var(--surface);
+  border:1px solid var(--border);display:flex;align-items:center;gap:.5em;padding:0 1.1em;
+  font-size:1.05em;color:var(--body);letter-spacing:-.01em;white-space:nowrap;overflow:hidden}
+
+.wd-win__url svg{flex:none;opacity:.6}
+
+.wd-win__page{flex:1;min-height:0;overflow:hidden;padding:0;background:var(--surface)}
+
+
+/* Einlauf-Choreografie: die Seite baut sich von oben nach unten auf, so wie
+   ein Besucher sie auch liest. */
+
+/* ---- Telefon: dieselbe Seite, wie sie auf dem Handy ankommt ---- */
+.wd-phone{position:absolute;right:-2em;bottom:.5em;width:15.6em;padding:.85em;border-radius:3em;
+  background:#12151C;border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 2.2em 4.6em -1.8em rgba(16,22,48,.6),0 .4em 1em rgba(16,22,48,.22)}
+
+
+.wd-phone__screen{position:relative;border-radius:2.3em;overflow:hidden;background:#FFF}
+
+.wsm{display:flex;flex-direction:column;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:#1D1D1F}
+
+.wsm__nav{display:flex;align-items:center;gap:.5em;padding:1.6em .9em .7em;
+  border-bottom:1px solid rgba(0,0,0,.07)}
+
+.wsm__mark{flex:none;width:1.3em;height:1.3em;border-radius:.4em;
+  background:linear-gradient(135deg,#0A84FF,#0040A0)}
+
+.wsm__nav b{flex:1;font-size:.95em;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+
+.wsm__burger{flex:none;display:flex;flex-direction:column;gap:.24em}
+
+.wsm__burger i{display:block;width:1.1em;height:.17em;border-radius:.1em;background:#86868B}
+
+.wsm__body{display:flex;flex-direction:column;gap:.6em;padding:.95em .9em 1.1em}
+
+.wsm__h{font-size:1.4em;font-weight:700;line-height:1.12;letter-spacing:-.035em}
+
+.wsm__h span{color:#0071E3}
+
+.wsm__p{font-size:.8em;line-height:1.4;color:#6E6E73}
+
+.wsm__btn{display:block;text-align:center;font-size:.82em;font-weight:600;color:#FFF;
+  background:linear-gradient(135deg,#0A84FF,#0060DF);border-radius:999px;padding:.8em .5em;
+  box-shadow:0 .5em 1em -.4em rgba(0,113,227,.85)}
+
+.wsm__shot{position:relative;height:5em;border-radius:.8em;overflow:hidden;
+  background:linear-gradient(160deg,#CFE4FF,#3F6FB5)}
+
+.wsm__shot svg{position:absolute;inset:0;width:100%;height:100%}
+
+.wsm__card{display:flex;align-items:center;gap:.5em;font-size:.8em;font-weight:600;
+  padding:.6em .65em;border-radius:.65em;border:1px solid rgba(0,0,0,.08);background:#F7F9FC}
+
+.wsm__card i{flex:none;width:1.5em;height:1.5em;border-radius:.42em;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,113,227,.1);color:#0071E3;font-style:normal}
+
+.wsm__card svg{width:.9em;height:.9em}
+
+
+/* ============ WEBDESIGN: VORHER/NACHHER-INHALT ============
+   Nutzt die vorhandene Slider-Mechanik (.vnc__*, siehe oben) und tauscht nur
+   den Inhalt der beiden Seiten aus: links eine in die Jahre gekommene Seite,
+   rechts dieselbe Firma, heute.
+
+   Beide Seiten sind AUSGESTALTETE Website-Attrappen mit echtem Text, keine
+   grauen Platzhalterbalken. Das ist der ganze Zweck dieses Abschnitts: Ein
+   Drahtgitter sieht aus wie "unfertig", und eine unfertige Nachher-Seite
+   verkauft nichts. Der Besucher soll rechts etwas sehen, das er haben will.
+
+   ALLES SKALIERT ÜBER EINE EINZIGE ZAHL.
+   Jede Groesse in den Attrappen steht in em. Die Basis dafuer setzt
+   .vnc--wd .vnc__stage aus der Fensterbreite: 10px, sobald Platz fuer die
+   volle Breite von 62em = 620px ist, darunter proportional weniger. Damit
+   verkleinert sich die Attrappe wie ein echter Screenshot — und, wichtiger,
+   BEIDE Seiten verkleinern sich exakt gleich. Ein Versatz am Wischbalken ist
+   dadurch konstruktiv ausgeschlossen, statt an mehreren Breakpoints einzeln
+   nachgemessen werden zu muessen. */
+.vnc--wd .vnc__stage{
+  /* 1em = 1/62 der Attrappenbreite. Der Abzug deckt den Rand des Containers
+     ab und laesst links und rechts etwas Luft zur Buehnenkante. */
+  font-size:min(10px, calc((100vw - 70px) / 62));
+  height:63em;min-height:0;
+}
+
+.vnc--wd .vnc__side{padding:0;align-items:center;justify-content:center}
+
+.vnc--wd .vnc__label{top:2.2em;font-size:1.05em;padding:.7em 1.4em}
+
+.vnc--wd .vnc__label--before{left:2.2em}
+
+.vnc--wd .vnc__label--after{right:2.2em}
+
+.wdv .wd-win{height:100%;
+  box-shadow:0 .2em .4em rgba(0,0,0,.04),0 1.8em 4.4em -2em rgba(0,0,0,.26)}
+
+
+/* ---------- NACHHER: die neue Seite ----------
+   Bewusst KEINE grauen Balken, sondern echte Ueberschrift, echter Fliesstext,
+   ein farbiger Handlungsknopf, eine Bildflaeche mit aufgesetzter Bewertungs-
+   karte und drei Leistungskacheln. Genau die Bausteine, an denen man eine
+   heute gebaute Seite auf einen Blick erkennt. Firmenname und Zahlen sind
+   bewusst generisch ("Ihre Firma", "Ihre Leistung") — der Besucher soll sich
+   selbst hineinlesen, und es entsteht kein erfundenes Kundenprojekt. */
+.wsn{height:100%;display:flex;flex-direction:column;background:#FFF;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:#1D1D1F}
+
+.wsn__nav{flex:none;display:flex;align-items:center;gap:1.4em;height:5em;padding:0 1.8em;
+  border-bottom:1px solid rgba(0,0,0,.07);background:rgba(255,255,255,.9)}
+
+.wsn__brand{display:flex;align-items:center;gap:.8em;font-size:1.4em;font-weight:700;letter-spacing:-.02em}
+
+.wsn__mark{width:1.6em;height:1.6em;border-radius:.5em;flex:none;
+  background:linear-gradient(135deg,#0A84FF,#0040A0);
+  box-shadow:0 .2em .5em -.15em rgba(0,113,227,.6)}
+
+.wsn__links{flex:1;display:flex;gap:1.6em;margin-left:.8em}
+
+.wsn__links i{font-style:normal;font-size:1.15em;color:#6E6E73;white-space:nowrap}
+
+.wsn__cta{flex:none;background:linear-gradient(135deg,#0A84FF,#0060DF);color:#FFF;
+  font-size:1.1em;font-weight:600;padding:.7em 1.3em;border-radius:999px;white-space:nowrap;
+  box-shadow:0 .4em 1em -.4em rgba(0,113,227,.85)}
+
+
+.wsn__hero{flex:1;min-height:0;display:grid;grid-template-columns:1.12fr .88fr;
+  gap:1.8em;padding:2.2em 1.8em 1.4em;align-items:center}
+
+.wsn__copy{min-width:0}
+
+.wsn__eyebrow{font-size:.95em;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#0071E3;margin-bottom:.9em}
+
+.wsn__h1{font-size:2.55em;font-weight:700;line-height:1.08;letter-spacing:-.035em;margin-bottom:.42em}
+
+.wsn__h1 span{background:linear-gradient(110deg,#0071E3,#0A4FA8);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+.wsn__sub{font-size:1.15em;line-height:var(--lh);color:#6E6E73;margin-bottom:1.2em;max-width:26em}
+
+.wsn__btns{display:flex;gap:.8em;flex-wrap:wrap}
+
+.wsn__btn{font-size:1.1em;font-weight:600;padding:.85em 1.4em;border-radius:999px;white-space:nowrap;
+  border:1px solid rgba(0,0,0,.12);color:#1D1D1F;background:#FFF}
+
+.wsn__btn--pri{background:linear-gradient(135deg,#0A84FF,#0060DF);color:#FFF;border-color:transparent;
+  box-shadow:0 .5em 1.2em -.4em rgba(0,113,227,.85)}
+
+.wsn__trust{display:flex;align-items:center;gap:.6em;margin-top:1.3em;font-size:1.02em;color:#6E6E73}
+
+.wsn__stars{color:#F5A623;letter-spacing:.05em}
+
+
+/* Bildflaeche: ein weicher Verlauf mit angedeuteter Szene statt eines echten
+   Fotos — laedt nichts nach, bleibt auf jedem Display scharf und zeigt kein
+   fremdes Motiv, an dem Rechte haengen koennten. */
+.wsn__shot{position:relative;align-self:stretch;border-radius:1.2em;overflow:hidden;
+  background:linear-gradient(160deg,#CFE4FF 0%,#8FB8EC 46%,#3F6FB5 100%);
+  box-shadow:0 1.4em 2.8em -1.2em rgba(16,22,48,.5)}
+
+/* Nur das DIREKTE Kind ist die Bildflaeche. Als Nachfahren-Selektor wuerde die
+   Regel auch das Icon in der aufgesetzten Karte treffen und quer ueber das
+   ganze Bild ziehen. */
+.wsn__shot>svg{position:absolute;inset:0;width:100%;height:100%}
+
+.wsn__badge-ic svg{width:1.1em;height:1.1em}
+
+/* Aufgesetzte Bewertungskarte — das Detail, an dem eine Seite sofort nach
+   "professionell gemacht" aussieht. */
+.wsn__badge{position:absolute;left:.9em;bottom:.9em;right:.9em;
+  display:flex;align-items:center;gap:.7em;
+  background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(1em);backdrop-filter:blur(1em);
+  border-radius:.85em;padding:.7em .85em;box-shadow:0 .6em 1.4em -.5em rgba(16,22,48,.45)}
+
+.wsn__badge-ic{flex:none;width:2.2em;height:2.2em;border-radius:.6em;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,113,227,.12);color:#0071E3}
+
+.wsn__badge-tx{display:flex;flex-direction:column;line-height:var(--lh);min-width:0}
+
+.wsn__badge-tx b{font-size:1.05em;font-weight:650}
+
+.wsn__badge-tx span{font-size:.9em;color:#6B6B70;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+
+.wsn__cards{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:.9em;padding:0 1.8em 1.6em}
+
+.wsn__card{display:flex;align-items:center;gap:.7em;padding:.9em .9em;border-radius:.9em;
+  border:1px solid rgba(0,0,0,.08);background:#F7F9FC;font-size:1.05em;font-weight:600;
+  white-space:nowrap;overflow:hidden}
+
+.wsn__card i{flex:none;width:2em;height:2em;border-radius:.55em;display:flex;align-items:center;
+  justify-content:center;background:rgba(0,113,227,.1);color:#0071E3;font-style:normal}
+
+.wsn__card svg{width:1.2em;height:1.2em}
+
+
+/* ---------- VORHER: die alte Seite ----------
+   Harte Ecken, Serifenschrift, gedeckte Farben, ein schreiendes Begruessungs-
+   banner, eine Linkspalte am Rand, Fliesstext im Blocksatz und ein
+   Besucherzaehler. Alles zusammen die Merkmale einer Seite, die seit ueber
+   zehn Jahren niemand mehr angefasst hat.
+
+   NICHT TOKENISIEREN. Die Beige- und Grautoene hier (#B9B5AA, #6B6760,
+   #C9C6BC, #E9E6DD …) sind der Punkt der Darstellung: Sie sollen fremd
+   und veraltet wirken. Zoege dieser Block das Farbsystem der Seite mit,
+   saehe die "alte" Website plotzlich aus wie die neue — und der Vergleich
+   daneben haette keine Aussage mehr. */
+.wd-win--alt{border-radius:.5em;border-color:#C9C6BC;
+  box-shadow:0 .2em .4em rgba(0,0,0,.05),0 1.2em 2.6em -1.4em rgba(0,0,0,.3)}
+
+.wd-win--alt .wd-win__bar{background:#DAD7CE;border-bottom-color:#C9C6BC}
+
+.wd-win--alt .wd-win__dots i{background:#A9A499}
+
+.wd-win--alt .wd-win__url{background:#F0EEE7;border-color:#C9C6BC;color:#8A857A;border-radius:.2em}
+
+.wd-win--alt .wd-win__page{background:#F0EEE7}
+
+.wsa{height:100%;display:flex;flex-direction:column;
+  font-family:Georgia,'Times New Roman',Times,serif;color:#2E2E2C}
+
+.wsa__banner{flex:none;background:#B0261E;color:#FFE9E7;font-size:1.05em;font-weight:700;
+  letter-spacing:.06em;text-align:center;padding:.7em .8em}
+
+.wsa__head{flex:none;display:flex;align-items:center;gap:.9em;padding:.9em 1.2em;
+  background:linear-gradient(#FBFAF6,#E7E4DA);border-bottom:.2em solid #B0261E}
+
+.wsa__logo{flex:none;width:3.2em;height:3.2em;background:#8C8880;border:1px solid #6F6B63;
+  display:flex;align-items:center;justify-content:center;color:#F0EEE7;font-size:1em;font-weight:700}
+
+.wsa__name{flex:1;min-width:0}
+
+.wsa__name b{display:block;font-size:1.6em;font-weight:700;letter-spacing:.01em;line-height:1.1}
+
+.wsa__name span{display:block;font-size:.95em;color:#6B6760;font-style:italic}
+
+.wsa__tel{flex:none;font-size:.95em;color:#4A4742;text-align:right;line-height:1.3}
+
+.wsa__tabs{flex:none;display:flex;gap:.2em;padding:.4em .6em;background:#D8D4C9;
+  border-bottom:1px solid #B9B5AA}
+
+.wsa__tabs i{font-style:normal;font-size:.92em;color:#1B3F8F;text-decoration:underline;
+  padding:.35em .6em;background:linear-gradient(#F3F1EB,#DCD8CD);border:1px solid #B9B5AA;
+  white-space:nowrap}
+
+.wsa__body{flex:1;min-height:0;display:grid;grid-template-columns:12.5em 1fr;gap:1em;padding:1em 1.2em}
+
+.wsa__side{display:flex;flex-direction:column;gap:.5em;min-width:0}
+
+.wsa__box{border:1px solid #B9B5AA;background:#E9E6DD}
+
+.wsa__box b{display:block;background:#8C8880;color:#F4F2EC;font-size:.9em;padding:.3em .5em;
+  letter-spacing:.02em}
+
+.wsa__box u{display:block;font-size:.88em;color:#1B3F8F;padding:.3em .5em;line-height:1.3}
+
+.wsa__counter{border:1px solid #B9B5AA;background:#E9E6DD;padding:.45em .5em;text-align:center;
+  font-size:.82em;color:#6B6760}
+
+.wsa__counter span{display:inline-block;margin-top:.3em;background:#111;color:#39FF6A;
+  font-family:'Courier New',monospace;font-size:1em;letter-spacing:.14em;padding:.15em .4em}
+
+.wsa__main{min-width:0;display:flex;flex-direction:column}
+
+.wsa__h1{font-size:1.75em;font-weight:700;line-height:1.15;margin-bottom:.45em;color:#1B3F8F}
+
+.wsa__p{font-size:1em;line-height:1.5;text-align:justify;color:#3B3934;margin-bottom:.6em}
+
+.wsa__grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5em;margin-top:.3em}
+
+.wsa__grid i{font-style:normal;height:4.6em;border:1px solid #B9B5AA;background:#DDDAD1;
+  display:flex;align-items:flex-end;justify-content:center;padding:.3em;
+  font-size:.85em;color:#6B6760;text-align:center}
+
+.wsa__caption{font-size:.85em;font-style:italic;color:#6B6760;margin-top:.4em}
+
+.wsa__foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:.8em;
+  padding:.55em 1.2em;border-top:1px solid #C9C6BC;background:#E7E4DA;
+  font-size:.85em;color:#6B6760}
+
+.vnc__side--before .wdv__cap{text-align:left}
+
+.vnc__side--after .wdv__cap{text-align:right}
+
+
+@media(max-width:980px){
+  /* width:100% ist hier zwingend: container-type:inline-size verbietet eine
+     inhaltsabhaengige Breite. Automatische Seitenraender machen aus dem
+     Rasterelement aber genau das — ohne definierte Breite fiel die Attrappe
+     unterhalb von 980px auf null zusammen. */
+  .wd-device{width:100%;max-width:520px;margin-left:auto;margin-right:auto}}
+
+@media(max-width:640px){
+  /* Der Wischbalken-Griff und die Beschriftungen der Buehne skalieren nicht
+     mit der Attrappe mit — sie gehoeren zur Bedienung, nicht zum Bild. Auf
+     dem Telefon deshalb wie beim Slider der Startseite kleiner gesetzt.
+     Hoehe und Innenleben der Attrappe regelt die em-Basis (siehe oben)
+     ganz ohne Sonderfall. */
+  .vnc--wd .vnc__side{padding:0}}
+
+.psc__privacy{margin-top:var(--sp-3);color:var(--body);font-size:var(--fs-5);line-height:var(--lh);text-align:center}
+
+
+.psc .psc__loading,.psc .psc__result,.psc .psc__error{display:none}
+
+.psc[data-state="loading"] .psc__form,
+.psc[data-state="result"] .psc__form,
+.psc[data-state="error"] .psc__form{display:none}
+
+.psc[data-state="loading"] .psc__loading{display:block;text-align:center;padding:var(--sp-4) 0}
+
+.psc[data-state="result"] .psc__result{display:block}
+
+.psc[data-state="error"] .psc__error{display:block;text-align:center}
+
+
+/* display:block ist Pflicht: der Spinner ist ein <span> (inline per Default),
+   und inline-Elemente ignorieren width/height komplett — ohne diese Zeile
+   wuerde nur ein schmaler, hochkant gequetschter Rand-"Strich" gerendert
+   statt eines Kreises. */
+.psc__spinner{display:block;width:52px;height:52px;margin:0 auto var(--sp-4);border-radius:50%;
+  border:4px solid var(--border);border-top-color:var(--primary);
+  animation:pscSpin .9s linear infinite}
+
+.psc__loading p{color:var(--body);font-size:var(--fs-4);line-height:1.6;max-width:32ch;margin:0 auto}
+
+
+.psc__eyebrow{text-align:center;color:var(--body);font-size:var(--fs-5);margin-bottom:var(--sp-3);
+  overflow-wrap:anywhere}
+
+.psc__lcp{text-align:center;color:var(--ink);font-size:var(--fs-4);line-height:var(--lh);margin-bottom:var(--sp-3)}
+
+.psc__verdict{text-align:center;color:var(--body);font-size:var(--fs-4);line-height:1.6;margin-bottom:var(--sp-5)}
+
+.psc__result-actions{display:flex;flex-direction:column;gap:var(--sp-2)}
+
+.psc__error p{color:var(--body);font-size:var(--fs-4);line-height:1.6;margin-bottom:var(--sp-4)}

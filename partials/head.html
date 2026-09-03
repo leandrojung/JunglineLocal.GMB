@@ -36,6 +36,12 @@
      die eigene Domain (/api/booking/) und braucht deshalb keinen Preconnect. -->
 <link rel="dns-prefetch" href="//formspree.io">
 <link rel="stylesheet" href="/src/css/site.css">
+<!-- Attrappen und Illustrationen liegen ueberall unterhalb des sichtbaren
+     Bereichs und muessen das Rendern nicht aufhalten. media="print" macht
+     den Abruf nicht render-blockierend, onload haengt das Blatt danach
+     regulaer ein. Ohne JavaScript greift das <noscript>-Blatt. -->
+<link rel="stylesheet" href="/mockups.css?v={{MOCKUPS_V}}" media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="/mockups.css?v={{MOCKUPS_V}}"></noscript>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
