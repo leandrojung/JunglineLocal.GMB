@@ -1176,51 +1176,6 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 
 ::selection{background:rgba(var(--green-rgb),.35);color:var(--ink)}
 
-/* ============ CUSTOM CURSOR (nur pointer:fine, JS setzt .has-cursor) ============ */
-/* Pin-Animation nur über .btn--primary (alle CTAs); überall sonst normaler Systemcursor.
-   Zum Reaktivieren des vollen Custom-Cursors:
-   1) cursor:none zurück auf body, a, button, [role="button"], .vnc__stage
-   2) Zeile einfügen: .cursor-seen .cur-dot,.cursor-seen .cur-ring{opacity:1} */
-@media (hover:hover) and (pointer:fine){
-  html.has-cursor.cursor-seen .btn--primary{cursor:none}
-}
-.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0}
-html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
-.cursor-off .cur-dot,.cursor-off .cur-ring{opacity:0}
-.cur-dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;mix-blend-mode:difference;
-  transition:opacity .25s}
-.cur-ring{width:28px;height:28px;margin:-14px 0 0 -14px;display:flex;align-items:center;justify-content:center;
-  mix-blend-mode:difference;transition:opacity .25s}
-.cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;background:transparent;
-  transition:transform .3s var(--ease-out),opacity .3s,border-radius .32s var(--ease-out),background-color .3s,border-color .3s;
-  will-change:transform}
-.cur-ring__label{position:relative;color:#fff;font-size:.56rem;font-weight:700;letter-spacing:.14em;
-  text-transform:uppercase;opacity:0;transition:opacity .25s;white-space:nowrap}
-.cur-ring__drag{position:absolute;color:#fff;opacity:0;transform:scale(.6);transition:opacity .25s,transform .3s var(--ease-out)}
-.cur-ring[data-state="grow"] .cur-ring__c{transform:scale(1.5)}
-.cur-ring[data-state="view"] .cur-ring__c{transform:scale(2.1)}
-.cur-ring[data-state="view"] .cur-ring__label{opacity:1}
-.cur-ring[data-state="drag"] .cur-ring__c{transform:scale(1.9)}
-.cur-ring[data-state="drag"] .cur-ring__drag{opacity:1;transform:scale(1)}
-/* Signature-Moment: über dem primären CTA wird der Ring zum Map-Pin aus dem
-   Hero — derselbe, der dort von Platz 3 auf Platz 1 klettert. Eine einzelne,
-   ruhige Formänderung beim Betreten, kein Loop, sonst bleibt der Cursor
-   überall der schlichte Ring.
-   mix-blend-mode:difference (von .cur-ring geerbt) ist für den schlichten
-   weißen Ring gedacht, der über wechselnden Hintergründen sitewide immer
-   Kontrast braucht. Der Pin sitzt aber IMMER auf demselben dunklen
-   .btn--primary-Verlauf (siehe Kommentar oben) — difference von
-   var(--green-bright) auf einem fast gleichfarbigen Button ergibt fast
-   Schwarz, und über dem weißen Button-Text ein unbeabsichtigtes Gelb.
-   Deshalb hier normales Blending mit einer fest gewählten, immer gut
-   sichtbaren Akzentfarbe statt der Differenz-Berechnung. */
-.cur-ring[data-state="pin"]{mix-blend-mode:normal}
-.cur-ring[data-state="pin"] .cur-ring__c{border-color:transparent;background-color:#A6F6D6;
-  border-radius:50% 50% 50% 0;transform:rotate(-45deg) scale(.68) translateY(-3px);
-  box-shadow:0 3px 10px -2px rgba(0,0,0,.5)}
-.cur-ring[data-state="view"]~.cur-dot,.cur-ring[data-state="drag"]~.cur-dot,.cur-ring[data-state="pin"]~.cur-dot{opacity:0}
-@media (hover:none),(pointer:coarse){.cur-dot,.cur-ring{display:none}}
-
 /* ============ RESPONSIVE ============ */
 @media(max-width:960px){
   .hero__inner{grid-template-columns:1fr;gap:36px}
