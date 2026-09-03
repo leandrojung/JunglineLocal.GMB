@@ -284,27 +284,6 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(var(--green-bright-rgb),.4),transparent 66%);bottom:-160px;left:-120px;opacity:.5}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em}
-/* Eigenes (nicht das gemeinsame rank-check-sweep-)Keyframe: der geteilte
-   Sweep läuft über 260% Weg bei 260%-Kachelbreite — für einen Dauerloop
-   unproblematisch, aber bei einmaligem Abspielen legt das Band dabei fast
-   zwei volle Kachel-Perioden zurück und zieht sichtbar zweimal durchs Wort.
-   Hier bleibt die Strecke bewusst unter einer Periode: das Band startet
-   komplett außerhalb des Texts und endet komplett außerhalb, damit exakt
-   ein sauberer Durchlauf zu sehen ist. Reihenfolge der Prozentwerte läuft
-   bewusst von 100% auf 0% (nicht 0→100): bei background-size>100% bewegt
-   sich der sichtbare Ausschnitt bei steigendem Positionswert weiter durchs
-   Bild, wodurch der Inhalt scheinbar nach LINKS wandert — 100%→0% ist also
-   die Variante, die visuell links (bei "und") beginnt und rechts (bei
-   "Konkurrenz.") endet. Timing bewusst linear statt ease/ease-out: jede
-   der getesteten Eased-Varianten zieht die sichtbare Durchquerung in die
-   ersten ~25% der Laufzeit und lässt danach nur eine lange reglose Pause
-   stehen — wirkt gehetzt statt weich. linear verteilt Ein- und Auslaufen
-   gleichmäßig über die volle Dauer; das eigentlich "weiche" Verblassen
-   entsteht dadurch, dass danach kein harter Klassenwechsel mehr stattfindet
-   (s.u.) statt über die Zeitkurve selbst.
-   Schimmer läuft nur einmal beim Laden, hält per forwards am Ende (schon
-   außerhalb des Farbbands, also einfarbig) — kein separater harter
-   Klassenwechsel danach, kein Dauerloop wie bei den übrigen Sweep-Stellen. */
 .hero h1 .hl{position:relative;background:linear-gradient(110deg,var(--green),var(--green-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .lead{font-size:1.13rem;color:var(--dim);max-width:516px;margin-bottom:32px;line-height:1.7}
 .cta-row{display:flex;gap:14px;flex-wrap:wrap}
@@ -346,29 +325,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result [data-gbp-reset]{margin-top:auto}
 
 .rank-check__eyebrow{margin-bottom:18px}
-.rank-check__dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);flex:none;
-  box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),.55);animation:rank-check-pulse 1.8s ease-out infinite}
-@keyframes rank-check-pulse{
-  0%{box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),.55)}
-  70%{box-shadow:0 0 0 10px rgba(var(--green-bright-rgb),0)}
-  100%{box-shadow:0 0 0 0 rgba(var(--green-bright-rgb),0)}
-}
-
+.rank-check__dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);flex:none}
 .rank-check__headline{font-size:clamp(2rem,4vw,3.2rem);margin-bottom:18px}
-/* Gleiche Logik wie bei der Hero-Headline: eigenes Einmal-Keyframe
-   (heroSweepOnce, siehe .hero h1 .hl) statt des geteilten Dauerloops,
-   damit der Sweep sauber bei "wo" beginnt und bei "Unternehmen" endet.
-   Läuft nicht beim Laden los (Sektion ist unterhalb des Folds), sondern
-   erst wenn .rank-check__intro per Scroll-Reveal die .in-Klasse bekommt —
-   animation-play-state bleibt bis dahin paused (pausiert auch die
-   Verzögerung, startet also bei .in bei 0, nicht mittendrin). */
-.rank-check__accent{
-  background:linear-gradient(100deg,var(--green-bright) 40%,#A6F6D6 50%,var(--green-bright) 60%);
-  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:heroSweepOnce 2s linear 1 forwards;animation-play-state:paused;
-}
-.rank-check__intro.in .rank-check__accent{animation-play-state:running}
-@keyframes rank-check-sweep{0%{background-position:200% 0}100%{background-position:-60% 0}}
+.rank-check__accent{color:var(--green-bright)}
 
 .rank-check__sub{color:var(--dim);font-size:1.05rem;line-height:1.6;max-width:46ch;margin-bottom:24px}
 
@@ -406,16 +365,6 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 }
 
 .rank-check__stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:480px;overflow:hidden;border-radius:var(--r-lg)}
-.rank-check__ring{position:absolute;left:50%;top:50%;width:120px;height:120px;border-radius:50%;
-  border:1px solid rgba(var(--green-rgb),.35);transform:translate(-50%,-50%) scale(.4);opacity:0;
-  animation:rank-check-ping 3.6s cubic-bezier(.2,.7,.2,1) infinite;pointer-events:none}
-.rank-check__ring--2{animation-delay:1.2s}
-.rank-check__ring--3{animation-delay:2.4s}
-@keyframes rank-check-ping{
-  0%{transform:translate(-50%,-50%) scale(.4);opacity:0}
-  15%{opacity:.5}
-  100%{transform:translate(-50%,-50%) scale(3.2);opacity:0}
-}
 .rank-check__beam{position:absolute;left:50%;top:50%;width:2px;height:220px;
   background:linear-gradient(to bottom, rgba(var(--green-bright-rgb),.5), transparent 70%);
   transform-origin:top center;transform:translate(-50%,0) rotate(0deg);
@@ -443,12 +392,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   transition:opacity .9s var(--ease-out),visibility 0s .9s}
 /* Einblenden erst, wenn der Radar weg ist — sonst überlagern sich beide. */
 .rank-check__stage[data-scan="off"] .rank-check__verified{opacity:1;visibility:visible;
-  transition:opacity .9s var(--ease-out) .35s,visibility 0s;
-  animation:rank-check-verified 7s ease-in-out .35s infinite}
-@keyframes rank-check-verified{
-  0%,100%{transform:scale(1);opacity:.8}
-  50%{transform:scale(1.045);opacity:1}
-}
+  transition:opacity .9s var(--ease-out) .35s,visibility 0s}
 
 @media(max-width:880px){
   .rank-check__grid{grid-template-columns:1fr;gap:40px}
@@ -461,11 +405,9 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 }
 @media(max-width:640px){
   .rank-check__stage{min-height:380px}
-  .rank-check__ring{width:90px;height:90px}
 }
 @media(prefers-reduced-motion:reduce){
-  .rank-check__dot,.rank-check__ring,.rank-check__beam,.rank-check__accent{animation:none}
-  .rank-check__accent{background:none;color:var(--green-bright);-webkit-text-fill-color:var(--green-bright)}
+  .rank-check__beam{animation:none}
 }
 
 /* ============ GBP-PROFIL-CHECK BADGE (ersetzt das ehemalige Localo-Tool) ============ */

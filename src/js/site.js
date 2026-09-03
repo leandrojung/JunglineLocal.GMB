@@ -74,7 +74,10 @@
   // die ruhige "geprüft"-Aura (siehe .rank-check__verified im CSS).
   var setState = function(state){
     badge.setAttribute('data-state', state);
-    if(stage) stage.setAttribute('data-scan', (state === 'form' || state === 'loading') ? 'on' : 'off');
+    // Der Radar laeuft nur, solange tatsaechlich geprueft wird. Frueher lief
+    // er auch im Formularzustand, also ab dem ersten Sichtkontakt dauerhaft —
+    // eine Bewegung, die nichts anzeigt.
+    if(stage) stage.setAttribute('data-scan', state === 'loading' ? 'on' : 'off');
   };
 
   var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen', website:'Website verlinkt'};
