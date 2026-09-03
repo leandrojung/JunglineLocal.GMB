@@ -315,9 +315,18 @@ function renderEndbody(aktivId) {
   return fuellen(partial('endbody.html'), { TERMIN_HREF: zweige[aktivId].terminHref })
 }
 
+// Der gemeinsame Kopf ist seit dem eigenen Vorschaubild zweigabhaengig: jeder
+// Zweig bringt sein eigenes og:image samt Alternativtext mit. Alles andere im
+// Kopf (Schriften, Rechtliches, Symbole) bleibt fuer beide gleich.
+function renderHead(aktivId) {
+  const z = zweige[aktivId]
+  return fuellen(partial('head.html'), { OG_BILD: z.ogBild, OG_BILD_ALT: z.ogBildAlt })
+}
+
 function sharedShell() {
   const tokens = {
-    '<!--HEAD-->': () => partial('head.html'),
+    '<!--HEAD-->': () => renderHead('seo'),
+    '<!--HEAD_WEBDESIGN-->': () => renderHead('webdesign'),
     '<!--NAV-->': () => renderNav('seo'),
     '<!--NAV_WEBDESIGN-->': () => renderNav('webdesign'),
     '<!--FOOTER-->': () => renderFooter('seo'),
