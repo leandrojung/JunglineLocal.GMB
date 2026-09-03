@@ -1193,70 +1193,20 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .contact__trust svg{flex:none;color:var(--green-bright)}
 
 /* ============ MANIFEST / SLOGAN ============ */
+/* Frueher: drei Zeilen fuhren gestaffelt ein, davor lief je ein Icon in
+   einer eigenen Endlos-Choreografie (blinzelndes Auge, pingender Radar-
+   Ring, wachsende Balken - sechs @keyframes), und ueber den drei
+   Schluesselwoertern zog ein Farbband im Dauerloop. Alles entfernt: der
+   Satz ist die Aussage, nicht die Bewegung. */
 .manifest{position:relative;padding:clamp(34px,4.4vw,56px) 0 8px;text-align:center;z-index:1}
 .manifest__inner{display:inline-flex;flex-direction:column;gap:2px;margin:0 auto}
 .manifest__line{display:flex;align-items:center;justify-content:center;gap:.28em;
   font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-.03em;
   font-size:clamp(1.7rem,5vw,3.1rem);color:var(--ink);white-space:nowrap}
-.js .manifest__line{opacity:0;transform:translateY(24px)}
-.js .manifest__inner.in .manifest__line{opacity:1;transform:none;transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
-.js .manifest__inner.in .manifest__line:nth-child(2){transition-delay:.22s}
-.js .manifest__inner.in .manifest__line:nth-child(3){transition-delay:.44s}
-/* Live-Icons vor den Slogan-Zeilen */
 .manifest__ico{flex:none;display:inline-flex;align-items:center;justify-content:center;
   width:.82em;height:.82em;color:var(--green-bright);transform:translateY(-.02em)}
 .manifest__ico svg{width:100%;height:100%;overflow:visible}
-.manifest__ico [class*="mi-"]{transform-box:view-box;transform-origin:12px 12px}
-.manifest__line:nth-child(2) .manifest__ico{--mi-d:.22s}
-.manifest__line:nth-child(3) .manifest__ico{--mi-d:.44s}
-/* Zeile 1: Auge blinzelt, Pupille atmet, Radar-Ring pingt */
-.manifest__ico .mi-eye{animation:mi-blink 4.6s var(--ease) var(--mi-d,0s) infinite}
-.manifest__ico .mi-iris{animation:mi-iris 4.6s var(--ease) var(--mi-d,0s) infinite}
-.manifest__ico .mi-ping{opacity:0;animation:mi-ping 3.1s var(--ease-out) var(--mi-d,0s) infinite}
-@keyframes mi-blink{0%,86%,100%{transform:scaleY(1)}90%{transform:scaleY(.08)}94%{transform:scaleY(1)}}
-@keyframes mi-iris{0%,100%{transform:scale(1)}50%{transform:scale(.8)}}
-@keyframes mi-ping{0%{opacity:.5;transform:scale(.55)}70%,100%{opacity:0;transform:scale(2.1)}}
-/* Zeile 2: zweiter Kunde kommt dazu (Reset erst, wenn er ausgeblendet ist) */
-.manifest__ico .mi-join{transform-origin:18px 12px;animation:mi-join 4.2s var(--ease-out) var(--mi-d,0s) infinite}
-@keyframes mi-join{
-  0%{opacity:0;transform:translateX(2.6px) scale(.82)}
-  16%,74%{opacity:1;transform:none}
-  88%{opacity:0;transform:none}
-  89%,100%{opacity:0;transform:translateX(2.6px) scale(.82)}
-}
-/* Zeile 3: Balken wachsen, Pfeil steigt auf. Der Rücksprung passiert unsichtbar,
-   damit man nie schrumpfende Balken sieht — die Aussage bleibt „mehr“. */
-.manifest__ico .mi-bar{transform-origin:12px 21px;animation:mi-grow 4.2s var(--ease-out) var(--mi-d,0s) infinite}
-.manifest__ico .mi-bar--2{animation-delay:calc(var(--mi-d,0s) + .12s)}
-.manifest__ico .mi-bar--3{animation-delay:calc(var(--mi-d,0s) + .24s)}
-.manifest__ico .mi-rise{animation:mi-rise 4.2s var(--ease-out) var(--mi-d,0s) infinite}
-@keyframes mi-grow{
-  0%{opacity:0;transform:scaleY(.14)}
-  10%,74%{opacity:1}
-  28%,74%{transform:scaleY(1)}
-  88%{opacity:0;transform:scaleY(1)}
-  89%,100%{opacity:0;transform:scaleY(.14)}
-}
-@keyframes mi-rise{
-  0%,16%{opacity:0;transform:translateY(2.5px)}
-  38%,72%{opacity:1;transform:translateY(0)}
-  92%,100%{opacity:0;transform:translateY(-1.8px)}
-}
-/* Erst mitlaufen, wenn der Block sichtbar ist (ohne JS laufen sie sofort) */
-.js .manifest__ico [class*="mi-"]{animation-play-state:paused}
-.js .manifest__inner.in .manifest__ico [class*="mi-"]{animation-play-state:running}
-.manifest__hl{position:relative;background:linear-gradient(100deg,var(--green-bright) 20%,#A6F6D6 40%,var(--green-bright) 60%);
-  background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:rank-check-sweep 4.5s linear infinite;animation-play-state:paused}
-.manifest__inner.in .manifest__line:nth-child(1) .manifest__hl{animation-play-state:running;animation-delay:.15s}
-.manifest__inner.in .manifest__line:nth-child(2) .manifest__hl{animation-play-state:running;animation-delay:.37s}
-.manifest__inner.in .manifest__line:nth-child(3) .manifest__hl{animation-play-state:running;animation-delay:.59s}
-@media(prefers-reduced-motion:reduce){
-  .manifest__line{opacity:1!important;transform:none!important}
-  .manifest__hl{animation:none!important;background:none;color:var(--green-bright);-webkit-text-fill-color:var(--green-bright)}
-  .manifest__ico [class*="mi-"]{animation:none!important;transform:none!important;opacity:1}
-  .manifest__ico .mi-ping{opacity:0}
-}
+.manifest__hl{color:var(--green-bright)}
 @media(max-width:640px){
   .manifest{padding:40px 0 4px}
   .manifest__line{white-space:normal}
