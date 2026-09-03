@@ -781,18 +781,11 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .chapter:nth-child(even){grid-template-columns:minmax(0,560px) minmax(170px,300px);justify-content:end}
 .chapter:nth-child(even) .chapter__num{order:2;text-align:right}
 .chapter:nth-child(even) .chapter__body{order:1}
-.chapter__num{line-height:1;will-change:transform}
+.chapter__num{line-height:1}
 .chapter__num span{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
   font-size:clamp(5.4rem,13vw,9.5rem);letter-spacing:-.05em;line-height:.9;padding-right:.15em;
   background:linear-gradient(160deg,rgba(var(--green-bright-rgb),.55),rgba(var(--green-bright-rgb),.05) 85%);
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  transition:background .3s var(--ease)}
-@keyframes chnum-sweep{from{background-position:200% 0}to{background-position:-60% 0}}
-.js .chapter__num.lit span{
-  background:linear-gradient(100deg,rgba(var(--green-bright-rgb),.18) 5%,rgba(var(--green-bright-rgb),.88) 28%,#A6F6D6 43%,rgba(var(--green-bright-rgb),.88) 58%,rgba(var(--green-bright-rgb),.18) 75%);
-  background-size:280% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:chnum-sweep var(--chnum-dur,4.0s) ease-out forwards}
-@media(prefers-reduced-motion:reduce){.chapter__num.lit span{animation:none}}
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .chapter__body h3{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:700;margin-bottom:12px;letter-spacing:-.02em}
 .chapter__body p{color:var(--dim);font-size:1.05rem;line-height:1.65;max-width:480px}
 .chapter__more{display:inline-flex;align-items:center;gap:8px;margin-top:18px;
