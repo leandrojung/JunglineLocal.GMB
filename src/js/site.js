@@ -824,29 +824,19 @@
 })();
 
 /* ============================================================
-   MOBILE-MENÜ-STAGGER
+   GBP-SHOWCASE — Skalierung der Mockups
    ============================================================ */
 (function(){
-  // Menüeinträge laufen gestaffelt ein (CSS liest --i).
-  var items = document.querySelectorAll('.mobile-menu a');
-  Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
-})();
-
-/* ============================================================
-   GBP-SHOWCASE — Skalierung der Mockups + Animations-Zyklus
-   ============================================================ */
-(function(){
-  var stage = document.getElementById('gspStage');
+  var stage = document.querySelector('.gsp__stage');
   if(!stage) return;
 
-  var screens = stage.querySelectorAll('[data-gsp-screen]');
-  var count   = document.getElementById('gspCount');
+  var screens = stage.querySelectorAll('.gsp__screen');
   var FRAME_W = 414;
-  var raf = null, timer = null, pending = false;
+  var pending = false;
 
-  // Die Mockups sind in festen Pixeln gebaut. Hier wird aus der wirklich
-  // verfügbaren Spaltenbreite der exakte Faktor berechnet; site.css hat dafür
-  // nur grobe Breakpoint-Stufen als Fallback.
+  // Die Mockups sind in festen Pixeln gebaut (414 x 868, wie ein Screenshot).
+  // Hier wird aus der wirklich verfügbaren Spaltenbreite der exakte Faktor
+  // berechnet; site.css hat dafür nur grobe Breakpoint-Stufen als Fallback.
   function fit(){
     pending = false;
     Array.prototype.forEach.call(screens, function(el){
@@ -860,83 +850,18 @@
   }
   function schedule(){ if(pending) return; pending = true; requestAnimationFrame(fit); }
 
-  // Bewertungszähler des Gewinner-Profils läuft von 9 auf 187 hoch.
-  function countUp(){
-    if(!count) return;
-    var start = performance.now(), dur = 1400;
-    (function step(t){
-      var p = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - p, 3);
-      count.textContent = Math.round(9 + (187 - 9) * e);
-      if(p < 1) raf = requestAnimationFrame(step);
-    })(start);
-  }
-
-  // Ein Durchlauf: alle Teil-Animationen zurückspulen und gemeinsam starten.
-  // Bewusst kein Dauerloop — die Erklärtexte blenden sich erst nach gut sechs
-  // Sekunden ein, ein Neustart alle paar Sekunden würde sie immer wieder
-  // wegnehmen. Die Choreografie läuft einmal, wenn der Block ins Bild kommt,
-  // und bleibt danach im Endzustand stehen.
-  function run(){
-    if(timer) clearTimeout(timer);
-    if(raf) cancelAnimationFrame(raf);
-    if(stage.getAnimations){
-      stage.getAnimations({subtree:true}).forEach(function(a){
-        try{ a.cancel(); a.play(); }catch(e){}
-      });
-    }
-    stage.style.animationPlayState = 'running';
-    if(count) count.textContent = '9';
-    // Muss mit der Choreografie im HTML zusammenpassen: Der Zähler läuft in dem
-    // Moment hoch, in dem die Bewertungszeile des Gewinner-Profils steht.
-    timer = setTimeout(countUp, 3570);
-  }
-
   fit();
   if(window.ResizeObserver) new ResizeObserver(schedule).observe(stage);
   window.addEventListener('resize', schedule, {passive:true});
+})();
 
-  // Bei prefers-reduced-motion gar nicht erst starten: site.css schaltet dort
-  // global *{animation:none} und die Pausen-Regel unten greift nicht, der Block
-  // steht also bereits vollständig und ruhig im Grundzustand da — inklusive der
-  // 187 Bewertungen, die so im Markup stehen.
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  // Ohne IntersectionObserver gäbe es keinen Startschuss — der Block bliebe
-  // auf dem ersten Bild der Choreografie stehen, also leer.
-  if(!window.IntersectionObserver){ run(); return; }
-
-  // Läuft genau einmal pro Seitenaufruf: sobald die Choreografie gestartet
-  // ist, wird der Observer abgehängt. Hoch- und Runterscrollen darf die
-  // Erklärtexte, den Sternenaufbau und den Bewertungszähler nicht wieder auf
-  // null setzen — beim zweiten Anschauen soll der fertige Endzustand stehen,
-  // nicht wieder der leere Anfang.
-  var gestartet = false;
-  var starten = function(){
-    if(gestartet) return;
-    gestartet = true;
-    io.disconnect();
-    window.removeEventListener('scroll', angestossen);
-    run();
-  };
-  // Wie beim Reveal und den Live-Icons: Der Beobachter ist der Auslöser, der
-  // Nachlauf die Absicherung. Wird der Rückruf beim schnellen Wischen
-  // ausgelassen, bliebe die ganze Bühne im Anfangsbild der Choreografie
-  // stehen — und das ist opacity:0, also eine leere Fläche in voller
-  // Sektionshöhe.
-  var ruheTimer = null;
-  var nachlauf = function(){
-    var r = stage.getBoundingClientRect();
-    if(r.top < window.innerHeight && r.bottom > 0) starten();
-  };
-  var angestossen = function(){
-    if(ruheTimer) clearTimeout(ruheTimer);
-    ruheTimer = setTimeout(nachlauf, 160);
-  };
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting) starten(); });
-  }, {threshold:.15});
-  io.observe(stage);
-  window.addEventListener('scroll', angestossen, {passive:true});
+/* ============================================================
+   MOBILE-MENÜ-STAGGER
+   ============================================================ */
+(function(){
+  // Menüeinträge laufen gestaffelt ein (CSS liest --i).
+  var items = document.querySelectorAll('.mobile-menu a');
+  Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
 })();
 
 /* ============================================================
