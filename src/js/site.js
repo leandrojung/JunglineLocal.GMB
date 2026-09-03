@@ -676,31 +676,6 @@
       else if(e.key === 'Home'){ vncSet(0); e.preventDefault(); }
       else if(e.key === 'End'){ vncSet(100); e.preventDefault(); }
     });
-    // Beim ersten Sichtbarwerden schwingt der Griff einmal gedaempft aus,
-    // damit klar ist, dass man ziehen kann. Danach hat der Nutzer die
-    // Kontrolle.
-    if(!reduce && 'IntersectionObserver' in window){
-      var vncHinted = false;
-      var vncIo = new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(!en.isIntersecting || vncHinted) return;
-          vncHinted = true; vncIo.disconnect();
-          setTimeout(function(){
-            var t0 = null, dur = 1700;
-            var swing = function(ts){
-              if(vncDrag) return;
-              if(!t0) t0 = ts;
-              var p = Math.min((ts - t0) / dur, 1);
-              var e = 1 - Math.pow(1 - p, 3);
-              vncSet(50 + Math.sin(e * Math.PI * 2) * 16 * (1 - e));
-              if(p < 1) requestAnimationFrame(swing);
-            };
-            requestAnimationFrame(swing);
-          }, 1100);
-        });
-      }, {threshold:.55});
-      vncIo.observe(vncStage);
-    }
   });
 
   // Punkt-Indikatoren für die swipebare Baustein-Reihe (nur Mobile sichtbar)
