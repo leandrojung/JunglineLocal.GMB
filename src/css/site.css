@@ -118,33 +118,25 @@ section{scroll-margin-top:88px}
           mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000,transparent 75%);
 }
 
-/* ============ SOFT-AURORA HINTERGRUND (sitewide, siehe site.js) ============ */
-/* Weiche, stark geblurrte Flächen in Marke/Mint statt einzelner Partikel-Punkte.
-   Zwei getrennte Transform-Ebenen pro Blob: der äußere .bg-aurora__layer trägt
-   die scroll-gekoppelte Parallax-Verschiebung (site.js, translate3d per rAF),
-   der innere .bg-aurora__blob eine unabhängige, langsame CSS-Keyframe-Drift
-   ("Atmen"). Beide schreiben nur transform — kein Reflow, Blur bleibt fix und
-   wird nicht neu berechnet. Wenige, große Flächen statt vieler kleiner halten
-   die Blur-Kosten niedrig. */
+/* ============ SOFT-AURORA HINTERGRUND (sitewide) ============ */
+/* Weiche, stark geblurrte Flächen als Tiefe im Hintergrund — statisch.
+   Früher trugen sie zwei Bewegungen gleichzeitig: eine CSS-Keyframe-Drift
+   ("Atmen") und eine scroll-gekoppelte Parallax-Verschiebung aus site.js.
+   Beides ist entfallen. Der Hintergrund soll Raum geben, nicht auffallen,
+   und vier permanent animierte Blur-Layer sind der teuerste Weg, das nicht
+   zu tun. Übrig bleibt die Fläche — kein Compositing pro Frame, kein
+   will-change, kein Scroll-Listener. */
 .bg-aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-.bg-aurora__layer{position:absolute;inset:0;will-change:transform}
-.bg-aurora__blob{position:absolute;border-radius:50%;display:block;filter:blur(90px);will-change:transform}
+.bg-aurora__layer{position:absolute;inset:0}
+.bg-aurora__blob{position:absolute;border-radius:50%;display:block;filter:blur(90px)}
 .bg-aurora__blob--a{width:54vw;height:54vw;max-width:720px;max-height:720px;top:-16%;right:-10%;
-  background:radial-gradient(circle,rgba(var(--green-rgb),.24),transparent 70%);
-  animation:auroraDriftA 27s ease-in-out infinite}
+  background:radial-gradient(circle,rgba(var(--green-rgb),.24),transparent 70%)}
 .bg-aurora__blob--b{width:46vw;height:46vw;max-width:620px;max-height:620px;bottom:-16%;left:-12%;
-  background:radial-gradient(circle,rgba(var(--green-bright-rgb),.17),transparent 70%);
-  animation:auroraDriftB 33s ease-in-out infinite}
+  background:radial-gradient(circle,rgba(var(--green-bright-rgb),.17),transparent 70%)}
 .bg-aurora__blob--c{width:32vw;height:32vw;max-width:440px;max-height:440px;top:40%;left:58%;
-  background:radial-gradient(circle,rgba(var(--green-rgb),.19),transparent 72%);
-  animation:auroraDriftC 23s ease-in-out infinite}
+  background:radial-gradient(circle,rgba(var(--green-rgb),.19),transparent 72%)}
 .bg-aurora__blob--d{width:26vw;height:26vw;max-width:360px;max-height:360px;top:6%;left:10%;
-  background:radial-gradient(circle,rgba(var(--green-bright-rgb),.15),transparent 74%);
-  animation:auroraDriftD 30s ease-in-out infinite}
-@keyframes auroraDriftA{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-3%,4%,0) scale(1.08)}}
-@keyframes auroraDriftB{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4%,-3%,0) scale(1.06)}}
-@keyframes auroraDriftC{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-4%,-5%,0) scale(1.1)}}
-@keyframes auroraDriftD{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(3%,3%,0) scale(1.07)}}
+  background:radial-gradient(circle,rgba(var(--green-bright-rgb),.15),transparent 74%)}
 /* Redaktionelle Ausnahme für sehr kurze, textlastige Rechtsseiten (siehe impressum/datenschutz) */
 body[data-bgfx="off"] .bg-aurora{display:none}
 
@@ -1858,16 +1850,6 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
   /* btn--ghost: Blur entfällt auf Mobile (kein Kontrast-Verlust da der
      Hintergrund ohnehin nicht transparenter Inhalt ist). */
   .btn--ghost{backdrop-filter:none}
-}
-
-/* Aurora-Drift-Animationen: auf Tablets leicht beschleunigt, damit sie
-   nicht die gesamte GPU-Bandwidth blockieren, falls die Aurora doch
-   sichtbar ist (z. B. bei einem Tablet mit fine pointer). */
-@media(max-width:1100px) and (min-width:961px){
-  .bg-aurora__blob--a{animation-duration:18s}
-  .bg-aurora__blob--b{animation-duration:22s}
-  .bg-aurora__blob--c{animation-duration:16s}
-  .bg-aurora__blob--d{animation-duration:20s}
 }
 
 /* Schriften: font-display swap als explizite Überbrückung falls optional

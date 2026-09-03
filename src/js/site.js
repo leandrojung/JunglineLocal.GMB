@@ -976,30 +976,6 @@
     queueParallax();
   }
 
-  // Sitewide Soft-Aurora-Hintergrund (partials/endbody.html): die weichen,
-  // geblurrten Flächen atmen unabhängig per CSS-Keyframes (siehe site.css)
-  // UND parallaxen zusätzlich beim Scrollen unterschiedlich schnell
-  // (data-speed) — eigene Transform-Ebene pro Blob, damit sich beide
-  // Bewegungen nicht gegenseitig überschreiben. Gleiches rAF-Drossel-Muster
-  // wie der Kapitel-Parallax oben, unabhängig davon.
-  // Parallax nur auf Desktop: auf Mobile ist Aurora per CSS ausgeblendet
-  // (display:none), finePointer verhindert unnötige JS-Arbeit.
-  var bgAurora = document.getElementById('bgAurora');
-  if(bgAurora && !reduce && finePointer && document.body.getAttribute('data-bgfx') !== 'off'){
-    var auroraLayers = Array.prototype.slice.call(bgAurora.querySelectorAll('[data-speed]')).map(function(el){
-      return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
-    });
-    var auroraRaf = null;
-    var applyAurora = function(){
-      auroraRaf = null;
-      var y = window.scrollY;
-      auroraLayers.forEach(function(l){ l.el.style.transform = 'translate3d(0,' + (y * l.speed).toFixed(1) + 'px,0)'; });
-    };
-    var queueAurora = function(){ if(!auroraRaf) auroraRaf = requestAnimationFrame(applyAurora); };
-    window.addEventListener('scroll', queueAurora, {passive:true});
-    queueAurora();
-  }
-
   // Vorher-Nachher-Slider (Apple-Design): eine Pointer-Logik für Maus &
   // Touch, zusätzlich per Pfeiltasten bedienbar (role="slider"). Der Griff
   // bekommt zusätzlich einen kurzen Scale-Ausschlag waehrend des Ziehens.
