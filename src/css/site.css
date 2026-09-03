@@ -113,11 +113,42 @@ body[data-bgfx="off"] .bg-aurora{display:none}
    Alle teilen Groesse/Stroke-Stil; einzelne Varianten bekommen zusaetzlich
    eine sehr dezente, thematisch passende Bewegung (siehe unten). */
 .eyebrow__icon{flex:none;width:15px;height:15px;overflow:visible}
+/* ============ GEWICHTUNG DER SEKTIONEN ============
+   Drei Stufen statt einer. Vorher trug JEDE Sektionsueberschrift --fs-1 —
+   den Grad des Seitentitels. Damit sahen auf jeder Seite alle Bloecke
+   gleich wichtig aus, und der Besucher musste selbst herausfinden, was
+   die Aussage traegt und was Beiwerk ist.
+
+     .section--lead    die EINE Sektion, die die Seite traegt.
+                       Ueberschrift im Titelgrad, deutlich mehr Luft,
+                       eigener heller Grund, der sie vom Verlauf abhebt.
+     .section          der Normalfall.
+     .section--quiet   Beiwerk: Verweise, Zusatzangebote, Rechtliches.
+
+   Pro Seite hoechstens ein --lead. Zwei Dominanten sind keine. */
 .head-block{max-width:680px}
 .head-block.center{margin:0 auto;text-align:center}
 .head-block.center .eyebrow{justify-content:center}
-.head-block h2{font-size:var(--fs-1);font-weight:700;line-height:1.2;margin:var(--sp-4) 0 var(--sp-2);letter-spacing:-.03em}
+.head-block h2{font-size:var(--fs-2);font-weight:700;line-height:1.2;margin:var(--sp-4) 0 var(--sp-2);letter-spacing:-.03em}
 .head-block p{color:var(--body);font-size:var(--fs-4);line-height:1.7}
+
+.section--lead{padding:calc(var(--section-y)*1.45) 0}
+.section--lead>.container>.head-block,
+.section--lead .head-block{max-width:780px}
+.section--lead .head-block h2{font-size:var(--fs-1);letter-spacing:-.035em}
+.section--lead .head-block p{font-size:var(--fs-3)}
+/* Eigener Grund statt Rahmen: hebt den Block aus dem durchlaufenden
+   Seitenverlauf, ohne ihn als weitere Karte zu rahmen.
+   Bewusst GETOENT und nicht weiss: die Karten darin (Formular, Panels)
+   sind selbst weiss bzw. halbtransparent weiss — auf weissem Grund
+   verschwanden sie. Der Toenung liegt --surface-fill zugrunde, also
+   dieselbe Primaerfarbe bei 12 %, die auch Chips tragen. */
+.section--lead::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,transparent,var(--surface-fill) 10%,var(--surface-fill) 90%,transparent)}
+
+.section--quiet{padding:calc(var(--section-y)*.5) 0}
+.section--quiet .head-block h2{font-size:var(--fs-3);letter-spacing:-.02em}
+.section--quiet .head-block p{font-size:var(--fs-5)}
 .section-title-grad{padding-bottom:.15em;background:linear-gradient(120deg,var(--ink) 30%,var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ============ BUTTONS ============ */
@@ -819,7 +850,8 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .portrait__name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:var(--fs-4);color:var(--ink)}
 .portrait__role{font-size:var(--fs-5);color:var(--body)}
 .about__text .eyebrow{margin-bottom:var(--sp-2)}
-.about__text h2{font-size:var(--fs-1);font-weight:700;margin-bottom:var(--sp-4);letter-spacing:-.03em}
+.about__text h2{font-size:var(--fs-2);font-weight:700;margin-bottom:var(--sp-4);letter-spacing:-.03em}
+.section--lead .about__text h2{font-size:var(--fs-1);letter-spacing:-.035em}
 .about__text p{color:var(--body);font-size:var(--fs-4);line-height:1.75;margin-bottom:var(--sp-3)}
 .about__text p:last-of-type{margin-bottom:0}
 .about__text .mark{color:var(--primary);font-weight:600}
@@ -1371,7 +1403,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   padding:var(--sp-6) var(--sp-6);text-align:center;
   background:radial-gradient(680px circle at 50% -30%,color-mix(in srgb,var(--primary) 16%,transparent),transparent 60%),linear-gradient(170deg,color-mix(in srgb,var(--primary-tint) 12%,transparent),var(--surface-fill) 55%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 34px 80px -46px rgba(0,0,0,.8)}
-.ctaband h2{font-size:var(--fs-1);font-weight:700;letter-spacing:-.025em;margin-bottom:var(--sp-3)}
+.ctaband h2{font-size:var(--fs-2);font-weight:700;letter-spacing:-.025em;margin-bottom:var(--sp-3)}
 .ctaband p{color:var(--body);max-width:580px;margin:0 auto var(--sp-5);font-size:var(--fs-4);line-height:1.7}
 .ctaband .cta-row{justify-content:center}
 .ctaband__trust{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-2) var(--sp-4);margin-top:var(--sp-5)}
@@ -1668,6 +1700,19 @@ html{-webkit-tap-highlight-color:transparent}
 .pagehead + .section--tight,
 .hero + .section--tight,
 .wd-hero + .section--tight{padding-top:calc(var(--section-y)*.42)}
+/* Die Gewichtung (--lead / --quiet) muss die Kuerzung ueberstimmen: sonst
+   zieht die Rhythmik-Regel oben alle Sektionen wieder auf dieselbe Hoehe
+   und die Dominante verschwindet. Deshalb hier gleich spezifisch. */
+.section + .section--lead,
+.ticker + .section--lead,
+.pagehead + .section--lead,
+.hero + .section--lead,
+.wd-hero + .section--lead{padding-top:calc(var(--section-y)*1.15)}
+.section + .section--quiet,
+.ticker + .section--quiet,
+.pagehead + .section--quiet,
+.hero + .section--quiet,
+.wd-hero + .section--quiet{padding-top:calc(var(--section-y)*.38)}
 
 /* ============ ICONS IN WEG-KARTEN UND PROZESS-SCHRITTEN ============
    Beide Stellen hatten bisher gar kein Icon. Bewusst ohne gefüllte
@@ -2185,7 +2230,7 @@ html{-webkit-tap-highlight-color:transparent}
 .wd-ref{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--sp-6);align-items:center;margin-top:var(--head-y);
   padding:var(--sp-6) var(--sp-6);border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card-2);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.wd-ref h2{font-size:var(--fs-1);font-weight:700;letter-spacing:-.032em;margin-bottom:var(--sp-3)}
+.wd-ref h2{font-size:var(--fs-2);font-weight:700;letter-spacing:-.032em;margin-bottom:var(--sp-3)}
 .wd-ref p{color:var(--body);font-size:var(--fs-4);line-height:1.7;text-wrap:pretty}
 .wd-ref__list{list-style:none;display:grid;gap:var(--sp-3);margin-top:var(--sp-1)}
 .wd-ref__list li{display:flex;gap:var(--sp-2);color:var(--body);font-size:var(--fs-4);line-height:var(--lh)}
