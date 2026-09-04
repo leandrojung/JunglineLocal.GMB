@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
-import { createHash } from 'node:crypto'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
@@ -114,7 +113,7 @@ function renderRankcardIllu(youLabel, ariaLabel) {
           </svg>
           <div class="pin">
             <span class="pulse"></span>
-            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="var(--primary-tint)"/><circle cx="14" cy="14" r="5.2" fill="#040605"/></svg>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#55D396"/><circle cx="14" cy="14" r="5.2" fill="#040605"/></svg>
           </div>
         </div>
         <div class="bam__rows" aria-hidden="true" style="margin-top:14px">
@@ -316,46 +315,9 @@ function renderEndbody(aktivId) {
   return fuellen(partial('endbody.html'), { TERMIN_HREF: zweige[aktivId].terminHref })
 }
 
-// Der gemeinsame Kopf ist seit dem eigenen Vorschaubild zweigabhaengig: jeder
-// Zweig bringt sein eigenes og:image samt Alternativtext mit. Alles andere im
-// Kopf (Schriften, Rechtliches, Symbole) bleibt fuer beide gleich.
-// mockups.css liegt bewusst in public/ und nicht in src/: Vite buendelt jedes
-// aus dem HTML verlinkte Stylesheet zurueck in site.css, wodurch der Split
-// wirkungslos waere und der Inhalt sogar doppelt ausgeliefert wuerde (im
-// Browser nachgemessen). Aus public/ wird die Datei unveraendert kopiert.
-// Dafuer traegt sie keinen Inhalts-Hash im Namen — den liefert die
-// Versionsangabe hier, damit ein Deploy nicht an Browser-Caches haengen bleibt.
-// Kommentare raus, Leerraum zusammenziehen. Bewusst konservativ: nur das,
-// was ohne Parser sicher ist. Farben, Werte und Reihenfolge bleiben unberührt.
-function cssMin(css) {
-  return css
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\s*([{}:;,>~])\s*/g, '$1')
-    .replace(/;\}/g, '}')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-let mockupsCache = null
-function mockupsBundle() {
-  if (mockupsCache) return mockupsCache
-  const css = cssMin(readFileSync(resolve(root, 'src', 'css', 'mockups.css'), 'utf-8'))
-  mockupsCache = { css, v: createHash('sha256').update(css).digest('hex').slice(0, 8) }
-  return mockupsCache
-}
-function mockupsV() { return mockupsBundle().v }
-
-function renderHead(aktivId) {
-  const z = zweige[aktivId]
-  return fuellen(partial('head.html'), {
-    OG_BILD: z.ogBild, OG_BILD_ALT: z.ogBildAlt, MOCKUPS_V: mockupsV(),
-  })
-}
-
 function sharedShell() {
   const tokens = {
-    '<!--HEAD-->': () => renderHead('seo'),
-    '<!--HEAD_WEBDESIGN-->': () => renderHead('webdesign'),
+    '<!--HEAD-->': () => partial('head.html'),
     '<!--NAV-->': () => renderNav('seo'),
     '<!--NAV_WEBDESIGN-->': () => renderNav('webdesign'),
     '<!--FOOTER-->': () => renderFooter('seo'),
@@ -495,27 +457,6 @@ function stripHtmlComments() {
 // ---------------------------------------------------------------------------
 const ADMIN_PFLICHTDATEIEN = ['dashboard-protected.html', '.htaccess', '.htpasswd']
 
-// mockups.css wird bewusst NICHT aus dem HTML heraus von Vite gebuendelt:
-// Vite zieht jedes verlinkte Stylesheet zurueck in site.css, wodurch der
-// Split wirkungslos waere und der Inhalt doppelt ausgeliefert wuerde (im
-// Browser nachgemessen). Stattdessen minifiziert und schreibt dieses Plugin
-// die Datei selbst nach dist/ — die Quelle bleibt dadurch lesbar, und der
-// Inhalts-Hash im Dateinamen-Query haelt Browser-Caches aktuell.
-function mockupsSchreiben() {
-  let outDir = 'dist'
-  return {
-    name: 'jungline-mockups-css',
-    apply: 'build',
-    configResolved(config) { outDir = config.build.outDir },
-    closeBundle() {
-      const { css } = mockupsBundle()
-      mkdirSync(resolve(root, outDir), { recursive: true })
-      writeFileSync(resolve(root, outDir, 'mockups.css'), css)
-      console.log(`[mockups] ${(css.length / 1024).toFixed(1)} kB geschrieben (asynchron geladen)`)
-    },
-  }
-}
-
 function adminDateienSichern() {
   let outDir = 'dist'
   return {
@@ -567,7 +508,6 @@ export default defineConfig({
     dropSameOriginCrossorigin(),
     copyrightMetadata(),
     stripHtmlComments(),
-    mockupsSchreiben(),
     adminDateienSichern(),
   ],
   build: {

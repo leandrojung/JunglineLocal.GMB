@@ -53,8 +53,6 @@ export const zweige = {
     // Fließtext unter dem Logo im Footer und die kleine Zeile ganz unten.
     claim: '<b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich bringe regionale Unternehmen bei Google nach oben: persönlich, transparent, messbar.',
     claimKlein: 'Google-Unternehmensprofil-Optimierung · bundesweit',
-    ogBild: 'og-default.jpg',
-    ogBildAlt: 'JunglineLocal — Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz. Google-Unternehmensprofil-Optimierung für regionale Unternehmen.',
     // Erste Footer-Spalte: das Angebot des Zweigs.
     footerTitel: 'Local SEO',
     footerLinks: [
@@ -101,8 +99,6 @@ export const zweige = {
     ],
     claim: '<b>Neu gebaut. Nicht neu gestrichen.</b> Ich erneuere Websites regionaler Unternehmen von Grund auf — und pflege sie danach weiter.',
     claimKlein: 'Webdesign, Relaunch &amp; Pflege · bundesweit',
-    ogBild: 'og-webdesign.jpg',
-    ogBildAlt: 'JunglineLocal — Neu gebaut. Nicht neu gestrichen. Websites für regionale Unternehmen: Relaunch, Pflege, Festpreis vor dem Start.',
     footerTitel: 'Webdesign',
     footerLinks: [
       { href: '/webdesign/#leistungen', label: 'Leistungen' },

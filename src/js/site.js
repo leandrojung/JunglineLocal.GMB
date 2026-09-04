@@ -646,7 +646,7 @@
       // makes any child text contribute to the gradient mask regardless of
       // visibility/opacity, so hidden chars would bleed through. We apply solid
       // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
-      hlSpan.style.color = 'var(--primary)';
+      hlSpan.style.color = 'var(--green-bright)';
       h1.appendChild(plainSpan);
       h1.appendChild(hlSpan);
 
@@ -942,15 +942,15 @@
     document.addEventListener('mouseenter', function(){ document.documentElement.classList.remove('cursor-off'); });
   }
 
-  // Scroll-Parallax für die Schritte: Ebenen mit data-pd bewegen sich beim
+  // Scroll-Parallax für die Kapitel: Ebenen mit data-pd bewegen sich beim
   // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
-  // Schritt-Container (kein Feedback über die eigene Transformation),
+  // Kapitel-Container (kein Feedback über die eigene Transformation),
   // geschrieben wird nur transform, gedrosselt per requestAnimationFrame.
   // Nur auf Geräten mit feinem Zeiger (Desktop): auf Touch-Geräten wäre
   // der Scroll-Handler überflüssige Arbeit ohne sichtbaren Effekt.
-  var stepEls = Array.prototype.slice.call(document.querySelectorAll('.step'));
-  if(stepEls.length && !reduce && finePointer){
-    var stepLayers = stepEls.map(function(ch){
+  var chapterEls = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  if(chapterEls.length && !reduce && finePointer){
+    var chapters = chapterEls.map(function(ch){
       return {root: ch, layers: Array.prototype.slice.call(ch.querySelectorAll('[data-pd]')).map(function(el){
         return {el: el, depth: parseFloat(el.getAttribute('data-pd')) || 0};
       })};
@@ -959,13 +959,13 @@
     var applyParallax = function(){
       pRaf = null;
       var vh = window.innerHeight;
-      stepLayers.forEach(function(ch){
+      chapters.forEach(function(ch){
         var r = ch.root.getBoundingClientRect();
         if(r.bottom < -160 || r.top > vh + 160) return;
         var c = r.top + r.height / 2 - vh / 2;
         ch.layers.forEach(function(l){
           var y = c * l.depth;
-          l.el.style.transform = (l.el.classList.contains('step__glow') ? 'translateY(-50%) ' : '') +
+          l.el.style.transform = (l.el.classList.contains('chapter__glow') ? 'translateY(-50%) ' : '') +
             'translate3d(0,' + y.toFixed(1) + 'px,0)';
         });
       });
@@ -981,7 +981,7 @@
   // UND parallaxen zusätzlich beim Scrollen unterschiedlich schnell
   // (data-speed) — eigene Transform-Ebene pro Blob, damit sich beide
   // Bewegungen nicht gegenseitig überschreiben. Gleiches rAF-Drossel-Muster
-  // wie der Schritt-Parallax oben, unabhängig davon.
+  // wie der Kapitel-Parallax oben, unabhängig davon.
   // Parallax nur auf Desktop: auf Mobile ist Aurora per CSS ausgeblendet
   // (display:none), finePointer verhindert unnötige JS-Arbeit.
   var bgAurora = document.getElementById('bgAurora');
@@ -1196,7 +1196,7 @@
 // Scroll-linked sequential sweep animation for step numbers 01–04
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var nums = Array.prototype.slice.call(document.querySelectorAll('.step__num'));
+  var nums = Array.prototype.slice.call(document.querySelectorAll('.chapter__num'));
   if(!nums.length || reduce) return;
 
   // Track scroll velocity (px/ms) to set animation duration
@@ -1266,7 +1266,7 @@
   var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
-  var HOSTS = 'a,button,.svc,.fact,.step,.way,.tcard,.pledge';
+  var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';
 
   var icons = [];
 
