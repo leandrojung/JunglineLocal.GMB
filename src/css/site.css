@@ -694,22 +694,12 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .result--you .name{font-family:'Bricolage Grotesque';font-weight:700;font-size:.95rem;color:var(--ink)}
 .result__meta{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--green-bright);margin-top:2px;flex-wrap:wrap}
 .stars{letter-spacing:1px;color:#fbbc05;font-size:.76rem}
-/* ---- CHIP-/BADGE-FARBEN: Kontrast ----
-   Die hellen Pastelltoene (#7fdc9c, #f0a898, #86868B, #AEAEB2) stammen aus
-   dem frueheren dunklen Farbschema. Auf den heutigen hellen Karten lagen sie
-   bei 1,6-3,6:1 und waren nur mit Muehe zu lesen. Die Statuschips tragen
-   jetzt deckende Flaechen statt halbtransparenter Toene: so haengt die
-   Lesbarkeit nicht mehr davon ab, welcher Verlauf zufaellig dahinterliegt.
-   Jede Kombination liegt bei mindestens 4,5:1 (WCAG AA fuer Fliesstext). */
-.openchip{background:#DCF2E3;color:#12633A;border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.openchip{background:rgba(52,168,83,.16);color:#7fdc9c;border-radius:6px;padding:1px 7px;font-size:.7rem;font-weight:600;white-space:nowrap}
 .climb-badge{display:flex;align-items:center;gap:5px;flex:none;
   background:rgba(var(--green-rgb),.16);color:var(--green-bright);font-size:.74rem;font-weight:700;
   padding:4px 9px;border-radius:999px;white-space:nowrap;
   opacity:0;transform:scale(.85);transition:opacity .45s,transform .45s var(--ease-out)}
 .result--you.is-top .climb-badge{opacity:1;transform:scale(1)}
-/* Aufstiegs-Pfeil statt frueherem Dreieck-Glyph: als Inline-SVG gestochen scharf
-   und in currentColor, 1em skaliert automatisch mit der Badge-Schriftgroesse. */
-.climb-badge svg{width:1em;height:1em;flex:none}
 /* row wrapper: rank | body | badge — no overlap */
 .result--you{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
 .result--you .result__body{flex:1;min-width:0;overflow:hidden}
@@ -755,13 +745,13 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease}
 .vnc__grip.is-dragging{transform:translate(-50%,-50%) scale(1.12);
   box-shadow:0 1px 1px rgba(255,255,255,.9) inset,0 16px 40px -8px rgba(0,0,0,.34)}
-.vnc__caption{text-align:center;color:#6B6B70;font-size:14px;letter-spacing:-.005em;max-width:560px;margin:16px auto 0;text-wrap:pretty}
+.vnc__caption{text-align:center;color:#86868B;font-size:14px;letter-spacing:-.005em;max-width:560px;margin:16px auto 0;text-wrap:pretty}
 
 /* Google-SERP-Mockup, eigene Kartensprache (groesser, staerker gerundet als
    .bam__* — bewusst identisch zur Apple-Vorlage) */
 .vnc__card{width:min(560px,100%);display:flex;flex-direction:column;gap:14px}
 .vnc__pill{display:flex;align-items:center;gap:10px;background:#FFF;border:1px solid rgba(0,0,0,.08);
-  border-radius:999px;padding:13px 18px;color:#6B6B70;font-size:15px;letter-spacing:-.01em;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  border-radius:999px;padding:13px 18px;color:#86868B;font-size:15px;letter-spacing:-.01em;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .vnc__pill svg{flex:none;opacity:.75}
 .vnc__pill--after{color:#6E6E73;box-shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px -14px rgba(0,113,227,.5)}
 .vnc__map{position:relative;height:104px;border-radius:18px;overflow:hidden;border:1px solid rgba(0,0,0,.07);background:#F2EFE8}
@@ -784,21 +774,20 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .vnc__side--after .vnc__rows>.vnc__row:nth-child(1){animation:vncRise .7s .35s cubic-bezier(.16,1,.3,1) both}
 .vnc__side--after .vnc__rows>.vnc__row:nth-child(2){animation:vncRise .7s .45s cubic-bezier(.16,1,.3,1) both}
 .vnc__side--after .vnc__rows>.vnc__row:nth-child(3){animation:vncRise .7s .55s cubic-bezier(.16,1,.3,1) both}
-.vnc__rank{min-width:28px;height:28px;border-radius:9px;background:#F0F0F3;color:#5F5F65;flex:none;
+.vnc__rank{min-width:28px;height:28px;border-radius:9px;background:#F0F0F3;color:#86868B;flex:none;
   display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
 .vnc__rank--you{background:#0071E3;color:#FFF;font-weight:640}
-.vnc__rank--missing{color:#6B6B70}
+.vnc__rank--missing{color:#AEAEB2}
 .vnc__body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .vnc__name{font-size:16px;font-weight:590;letter-spacing:-.015em;color:#1D1D1F;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vnc__row--you .vnc__name{font-weight:640}
-.vnc__name--dim{color:#6B6B70}
-.vnc__meta{display:flex;align-items:center;gap:7px;font-size:13px;color:#6B6B70;white-space:nowrap}
-.vnc__meta--dim{color:#75757A}
+.vnc__name--dim{color:#86868B}
+.vnc__meta{display:flex;align-items:center;gap:7px;font-size:13px;color:#86868B;white-space:nowrap}
+.vnc__meta--dim{color:#AEAEB2}
 .vnc__stars{color:#F5A623;letter-spacing:1px;font-size:12px}
-.vnc__open{background:#DCF2E3;color:#12633A;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
-.vnc__chip{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
-.vnc__chip svg{width:1em;height:1em;flex:none}
+.vnc__open{background:rgba(52,199,89,.14);color:#1B7F3B;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:590}
+.vnc__chip{flex:none;font-size:12px;font-weight:590;padding:5px 11px;border-radius:999px;white-space:nowrap}
 .vnc__chip--top{font-weight:640;background:#0071E3;color:#FFF}
 .vnc__chip--warn{background:rgba(255,59,48,.1);color:#D6301F}
 .vnc__dots{text-align:center;color:#C7C7CC;font-size:15px;letter-spacing:.42em;line-height:1;margin:1px 0}
@@ -845,7 +834,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .bam__stars{color:#fbbc05;letter-spacing:1px;font-size:.74rem}
 .bam__chip{flex:none;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
 .bam__chip--top{background:rgba(var(--green-rgb),.16);color:var(--green-bright)}
-.bam__chip--warn{background:rgba(230,110,90,.12);color:#A03024}
+.bam__chip--warn{background:rgba(230,110,90,.12);color:#f0a898}
 .bam__row--you{background:linear-gradient(120deg,rgba(var(--green-rgb),.17),rgba(var(--green-rgb),.05));
   border:1px solid var(--green);box-shadow:0 14px 34px -14px rgba(var(--green-rgb),.45)}
 @media(max-width:640px){
@@ -1040,7 +1029,7 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .form-status{display:none;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:12px;font-size:.92rem;line-height:1.55}
 .form-status.show{display:flex}
 .form-status--ok{background:rgba(var(--green-rgb),.12);border:1px solid var(--green);color:var(--green-bright)}
-.form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#A03024}
+.form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#f0a898}
 .form-status a{text-decoration:underline;text-underline-offset:3px}
 /* ================= TERMINBUCHUNG =================
    Eigener Kalender statt eingebettetem Fremd-Widget. Er sitzt in derselben
@@ -2720,7 +2709,7 @@ body[data-zweig="webdesign"]{
   justify-content:center;background:rgba(0,113,227,.12);color:#0071E3}
 .wsn__badge-tx{display:flex;flex-direction:column;line-height:1.25;min-width:0}
 .wsn__badge-tx b{font-size:1.05em;font-weight:650}
-.wsn__badge-tx span{font-size:.9em;color:#6B6B70;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsn__badge-tx span{font-size:.9em;color:#86868B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .wsn__cards{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:.9em;padding:0 1.8em 1.6em}
 .wsn__card{display:flex;align-items:center;gap:.7em;padding:.9em .9em;border-radius:.9em;
@@ -2781,7 +2770,7 @@ body[data-zweig="webdesign"]{
   font-size:.85em;color:#6B6760}
 
 .wdv__cap{position:absolute;top:calc(100% + 1.6em);left:0;right:0;
-  font-size:1.15em;line-height:1.5;color:#6B6B70;letter-spacing:-.005em}
+  font-size:1.15em;line-height:1.5;color:#86868B;letter-spacing:-.005em}
 .vnc__side--before .wdv__cap{text-align:left}
 .vnc__side--after .wdv__cap{text-align:right}
 .wdv__cap b{font-weight:650;color:#1D1D1F}
