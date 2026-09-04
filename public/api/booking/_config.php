@@ -184,9 +184,43 @@ function bkSiteUrl(): string {
     return rtrim(envValue('SITE_URL') ?? 'https://jungline.de', '/');
 }
 
-/** Absolute URL zur Absage-/Verschiebeseite eines Termins. */
+/**
+ * Absolute URL zur Terminseite — der EINE Link, der in jede Kundenmail
+ * gehoert. Dahinter liegt cancel.php: Termin ansehen, in den eigenen
+ * Kalender eintragen, verschieben, absagen.
+ *
+ * Warum /termin und nicht /cancel: In der Bestaetigungsmail steht dieser
+ * Link unter "Termin eintragen oder aendern". Eine Adresse, die dabei
+ * sichtbar "cancel" heisst, verunsichert den Empfaenger — und sie ist der
+ * einzige Link der Mail, also der, den jeder liest. Die alte Adresse
+ * /api/booking/cancel bleibt bestehen, damit bereits verschickte Mails
+ * weiter funktionieren.
+ */
 function bkManageUrl(string $token): string {
-    return bkSiteUrl() . '/api/booking/cancel?token=' . rawurlencode($token);
+    return bkSiteUrl() . '/api/booking/termin?token=' . rawurlencode($token);
+}
+
+/**
+ * Absolute URL zum Buchungsbereich der Seite, auf der dieses Thema gebucht
+ * wird — wahlweise mit Verschiebe-Token.
+ *
+ * Die Themenseiten sind als '/kontakt/#termin' hinterlegt, also mit Anker.
+ * Ein Token durfte deshalb nicht einfach angehängt werden: '/kontakt/#termin'
+ * . '?verschieben=…' ergibt '/kontakt/#termin?verschieben=…', und dort steht
+ * die Abfrage INNERHALB des Ankers. window.location.search ist dann leer, das
+ * Buchungswidget sieht keinen Token und zeigt statt der Verschieben-Ansicht
+ * eine ganz normale Neubuchung — der alte Termin bleibt zusätzlich stehen.
+ * Abfrage vor Anker ist die einzige Reihenfolge, die ein Browser auswertet.
+ */
+function bkBookingPageUrl(array $booking, string $rescheduleToken = ''): string {
+    $seite = $booking !== [] ? bkTopic($booking)['seite'] : BK_TOPICS[BK_TOPIC_DEFAULT]['seite'];
+    [$path, $fragment] = array_pad(explode('#', $seite, 2), 2, '');
+
+    $url = bkSiteUrl() . $path;
+    if ($rescheduleToken !== '') {
+        $url .= (str_contains($path, '?') ? '&' : '?') . 'verschieben=' . rawurlencode($rescheduleToken);
+    }
+    return $fragment !== '' ? $url . '#' . $fragment : $url;
 }
 
 /** Kryptografisch sicherer Token für Absage-/Verschiebelinks. */

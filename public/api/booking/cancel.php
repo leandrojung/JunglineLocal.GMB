@@ -1,11 +1,23 @@
 <?php
 /**
- * /api/booking/cancel?token=…
+ * /api/booking/termin?token=…   (früher und weiterhin: /api/booking/cancel)
  *
- * Die Seite hinter dem Absage-/Verschiebelink aus jeder Mail. Der Token ist
- * der Schlüssel zum Termin — wer ihn hat, darf ihn absagen. Genau so
- * arbeitet auch Calendly; ein Login wäre für ein 30-Minuten-Erstgespräch
- * eine unzumutbare Hürde.
+ * DIE Terminseite — der einzige Link, der in einer Kundenmail steht. Sie
+ * beantwortet alles, was ein Kunde nach der Buchung wissen oder tun will:
+ * wann der Termin ist, wo das Gespräch stattfindet, wie er ihn in seinen
+ * eigenen Kalender bekommt, und wie er ihn verschiebt oder absagt.
+ *
+ * Vorher lag das auf zwei Seiten (/calendar zum Eintragen, /cancel zum
+ * Ändern), also zwei Links in der Bestätigungsmail. Genau diese Mail kam
+ * beim Kunden nicht an, während Absage und Erinnerung mit weniger Links
+ * ankamen. Eine Seite für alles heißt: ein Link in der Mail — und damit
+ * dasselbe Zustellprofil wie bei den Mails, die nachweislich ankommen.
+ * /api/booking/calendar bleibt bestehen, damit bereits verschickte Mails
+ * weiter funktionieren.
+ *
+ * Der Token ist der Schlüssel zum Termin — wer ihn hat, darf ihn absagen.
+ * Genau so arbeitet auch Calendly; ein Login wäre für ein
+ * 30-Minuten-Erstgespräch eine unzumutbare Hürde.
  *
  * Abgesagt wird ausschließlich per POST. Ein GET darf nichts verändern,
  * sonst genügt der Linkscanner eines Mailprogramms, um dem Kunden im
@@ -23,6 +35,7 @@ require_once __DIR__ . '/_google.php';
 require_once __DIR__ . '/_mail.php';
 require_once __DIR__ . '/_ics.php';
 require_once __DIR__ . '/_templates.php';
+require_once __DIR__ . '/_worker.php';
 
 header('Cache-Control: no-store, max-age=0');
 header('X-Robots-Tag: noindex, nofollow');
@@ -78,8 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $booking !== null && $booking['stat
         bkMail(bkOwnerEmail(), bkOwnerName(), $toOwner['subject'], $toOwner['html'],
                $toOwner['text'], null, null, 'intern');
 
-        // Liegengebliebenes nachreichen, sobald die Seite ausgeliefert ist.
-        bkScheduleQueueFlush();
+        // Erinnerungen und Liegengebliebenes nachreichen, sobald die Seite
+        // ausgeliefert ist (siehe _worker.php).
+        bkScheduleBackgroundWork();
 
         $booking = $cancelled;
         $done = true;
@@ -94,7 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $booking !== null && $booking['stat
 $site = bkSiteUrl();
 // Zurueck auf die Seite, auf der dieser Termin gebucht wurde — ein
 // Webdesign-Kunde soll beim Verschieben nicht im SEO-Bereich landen.
-$bookingUrl = $site . ($booking !== null ? bkTopic($booking)['seite'] : BK_TOPICS[BK_TOPIC_DEFAULT]['seite']);
+// bkBookingPageUrl() setzt die Abfrage vor den Anker; andersherum landet der
+// Token im Anker und das Widget sieht ihn nie (siehe dort).
+$bookingUrl   = bkBookingPageUrl($booking ?? []);
+$rescheduleUrl = bkBookingPageUrl($booking ?? [], $token);
 
 if ($booking === null) {
     $heading = 'Termin nicht gefunden';
@@ -107,8 +124,8 @@ if ($booking === null) {
         : 'Der Termin wurde bereits storniert. Sie können sich jederzeit einen neuen aussuchen.';
     $state = 'cancelled';
 } else {
-    $heading = 'Termin absagen oder verschieben';
-    $lead = 'Kein Problem — wählen Sie einfach, wie es weitergehen soll.';
+    $heading = 'Ihr Termin';
+    $lead = 'Hier tragen Sie den Termin in Ihren Kalender ein. Verschieben und absagen geht ebenfalls von hier aus.';
     $state = 'open';
 }
 
@@ -146,6 +163,7 @@ header('Content-Type: text/html; charset=utf-8');
   .facts div+div{border-top:1px solid #C9D3EE}
   .facts dt{color:#59647F;font-size:13px}
   .facts dd{margin:0;font-weight:600;text-align:right}
+  .facts dd a{color:#3A4E9C}
   .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
   .btn{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;
        padding:13px 22px;border-radius:999px;font-family:'Bricolage Grotesque',sans-serif;
@@ -159,6 +177,13 @@ header('Content-Type: text/html; charset=utf-8');
   .note{margin:22px 0 0;font-size:13px;color:#8A93AC}
   .note a{color:#59647F}
   form{margin:0;display:contents}
+  /* Zwischenüberschrift über einer Knopfreihe. Sie trennt "eintragen" von
+     "ändern" — ohne sie stehen vier Knöpfe gleichrangig nebeneinander und
+     der Kunde muss raten, welcher der harmlose ist. */
+  .sub{margin:26px 0 0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px;
+       letter-spacing:.01em;color:#59647F}
+  .row--tight{margin-top:10px}
+  .rule{margin:26px 0 0;border:0;border-top:1px solid #E4E9F6}
   .ok{display:inline-flex;align-items:center;gap:9px;margin-bottom:14px;padding:6px 14px 6px 8px;
       border-radius:999px;background:#E8F3EC;color:#2A6B45;font-size:13px;font-weight:600}
   .ok svg{flex:none}
@@ -183,22 +208,40 @@ header('Content-Type: text/html; charset=utf-8');
       <dl class="facts">
         <div><dt>Termin</dt><dd><?= bkEsc(bkFormatDate($start)) ?></dd></div>
         <div><dt>Uhrzeit</dt><dd><?= bkEsc(bkFormatTime($start, $end)) ?></dd></div>
+        <div><dt>Dauer</dt><dd><?= bkEsc(BK_DURATION_LABEL) ?></dd></div>
+        <?php if ($state === 'open' && bkMeetingUrl() !== ''): ?>
+          <div><dt>Videoraum</dt><dd><a href="<?= bkEsc(bkMeetingUrl()) ?>">Gespräch beitreten</a></dd></div>
+        <?php endif; ?>
         <div><dt>Für</dt><dd><?= bkEsc($booking['name']) ?></dd></div>
       </dl>
     <?php endif; ?>
 
-    <div class="row">
-      <?php if ($state === 'open'): ?>
-        <a class="btn btn--primary" href="<?= bkEsc($bookingUrl . '?verschieben=' . rawurlencode($token)) ?>">Anderen Termin wählen</a>
+    <?php if ($state === 'open'): ?>
+      <?php // Die beiden Wege in den eigenen Kalender. Sie standen früher auf
+            // einer zweiten Seite (/api/booking/calendar) und kosteten die
+            // Bestätigungsmail damit einen zweiten Link. ?>
+      <p class="sub">In Ihren Kalender eintragen</p>
+      <div class="row row--tight">
+        <a class="btn btn--primary" href="<?= bkEsc(bkGoogleCalendarUrl($booking)) ?>">Google Kalender</a>
+        <a class="btn btn--ghost" href="<?= bkEsc(bkIcsUrl($booking['token'])) ?>">Apple / Outlook</a>
+      </div>
+
+      <hr class="rule">
+
+      <p class="sub">Passt der Termin doch nicht?</p>
+      <div class="row row--tight">
+        <a class="btn btn--ghost" href="<?= bkEsc($rescheduleUrl) ?>">Anderen Termin wählen</a>
         <form method="post" action="/api/booking/cancel">
           <input type="hidden" name="token" value="<?= bkEsc($token) ?>">
           <button type="submit" class="btn btn--danger">Termin absagen</button>
         </form>
-      <?php else: ?>
+      </div>
+    <?php else: ?>
+      <div class="row">
         <a class="btn btn--primary" href="<?= bkEsc($bookingUrl) ?>">Neuen Termin wählen</a>
         <a class="btn btn--ghost" href="<?= bkEsc($site) ?>/">Zur Startseite</a>
-      <?php endif; ?>
-    </div>
+      </div>
+    <?php endif; ?>
 
     <p class="note">
       Fragen? Schreiben Sie an <a href="mailto:<?= bkEsc(bkOwnerEmail()) ?>"><?= bkEsc(bkOwnerEmail()) ?></a>

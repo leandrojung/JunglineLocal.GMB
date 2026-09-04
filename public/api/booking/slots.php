@@ -12,6 +12,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_slots.php';
+// Nur der Anstoss fuer den Hintergrundlauf; die Mail-Dateien laedt er
+// selbst nach, und auch nur, wenn er tatsaechlich arbeitet.
+require_once __DIR__ . '/_worker.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     respond(405, ['success' => false, 'error' => 'method_not_allowed']);
@@ -60,6 +63,11 @@ try {
     error_log('booking/slots: ' . $e->getMessage());
     respond(500, ['success' => false, 'error' => 'server_error']);
 }
+
+// Der Aufruf, den es hier ohnehin gibt, treibt nebenbei Erinnerungen und
+// liegengebliebene Mails an — gedrosselt und erst nach der Antwort. Muss vor
+// respond() stehen: respond() beendet das Skript.
+bkScheduleBackgroundWork();
 
 respond(200, [
     'success' => true,

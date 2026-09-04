@@ -16,9 +16,11 @@ Bis die Werte da sind, verhält sich das Tool so:
 | Maildienst | Mails gehen über das Hoster-Postfach — **kommen bei vielen Empfängern nicht an** (siehe Abschnitt 1) |
 | Google | Kalender zeigt nur die über die Website gebuchten Termine, dein privater Google-Kalender wird nicht berücksichtigt |
 | `MEETING_URL` | Bestätigung und Kalendereintrag enthalten keinen Videolink |
-| Cron | Keine Erinnerungsmails am Vortag, und liegengebliebene Mails werden seltener wiederholt |
+| Cron | Erinnerungen und liegengebliebene Mails laufen nur noch beiläufig mit — bei Besuchen auf der Seite, höchstens alle fünf Minuten |
 
-Buchen, Bestätigen, Absagen und Verschieben funktionieren auch ohne alles davon.
+Buchen, Bestätigen, Absagen und Verschieben funktionieren auch ohne alles
+davon. Dasselbe gilt für das Kontaktformular (Abschnitt 6) — es benutzt
+denselben Mailweg.
 
 ---
 
@@ -111,9 +113,10 @@ zusammen.
 Klappt kein einziger Weg, ist die Mail trotzdem nicht weg: Sie wandert in
 einen Ausgangskorb und wird wiederholt — nach 5 Minuten, dann nach 20, nach
 1, 3, 8 und 24 Stunden. Wiederholt wird sie vom stündlichen Cronjob
-(Abschnitt 4) und nebenbei nach jeder weiteren Buchung. Erst nach dem
-sechsten vergeblichen Versuch gilt sie als gescheitert — und steht dann als
-solche im Protokoll, statt spurlos zu verschwinden.
+(Abschnitt 4) und vom Hintergrundlauf, der bei jedem Öffnen des Kalenders
+mitläuft (Abschnitt 5). Erst nach dem sechsten vergeblichen Versuch gilt sie
+als gescheitert — und steht dann als solche im Protokoll, statt spurlos zu
+verschwinden.
 
 ### Prüfen
 
@@ -124,8 +127,21 @@ https://jungline.de/api/booking/mailtest?token=<BOOKING_CRON_TOKEN>
 Die Seite zeigt auf einen Blick: welche Versandwege eingerichtet sind, ob
 SPF, DKIM und DMARC für jungline.de stehen, und was mit den zuletzt
 verschickten Mails passiert ist. Mit `&to=deine@adresse.de` verschickt sie
-zusätzlich Bestätigung, Erinnerung und Absage — genau so, wie eine echte
-Buchung sie verschickt.
+zusätzlich alle fünf Mails, die ein Kunde je bekommt — Bestätigung,
+Erinnerung, Absage sowie die beiden Mails des Kontaktformulars — genau so,
+wie sie im Ernstfall rausgehen.
+
+Zwei Prüfungen achten dabei besonders auf halb fertige Einrichtungen:
+
+* **SPF nennt den Dienst nicht.** Wer bei Brevo die Domain anlegt, bekommt
+  dort DKIM- und DMARC-Einträge zum Abtippen — der SPF-Eintrag muss aber
+  ebenfalls um `include:spf.brevo.com` ergänzt werden. Der Eintrag sieht
+  hinterher vollständig aus und nennt trotzdem nur den Hoster.
+* **DMARC ist da, der Schlüssel fehlt.** Steht im DMARC-Eintrag ein Anbieter
+  (erkennbar an der `rua`-Adresse), für den in der `.env` kein Schlüssel
+  hinterlegt ist, wurde die Einrichtung im DNS begonnen und in der `.env`
+  nicht zu Ende gebracht. Verschickt wird dann weiter über das
+  Hoster-Postfach — mit allen Folgen aus dem ersten Abschnitt.
 
 ## 2. Videoraum
 
@@ -234,11 +250,76 @@ Der Lauf macht dreierlei:
   so wie es die Datenschutzerklärung zusagt — und kürzt das Mailprotokoll
   auf 90 Tage.
 
-Ohne Cronjob funktioniert alles andere weiterhin. Es gibt dann keine
-Erinnerung am Vortag, die Löschfrist wird nicht vollzogen, und
-liegengebliebene Mails werden nur noch beiläufig wiederholt — nämlich beim
-nächsten Buchungsvorgang, höchstens alle fünf Minuten und höchstens drei auf
-einmal. **Der Cronjob ist deshalb keine Kür.**
+Ohne Cronjob funktioniert alles andere weiterhin — siehe den nächsten
+Abschnitt. Die Löschfrist der Datenschutzerklärung (sechs Monate) wird
+allerdings nur von diesem Lauf hier vollzogen. **Deshalb bleibt der Cronjob
+die richtige Lösung, auch wenn er nicht mehr die einzige ist.**
+
+---
+
+## 5. Der Hintergrundlauf (ohne Einrichtung)
+
+Ein Cronjob, der über SSH eingerichtet werden muss, ist irgendwann nicht
+eingerichtet — und dann bekommt niemand mehr eine Erinnerung, ohne dass es
+auffällt. Genau dieser stille Ausfall war das Problem.
+
+Deshalb hängt sich derselbe Lauf zusätzlich an Aufrufe, die es ohnehin gibt:
+an jedes Öffnen des Kalenders, jede Buchung und jede Absage. Er verschickt
+fällige Erinnerungen und arbeitet den Ausgangskorb ab.
+
+Drei Vorkehrungen sorgen dafür, dass davon niemand etwas merkt:
+
+* Gearbeitet wird erst, **nachdem** die Antwort beim Besucher ist. Kann der
+  Server das nicht (`fastcgi_finish_request` fehlt), passiert gar nichts —
+  ein Kalender, der wegen einer fremden Mail hängt, wäre der schlechtere
+  Tausch.
+* Höchstens **alle fünf Minuten**, abgesichert über eine Sperrdatei. Zwei
+  gleichzeitige Besucher lösen nie zwei Läufe aus.
+* Höchstens **fünf Mails** pro Lauf.
+
+Einzurichten ist daran nichts. Der Unterschied zum Cronjob: Besucht tagelang
+niemand die Seite, läuft auch nichts — und die Löschfrist aus der
+Datenschutzerklärung wird nur vom Cronjob vollzogen.
+
+---
+
+## 6. Kontaktformular
+
+Das Formular „Oder schreiben Sie mir" (Startseite, `/kontakt/`,
+`/webdesign/kontakt/`) lief früher über Formspree, einen Dienst in den USA.
+Der Versand scheiterte, und von der Website aus war nicht feststellbar,
+warum — Formspree beantwortet ein nicht bestätigtes, gesperrtes oder
+aufgebrauchtes Formular jeweils mit einem Fehler, und die Seite konnte nur
+raten. Jede Anfrage, die dort verloren ging, war ein verlorener Kunde.
+
+Der Versand läuft jetzt über `/api/contact` auf dem eigenen Server, mit
+derselben Transportkette wie die Terminmails. Einzurichten ist **nichts**:
+Sobald der Maildienst aus Abschnitt 1 steht, funktioniert das Formular mit.
+
+Was beim Absenden passiert:
+
+1. Du bekommst die Nachricht an `OWNER_EMAIL`. Ein Klick auf „Antworten"
+   geht direkt an den Interessenten.
+2. Der Absender bekommt eine kurze Eingangsbestätigung — damit er sieht,
+   dass die Nachricht angekommen ist.
+
+Klemmt der Versand, ist die Nachricht nicht weg: Sie liegt im selben
+Ausgangskorb wie die Terminmails und wird wiederholt. Nachzulesen ist das
+unter `/api/booking/mailtest` in der Zeile mit der Art `kontakt`.
+
+Schutz gegen Missbrauch: ein für Menschen unsichtbares Feld (wird es
+ausgefüllt, war ein Bot am Werk), höchstens fünf Nachrichten pro Stunde und
+Anschluss, und eine Herkunftsprüfung — schickt der Browser einen
+Origin-Header einer fremden Seite, wird abgewiesen. Fehlt der Header ganz,
+wird bewusst **nicht** abgewiesen: Eine Prüfung, die etwas voraussetzt, das
+nicht jeder Browser mitschickt, wäre genau der stille Ausfall, den dieser
+Umbau beseitigen soll. Die Eingangsbestätigung wiederholt den eingetippten Text
+bewusst **nicht** — sonst ließe sich das Formular benutzen, um fremde
+Werbung über unsere Domain zu verschicken.
+
+Ein Nebeneffekt, der zählt: Es verlässt kein personenbezogenes Datum mehr
+die EU, nur damit ein Formular ankommt. Die Datenschutzerklärung ist
+entsprechend angepasst.
 
 ---
 
@@ -284,6 +365,8 @@ brauchst du das nicht — jede Buchung und jede Absage kommt ohnehin per Mail.
 | Kalender zeigt gar keine Tage | Alle Slots durch Google-Termine belegt, oder `BK_LEAD_HOURS`/`BK_WORKDAYS` zu eng |
 | Buchung klappt, keine Mail | Diagnoseseite aufrufen (siehe unten) — sie sagt genau, woran es lag |
 | Termin fehlt im Google-Kalender | Freigabe aus Schritt 3b vergessen, oder Schlüsseldatei nicht lesbar; Protokoll nach `booking/google` durchsuchen |
+| Bestätigung fehlt, Absage kommt an | Die klassische Filterfalle. Diagnoseseite aufrufen; die Vorlagen halten die vier Zustellregeln unten ein, ein eigener Eingriff kann sie reißen |
+| Kontaktformular meldet „hat nicht geklappt" | Diagnoseseite aufrufen und im Protokoll nach der Art `kontakt` sehen — die Nachricht liegt dann im Ausgangskorb, nicht im Nichts |
 
 ### Wenn ein Kunde keine Mail bekommen hat
 
@@ -324,30 +407,44 @@ Nummer, ob die Mail zugestellt, abgelehnt oder als Spam eingestuft wurde.
 Genau diese Auskunft gab es beim Versand über das Hoster-Postfach nicht —
 deshalb war eine verschwundene Bestätigung dort nicht aufklärbar.
 
-### Die drei alten Zustellregeln
+### Die vier Zustellregeln
 
-Aus elf Diagnoserunden gegen den Ausgangsfilter des Hosters stammen drei
-Regeln, an die sich die Vorlagen in `_templates.php` bis heute halten:
+Aus den Diagnoserunden gegen den Ausgangsfilter des Hosters stammen vier
+Regeln, an die sich die Vorlagen in `_templates.php` halten:
 
 1. **Kein Anhang.** Mit Anhang kam keine einzige Testmail durch, ohne Anhang
    jede.
-2. **Höchstens drei Web-Adressen in der Textfassung.** Null bis drei kamen
-   ausnahmslos an, vier und fünf ausnahmslos nicht.
-3. **Keine Markennamen neben einem Link.** „Termin zum Kalender hinzufügen
-   (Google, Apple oder Outlook)" — drei große Marken unmittelbar an einer
-   Adresse sind eine geläufige Phishing-Signatur.
+2. **Höchstens zwei Web-Adressen in der Textfassung.** Diese Regel ist die
+   jüngste und die wichtigste — sie kommt aus dem Fall „Absage kommt an,
+   Bestätigung nicht". Der Vergleich der beiden Mails ergab genau einen
+   Unterschied: die Absage hatte zwei Adressen im Text und fünf im HTML, die
+   Bestätigung drei und sechs, davon **zwei mit je 32 Zeichen Zufallstoken**.
+   Beides zusammen — höchste Linkzahl aller Mails des Systems plus lange
+   Zufallsketten in der Adresse — ist die Signatur, auf die Ausgangsfilter
+   anspringen. Alle Kundenmails haben jetzt dasselbe Profil wie die Absage,
+   die nachweislich ankommt.
+3. **Höchstens EINE Adresse mit Token.** Deshalb gibt es die Terminseite
+   `/api/booking/termin?token=…`: Eintragen, verschieben und absagen liegen
+   dort gemeinsam hinter einer Adresse, statt wie früher auf zwei Seiten.
+4. **Kein Fremdtext zurückspiegeln.** Die Bestätigung wiederholte früher die
+   Nachricht des Kunden („Ihr Anliegen: …"). Für den Empfänger bringt das
+   nichts — er hat sie selbst geschrieben —, für den Filter ist beliebiger
+   Text in einer ausgehenden Mail dagegen ein Merkmal. Die Nachricht steht
+   jetzt nur noch in der internen Benachrichtigung, wo sie gebraucht wird.
 
-Über einen richtigen Maildienst gelten sie **nicht mehr**. Sie beschreiben
-das Verhalten des Hoster-Postfachs, und das ist ab jetzt nur noch das
-Auffangnetz. Die Vorlagen bleiben trotzdem so, wie sie sind: Sie lesen sich
-gut, und solange das Auffangnetz gelegentlich greift, schadet die Rücksicht
-nicht. Wer sie ändert, sollte hinterher einmal `&to=` aufrufen.
+Regel 3 hat einen Nebeneffekt, der für sich schon zählt: Auf dem Handy ist
+eine Seite mit „Google Kalender" und „Apple / Outlook" der kürzere Weg als
+ein Anhang — ein Fingertipp statt Download und Öffnen-mit. Die alte Adresse
+`/api/booking/calendar?token=…` leitet dorthin weiter, damit bereits
+verschickte Mails weiter funktionieren.
 
-Der Kalendereintrag steckt deshalb als **ein** Link in der Mail, der auf
-`/api/booking/calendar?token=…` führt. Erst dort stehen beide Wege zur
-Auswahl (Google Kalender, Datei für Apple/Outlook). Auf dem Handy ist das
-ohnehin der kürzere Weg als ein Anhang: ein Fingertipp statt Download und
-Öffnen-mit.
+Über einen richtigen Maildienst wären diese Regeln nicht nötig. Sie
+beschreiben das Verhalten des Hoster-Postfachs, und das ist nur noch das
+Auffangnetz — solange in der `.env` ein Schlüssel steht. Genau deshalb
+bleiben sie: Sie kosten nichts, die Mails lesen sich dadurch eher besser,
+und sie greifen genau dann, wenn der Dienst einmal ausfällt. Wer die
+Vorlagen ändert, sollte hinterher einmal `&to=` aufrufen und die Adressen
+zählen.
 
 Google-Ausfälle legen die Buchung nie lahm: Kann der Kalender nicht erreicht
 werden, wird trotzdem gebucht und gemailt — du bekommst in deiner

@@ -69,11 +69,21 @@ $chain = bkTransportChain();
 echo "\n  Reihenfolge: " . ($chain === [] ? 'KEINER — es kann nichts verschickt werden!' : implode(' → ', $chain)) . "\n";
 echo "  Absender:    " . bkAddress(bkMailFrom(), bkMailFromName()) . "\n";
 
-if ($chain === ['mail'] || $chain === []) {
-    echo "\n  ACHTUNG: Es ist kein richtiger Versandweg eingerichtet. PHP mail()\n";
-    echo "  übergibt die Mail an das Postfach des Hosters, und genau dort sind\n";
-    echo "  die Bestätigungen bisher verschwunden. Siehe TERMINBUCHUNG.md,\n";
-    echo "  Abschnitt \"Mailversand\".\n";
+// Die Warnung haengt bewusst an bkHasVerifiedTransport() und nicht daran,
+// ob ueberhaupt etwas eingerichtet ist. Genau das war die Luecke: Mit
+// gesetzten SMTP-Daten sah die Zeile "Reihenfolge: smtp → mail" gesund aus,
+// obwohl niemand sagen konnte, ob eine Mail ankommt — das Hoster-Postfach
+// meldet zu jeder Nachricht Erfolg, auch zu denen, die es wegwirft.
+if (!bkHasVerifiedTransport()) {
+    echo "\n  ACHTUNG: Es ist kein Maildienst eingerichtet.\n";
+    echo "  " . ($chain === [] || $chain === ['mail']
+        ? "Es gibt derzeit gar keinen belastbaren Versandweg."
+        : "Der Versand laeuft ueber das Postfach des Hosters.") . "\n";
+    echo "  Dieses Postfach nimmt JEDE Mail an (\"250 Ok: queued\") und verwirft\n";
+    echo "  danach lautlos, was ihm nicht passt — ohne Fehler, ohne Bounce. Ob\n";
+    echo "  eine Bestätigung angekommen ist, ist damit nicht feststellbar.\n";
+    echo "  Abhilfe: EIN Schlüssel eines Maildienstes in die .env. Anleitung in\n";
+    echo "  TERMINBUCHUNG.md, Abschnitt 1 — etwa zehn Minuten Arbeit.\n";
 }
 
 // =====================================================================
@@ -149,6 +159,46 @@ if (!function_exists('dns_get_record')) {
         if (!str_contains($spf[0], '-all') && !str_contains($spf[0], '~all')) {
             echo "         Hinweis: Der Eintrag endet nicht auf ~all oder -all.\n";
         }
+
+        // --- Nennt der SPF-Eintrag den Dienst, über den wir verschicken? ---
+        //
+        // Diese Prüfung kostet keine einzige zusätzliche DNS-Abfrage — sie
+        // liest nur den Eintrag, der ohnehin schon da ist. Sie schließt aber
+        // genau die Lücke, an der eine halb fertige Einrichtung hängen
+        // bleibt: Wer bei Brevo die Domain anlegt, bekommt dort DKIM- und
+        // DMARC-Einträge zum Eintragen — und übersieht, dass auch der
+        // SPF-Eintrag um den Dienst ergänzt werden muss. Der Eintrag sieht
+        // danach vollständig aus und nennt trotzdem nur den Hoster.
+        $spfDienste = [
+            'brevo' => ['spf.brevo.com', 'spf.sendinblue.com'],
+            'resend' => ['amazonses.com', '_spf.resend.com'],
+            'postmark' => ['spf.mtasv.net'],
+            'mailjet' => ['spf.mailjet.com'],
+        ];
+        foreach ($spfDienste as $dienst => $eintraege) {
+            if (!bkTransportConfigured($dienst)) continue;
+
+            $genannt = false;
+            foreach ($eintraege as $eintrag) {
+                if (str_contains(strtolower($spf[0]), $eintrag)) { $genannt = true; break; }
+            }
+            if ($genannt) {
+                echo "         " . $dienst . " ist im SPF-Eintrag genannt.\n";
+            } else {
+                echo "\n         ACHTUNG: Verschickt wird über " . $dienst . ", aber der\n";
+                echo "         SPF-Eintrag nennt den Dienst nicht (erwartet: include:"
+                    . $eintraege[0] . ").\n";
+                echo "         Solange nur DKIM stimmt, geht das oft gut; fehlt beides,\n";
+                echo "         fällt jede Mail durch DMARC. Ergänzen im hPanel unter\n";
+                echo "         Domains -> DNS-Zonenverwaltung.\n";
+            }
+        }
+
+        // Der Rückkanal eines DMARC-Eintrags verrät, mit welchem Dienst die
+        // Einrichtung begonnen wurde. Steht dort ein Anbieter, für den hier
+        // gar kein Schlüssel hinterlegt ist, wurde die Einrichtung im DNS
+        // angefangen und in der .env nicht zu Ende gebracht — der Versand
+        // läuft dann weiter über den Hoster.
     }
 
     // --- DMARC: was soll mit Mails passieren, die durchfallen? ---
@@ -166,6 +216,21 @@ if (!function_exists('dns_get_record')) {
         echo "         Anfangen mit:  v=DMARC1; p=none; rua=mailto:" . bkOwnerEmail() . "\n";
     } else {
         echo "vorhanden\n         " . $dmarc[0] . "\n";
+
+        $angefangen = [
+            'brevo' => 'brevo', 'resend' => 'resend',
+            'postmark' => 'postmark', 'mailjet' => 'mailjet',
+        ];
+        foreach ($angefangen as $dienst => $spur) {
+            if (!str_contains(strtolower($dmarc[0]), $spur)) continue;
+            if (bkTransportConfigured($dienst)) continue;
+
+            echo "\n         ACHTUNG: Dieser Eintrag wurde von " . $dienst . " angelegt, aber\n";
+            echo "         in der .env steht kein Schlüssel für " . $dienst . ". Die Einrichtung\n";
+            echo "         ist also im DNS begonnen und nicht zu Ende gebracht worden —\n";
+            echo "         verschickt wird weiterhin über das Hoster-Postfach.\n";
+            echo "         Es fehlt der API-Schlüssel; siehe TERMINBUCHUNG.md, Abschnitt 1.\n";
+        }
     }
 
     // --- DKIM: die Unterschrift unter jeder einzelnen Mail ---
@@ -306,13 +371,24 @@ if ($to !== '' && $resendId === 0) {
             'topic' => BK_TOPIC_DEFAULT,
         ];
 
-        // Genau die drei Mails, die ein Kunde je zu sehen bekommt — und
-        // zwar über bkMail(), also über denselben Weg wie eine echte
-        // Buchung. Kein Nachbau, keine Abweichung.
+        // Genau die Mails, die ein Kunde je zu sehen bekommt — und zwar über
+        // bkMail(), also über denselben Weg wie eine echte Buchung. Kein
+        // Nachbau, keine Abweichung.
+        $kontakt = [
+            'name' => 'Diagnose',
+            'email' => $to,
+            'phone' => '',
+            'message' => 'Testnachricht aus der Diagnose.',
+            'quelle' => 'Mail-Diagnose',
+            'warnung' => '',
+        ];
+
         $proben = [
             'Bestätigung (nach dem Buchen)' => ['bestaetigung', bkMailConfirmation($muster)],
-            'Erinnerung (am Vortag, über den Cronjob)' => ['erinnerung', bkMailReminder($muster)],
+            'Erinnerung (am Vortag)' => ['erinnerung', bkMailReminder($muster)],
             'Absage (nach einer Stornierung)' => ['absage', bkMailCancelled($muster, false)],
+            'Eingangsbestätigung (Kontaktformular)' => ['eingangsbestaetigung', bkMailContactReceipt($kontakt)],
+            'Nachricht an Leandro (Kontaktformular)' => ['kontakt', bkMailContactNotice($kontakt)],
         ];
 
         foreach ($proben as $titel => [$art, $mail]) {

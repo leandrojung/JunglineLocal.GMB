@@ -253,6 +253,35 @@ function bkTransportChain(): array {
 }
 
 /**
+ * Steht ein Transaktionsmail-Dienst bereit?
+ *
+ * Der Unterschied ist nicht Geschmackssache. Ein Dienst signiert jede Mail
+ * mit DKIM für jungline.de und meldet zu jeder einzelnen zurück, ob sie
+ * zugestellt, abgelehnt oder als Spam eingestuft wurde. Das Hoster-Postfach
+ * tut beides nicht: Es antwortet auf ALLES mit "250 Ok: queued" und verwirft
+ * danach lautlos, was ihm nicht passt — ohne Fehlermeldung, ohne Bounce.
+ *
+ * Genau deshalb muss diese Frage beantwortbar sein: Fehlt der Dienst,
+ * verschickt das System weiterhin Mails, kann aber ueber keine einzige
+ * sagen, ob sie angekommen ist. Das gehoert dem Betreiber gesagt, statt es
+ * ihn beim Kunden merken zu lassen (siehe book.php und contact.php).
+ */
+function bkHasVerifiedTransport(): bool {
+    foreach (['brevo', 'resend', 'postmark', 'mailjet'] as $id) {
+        if (bkTransportConfigured($id)) return true;
+    }
+    return false;
+}
+
+/** Klartext-Warnung, wenn kein Maildienst eingerichtet ist — sonst ''. */
+function bkTransportWarning(): string {
+    if (bkHasVerifiedTransport()) return '';
+    return 'Es ist kein Maildienst eingerichtet (Brevo, Resend, Postmark oder Mailjet). '
+        . 'Mails gehen über das Hoster-Postfach hinaus, und das nimmt jede Nachricht an, '
+        . 'ohne zu sagen, ob sie beim Empfänger ankommt. Einrichtung: TERMINBUCHUNG.md, Abschnitt 1.';
+}
+
+/**
  * Verschickt eine Nachricht über einen bestimmten Transport.
  *
  * @param array $msg  to_email, to_name, subject, html, text, reply_to, ics
@@ -653,8 +682,18 @@ function bkSendSmtp(array $msg): array {
 
 function bkSendPhpMail(array $msg): array {
     $mime = bkBuildMime($msg['html'], $msg['text'], $msg['ics'] ?? null);
+    $host = parse_url(bkSiteUrl(), PHP_URL_HOST) ?: 'jungline.de';
+
+    // Date und Message-ID setzt der SMTP-Weg längst; hier fehlten sie. Eine
+    // Mail ohne Message-ID ist nach RFC 5322 zwar zulässig, gilt aber jedem
+    // Spamfilter als Merkmal automatisch erzeugter Massenpost — und sie ist
+    // hinterher nicht nachverfolgbar, weil in keinem Protokoll eine Nummer
+    // steht, nach der man suchen könnte. Beides gehört in JEDEN Versandweg,
+    // gerade in den Notnagel, der einspringt, wenn alles andere ausfällt.
     $headers = [
+        'Date' => date('r'),
         'From' => bkAddress(bkMailFrom(), bkMailFromName()),
+        'Message-ID' => '<' . bin2hex(random_bytes(12)) . '@' . $host . '>',
         'MIME-Version' => '1.0',
         'Auto-Submitted' => 'auto-generated',
     ] + $mime['headers'];

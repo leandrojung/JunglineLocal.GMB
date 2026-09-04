@@ -24,6 +24,7 @@ require_once __DIR__ . '/_slots.php';
 require_once __DIR__ . '/_mail.php';
 require_once __DIR__ . '/_ics.php';
 require_once __DIR__ . '/_templates.php';
+require_once __DIR__ . '/_worker.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     respond(405, ['success' => false, 'error' => 'method_not_allowed']);
@@ -167,11 +168,12 @@ if ($isReschedule) {
 // queued") und verwirft danach jede mit Anhang, ohne Rückmeldung — belegt
 // durch /api/booking/mailtest, wo anhanglose Testmails ankamen und dieselben
 // Mails mit Anhang nicht, quer über mehrere Dateitypen. Der Kalendereintrag
-// steckt deshalb als Link in der Mail (siehe bkEmailCalendarLinks) und wird
-// über /api/booking/ics von unserem eigenen Server geholt.
+// steckt deshalb hinter dem einen Link der Mail: /api/booking/termin führt
+// auf die Terminseite, und die holt die Datei über /api/booking/ics von
+// unserem eigenen Server.
 //
 // Scheitert der Versand, ist die Mail nicht verloren: bkMail() legt sie in
-// den Ausgangskorb, und der Cron wiederholt sie (siehe _mail.php).
+// den Ausgangskorb, und der Hintergrundlauf wiederholt sie (siehe _mail.php).
 
 try {
     $confirmation = bkMailConfirmation($booking);
@@ -187,6 +189,14 @@ try {
     $warnings[] = 'Die Bestätigungsmail an ' . $booking['email'] . ' konnte nicht zugestellt werden.';
 }
 
+// Fehlt der Maildienst, weiss niemand, ob die Bestaetigung angekommen ist —
+// das Hoster-Postfach meldet Erfolg auch dann, wenn es die Mail wegwirft.
+// Diese Warnung steht deshalb in JEDER Benachrichtigung, bis ein Dienst
+// eingerichtet ist. Sie gehoert nur in die interne Mail, nie in die
+// Kundenbestaetigung.
+$transportWarning = bkTransportWarning();
+if ($transportWarning !== '') $warnings[] = $transportWarning;
+
 try {
     $notice = bkMailOwnerNotice($booking, implode(' ', $warnings));
     bkMail(bkOwnerEmail(), bkOwnerName(), $notice['subject'], $notice['html'], $notice['text'],
@@ -195,8 +205,9 @@ try {
     error_log('booking/book: Benachrichtigung an den Betreiber fehlgeschlagen — ' . $e->getMessage());
 }
 
-// Liegengebliebenes nachreichen, sobald der Besucher seine Antwort hat.
-bkScheduleQueueFlush();
+// Erinnerungen und Liegengebliebenes nachreichen, sobald der Besucher
+// seine Antwort hat (siehe _worker.php).
+bkScheduleBackgroundWork();
 
 respond(200, [
     'success' => true,

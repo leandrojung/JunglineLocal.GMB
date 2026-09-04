@@ -20,9 +20,8 @@
 <!-- Schriften lokal gehostet (DSGVO) — keine Verbindung zu Google-Servern -->
 <link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage-grotesque-var.woff2" crossorigin fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-sans-var.woff2" crossorigin fetchpriority="high">
-<!-- Frühzeitige Verbindung zum Kontaktformular. Die Terminbuchung läuft über
-     die eigene Domain (/api/booking/) und braucht deshalb keinen Preconnect. -->
-<link rel="dns-prefetch" href="//formspree.io">
+<!-- Kein Preconnect zu Fremdhosts: Terminbuchung (/api/booking/) und
+     Kontaktformular (/api/contact) laufen beide über die eigene Domain. -->
 <link rel="stylesheet" href="/src/css/site.css">
 <script type="application/ld+json">
 {

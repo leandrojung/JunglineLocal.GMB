@@ -1060,7 +1060,13 @@ body[data-bgfx="off"] .bg-aurora{display:none}
   padding:6px 14px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(var(--green-rgb),.6)}
 .form-status{display:none;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:12px;font-size:.92rem;line-height:1.55}
 .form-status.show{display:flex}
-.form-status--ok{background:rgba(var(--green-rgb),.12);border:1px solid var(--green);color:var(--green-bright)}
+/* Eigene Erfolgsfarbe statt --green: Dieses Token heisst zwar noch so, zeigt
+   seit der Umstellung auf die Markenpalette aber Blau. Die Erfolgsmeldung sah
+   damit aus wie jeder andere Kasten der Seite — ausgerechnet an der Stelle, an
+   der jemand wissen will, ob seine Nachricht raus ist. Gruen ist hier
+   Bedeutung, nicht Dekoration, und deshalb bewusst ausserhalb der Palette. */
+.form-status--ok{background:rgba(31,138,90,.10);border:1px solid rgba(31,138,90,.42);color:#12613E}
+.form-status--ok::before{content:"✓";flex:none;font-weight:700}
 .form-status--err{background:rgba(230,110,90,.1);border:1px solid rgba(230,110,90,.45);color:#A03024}
 .form-status a{text-decoration:underline;text-underline-offset:3px}
 /* ================= TERMINBUCHUNG =================

@@ -22,6 +22,11 @@ require_once __DIR__ . '/_store.php';
 require_once __DIR__ . '/_mail.php';
 require_once __DIR__ . '/_ics.php';
 require_once __DIR__ . '/_templates.php';
+// Der Erinnerungslauf selbst steht in _worker.php — dieselbe Funktion, die
+// auch beilaeufig nach jeder Kalenderabfrage laeuft. Eine Implementierung
+// statt zwei: sonst haetten Cron und Hintergrundlauf getrennte Regeln
+// dafuer, wann eine Erinnerung als verschickt gilt.
+require_once __DIR__ . '/_worker.php';
 
 $isCli = PHP_SAPI === 'cli';
 
@@ -38,23 +43,11 @@ $sent = 0;
 $queued = 0;
 
 try {
-    foreach (bkDueReminders(24) as $booking) {
-        $mail = bkMailReminder($booking);
-
-        // Ohne Anhang — siehe book.php: Mails mit Anhang nimmt das
-        // Hoster-Postfach an und stellt sie nie zu.
-        $ok = bkMail($booking['email'], $booking['name'], $mail['subject'],
-                     $mail['html'], $mail['text'], null, bkOwnerEmail(), 'erinnerung');
-
-        // In JEDEM Fall markieren — auch nach einem Fehlschlag. Der ist
-        // seit dem Ausgangskorb kein Verlust mehr: Die Mail liegt dort und
-        // wird von diesem Lauf hier wiederholt. Würde stattdessen die
-        // Markierung ausbleiben, entstünde bei jedem stündlichen Lauf eine
-        // NEUE Erinnerung, und der Kunde bekäme nach einer behobenen
-        // Störung ein Dutzend davon auf einmal.
-        bkMarkReminded($booking['token']);
-        $ok ? $sent++ : $queued++;
-    }
+    // Der Cron darf mehr auf einmal als der Hintergrundlauf: Er blockiert
+    // keinen wartenden Besucher, sondern laeuft fuer sich.
+    $reminders = bkSendDueReminders(100);
+    $sent = $reminders['sent'];
+    $queued = $reminders['queued'];
 
     // Der eigentliche Motor des Ausgangskorbs: alles, was beim ersten
     // Versuch nicht rausging — Bestätigungen, Absagen, Erinnerungen —,

@@ -421,7 +421,8 @@ function renderDone() {
   wrap.appendChild(mark);
 
   wrap.appendChild(el('h4', 'bk__donetitle', state.reschedule ? 'Termin verschoben' : 'Termin steht!'));
-  wrap.appendChild(el('p', 'bk__donesub', 'Eine Bestätigung ist unterwegs an ' + b.email + ' — mit Kalendereintrag zum Anklicken.'));
+  wrap.appendChild(el('p', 'bk__donesub', 'Eine Bestätigung ist unterwegs an ' + b.email
+    + ' — mit Videolink und Kalendereintrag. Am Tag davor erinnere ich Sie noch einmal.'));
 
   const facts = el('div', 'bk__facts');
   [['Termin', b.date_label], ['Uhrzeit', b.time_label]].forEach(([label, value]) => {
@@ -441,7 +442,9 @@ function renderDone() {
     wrap.appendChild(el('p', 'bk__hint', 'Der Link steht auch in Ihrer Bestätigungsmail — Sie müssen ihn sich nicht merken.'));
   }
 
-  const manage = el('a', 'bk__manage', 'Termin absagen oder verschieben');
+  // Führt auf dieselbe Seite wie der Link in der Bestätigungsmail: eintragen,
+  // verschieben, absagen — alles an einer Stelle.
+  const manage = el('a', 'bk__manage', 'Termin eintragen, verschieben oder absagen');
   manage.href = b.manage_url;
   wrap.appendChild(manage);
 

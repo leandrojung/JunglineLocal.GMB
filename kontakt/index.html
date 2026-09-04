@@ -119,6 +119,8 @@
           <h2>Oder schreiben Sie mir</h2>
           <p class="panel__sub">Kurze Nachricht genügt — ich antworte werktags innerhalb von 24 Stunden mit den nächsten Schritten.</p>
           <form class="form" id="contactForm" novalidate>
+            <!-- Spamschutz: Honigtopf (fuer Menschen unsichtbar). _subject sagt /api/contact,
+                 aus welchem Formular die Nachricht kam — es steht in der Mail an Leandro. -->
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
             <input type="hidden" name="_subject" value="Neue Anfrage über jungline.de (Kontaktseite)">
             <div class="field">

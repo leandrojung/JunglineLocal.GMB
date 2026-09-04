@@ -154,8 +154,8 @@ function bkNextTry(int $attempts): string {
 
 /**
  * Arbeitet den Ausgangskorb ab. Läuft im Cron zusammen mit den
- * Erinnerungen (remind.php) und beiläufig nach jeder Buchung
- * (bkScheduleQueueFlush).
+ * Erinnerungen (remind.php) und beiläufig im Hintergrundlauf nach jeder
+ * Kalenderabfrage, Buchung und Absage (siehe _worker.php).
  *
  * @return array{sent:int, still_queued:int, failed:int}
  */
@@ -205,59 +205,4 @@ function bkFlushMailQueue(int $limit = 25): array {
     }
 
     return ['sent' => $sent, 'still_queued' => $stillQueued, 'failed' => $failed];
-}
-
-/**
- * Arbeitet ein paar liegengebliebene Mails ab, NACHDEM der Besucher seine
- * Antwort schon hat.
- *
- * Der Cronjob ist der eigentliche Motor des Ausgangskorbs. Auf diesem
- * Hosting-Tarif lässt er sich aber nur über SSH einrichten (siehe
- * TERMINBUCHUNG.md) — und was von Hand eingerichtet werden muss, ist
- * irgendwann nicht eingerichtet. Damit der Korb auch dann leerläuft, hängt
- * sich diese Funktion ans Ende eines ohnehin stattfindenden Aufrufs.
- *
- * Zwei Vorkehrungen, damit das nie jemanden warten lässt:
- *   • Gearbeitet wird erst, wenn die Antwort raus ist (finish_request).
- *     Kann der Server das nicht, passiert hier gar nichts — ein
- *     Buchungsformular, das wegen einer fremden Mail hängt, wäre der
- *     schlechtere Tausch.
- *   • Höchstens alle fünf Minuten, höchstens drei Mails.
- */
-function bkScheduleQueueFlush(int $limit = 3): void {
-    $finish = match (true) {
-        function_exists('litespeed_finish_request') => 'litespeed_finish_request',
-        function_exists('fastcgi_finish_request') => 'fastcgi_finish_request',
-        default => null,
-    };
-    if ($finish === null) return;
-
-    register_shutdown_function(static function () use ($finish, $limit): void {
-        try {
-            $finish();
-
-            // Zeitsperre: eine Datei, deren Änderungszeit den letzten Lauf
-            // festhält. Der exklusive Lock verhindert, dass zwei parallele
-            // Aufrufe denselben Korb gleichzeitig abarbeiten.
-            $marker = bkDataDir() . '/mailflush.lock';
-            $fp = @fopen($marker, 'c+');
-            if ($fp === false) return;
-            try {
-                if (!flock($fp, LOCK_EX | LOCK_NB)) return;
-                $last = (int) (stream_get_contents($fp) ?: 0);
-                if (time() - $last < 300) return;
-                ftruncate($fp, 0);
-                rewind($fp);
-                fwrite($fp, (string) time());
-                fflush($fp);
-            } finally {
-                flock($fp, LOCK_UN);
-                fclose($fp);
-            }
-
-            bkFlushMailQueue($limit);
-        } catch (Throwable $e) {
-            error_log('booking/mail: Nachlauf des Ausgangskorbs — ' . $e->getMessage());
-        }
-    });
 }

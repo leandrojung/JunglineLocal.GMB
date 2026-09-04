@@ -1172,31 +1172,109 @@
     updateMcta();
   }
 
-  // Kontaktformular – echter Versand über Formspree (AJAX, Besucher bleibt auf der Seite).
-  var FORM_ENDPOINT = 'https://formspree.io/f/xlgyavbn';
+  // ===================================================================
+  // Kontaktformular — eigener Endpunkt statt eines fremden Dienstes.
+  //
+  // Vorher lief der Versand über Formspree. Er scheiterte, und zwar
+  // unheilbar von hier aus: Formspree beantwortet ein nicht bestätigtes,
+  // gesperrtes oder aufgebrauchtes Formular mit einem Fehler, und die
+  // Website kann nicht unterscheiden, welcher Fall vorliegt. Der Besucher
+  // sah nur die rote Zeile — jede Anfrage, die dort verloren ging, war ein
+  // verlorener Kunde.
+  //
+  // /api/contact verschickt über denselben Weg wie die Terminbestätigungen,
+  // mit Ausgangskorb und Wiederholung. Der Endpunkt sagt außerdem, WAS nicht
+  // stimmte; deshalb kann diese Stelle jetzt das betroffene Feld markieren,
+  // statt pauschal "hat nicht geklappt" zu melden.
+  // ===================================================================
+  var FORM_ENDPOINT = '/api/contact';
   var form = document.getElementById('contactForm');
   var submitBtn = document.getElementById('cfSubmit');
   var statusEl = document.getElementById('formStatus');
+
+  // Der Weg, der immer bleibt, wenn der Versand klemmt. Steht an einer
+  // Stelle, damit die Nummer nicht in drei Fehlermeldungen auseinanderläuft.
+  var FALLBACK = 'Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a>'
+    + ' — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.';
+
+  // Feldname im Formular → id des Eingabefeldes, damit eine Rückmeldung des
+  // Servers am richtigen Feld landet.
+  var FIELD_IDS = {name:'cf-name', email:'cf-mail', phone:'cf-phone', message:'cf-msg'};
+
   function showStatus(kind, html){
+    if(!statusEl) return;
     statusEl.className = 'form-status show form-status--' + kind;
     statusEl.innerHTML = html;
   }
+
+  function clearStatus(){
+    if(!statusEl) return;
+    statusEl.className = 'form-status';
+    statusEl.innerHTML = '';
+  }
+
   if(form) form.addEventListener('submit', function(ev){
     ev.preventDefault();
-    var name = (document.getElementById('cf-name').value||'').trim();
-    var mail = (document.getElementById('cf-mail').value||'').trim();
-    var msg = (document.getElementById('cf-msg').value||'').trim();
-    if(!name || !mail || !msg){ form.reportValidity && form.reportValidity(); return; }
+
+    // FormData statt einzelner getElementById-Aufrufe: So kommen Honigtopf
+    // (_gotcha) und Herkunft (_subject) automatisch mit, und ein zusätzliches
+    // Feld im Markup funktioniert ohne Änderung hier.
+    var payload = {};
+    new FormData(form).forEach(function(value, key){ payload[key] = value; });
+
+    var pflicht = ['name', 'email', 'message'];
+    for(var i = 0; i < pflicht.length; i++){
+      if(!(payload[pflicht[i]] || '').trim()){
+        if(form.reportValidity) form.reportValidity();
+        return;
+      }
+    }
+
+    clearStatus();
     submitBtn.disabled = true;
     submitBtn.textContent = 'Wird gesendet …';
-    fetch(FORM_ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body:new FormData(form) })
+
+    fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(payload)
+    })
       .then(function(res){
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        form.reset();
-        showStatus('ok', 'Danke, Ihre Nachricht ist angekommen — ich antworte werktags innerhalb von 24 Stunden.');
+        // Auch eine Fehlerantwort trägt einen verwertbaren Grund im Rumpf;
+        // sie darf deshalb nicht vor dem Auslesen zur Ausnahme werden.
+        return res.json()
+          .catch(function(){ return {}; })
+          .then(function(data){ return {ok: res.ok, data: data}; });
+      })
+      .then(function(antwort){
+        var data = antwort.data || {};
+
+        if(antwort.ok && data.success){
+          form.reset();
+          showStatus('ok', 'Danke, Ihre Nachricht ist angekommen — ich antworte werktags innerhalb'
+            + ' von 24 Stunden. Eine kurze Bestätigung liegt gleich in Ihrem Postfach.');
+          return;
+        }
+
+        if(data.error === 'validation_failed' && data.fields){
+          var namen = Object.keys(data.fields);
+          showStatus('err', data.fields[namen[0]]);
+          var feld = document.getElementById(FIELD_IDS[namen[0]]);
+          if(feld) feld.focus();
+          return;
+        }
+
+        if(data.error === 'rate_limited'){
+          showStatus('err', 'Es sind gerade sehr viele Nachrichten von Ihrem Anschluss gekommen.'
+            + ' Bitte versuchen Sie es in einer Stunde noch einmal — oder direkt: ' + FALLBACK);
+          return;
+        }
+
+        showStatus('err', 'Das Senden hat leider nicht geklappt. ' + FALLBACK);
       })
       .catch(function(){
-        showStatus('err', 'Das Senden hat leider nicht geklappt. Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.');
+        // Hier landet nur, wer gar keine Verbindung bekommen hat.
+        showStatus('err', 'Die Verbindung kam nicht zustande. ' + FALLBACK);
       })
       .then(function(){
         submitBtn.disabled = false;

@@ -119,10 +119,17 @@
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
 
+  # Kontaktformular — eigener Versand statt eines fremden Dienstes.
+  RewriteRule ^api/contact/?$ api/contact.php [L]
+
   # Terminbuchung — saubere URLs ohne .php.
   RewriteRule ^api/booking/slots/?$  api/booking/slots.php  [L]
   RewriteRule ^api/booking/book/?$   api/booking/book.php   [L]
   RewriteRule ^api/booking/cancel/?$ api/booking/cancel.php [L]
+  # Dieselbe Seite unter sprechendem Namen: Sie ist der EINE Link in
+  # jeder Kundenmail (ansehen, eintragen, verschieben, absagen). Die
+  # alte Adresse bleibt bestehen, damit verschickte Mails weiter gehen.
+  RewriteRule ^api/booking/termin/?$ api/booking/cancel.php [L]
   RewriteRule ^api/booking/remind/?$ api/booking/remind.php [L]
   RewriteRule ^api/booking/ics/?$    api/booking/ics.php    [L]
   RewriteRule ^api/booking/gcal/?$   api/booking/gcal.php   [L]

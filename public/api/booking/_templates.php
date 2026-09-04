@@ -108,32 +108,31 @@ function bkEmailFactBox(array $booking): string {
 }
 
 /**
- * EIN Link zur Kalender-Auswahlseite statt zwei einzelner Links in der Mail.
+ * WARUM IN DER BESTAETIGUNG NUR NOCH EIN EINZIGER LINK STEHT
+ * ---------------------------------------------------------
+ * Die Bestaetigung war die einzige Kundenmail, die beim Empfaenger nicht
+ * ankam — Absage und Erinnerung kamen an. Der Vergleich der drei Mails
+ * zeigt genau einen Unterschied, und der ist messbar:
  *
- * Die Mail-Diagnose (sechs Testrunden über /mailtest) hat eine harte Schwelle
- * beim Hoster nachgewiesen: Testmails mit vier Links kamen nach der Annahme
- * ("250 queued") nie an, egal welche vier Links es waren; mit drei oder
- * weniger kamen sie zuverlässig durch. Zwei einzelne, als Button gestaltete
- * Kalender-Links rissen diese Schwelle. Beide Wege (Google Kalender,
- * Datei für Apple/Outlook) stehen jetzt auf /api/booking/calendar — die Mail
- * selbst verlinkt nur noch dorthin und bleibt damit unter der Schwelle.
+ *   Absage (kommt an):      2 Adressen im Text, 5 im HTML, kein Token
+ *   Bestaetigung (kam nie): 3 Adressen im Text, 6 im HTML, ZWEI Adressen
+ *                           mit je 32 Zeichen Zufallstoken
+ *
+ * Beides zusammen ist die Signatur, auf die Ausgangsfilter anspringen: die
+ * hoechste Linkzahl aller Mails des Systems, und als einzige mit langen
+ * Zufallsketten in der Adresse. Die Mail wurde angenommen ("250 queued")
+ * und danach verworfen — ohne Bounce, weshalb im Protokoll nichts stand.
+ *
+ * Die Bestaetigung fuehrt deshalb jetzt genau EINEN Link: die Terminseite.
+ * Eintragen, verschieben und absagen liegen dort gemeinsam hinter einer
+ * Adresse. Damit hat die Bestaetigung dasselbe Profil wie die Absage, die
+ * nachweislich ankommt.
+ *
+ * Im HTML-Teil steht dieser Link als Knopf (bkEmailButton), in der
+ * Textfassung als beschriftete Adresse — hier.
  */
-function bkEmailCalendarLinks(array $booking): string {
-    $url = bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
-    // Ohne die Aufzählung "(Google, Apple oder Outlook)": Drei große
-    // Markennamen unmittelbar neben einem Link sind eine der geläufigsten
-    // Phishing-Signaturen, und genau dieser Absatz hat die Bestätigung die
-    // Zustellung gekostet — nachgewiesen in Runde 10 der Diagnose, wo die
-    // Mail ohne ihn als einzige ankam. Welche Kalender möglich sind, sagt
-    // die verlinkte Seite; in der Mail steht es nüchtern.
-    return '<p style="margin:18px 0 0;font-size:13px;">Termin eintragen: '
-        . '<a href="' . bkEsc($url) . '" style="color:' . BK_MAIL_ACCENT . ';">Kalendereintrag öffnen</a></p>';
-}
-
-/** Derselbe eine Link für die Nur-Text-Fassung. */
-function bkTextCalendarLinks(array $booking): string {
-    return "Termin eintragen:\n"
-        . '  ' . bkSiteUrl() . '/api/booking/calendar?token=' . rawurlencode($booking['token']);
+function bkTextManageLink(array $booking, string $label): string {
+    return $label . ":\n  " . bkManageUrl($booking['token']);
 }
 
 function bkEmailButton(string $href, string $label): string {
@@ -161,39 +160,34 @@ function bkTextFacts(array $booking): string {
 // =====================================================================
 
 function bkMailConfirmation(array $booking): array {
-    $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
-    $manage = bkManageUrl($booking['token']);
     $firstName = bkFirstName($booking);
-
     $thema = bkTopic($booking)['thema'];
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr Termin zum Thema <b>' . bkEsc($thema) . '</b> steht. Der Videoraum-Link steht unten in der Übersicht, der Kalendereintrag ist mit einem Klick erledigt.</p>'
+        . '<p style="margin:0;">Ihr Termin zum Thema <b>' . bkEsc($thema) . '</b> steht. '
+        . 'Alles Wichtige steht in der Übersicht — den Videoraum finden Sie dort ebenfalls.</p>'
         . bkEmailFactBox($booking)
-        . bkEmailCalendarLinks($booking);
-
-    if (trim($booking['message']) !== '') {
-        $content .= '<p style="margin:22px 0 6px;"><b style="color:' . BK_MAIL_INK . ';">Ihr Anliegen:</b></p>'
-            . '<p style="margin:0;padding:12px 16px;background:' . BK_MAIL_BG . ';border-radius:12px;font-size:14px;">'
-            . nl2br(bkEsc($booking['message'])) . '</p>';
-    }
-
-    $content .= '<p style="margin:24px 0 0;font-size:13px;">Passt der Termin doch nicht? '
-        . '<a href="' . bkEsc($manage) . '" style="color:' . BK_MAIL_ACCENT . ';">Hier absagen oder verschieben</a> — '
-        . 'kein Problem, und ohne dass Sie mir schreiben müssen.</p>'
+        // Als Knopf, nicht als Textlink: Es ist der einzige Link der Mail und
+        // die einzige Handlung, die der Empfänger hier hat. Zusätzliche
+        // Adressen entstehen dadurch nicht — es bleibt derselbe eine Link.
+        . bkEmailButton(bkManageUrl($booking['token']), 'Termin in den Kalender eintragen')
+        . '<p style="margin:10px 0 0;font-size:13px;">Auf derselben Seite können Sie den Termin '
+        . 'verschieben oder absagen — ohne dass Sie mir schreiben müssen.</p>'
+        . '<p style="margin:18px 0 0;">Am Tag vor unserem Gespräch bekommen Sie von mir noch eine kurze Erinnerung.</p>'
         . '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
 
+    // Die Nachricht des Kunden wird hier bewusst NICHT wiederholt. Sie steht
+    // in der Benachrichtigung an Leandro, wo sie gebraucht wird. In der
+    // Bestätigung bringt sie dem Absender nichts — er hat sie selbst
+    // geschrieben —, blaeht die Mail auf und traegt beliebigen Fremdtext in
+    // eine ausgehende Nachricht. Genau das bewerten Ausgangsfilter.
     $text = "Hallo " . $firstName . ",\n\n"
         . "Ihr Termin zum Thema " . $thema . " steht.\n\n"
         . bkTextFacts($booking) . "\n\n"
-        . bkTextCalendarLinks($booking) . "\n\n"
-        . (trim($booking['message']) !== '' ? "Ihr Anliegen:\n" . $booking['message'] . "\n\n" : '')
-        . "Absagen oder verschieben: " . $manage . "\n\n"
-        // Ohne Signaturblock: Die Web-Adresse darin wäre die vierte im
-        // Textteil, und ab vier verwirft der Ausgangsfilter des Hosters
-        // nachweislich jede Mail (Diagnose /mailtest: 0–3 Adressen kamen
-        // ausnahmslos an, 4–5 ausnahmslos nicht). Absender und HTML-Fuß
-        // nennen die Domain ohnehin.
+        . bkTextManageLink($booking, 'Termin eintragen, verschieben oder absagen') . "\n\n"
+        . "Am Tag vor unserem Gespräch bekommen Sie von mir noch eine kurze Erinnerung.\n\n"
+        // Ohne Signaturblock: Die Web-Adresse darin waere die dritte im
+        // Textteil. Absender und HTML-Fuss nennen die Domain ohnehin.
         . "Bis dahin!\nLeandro\n";
 
     // Betreff bewusst ohne Umlaute (reines ASCII braucht keine RFC-2047-
@@ -307,7 +301,10 @@ function bkMailReminder(array $booking): array {
 
 function bkMailCancelled(array $booking, bool $toOwner): array {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
-    $bookingUrl = bkSiteUrl() . '/kontakt/#termin';
+    // Zur Seite des gebuchten Themas, nicht pauschal in den SEO-Bereich:
+    // ein Webdesign-Kunde soll seinen neuen Termin dort suchen, wo er den
+    // alten gebucht hat.
+    $bookingUrl = bkBookingPageUrl($booking);
 
     if ($toOwner) {
         $content = '<p style="margin:0;">Dieser Termin wurde abgesagt — der Slot ist wieder frei.</p>'
@@ -340,6 +337,104 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
     return [
         'subject' => 'Termin abgesagt: ' . bkLocal($start)->format('d.m.Y, H:i') . ' Uhr',
         'html' => bkEmailShell('Ihr Termin wurde abgesagt', 'Termin abgesagt', $content),
+        'text' => $text,
+    ];
+}
+
+// =====================================================================
+// 5) Kontaktformular
+//
+// Diese beiden Vorlagen gehören zum Kontaktformular (/api/contact) und
+// nicht zur Terminbuchung. Sie stehen trotzdem hier: Rahmen, Farben,
+// Maskierung und Anrede liegen in dieser Datei, und zwei Sätze Mailtexte
+// mit zwei Sätzen Design zu beantworten wäre der schlechtere Tausch. Wer
+// das Aussehen der Mails ändert, ändert es hier für alle.
+// =====================================================================
+
+/**
+ * Die Nachricht selbst — geht an Leandro, mit dem Absender als Reply-To.
+ *
+ * @param array $anfrage name, email, phone, message, quelle
+ */
+function bkMailContactNotice(array $anfrage): array {
+    $zeilen = [
+        ['Name', $anfrage['name']],
+        ['E-Mail', $anfrage['email']],
+        ['Telefon', $anfrage['phone'] !== '' ? $anfrage['phone'] : '—'],
+        ['Kam von', $anfrage['quelle'] !== '' ? $anfrage['quelle'] : '—'],
+    ];
+
+    $content = '<p style="margin:0;">Neue Nachricht über das Kontaktformular.</p>'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0 0;">';
+    foreach ($zeilen as $i => [$label, $wert]) {
+        $border = $i === 0 ? '' : 'border-top:1px solid ' . BK_MAIL_BORDER . ';';
+        $content .= '<tr>'
+            . '<td style="' . $border . 'padding:10px 0;width:34%;font-size:13px;color:' . BK_MAIL_DIM . ';">' . bkEsc($label) . '</td>'
+            . '<td style="' . $border . 'padding:10px 0;font-size:15px;color:' . BK_MAIL_INK . ';">' . bkEsc($wert) . '</td>'
+            . '</tr>';
+    }
+    $content .= '</table>'
+        . '<p style="margin:22px 0 6px;"><b style="color:' . BK_MAIL_INK . ';">Nachricht:</b></p>'
+        . '<p style="margin:0;padding:12px 16px;background:' . BK_MAIL_BG . ';border-radius:12px;font-size:14px;">'
+        . nl2br(bkEsc($anfrage['message'])) . '</p>'
+        . '<p style="margin:22px 0 0;font-size:13px;">Ein Klick auf „Antworten" geht direkt an '
+        . bkEsc($anfrage['email']) . '.</p>';
+
+    if (($anfrage['warnung'] ?? '') !== '') {
+        $content .= '<p style="margin:20px 0 0;padding:12px 16px;background:#FFF4E5;border-radius:12px;font-size:14px;color:#7A4A10;">'
+            . bkEsc($anfrage['warnung']) . '</p>';
+    }
+
+    $text = "Neue Nachricht über das Kontaktformular.\n\n"
+        . "Name:    " . $anfrage['name'] . "\n"
+        . "E-Mail:  " . $anfrage['email'] . "\n"
+        . "Telefon: " . ($anfrage['phone'] !== '' ? $anfrage['phone'] : '—') . "\n"
+        . "Kam von: " . ($anfrage['quelle'] !== '' ? $anfrage['quelle'] : '—') . "\n\n"
+        . "Nachricht:\n" . $anfrage['message'] . "\n"
+        . (($anfrage['warnung'] ?? '') !== '' ? "\nACHTUNG: " . $anfrage['warnung'] . "\n" : '');
+
+    // Der Name steht im Betreff, damit die Mail in der Übersicht zuzuordnen
+    // ist. Umlaute darin kodiert bkMimeHeader() beim Versand.
+    return [
+        'subject' => 'Nachricht über jungline.de: ' . $anfrage['name'],
+        'html' => bkEmailShell('Neue Nachricht von ' . $anfrage['name'], 'Neue Nachricht', $content),
+        'text' => $text,
+    ];
+}
+
+/**
+ * Die Eingangsbestätigung an den Absender.
+ *
+ * Bewusst kurz und OHNE die Nachricht des Absenders. Zwei Gründe: Erstens
+ * kennt er sie — er hat sie gerade geschrieben. Zweitens ist eine
+ * automatische Antwort, die beliebigen Fremdtext zurück ins Netz trägt, ein
+ * Missbrauchsweg (jemand tippt Werbung ein und lässt sie von unserem Server
+ * verschicken) und obendrein genau das, worauf Ausgangsfilter anspringen.
+ *
+ * Kein zusätzlicher Link im Text: Es bleibt bei den drei Adressen des
+ * Fußzeilen-Rahmens, dem Profil, mit dem die Mails dieses Systems
+ * nachweislich durchkommen.
+ */
+function bkMailContactReceipt(array $anfrage): array {
+    $vorname = bkFirstName($anfrage);
+
+    $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($vorname) . ',</p>'
+        . '<p style="margin:0;">Ihre Nachricht ist bei mir angekommen. Ich lese sie persönlich und '
+        . 'antworte werktags innerhalb von 24 Stunden.</p>'
+        . '<p style="margin:18px 0 0;">Wenn es eilig ist, rufen Sie mich gern direkt an: '
+        . '<b style="color:' . BK_MAIL_INK . ';">+49 176 55769680</b>.</p>'
+        . '<p style="margin:18px 0 0;">Viele Grüße<br>Leandro</p>';
+
+    $text = "Hallo " . $vorname . ",\n\n"
+        . "Ihre Nachricht ist bei mir angekommen. Ich lese sie persönlich und\n"
+        . "antworte werktags innerhalb von 24 Stunden.\n\n"
+        . "Wenn es eilig ist, rufen Sie mich gern direkt an: +49 176 55769680.\n\n"
+        . "Viele Grüße\nLeandro\n";
+
+    // Betreff ohne Umlaute: reines ASCII braucht keine RFC-2047-Kodierung.
+    return [
+        'subject' => 'Ihre Nachricht ist angekommen',
+        'html' => bkEmailShell('Ihre Nachricht ist angekommen.', 'Danke für Ihre Nachricht', $content),
         'text' => $text,
     ];
 }

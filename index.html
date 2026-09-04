@@ -1274,7 +1274,8 @@
           <h3>Oder schreiben Sie mir</h3>
           <p class="panel__sub">Kurze Nachricht genügt. Ich antworte werktags innerhalb von 24 Stunden.</p>
           <form class="form" id="contactForm" novalidate>
-            <!-- Spamschutz: Honeypot (von Menschen unsichtbar) + fester Betreff für Formspree -->
+            <!-- Spamschutz: Honigtopf (fuer Menschen unsichtbar). _subject sagt /api/contact,
+                 aus welchem Formular die Nachricht kam — es steht in der Mail an Leandro. -->
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
             <input type="hidden" name="_subject" value="Neue Anfrage über jungline.de">
             <div class="field">
