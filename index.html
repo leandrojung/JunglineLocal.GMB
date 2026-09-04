@@ -68,18 +68,27 @@
     <div class="glow glow--b" data-par="0.9"></div>
   </div>
   <div class="container hero__inner">
+    <!-- Hero-Text: zwei Fassungen in EINEM <h1>.
+         .hero-h1__d ist die ausfuehrliche Desktop-Zeile, .hero-h1__m die
+         kurze Telefon-Fassung (zwei Zeilen statt einem langen Satz). Immer
+         genau eine der beiden ist per display sichtbar — die andere faellt
+         damit auch aus dem Accessibility-Tree, Screenreader lesen also nie
+         beide. Dasselbe Muster tragen .m-hide/.m-only fuer Eyebrow, Button
+         und Trust-Leiste. Kein aria-label mehr am <h1>: das setzt jetzt
+         ausschliesslich der Schreibmaschinen-Effekt in site.js, und zwar nur
+         in der Fassung, die er tatsaechlich tippt. -->
     <div class="hero__copy">
-      <span class="eyebrow h-anim"><svg class="eyebrow__icon eyebrow__icon--pin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/></svg>Google-Unternehmensprofil-Optimierung</span>
-      <h1 id="heroTitle" aria-label="Kunden und Bewerber suchen… und finden die Konkurrenz.">Kunden und Bewerber suchen… <span class="hl">und finden die Konkurrenz.</span></h1>
+      <span class="eyebrow h-anim"><svg class="eyebrow__icon eyebrow__icon--pin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/></svg><span class="m-hide">Google-Unternehmensprofil-Optimierung</span><span class="m-only">Google-Profil-Optimierung</span></span>
+      <h1 id="heroTitle"><span class="hero-h1__d">Kunden und Bewerber suchen… <span class="hl">und finden die Konkurrenz.</span></span><span class="hero-h1__m"><span class="hero-h1__line">Oben bei Google.</span><span class="hero-h1__line hl">In Ihrer Stadt.</span></span></h1>
       <p class="lead">Wir verbessern Ihre lokale Sichtbarkeit, damit Kunden und Bewerber zuerst Sie finden.</p>
-      <div class="cta-row h-anim" style="--hd:.6s">
-        <a href="#kontakt" class="btn btn--primary btn--lg">Kostenloses Erstgespräch sichern</a>
+      <div class="cta-row h-anim">
+        <a href="#kontakt" class="btn btn--primary btn--lg"><span>Kostenloses Erstgespräch<span class="m-hide"> sichern</span></span></a>
         <a href="#vorgehen" class="hero__minor">So funktioniert’s <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
       </div>
-      <ul class="hero__trust h-anim" style="--hd:.75s">
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Kostenlos &amp; unverbindlich</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Persönlich aus der Region</li>
+      <ul class="hero__trust h-anim">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span class="m-hide">Kostenlos &amp; unverbindlich</span><span class="m-only">Kostenlos</span></li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> <span class="m-hide">Persönlich aus der Region</span><span class="m-only">Aus der Region</span></li>
       </ul>
     </div>
 
@@ -131,7 +140,7 @@
           </div>
         </div>
       </div>
-      <p class="illu__caption illu__caption--example">Beispieldarstellung — illustrative Beispieldaten, keine echten Firmen oder Bewertungen.</p>
+      <p class="illu__caption illu__caption--example">Beispieldarstellung —<span class="m-hide"> illustrative Beispieldaten,</span> keine echten Firmen oder Bewertungen.</p>
     </div>
   </div>
   <a class="hero__scroll" href="#vorher-nachher" aria-label="Nach unten scrollen">

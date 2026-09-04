@@ -623,22 +623,36 @@
 
     var runLead = function(){ if(startLead) startLead(); };
 
-    if(h1){
-      var hlEl = h1.querySelector('.hl');
+    // Getippt wird immer nur die lange Desktop-Fassung (.hero-h1__d). Auf dem
+    // Telefon (<=640px, derselbe Breakpoint wie der Mobile-Hero in site.css)
+    // steht dort eine kurze Zweizeilen-Headline, die zeichenweise aufgebaut
+    // laenger "halb geladen" aussieht als sie zu lesen dauert — die uebernimmt
+    // stattdessen die gestaffelte CSS-Einblendung. matchMedia wird bewusst
+    // einmalig beim Laden ausgewertet: ein Wechsel der Fassung mitten in einer
+    // laufenden Animation waere schlechter als die falsche Wahl nach einem
+    // Geraetedreh, den es beim Erstaufbau praktisch nicht gibt.
+    var mobileHero = window.matchMedia('(max-width:640px)').matches;
+    var typeTarget = (!mobileHero && h1) ? h1.querySelector('.hero-h1__d') : null;
+
+    if(typeTarget){
+      var hlEl = typeTarget.querySelector('.hl');
       var hlText = hlEl ? hlEl.textContent : '';
       var plainStr = '';
       if(hlEl){
-        Array.prototype.slice.call(h1.childNodes).forEach(function(n){
+        Array.prototype.slice.call(typeTarget.childNodes).forEach(function(n){
           if(n === hlEl) return;
           if(n.nodeType === 3) plainStr += n.textContent;
         });
       } else {
-        plainStr = h1.textContent;
+        plainStr = typeTarget.textContent;
       }
 
-      // Full text as accessible label so screen readers get the complete sentence.
+      // Full text as accessible label so screen readers get the complete
+      // sentence. Sitzt am <h1>, nicht am getippten Span: das aria-label
+      // ersetzt damit auch die (auf dieser Breite ausgeblendete) kurze
+      // Mobile-Fassung, die sonst mit vorgelesen wuerde.
       h1.setAttribute('aria-label', (plainStr + hlText).replace(/\s+/g, ' ').trim());
-      h1.textContent = '';
+      typeTarget.textContent = '';
 
       var plainSpan = document.createElement('span');
       var hlSpan = document.createElement('span');
@@ -647,8 +661,8 @@
       // visibility/opacity, so hidden chars would bleed through. We apply solid
       // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
       hlSpan.style.color = 'var(--green-bright)';
-      h1.appendChild(plainSpan);
-      h1.appendChild(hlSpan);
+      typeTarget.appendChild(plainSpan);
+      typeTarget.appendChild(hlSpan);
 
       // Pre-populate both spans with invisible char spans so all text occupies
       // its final layout positions from the very first frame. Chars are revealed
@@ -689,8 +703,9 @@
       setTimeout(typeHead, 80);
     }
 
-    // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.
-    if(!h1) runLead();
+    // Falls es keine Headline zum Tippen gibt (Unterseite oder Mobile-Hero),
+    // den Lead-Loop sofort starten.
+    if(!typeTarget) runLead();
 
     var heroEl = document.querySelector('.hero');
     if(heroEl){

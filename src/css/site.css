@@ -149,6 +149,15 @@ section{scroll-margin-top:88px}
 body[data-bgfx="off"] .bg-aurora{display:none}
 
 /* ============ SHARED BITS ============ */
+/* Textumschalter Telefon <-> groessere Viewports. Bewusst display statt
+   visibility/clip: nur so verschwindet die jeweils andere Fassung auch aus
+   dem Accessibility-Tree, sonst laesen Screenreader beide Varianten
+   hintereinander vor. Breakpoint 640px = derselbe wie der Mobile-Hero. */
+.m-only{display:none}
+@media(max-width:640px){
+  .m-hide{display:none}
+  .m-only{display:inline}
+}
 .eyebrow{
   display:inline-flex;align-items:center;gap:10px;
   font-size:.76rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
@@ -307,6 +316,18 @@ body[data-bgfx="off"] .bg-aurora{display:none}
 .glow--b{width:420px;height:420px;background:radial-gradient(circle,rgba(var(--green-bright-rgb),.4),transparent 66%);bottom:-160px;left:-120px;opacity:.5;transform:translate3d(calc(var(--mx,0)*14px),calc(var(--my,0)*14px),0)}
 .hero__inner{position:relative;z-index:2;display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.55rem,4.6vw,3.9rem);font-weight:800;margin:24px 0 20px;letter-spacing:-.035em;min-height:2.4em}
+/* Zwei Headline-Fassungen im selben <h1> (siehe Kommentar in index.html):
+   ausserhalb des Mobile-Breakpoints laeuft die lange Zeile, darunter die
+   kurze. .hero-h1__line sind Blockzeilen — nur so greifen transform/filter
+   der Mobile-Einblendung, auf inline-Elementen waeren beide wirkungslos. */
+.hero-h1__m{display:none}
+.hero-h1__line{display:block}
+
+/* Einblende-Verzoegerungen der Hero-Bausteine. Standen frueher als
+   style="--hd:…" im HTML — dort haette der Mobile-Block sie nur mit
+   !important uebersteuern koennen, weil Inline-Styles gewinnen. */
+.hero__copy .cta-row{--hd:.6s}
+.hero__copy .hero__trust{--hd:.75s}
 /* Eigenes (nicht das gemeinsame rank-check-sweep-)Keyframe: der geteilte
    Sweep läuft über 260% Weg bei 260%-Kachelbreite — für einen Dauerloop
    unproblematisch, aber bei einmaligem Abspielen legt das Band dabei fast
@@ -1454,7 +1475,6 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
   .ticker__group span{font-size:.85rem;padding:0 20px}
   .footer__cols{gap:36px}
   .btn{font-size:.95rem;padding:14px 24px;white-space:normal}
-  .hero h1{font-size:clamp(2.15rem,9vw,2.9rem)}
   .contacts{grid-template-columns:1fr}
   .rankcard-wrap{max-width:100%}
   /* Die Pill bleibt hier schmaler als der zentrierte Titel lang ist —
@@ -1473,6 +1493,117 @@ html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
   .openchip{font-size:.66rem;padding:1px 6px}
   .climb-badge{display:none}
 }
+/* ============================================================
+   MOBILE-HERO (≤640px)
+   ============================================================
+   Auf dem Telefon ist der Hero bewusst eine andere Komposition, nicht nur
+   ein schmaler Desktop-Hero: Auf 375 px Breite ergaben Eyebrow + langer
+   Headline-Satz + Lead-Absatz + zwei CTAs + drei Trust-Pillen rund 45
+   Woerter, die als geschlossene Textwand ueber dem Falz standen. Hier
+   bleiben ~14 Woerter: kurze Zweizeilen-Headline, ein Kategorie-Label, ein
+   Button, eine Mikro-Zeile. Was fehlt, erzaehlt die Rankcard darunter
+   (Local Pack, "Ihr Unternehmen" klettert auf Platz 1) — Bild statt Text.
+   Der Lead-Absatz entfaellt hier komplett; seine Aussage steckt in Eyebrow
+   und Rankcard. Alles zentriert: bei so wenig Zeilen wirkt eine linke
+   Kante unruhig, weil keine Spalte entsteht, an der das Auge haengt. */
+@media(max-width:640px){
+  .hero{padding:calc(76px + 30px) 0 clamp(44px,8vw,62px)}
+  .hero__inner{gap:30px}
+  .hero__copy{text-align:center}
+
+  .hero .eyebrow{font-size:.7rem;letter-spacing:.13em;gap:8px}
+
+  /* Headline traegt hier fast die gesamte Aussage und darf entsprechend
+     gross sein. line-height knapp unter 1: zwei kurze Zeilen sollen als
+     ein Block wirken, nicht als zwei Saetze. */
+  .hero h1{font-size:min(10.2vw,3.1rem);line-height:1.04;
+    letter-spacing:-.042em;margin:16px 0 0;min-height:0}
+  /* Reine vw-Groesse (kein clamp-Minimum) zusammen mit nowrap: die beiden
+     Zeilen sollen auf JEDER Breite ganze Aussagen bleiben. Ein festes
+     Minimum wuerde auf 320-px-Geraeten genau den Umbruch mitten in der
+     Zeile erzwingen, den die Kurzfassung vermeiden soll. */
+  .hero-h1__line{white-space:nowrap}
+  .hero-h1__d{display:none}
+  .hero-h1__m{display:block}
+
+  /* Lead raus: der Satz wiederholt auf dem Telefon nur, was Eyebrow und
+     Rankcard schon sagen, kostet aber drei volle Textzeilen. */
+  .hero .lead{display:none}
+
+  /* Ein klarer Handlungsweg statt zweier gleichwertiger nebeneinander:
+     Button ueber die volle Breite (Daumenziel), der Sekundaerlink bleibt
+     als ruhige Textzeile darunter. */
+  .hero .cta-row{flex-direction:column;align-items:stretch;gap:12px;margin-top:26px}
+  .hero .cta-row .btn{width:100%}
+  .hero .cta-row .btn--lg{padding:16px 24px;font-size:1rem}
+  .hero__minor{justify-content:center;font-size:.92rem;padding:6px 2px}
+
+  /* Trust-Punkte verlieren die Pillen-Optik: drei umrandete Kapseln bauen
+     eine dritte visuelle Ebene auf, die auf dem Telefon mit Button und
+     Karte konkurriert. Als flache Mikro-Zeile bleiben sie lesbar, treten
+     aber zurueck. Die Texte sind hier zusaetzlich gekuerzt (m-only). */
+  .hero__trust{justify-content:center;gap:7px 16px;margin-top:20px}
+  .hero__trust li{padding:0;background:none;border:0;font-size:.76rem;
+    color:var(--dim);font-weight:600;gap:5px}
+  /* Bewusst keine Punkt-Trenner zwischen den Eintraegen: die Zeile passt
+     auf 390 px in eine Reihe, auf 360 px und darunter nicht mehr — ein
+     Trennzeichen landet dann als einzelnes Satzzeichen am Zeilenanfang.
+     Die Haken trennen visuell ohnehin ausreichend, und ein Umbruch in
+     zwei zentrierte Zeilen bleibt so sauber. */
+  .hero__trust svg{width:12px;height:12px}
+
+  /* Dauerschweben der Karte aus: neben der Einblendung wirkt es unruhig,
+     und die Animation ueberschreibt ohnehin das transform des Reveals. */
+  .hero .rankcard{animation:none;padding:16px}
+  .hero [data-reveal]{transform:translateY(26px) scale(.975);transition-duration:.9s}
+  .hero .illu__caption{font-size:.74rem;margin-top:10px}
+
+  /* Die beiden Weichzeichner-Flecken sitzen auf dem Telefon dichter am
+     Text (Desktop-Positionen lagen weit ausserhalb des schmalen Viewports
+     und waren praktisch unsichtbar). */
+  .glow--a{width:min(80vw,320px);height:min(80vw,320px);top:-70px;right:-90px;opacity:.5}
+  .glow--b{width:min(72vw,290px);height:min(72vw,290px);bottom:-70px;left:-100px;opacity:.42}
+  .js .glow--a{animation:mHeroBloom 2.2s var(--ease-out) both}
+  .js .glow--b{animation:mHeroBloom 2.6s var(--ease-out) .25s both}
+
+  /* ---- Einblendung beim Oeffnen ----------------------------------------
+     Statt des Schreibmaschinen-Effekts (der auf dem Telefon Zeichen fuer
+     Zeichen eine ohnehin knappe Zeile aufbaut und dabei ~700 ms lang wie
+     ein halb geladener Text aussieht) steigen die Zeilen nacheinander aus
+     einem Weichzeichner heraus.
+     Die Headline bekommt bewusst KEIN opacity:0 — ein transparentes
+     Element zaehlt nicht als LCP-Kandidat, ein unscharfes schon. Versatz
+     und Blur verschieben also nur die wahrgenommene Bewegung, nicht den
+     Messwert. Die Nebenelemente duerfen faden, sie sind nie LCP. */
+  .js .hero__copy .h-anim{transform:translateY(14px);opacity:0}
+  .js .hero-live .hero__copy .h-anim{transform:none;opacity:1;
+    transition:transform .75s var(--ease-apple) var(--hd,0s),opacity .6s ease var(--hd,0s)}
+
+  .hero-h1__m .hero-h1__line{--hd:.12s}
+  .hero-h1__m .hero-h1__line+.hero-h1__line{--hd:.26s}
+  .js .hero-h1__m .hero-h1__line{transform:translateY(22px);filter:blur(10px)}
+  .js .hero-live .hero-h1__m .hero-h1__line{transform:none;filter:blur(0);
+    transition:transform .9s var(--ease-apple) var(--hd,0s),filter .7s ease var(--hd,0s)}
+  /* Kein Farbverlauf-Sweep auf der zweiten Zeile: die Einblendung aus dem
+     Weichzeichner ist hier schon die Bewegung, ein zweiter Effekt auf
+     demselben Wort waere Unruhe statt Akzent. Nebeneffekt: das helle
+     Mintgruen der Sweep-Mitte (#A6F6D6, Rest der frueheren gruenen
+     Palette) blitzt damit nicht mehr ueber der jetzt deutlich groesseren
+     Mobile-Headline auf. Der Reset braucht hoehere Spezifitaet als
+     ".hero h1 .hl" und muss -webkit-text-fill-color mit zuruecknehmen,
+     sonst bleibt der Text transparent. */
+  .hero h1 .hero-h1__m .hl{background:none;animation:none;
+    -webkit-text-fill-color:currentColor;color:var(--green-bright)}
+
+  /* Die Rankcard faellt sonst gleichzeitig mit dem Kopfbereich ein — als
+     letztes Glied der Staffelung wirkt sie ruhiger. */
+  .js .hero [data-reveal]{transition-delay:.6s}
+
+  .hero__copy .cta-row{--hd:.42s}
+  .hero__copy .hero__trust{--hd:.54s}
+}
+@keyframes mHeroBloom{from{opacity:0;transform:scale(.55)}}
+
 /* ≤400px: Rankcard/Local-Pack-Karten wirkten gequetscht (Name/Sterne
    dicht an dicht) — Innenabstände und Rang-Badges verschlanken statt
    Positionen auszublenden, damit alle 3 Einträge lesbar bleiben. */
