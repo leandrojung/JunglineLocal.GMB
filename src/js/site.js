@@ -74,10 +74,7 @@
   // die ruhige "geprüft"-Aura (siehe .rank-check__verified im CSS).
   var setState = function(state){
     badge.setAttribute('data-state', state);
-    // Der Radar laeuft nur, solange tatsaechlich geprueft wird. Frueher lief
-    // er auch im Formularzustand, also ab dem ersten Sichtkontakt dauerhaft —
-    // eine Bewegung, die nichts anzeigt.
-    if(stage) stage.setAttribute('data-scan', state === 'loading' ? 'on' : 'off');
+    if(stage) stage.setAttribute('data-scan', (state === 'form' || state === 'loading') ? 'on' : 'off');
   };
 
   var CHECK_LABELS = {categories:'Kategorien', photos:'Fotos', hours:'Öffnungszeiten', reviews:'Bewertungen', website:'Website verlinkt'};
@@ -549,6 +546,460 @@
     });
   });
 
+  // ---- reveal on scroll ----------------------------------------------------
+  // Der Beobachter allein reicht nicht. Bei schnellem Wischen darf der Browser
+  // Zwischenzustände auslassen: Ein Element, das zwischen zwei Messungen
+  // komplett durchs Bild rauscht, bekommt nie einen Rückruf — und weil
+  // ".js [data-reveal]" auf opacity:0 steht, bleibt dann ein ganzer Abschnitt
+  // dauerhaft unsichtbar auf der Seite stehen. Genau das war reproduzierbar:
+  // "Ein aktueller Kunde", der Vorher/Nachher-Kopf und der vierte Schritt
+  // fehlten nach einem schnellen Durchscrollen komplett.
+  //
+  // Der vorhandene reveal-off-Failsafe (weiter unten) greift dagegen nicht: Er
+  // prüft nur, ob ÜBERHAUPT etwas sichtbar wurde. Sobald ein Teil der Elemente
+  // normal aufgetaucht ist, hält er die Lage für in Ordnung.
+  //
+  // Deshalb: Beobachter wie bisher als Auslöser für die Choreografie, plus ein
+  // Nachlauf, der alles einsammelt, was die Auslöselinie schon überschritten
+  // hat. Der Nachlauf kostet nichts pro Bild — er läuft nur, wenn ohnehin ein
+  // Rückruf kommt, und einmal kurz nachdem das Scrollen zur Ruhe kommt.
+  var offen = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+  if(offen.length){
+    var LINIE = 50;   // identisch zum rootMargin unten
+    var zeigen = function(el){
+      var i = offen.indexOf(el);
+      if(i < 0) return;
+      offen.splice(i, 1);
+      el.classList.add('in');
+    };
+    var nachlauf = function(){
+      var grenze = window.innerHeight - LINIE;
+      for(var i = offen.length - 1; i >= 0; i--){
+        if(offen[i].getBoundingClientRect().top < grenze) zeigen(offen[i]);
+      }
+      if(!offen.length){
+        window.removeEventListener('scroll', angestossen);
+        window.removeEventListener('resize', angestossen);
+      }
+    };
+    var ruheTimer = null;
+    var angestossen = function(){
+      if(ruheTimer) clearTimeout(ruheTimer);
+      ruheTimer = setTimeout(nachlauf, 140);
+    };
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); zeigen(e.target); } });
+        nachlauf();
+      }, {threshold:.14, rootMargin:'0px 0px -' + LINIE + 'px 0px'});
+      offen.slice().forEach(function(el){ io.observe(el); });
+      window.addEventListener('scroll', angestossen, {passive:true});
+      window.addEventListener('resize', angestossen, {passive:true});
+      nachlauf();
+    } else {
+      offen.slice().forEach(zeigen);
+    }
+  }
+
+  // hero entrance: Schreibmaschinen-Effekt (skipped bei reduced motion — dann
+  // ist alles sofort als vollständiger Text sichtbar). Die .js-Klasse sitzt als
+  // winziges Inline-Script in head.html (vor dem ersten Paint), damit Hero-Text
+  // nie erst aufblitzt und dann durch die Reveal-Regeln verschwindet.
+  var mkCursor = function(){
+    var c = document.createElement('span');
+    c.className = 'lead__cursor';
+    c.setAttribute('aria-hidden', 'true');
+    return c;
+  };
+
+  if(!reduce){
+    // ---- Headline: einmaliger Schreibmaschinen-Effekt --------------------
+    // Tippt erst den normalen Teil, dann den grün hervorgehobenen (.hl) und
+    // hält danach an (kein Loop). Der volle Satz steht als aria-label, damit
+    // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
+    // bekommen.
+    var h1 = document.getElementById('heroTitle');
+    var startLead;
+
+    var runLead = function(){ if(startLead) startLead(); };
+
+    if(h1){
+      var hlEl = h1.querySelector('.hl');
+      var hlText = hlEl ? hlEl.textContent : '';
+      var plainStr = '';
+      if(hlEl){
+        Array.prototype.slice.call(h1.childNodes).forEach(function(n){
+          if(n === hlEl) return;
+          if(n.nodeType === 3) plainStr += n.textContent;
+        });
+      } else {
+        plainStr = h1.textContent;
+      }
+
+      // Full text as accessible label so screen readers get the complete sentence.
+      h1.setAttribute('aria-label', (plainStr + hlText).replace(/\s+/g, ' ').trim());
+      h1.textContent = '';
+
+      var plainSpan = document.createElement('span');
+      var hlSpan = document.createElement('span');
+      // hlSpan intentionally has NO 'hl' class during typing. background-clip:text
+      // makes any child text contribute to the gradient mask regardless of
+      // visibility/opacity, so hidden chars would bleed through. We apply solid
+      // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
+      hlSpan.style.color = 'var(--primary)';
+      h1.appendChild(plainSpan);
+      h1.appendChild(hlSpan);
+
+      // Pre-populate both spans with invisible char spans so all text occupies
+      // its final layout positions from the very first frame. Chars are revealed
+      // in sequence by removing .tc--h (visibility:hidden → visible). No reflow,
+      // no word-shift during typing.
+      var buildCharSpans = function(el, text){
+        var spans = [];
+        for(var i = 0; i < text.length; i++){
+          var s = document.createElement('span');
+          s.className = 'tc tc--h';
+          s.setAttribute('aria-hidden', 'true');
+          s.textContent = text.charAt(i);
+          el.appendChild(s);
+          spans.push(s);
+        }
+        return spans;
+      };
+
+      var allChars = buildCharSpans(plainSpan, plainStr).concat(buildCharSpans(hlSpan, hlText));
+      var ci = 0;
+      var typeHead = function(){
+        if(ci >= allChars.length){
+          // All chars typed: activate shimmer on the highlighted span. Läuft
+          // per CSS (animation-iteration-count:1, ease-out) nur einmal und
+          // hält per forwards am Ende — kein harter Klassenwechsel danach,
+          // das Ausklingen ist Teil derselben, weich auslaufenden Animation.
+          hlSpan.className = 'hl';
+          hlSpan.style.color = '';
+          runLead();
+          return;
+        }
+        allChars[ci].classList.remove('tc--h');
+        ci++;
+        setTimeout(typeHead, 14);
+      };
+      // Kürzere initiale Wartezeit: LCP-Text erscheint ca. 530 ms früher
+      // als bei den alten Werten (260 ms Initial + 42 ms/Zeichen).
+      setTimeout(typeHead, 80);
+    }
+
+    // Falls es keine Headline zum Tippen gibt, den Lead-Loop sofort starten.
+    if(!h1) runLead();
+
+    var heroEl = document.querySelector('.hero');
+    if(heroEl){
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        heroEl.classList.add('hero-live');
+      }); });
+    }
+  }
+
+  // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
+  // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
+  var counts = document.querySelectorAll('.count');
+  if(counts.length && !reduce && 'IntersectionObserver' in window){
+    var fmtCount = function(v, dec){ return dec ? v.toFixed(dec).replace('.', ',') : String(Math.round(v)); };
+    var runCount = function(el){
+      // Guard: verhindert einen zweiten Lauf, falls derselbe Trigger (oder ein
+      // künftiger zweiter Observer) das Element ein zweites Mal anstößt —
+      // zwei parallele rAF-Loops auf demselben Element würden sich beim
+      // Schreiben von textContent gegenseitig überschreiben.
+      if(el.__countStarted) return;
+      el.__countStarted = true;
+      var target = parseFloat(el.getAttribute('data-count')) || 0;
+      var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
+      var start = null, dur = 1400, done = false;
+      var finish = function(){
+        if(done) return;
+        done = true;
+        el.textContent = fmtCount(target, dec);
+      };
+      var tick = function(ts){
+        if(done) return;
+        if(!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = fmtCount((1 - Math.pow(1 - p, 3)) * target, dec);
+        if(p < 1) requestAnimationFrame(tick);
+        else finish();
+      };
+      requestAnimationFrame(tick);
+      // Sicherheitsnetz: setzt den exakten Endwert unabhängig vom rAF-Timing
+      // hart fest (z. B. falls Tab-Wechsel, Drosselung o. Ä. die Loop
+      // unterbricht), statt dass die Zahl auf einem Zwischenwert einfriert.
+      setTimeout(finish, dur + 400);
+    };
+    // threshold:.5 verlangte 50% Sichtbarkeit jedes einzelnen .count-Elements.
+    // Auf Mobile stapelt .stats__grid einspaltig (mehr Gesamthöhe) — bei
+    // normalen Scroll-Stopps blieb dadurch v. a. der letzte Wert oft unter
+    // der Schwelle hängen und zählte nie hoch. Gleiche, bereits bewährte
+    // Trigger-Logik wie beim allgemeinen Reveal-Observer: niedrigere
+    // Schwelle + rootMargin statt harter Pixelwerte.
+    //
+    // Plus derselbe Nachlauf wie beim Reveal und den Live-Icons: Der Browser
+    // darf Zwischenzustände bei schnellem Wischen auslassen. Ohne Nachlauf
+    // bliebe eine übersprungene Kennzahl für immer bei "0" stehen — der
+    // HTML-Fallback-Wert wird ja gerade erst durch runCount() gesetzt.
+    var countsOffen = Array.prototype.slice.call(counts);
+    var countsNachlauf = function(){
+      var grenze = window.innerHeight - 50;
+      for(var i = countsOffen.length - 1; i >= 0; i--){
+        if(countsOffen[i].getBoundingClientRect().top < grenze){
+          cio.unobserve(countsOffen[i]);
+          runCount(countsOffen[i]);
+          countsOffen.splice(i, 1);
+        }
+      }
+      if(!countsOffen.length) window.removeEventListener('scroll', countsAngestossen);
+    };
+    var countsRuheTimer = null;
+    var countsAngestossen = function(){
+      if(countsRuheTimer) clearTimeout(countsRuheTimer);
+      countsRuheTimer = setTimeout(countsNachlauf, 140);
+    };
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        cio.unobserve(e.target);
+        var i = countsOffen.indexOf(e.target);
+        if(i > -1) countsOffen.splice(i, 1);
+        runCount(e.target);
+      });
+      countsNachlauf();
+    }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
+    counts.forEach(function(el){
+      el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
+      cio.observe(el);
+    });
+    window.addEventListener('scroll', countsAngestossen, {passive:true});
+    countsNachlauf();
+  }
+
+  // hero parallax + rankcard tilt (fine pointer only)
+  var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  if(finePointer && !reduce){
+    var heroBg = document.getElementById('heroBg');
+    var card = document.getElementById('rankcard');
+    var tx=0,ty=0, raf=null;
+    var apply = function(){
+      if(heroBg){ heroBg.style.setProperty('--mx', tx.toFixed(3)); heroBg.style.setProperty('--my', ty.toFixed(3)); }
+      if(card){ card.style.transform = 'rotateY('+(tx*5).toFixed(2)+'deg) rotateX('+(-ty*5).toFixed(2)+'deg)'; }
+      raf=null;
+    };
+    window.addEventListener('mousemove', function(e){
+      tx = (e.clientX/window.innerWidth - .5)*2;
+      ty = (e.clientY/window.innerHeight - .5)*2;
+      if(!raf) raf = requestAnimationFrame(apply);
+    }, {passive:true});
+  }
+
+  // premium pointer micro-interactions (fine pointer + motion ok)
+  if(finePointer && !reduce){
+    // cursor-following spotlight on cards & panels
+    document.querySelectorAll('.panel, .linkcard').forEach(function(el){
+      el.addEventListener('mousemove', function(e){
+        var r = el.getBoundingClientRect();
+        el.style.setProperty('--sx', ((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+        el.style.setProperty('--sy', ((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+      }, {passive:true});
+      el.addEventListener('mouseleave', function(){ el.style.setProperty('--sy','-40%'); });
+    });
+    // magnetic primary buttons — schwächerer Zug (0.22/0.30 -> 0.1/0.13) und
+    // per Lerp sanft nachgeführt statt den Button beim ersten Mousemove
+    // sofort auf den vollen Zielwert zu springen (das wirkte "hingezogen").
+    document.querySelectorAll('.btn--primary').forEach(function(btn){
+      var tx=0, ty=0, cx=0, cy=0, running=false;
+      var loop = function(){
+        cx += (tx-cx)*0.16; cy += (ty-cy)*0.16;
+        btn.style.transform = 'translate('+cx.toFixed(2)+'px,'+(cy-2).toFixed(2)+'px)';
+        if(Math.abs(tx-cx) > 0.05 || Math.abs(ty-cy) > 0.05){
+          requestAnimationFrame(loop);
+        } else {
+          running = false;
+        }
+      };
+      btn.addEventListener('mousemove', function(e){
+        var r = btn.getBoundingClientRect();
+        tx = (e.clientX-(r.left+r.width/2))*0.1;
+        ty = (e.clientY-(r.top+r.height/2))*0.13;
+        if(!running){ running = true; requestAnimationFrame(loop); }
+      }, {passive:true});
+      btn.addEventListener('mouseleave', function(){
+        tx = 0; ty = 0;
+        if(!running){ running = true; requestAnimationFrame(loop); }
+      });
+    });
+  }
+
+  // ranking climb animation (nur Startseite — Unterseiten haben keine Rankcard)
+  var you = document.getElementById('you');
+  if(you){
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
+    var youRank = document.getElementById('youRank');
+    var getRow = function(){ return window.matchMedia('(max-width:560px)').matches ? 77 : 70; };
+    var place = function(order){ var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); };
+    var youIdx = rows.indexOf(you);
+    var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
+    var bottomOrder = others.concat([youIdx]);
+    var topOrder = [youIdx].concat(others);
+    var ghostRanks = others.map(function(i){ return rows[i].querySelector('.rank'); });
+
+    var setTopRanks = function(){
+      you.classList.add('is-top'); youRank.textContent='1';
+      ghostRanks.forEach(function(el, i){ el.textContent = String(i+2); });
+    };
+
+    // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
+    // ruhige, selbstbewusste Erzählung statt Endlosschleife.
+    if(reduce){
+      place(topOrder); setTopRanks();
+    } else {
+      place(bottomOrder);
+      setTimeout(function(){ place(topOrder); setTopRanks(); }, 1600);
+    }
+  }
+
+  // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
+  // Nur auf Geräten mit feinem Zeiger und ohne reduced motion — auf Touch
+  // existiert er gar nicht (keine DOM-Knoten, keine Listener).
+  if(finePointer && !reduce){
+    document.documentElement.classList.add('has-cursor');
+    var curDot = document.createElement('div');
+    curDot.className = 'cur-dot';
+    var curRing = document.createElement('div');
+    curRing.className = 'cur-ring';
+    curRing.innerHTML = '<span class="cur-ring__c"></span><span class="cur-ring__label"></span>' +
+      '<svg class="cur-ring__drag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
+    curDot.setAttribute('aria-hidden', 'true');
+    curRing.setAttribute('aria-hidden', 'true');
+    curRing.setAttribute('data-cursor', 'elastic');
+    // Ring vor dem Punkt einhängen: das CSS blendet den Punkt über den
+    // Folge-Geschwister-Selektor aus, wenn der Ring ein Label/Griff zeigt.
+    document.body.appendChild(curRing);
+    document.body.appendChild(curDot);
+    var curLabel = curRing.querySelector('.cur-ring__label');
+    var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false, curLoopRunning = false;
+    // Elastic-Dehnung: der Ring hinkt der Zielposition per Lerp hinterher —
+    // der dabei entstehende Rückstand (dx/dy) ist proportional zur
+    // Bewegungsgeschwindigkeit und liefert Länge + Richtung der Dehnung.
+    // Rotate → stretchen → zurückrotieren dehnt exakt entlang der
+    // Bewegungsrichtung, unabhängig vom Winkel (klassischer Gummiband-Trick).
+    var curLoop = function(){
+      var dx = cx - rx, dy = cy - ry;
+      rx += dx * 0.15; ry += dy * 0.15;
+      curDot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+      var state = curRing.getAttribute('data-state');
+      var stretchOk = state !== 'pin' && state !== 'drag' && state !== 'view';
+      var stretchTf = '';
+      if(stretchOk){
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var stretch = Math.min(1 + dist * 0.012, 1.3);
+        if(stretch > 1.01){
+          var angle = Math.atan2(dy, dx) * 180 / Math.PI;
+          var squeeze = 1 / Math.sqrt(stretch);
+          stretchTf = ' rotate(' + angle.toFixed(1) + 'deg) scale(' + stretch.toFixed(3) + ',' + squeeze.toFixed(3) + ') rotate(' + (-angle).toFixed(1) + 'deg)';
+        }
+      }
+      curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)' + stretchTf;
+      requestAnimationFrame(curLoop);
+    };
+    // Loop erst starten, wenn sich die Maus tatsächlich bewegt hat — sonst
+    // läuft die Animation (rAF + Style-Writes) schon während des Seitenladens
+    // dauerhaft mit, ganz ohne dass ein Cursor je sichtbar ist.
+    window.addEventListener('mousemove', function(e){
+      cx = e.clientX; cy = e.clientY;
+      if(!curSeen){
+        curSeen = true; rx = cx; ry = cy;
+        document.documentElement.classList.add('cursor-seen');
+      }
+      if(!curLoopRunning){ curLoopRunning = true; curLoop(); }
+    }, {passive:true});
+    var setCurState = function(state, labelText){
+      document.documentElement.classList.toggle('cursor-off', state === 'off');
+      curRing.setAttribute('data-state', state);
+      curLabel.textContent = labelText || '';
+    };
+    document.addEventListener('mouseover', function(e){
+      var t = e.target;
+      if(!(t instanceof Element)) return;
+      if(t.closest('input,textarea,select,iframe')){ setCurState('off'); return; }
+      if(t.closest('.vnc__stage')){ setCurState('drag'); return; }
+      if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
+      var faqQ = t.closest('.faq__q');
+      if(faqQ){ setCurState('view', faqQ.getAttribute('aria-expanded') === 'true' ? 'Schließen' : 'Öffnen'); return; }
+      var crow = t.closest('.crow');
+      if(crow){ setCurState('view', (crow.getAttribute('href') || '').indexOf('tel:') === 0 ? 'Anrufen' : 'Schreiben'); return; }
+      if(t.closest('.btn--primary')){ setCurState('pin'); return; }
+      if(t.closest('a,button,[role="button"]')){ setCurState('grow'); return; }
+      setCurState('idle');
+    });
+    document.addEventListener('mouseleave', function(){ document.documentElement.classList.add('cursor-off'); });
+    document.addEventListener('mouseenter', function(){ document.documentElement.classList.remove('cursor-off'); });
+  }
+
+  // Scroll-Parallax für die Schritte: Ebenen mit data-pd bewegen sich beim
+  // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
+  // Schritt-Container (kein Feedback über die eigene Transformation),
+  // geschrieben wird nur transform, gedrosselt per requestAnimationFrame.
+  // Nur auf Geräten mit feinem Zeiger (Desktop): auf Touch-Geräten wäre
+  // der Scroll-Handler überflüssige Arbeit ohne sichtbaren Effekt.
+  var stepEls = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  if(stepEls.length && !reduce && finePointer){
+    var stepLayers = stepEls.map(function(ch){
+      return {root: ch, layers: Array.prototype.slice.call(ch.querySelectorAll('[data-pd]')).map(function(el){
+        return {el: el, depth: parseFloat(el.getAttribute('data-pd')) || 0};
+      })};
+    });
+    var pRaf = null;
+    var applyParallax = function(){
+      pRaf = null;
+      var vh = window.innerHeight;
+      stepLayers.forEach(function(ch){
+        var r = ch.root.getBoundingClientRect();
+        if(r.bottom < -160 || r.top > vh + 160) return;
+        var c = r.top + r.height / 2 - vh / 2;
+        ch.layers.forEach(function(l){
+          var y = c * l.depth;
+          l.el.style.transform = (l.el.classList.contains('step__glow') ? 'translateY(-50%) ' : '') +
+            'translate3d(0,' + y.toFixed(1) + 'px,0)';
+        });
+      });
+    };
+    var queueParallax = function(){ if(!pRaf) pRaf = requestAnimationFrame(applyParallax); };
+    window.addEventListener('scroll', queueParallax, {passive:true});
+    window.addEventListener('resize', queueParallax, {passive:true});
+    queueParallax();
+  }
+
+  // Sitewide Soft-Aurora-Hintergrund (partials/endbody.html): die weichen,
+  // geblurrten Flächen atmen unabhängig per CSS-Keyframes (siehe site.css)
+  // UND parallaxen zusätzlich beim Scrollen unterschiedlich schnell
+  // (data-speed) — eigene Transform-Ebene pro Blob, damit sich beide
+  // Bewegungen nicht gegenseitig überschreiben. Gleiches rAF-Drossel-Muster
+  // wie der Schritt-Parallax oben, unabhängig davon.
+  // Parallax nur auf Desktop: auf Mobile ist Aurora per CSS ausgeblendet
+  // (display:none), finePointer verhindert unnötige JS-Arbeit.
+  var bgAurora = document.getElementById('bgAurora');
+  if(bgAurora && !reduce && finePointer && document.body.getAttribute('data-bgfx') !== 'off'){
+    var auroraLayers = Array.prototype.slice.call(bgAurora.querySelectorAll('[data-speed]')).map(function(el){
+      return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
+    });
+    var auroraRaf = null;
+    var applyAurora = function(){
+      auroraRaf = null;
+      var y = window.scrollY;
+      auroraLayers.forEach(function(l){ l.el.style.transform = 'translate3d(0,' + (y * l.speed).toFixed(1) + 'px,0)'; });
+    };
+    var queueAurora = function(){ if(!auroraRaf) auroraRaf = requestAnimationFrame(applyAurora); };
+    window.addEventListener('scroll', queueAurora, {passive:true});
+    queueAurora();
+  }
+
   // Vorher-Nachher-Slider (Apple-Design): eine Pointer-Logik für Maus &
   // Touch, zusätzlich per Pfeiltasten bedienbar (role="slider"). Der Griff
   // bekommt zusätzlich einen kurzen Scale-Ausschlag waehrend des Ziehens.
@@ -595,6 +1046,31 @@
       else if(e.key === 'Home'){ vncSet(0); e.preventDefault(); }
       else if(e.key === 'End'){ vncSet(100); e.preventDefault(); }
     });
+    // Beim ersten Sichtbarwerden schwingt der Griff einmal gedaempft aus,
+    // damit klar ist, dass man ziehen kann. Danach hat der Nutzer die
+    // Kontrolle.
+    if(!reduce && 'IntersectionObserver' in window){
+      var vncHinted = false;
+      var vncIo = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting || vncHinted) return;
+          vncHinted = true; vncIo.disconnect();
+          setTimeout(function(){
+            var t0 = null, dur = 1700;
+            var swing = function(ts){
+              if(vncDrag) return;
+              if(!t0) t0 = ts;
+              var p = Math.min((ts - t0) / dur, 1);
+              var e = 1 - Math.pow(1 - p, 3);
+              vncSet(50 + Math.sin(e * Math.PI * 2) * 16 * (1 - e));
+              if(p < 1) requestAnimationFrame(swing);
+            };
+            requestAnimationFrame(swing);
+          }, 1100);
+        });
+      }, {threshold:.55});
+      vncIo.observe(vncStage);
+    }
   });
 
   // Punkt-Indikatoren für die swipebare Baustein-Reihe (nur Mobile sichtbar)
@@ -717,20 +1193,258 @@
   // die früheren Rechtstext-Modals entfallen ersatzlos.
 })();
 
+// Scroll-linked sequential sweep animation for step numbers 01–04
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nums = Array.prototype.slice.call(document.querySelectorAll('.step__num'));
+  if(!nums.length || reduce) return;
+
+  // Track scroll velocity (px/ms) to set animation duration
+  var scrollVel = 0;
+  var lastY = window.scrollY, lastT = Date.now();
+  window.addEventListener('scroll', function(){
+    var now = Date.now(), dt = now - lastT;
+    if(dt > 0) scrollVel = Math.abs(window.scrollY - lastY) / dt;
+    lastY = window.scrollY; lastT = now;
+  }, {passive: true});
+
+  // nextIdx: which number should animate next (ensures strict ordering)
+  var nextIdx = 0;
+
+  var lightUp = function(idx, vel){
+    if(idx >= nums.length) return;
+    var el = nums[idx];
+    // Faster scroll → shorter sweep (clamped 2.5s – 6.0s)
+    var dur = Math.max(2.5, Math.min(6.0, 3.0 / Math.max(vel, 0.04)));
+    el.style.setProperty('--chnum-dur', dur.toFixed(2) + 's');
+    el.classList.add('lit');
+    nextIdx = idx + 1;
+  };
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var idx = nums.indexOf(e.target);
+      if(idx < 0 || idx < nextIdx) return;
+      io.unobserve(e.target);
+
+      // Any numbers that were skipped over (fast scroll) light up at minimum speed
+      for(var i = nextIdx; i < idx; i++){
+        nums[i].style.setProperty('--chnum-dur', '2.5s');
+        nums[i].classList.add('lit');
+        nextIdx = i + 1;
+      }
+
+      // Animate the visible number with scroll-speed-linked duration
+      lightUp(idx, scrollVel);
+    });
+  }, {threshold: 0.2, rootMargin: '0px 0px -60px 0px'});
+
+  nums.forEach(function(el){ io.observe(el); });
+})();
 /* ============================================================
-   GBP-SHOWCASE — Skalierung der Mockups
+   LIVE-ICON-ENGINE
+   ============================================================
+   Ein Durchlauf für alle Strich-Icons der Seite (alle nutzen dieselbe
+   24er-Box): jedes Icon zeichnet sich beim ersten Sichtkontakt selbst und
+   zeichnet erneut, wenn sein interaktiver Träger Hover oder Fokus bekommt.
+
+   Warum hier und nicht als Attribut im Markup: die Icons stehen verteilt in
+   23 HTML-Seiten, in vite.config.js (Branchen-Chips) und in
+   src/data/bausteine.js. Eine zentrale Stelle, die sie zur Laufzeit
+   einsammelt und vermisst, hält alle Seiten automatisch synchron — neue
+   Icons machen ohne Zusatzarbeit mit.
+
+   Sicherheitsnetz: versteckt wird ein Icon nur, wenn dieses Skript es aktiv
+   markiert. Fehlt IntersectionObserver oder springt er nicht an, bleibt der
+   sichtbare Grundzustand stehen (siehe Failsafe unten). */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+
+  // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
+  var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
+  // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
+  var HOSTS = 'a,button,.svc,.fact,.step,.way,.tcard,.pledge';
+
+  var icons = [];
+
+  var play = function(svg){
+    svg.classList.remove('lico--pending');
+    // Neustart der Animation erzwingen: Klasse ab, Layout antippen, Klasse dran.
+    svg.classList.remove('lico--draw');
+    void svg.getBoundingClientRect();
+    svg.classList.add('lico--draw');
+  };
+
+  // Alle noch nicht gezeichneten Icons. Wie beim Reveal weiter oben gilt: Was
+  // der Beobachter beim schnellen Wischen überspringt, bliebe sonst dauerhaft
+  // als leere Fläche stehen — ein Icon in .lico--pending ist unsichtbar.
+  var offen = [];
+  var abhaken = function(svg){
+    var i = offen.indexOf(svg);
+    if(i > -1) offen.splice(i, 1);
+  };
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      io.unobserve(e.target);
+      abhaken(e.target);
+      play(e.target);
+    });
+    nachlauf();
+  }, {threshold:.3, rootMargin:'0px 0px -40px 0px'});
+
+  var nachlauf = function(){
+    if(!offen.length) return;
+    var grenze = window.innerHeight - 40;
+    for(var i = offen.length - 1; i >= 0; i--){
+      var svg = offen[i];
+      if(svg.getBoundingClientRect().top >= grenze) continue;
+      io.unobserve(svg);
+      offen.splice(i, 1);
+      play(svg);
+    }
+    if(!offen.length) window.removeEventListener('scroll', angestossen);
+  };
+  var ruheTimer = null;
+  var angestossen = function(){
+    if(ruheTimer) clearTimeout(ruheTimer);
+    ruheTimer = setTimeout(nachlauf, 160);
+  };
+  window.addEventListener('scroll', angestossen, {passive:true});
+
+  // Wird true, wenn der Failsafe unten feststellt, dass der Observer nicht
+  // arbeitet. Danach dürfen auch nachgezogene Icons nicht mehr versteckt
+  // werden — sie würden sonst nie wieder auftauchen.
+  var observerDead = false;
+
+  var collect = function(){
+    Array.prototype.forEach.call(document.querySelectorAll('svg[viewBox="0 0 24 24"]'), function(svg){
+      if(svg.classList.contains('lico')) return;   // schon vermessen
+      if(svg.closest(SKIP)) return;
+      // Nicht gerendert (display:none, z. B. die Mobil-CTA auf dem Desktop oder
+      // eine eingeklappte FAQ-Antwort)? Dann gar nicht erst verstecken — der
+      // Observer würde dort nie anspringen und das Icon bliebe unsichtbar,
+      // sobald es später doch eingeblendet wird. Solche Icons holt der
+      // lico:rescan nach, sobald ihr Block sichtbar wird.
+      if(!svg.getClientRects().length) return;
+      var parts = svg.querySelectorAll(SHAPES);
+      if(!parts.length) return;
+
+      var marked = 0;
+      Array.prototype.forEach.call(parts, function(el, i){
+        // Strich oder Fläche? Der Stroke wird vom <svg> geerbt, Flächen-Icons
+        // (fill="currentColor" ohne stroke) liefern hier "none".
+        var stroked = getComputedStyle(el).stroke !== 'none';
+        el.style.setProperty('--i', i);
+        if(stroked){
+          var len = 0;
+          // getTotalLength() gibt es auf allen Grundformen (SVGGeometryElement),
+          // kann aber bei degenerierten Formen 0 oder NaN liefern.
+          try { len = el.getTotalLength(); } catch(err){ len = 0; }
+          if(!isFinite(len) || len <= 0) return;
+          el.style.setProperty('--len', len.toFixed(2));
+          el.setAttribute('data-draw', '');
+        } else {
+          el.setAttribute('data-pop', '');
+        }
+        marked++;
+      });
+      if(!marked) return;
+
+      svg.classList.add('lico');
+      if(!observerDead) svg.classList.add('lico--pending');
+      icons.push(svg);
+      offen.push(svg);
+      io.observe(svg);
+
+      var host = svg.closest(HOSTS);
+      if(host) host.classList.add('lico-host');
+    });
+  };
+
+  collect();
+
+  // Blöcke, die erst nach einer Interaktion eingeblendet werden (der
+  // CTA-Block unter dem Profil-Check), waren beim ersten Durchlauf noch
+  // display:none und damit nicht vermessbar. Wer so einen Block sichtbar
+  // macht, meldet sich hier — dann werden nur die neuen Icons nachgezogen.
+  document.addEventListener('lico:rescan', collect);
+
+  // Failsafe: hat nach 1,8 s kein einziges Icon gezeichnet, arbeitet der
+  // Observer nicht (In-App-Browser, Bot, Screenshot-Renderer). Dann alle
+  // Icons unverzüglich sichtbar machen statt sie versteckt zu lassen.
+  setTimeout(function(){
+    if(document.querySelector('.lico--draw')) return;
+    observerDead = true;
+    icons.forEach(function(svg){ svg.classList.remove('lico--pending'); });
+  }, 1800);
+
+  // Erneut zeichnen bei Hover/Fokus des Trägers. Delegiert statt pro Element
+  // gebunden — auf der Startseite sind das über 60 Icons.
+  var lastHost = null;
+  document.addEventListener('pointerover', function(e){
+    if(e.pointerType === 'touch') return;
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var host = t.closest('.lico-host');
+    if(!host || host === lastHost) return;
+    lastHost = host;
+    Array.prototype.forEach.call(host.querySelectorAll('svg.lico'), play);
+  }, {passive:true});
+  document.addEventListener('pointerout', function(e){
+    if(!lastHost) return;
+    if(!e.relatedTarget || !lastHost.contains(e.relatedTarget)) lastHost = null;
+  }, {passive:true});
+  document.addEventListener('focusin', function(e){
+    var t = e.target;
+    if(!t || !t.closest) return;
+    var host = t.closest('.lico-host');
+    if(host) Array.prototype.forEach.call(host.querySelectorAll('svg.lico'), play);
+  });
+})();
+
+/* ============================================================
+   REVEAL-FAILSAFE + MOBILE-MENÜ-STAGGER
    ============================================================ */
 (function(){
-  var stage = document.querySelector('.gsp__stage');
+  // .js [data-reveal] setzt opacity:0 und verlässt sich darauf, dass der
+  // IntersectionObserver oben .in nachliefert. Bleibt das aus, wäre die halbe
+  // Seite unsichtbar — das ist der Fehler, der sich in In-App-Browsern
+  // (Instagram, Google-App) und bei Vorschau-Renderern zeigt. Hat nach 1,6 s
+  // nichts reagiert, obwohl es Reveal-Elemente gibt, schalten wir die
+  // Versteck-Regel global ab.
+  if(document.querySelector('[data-reveal]')){
+    setTimeout(function(){
+      if(!document.querySelector('[data-reveal].in')){
+        document.documentElement.classList.add('reveal-off');
+      }
+    }, 1600);
+  }
+
+  // Menüeinträge laufen gestaffelt ein (CSS liest --i).
+  var items = document.querySelectorAll('.mobile-menu a');
+  Array.prototype.forEach.call(items, function(a, i){ a.style.setProperty('--i', i); });
+})();
+
+/* ============================================================
+   GBP-SHOWCASE — Skalierung der Mockups + Animations-Zyklus
+   ============================================================ */
+(function(){
+  var stage = document.getElementById('gspStage');
   if(!stage) return;
 
-  var screens = stage.querySelectorAll('.gsp__screen');
+  var screens = stage.querySelectorAll('[data-gsp-screen]');
+  var count   = document.getElementById('gspCount');
   var FRAME_W = 414;
-  var pending = false;
+  var raf = null, timer = null, pending = false;
 
-  // Die Mockups sind in festen Pixeln gebaut (414 x 868, wie ein Screenshot).
-  // Hier wird aus der wirklich verfügbaren Spaltenbreite der exakte Faktor
-  // berechnet; site.css hat dafür nur grobe Breakpoint-Stufen als Fallback.
+  // Die Mockups sind in festen Pixeln gebaut. Hier wird aus der wirklich
+  // verfügbaren Spaltenbreite der exakte Faktor berechnet; site.css hat dafür
+  // nur grobe Breakpoint-Stufen als Fallback.
   function fit(){
     pending = false;
     Array.prototype.forEach.call(screens, function(el){
@@ -744,9 +1458,83 @@
   }
   function schedule(){ if(pending) return; pending = true; requestAnimationFrame(fit); }
 
+  // Bewertungszähler des Gewinner-Profils läuft von 9 auf 187 hoch.
+  function countUp(){
+    if(!count) return;
+    var start = performance.now(), dur = 1400;
+    (function step(t){
+      var p = Math.min(1, (t - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      count.textContent = Math.round(9 + (187 - 9) * e);
+      if(p < 1) raf = requestAnimationFrame(step);
+    })(start);
+  }
+
+  // Ein Durchlauf: alle Teil-Animationen zurückspulen und gemeinsam starten.
+  // Bewusst kein Dauerloop — die Erklärtexte blenden sich erst nach gut sechs
+  // Sekunden ein, ein Neustart alle paar Sekunden würde sie immer wieder
+  // wegnehmen. Die Choreografie läuft einmal, wenn der Block ins Bild kommt,
+  // und bleibt danach im Endzustand stehen.
+  function run(){
+    if(timer) clearTimeout(timer);
+    if(raf) cancelAnimationFrame(raf);
+    if(stage.getAnimations){
+      stage.getAnimations({subtree:true}).forEach(function(a){
+        try{ a.cancel(); a.play(); }catch(e){}
+      });
+    }
+    stage.style.animationPlayState = 'running';
+    if(count) count.textContent = '9';
+    // Muss mit der Choreografie im HTML zusammenpassen: Der Zähler läuft in dem
+    // Moment hoch, in dem die Bewertungszeile des Gewinner-Profils steht.
+    timer = setTimeout(countUp, 3570);
+  }
+
   fit();
   if(window.ResizeObserver) new ResizeObserver(schedule).observe(stage);
   window.addEventListener('resize', schedule, {passive:true});
+
+  // Bei prefers-reduced-motion gar nicht erst starten: site.css schaltet dort
+  // global *{animation:none} und die Pausen-Regel unten greift nicht, der Block
+  // steht also bereits vollständig und ruhig im Grundzustand da — inklusive der
+  // 187 Bewertungen, die so im Markup stehen.
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Ohne IntersectionObserver gäbe es keinen Startschuss — der Block bliebe
+  // auf dem ersten Bild der Choreografie stehen, also leer.
+  if(!window.IntersectionObserver){ run(); return; }
+
+  // Läuft genau einmal pro Seitenaufruf: sobald die Choreografie gestartet
+  // ist, wird der Observer abgehängt. Hoch- und Runterscrollen darf die
+  // Erklärtexte, den Sternenaufbau und den Bewertungszähler nicht wieder auf
+  // null setzen — beim zweiten Anschauen soll der fertige Endzustand stehen,
+  // nicht wieder der leere Anfang.
+  var gestartet = false;
+  var starten = function(){
+    if(gestartet) return;
+    gestartet = true;
+    io.disconnect();
+    window.removeEventListener('scroll', angestossen);
+    run();
+  };
+  // Wie beim Reveal und den Live-Icons: Der Beobachter ist der Auslöser, der
+  // Nachlauf die Absicherung. Wird der Rückruf beim schnellen Wischen
+  // ausgelassen, bliebe die ganze Bühne im Anfangsbild der Choreografie
+  // stehen — und das ist opacity:0, also eine leere Fläche in voller
+  // Sektionshöhe.
+  var ruheTimer = null;
+  var nachlauf = function(){
+    var r = stage.getBoundingClientRect();
+    if(r.top < window.innerHeight && r.bottom > 0) starten();
+  };
+  var angestossen = function(){
+    if(ruheTimer) clearTimeout(ruheTimer);
+    ruheTimer = setTimeout(nachlauf, 160);
+  };
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) starten(); });
+  }, {threshold:.15});
+  io.observe(stage);
+  window.addEventListener('scroll', angestossen, {passive:true});
 })();
 
 /* ============================================================

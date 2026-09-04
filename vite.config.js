@@ -80,7 +80,7 @@ const HOME_TEASER_INDICES = [0, 2, 4, 6]
 function renderBausteineHome() {
   const items = HOME_TEASER_INDICES.map((idx) => bausteine[idx])
   const cards = items.map((b, i) => `
-      <div class="svc">
+      <div class="svc" data-reveal${i % 2 === 1 ? ' data-d="1"' : ''}>
         <span class="svc__idx" aria-hidden="true">${b.num}</span>
         <div>
           <h3>${b.title}</h3>
@@ -93,7 +93,7 @@ function renderBausteineHome() {
 function renderBausteineLeistungen() {
   const facts = bausteine.map((b) => `
       <div class="fact"><h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b.icon}</svg> ${b.title}</h3><p>${b.full}</p></div>`).join('')
-  return `<div class="factgrid">${facts}\n    </div>`
+  return `<div class="factgrid" data-reveal>${facts}\n    </div>`
 }
 
 // ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ function renderRankcardIllu(youLabel, ariaLabel) {
 function renderCtaband(h2, p, ziel) {
   // ziel ist optional: Seiten mit eigenem Buchungsbereich (z. B. /webdesign/)
   // geben "#termin" an und schicken damit niemanden mehr auf die Kontaktseite.
-  return `<div class="ctaband">
+  return `<div class="ctaband" data-reveal>
       <h2>${h2}</h2>
       <p>${p}</p>
       <div class="cta-row">
