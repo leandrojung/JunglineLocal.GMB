@@ -9,12 +9,17 @@
  *   2. DARF ICH DAS? Ob die Absenderdomain sich gegenüber Gmail & Co.
  *      ausweisen kann — SPF, DKIM, DMARC. Fehlt davon etwas, ist das der
  *      Grund, warum eine Mail bei dem einen ankommt und beim nächsten nicht.
- *   3. WAS IST PASSIERT? Das Protokoll der zuletzt verschickten Mails mit
+ *   3. IST SIE ANGEKOMMEN? Was der Maildienst selbst zu jeder Mail sagt —
+ *      zugestellt, geblockt, im Spam, Adresse falsch. Das eigene Protokoll
+ *      kann nur "angenommen" melden; ob sie im Postfach landet, weiß nur er.
+ *   4. WAS IST PASSIERT? Das Protokoll der zuletzt verschickten Mails mit
  *      Weg, Vorgangsnummer und Fehlergrund.
- *   4. GEHT ES JETZT?  Mit &to=<adresse> werden Bestätigung, Erinnerung und
+ *   5. GEHT ES JETZT?  Mit &to=<adresse> werden Bestätigung, Erinnerung und
  *      Absage genau so verschickt, wie eine echte Buchung sie verschickt.
  *
  * Weitere Schalter:
+ *   &pruefe=<adresse>  was Brevo zu genau dieser Adresse sagt, inklusive
+ *                      der Frage, ob sie auf Brevos Sperrliste steht
  *   &resend=<Nr>  eine bestimmte Mail aus dem Protokoll erneut verschicken
  *   &flush=1      liegengebliebene Mails sofort erneut versuchen
  *
@@ -433,7 +438,98 @@ if ($to !== '' && $resendId === 0) {
 }
 
 // =====================================================================
-// 6) Protokoll
+// 6) Was Brevo zu den Mails sagt
+//
+// Der wichtigste Abschnitt dieser Seite, sobald ein Maildienst läuft. Das
+// eigene Protokoll weiter unten kann nur sagen: "Brevo hat die Mail
+// angenommen." Ob sie danach ZUGESTELLT wurde, weiß nur Brevo — und genau
+// diese Auskunft holt dieser Abschnitt ab.
+// =====================================================================
+
+if (bkTransportConfigured('brevo')) {
+    $suchadresse = trim((string) ($_GET['pruefe'] ?? ''));
+    bkDiagHead('WAS BREVO ZU DEN MAILS SAGT'
+        . ($suchadresse !== '' ? ' (' . $suchadresse . ')' : ''));
+
+    // --- Steht die gesuchte Adresse auf der Sperrliste? ---
+    //
+    // Das ist der heimtückischste Fehlerfall überhaupt: Brevo nimmt die Mail
+    // an und meldet Erfolg, verschickt sie aber nie, weil die Adresse nach
+    // einem früheren Bounce oder Spam-Klick gesperrt ist. Im eigenen
+    // Protokoll steht dann "sent", beim Empfänger kommt trotzdem nichts an.
+    if ($suchadresse !== '' && filter_var($suchadresse, FILTER_VALIDATE_EMAIL)) {
+        $sperre = bkBrevoBlocked($suchadresse);
+        echo "  Sperrliste: ";
+        if (!$sperre['ok']) {
+            echo "nicht prüfbar — " . $sperre['error'] . "\n";
+        } elseif ($sperre['blocked']) {
+            echo "JA, DIESE ADRESSE IST BEI BREVO GESPERRT\n";
+            echo "              Grund: " . $sperre['reason'] . "\n";
+            echo "              Solange die Sperre steht, wird an diese Adresse NICHTS\n";
+            echo "              verschickt — auch wenn unser Protokoll \"sent\" meldet.\n";
+            echo "              Aufheben: app.brevo.com → Transaktional → Statistik →\n";
+            echo "              Gesperrte Kontakte → Adresse suchen → entsperren.\n";
+        } else {
+            echo "nein, diese Adresse ist nicht gesperrt.\n";
+        }
+        echo "\n";
+    }
+
+    $ereignisse = bkBrevoEvents($suchadresse, 25);
+
+    if (!$ereignisse['ok']) {
+        echo "  Nicht abrufbar — " . $ereignisse['error'] . "\n";
+    } elseif ($ereignisse['events'] === []) {
+        echo "  Brevo kennt zu diesem Zeitraum keine Ereignisse.\n";
+        if ($suchadresse !== '') {
+            echo "  Das heißt: An diese Adresse wurde über Brevo noch nichts verschickt.\n";
+        }
+    } else {
+        // Breiten in BYTES, nicht Zeichen — printf zählt so. Deshalb steht in
+        // der Kopfzeile "Empfaenger" ohne Umlaut: sonst verrutscht die Spalte.
+        printf("  %-19s %-16s %-32s %s\n", 'Zeitpunkt', 'Ereignis', 'Empfaenger', 'Grund');
+        bkDiagLine();
+
+        // Klartext statt Fachbegriff: "hard_bounce" sagt einem Betreiber
+        // nichts, "Adresse existiert nicht" schon.
+        $klartext = [
+            'delivered'   => 'ZUGESTELLT',
+            'requests'    => 'angenommen',
+            'opened'      => 'geöffnet',
+            'clicks'      => 'Link geklickt',
+            'soft_bounce' => 'vorüb. abgel.',
+            'hardBounces' => 'ADRESSE FALSCH',
+            'hard_bounce' => 'ADRESSE FALSCH',
+            'blocked'     => 'NICHT GESENDET',
+            'spam'        => 'ALS SPAM MARK.',
+            'deferred'    => 'wartet noch',
+            'invalid'     => 'ADRESSE UNGÜLTIG',
+            'error'       => 'FEHLER',
+        ];
+
+        foreach ($ereignisse['events'] as $e) {
+            $art = (string) ($e['event'] ?? '?');
+            printf("  %-19s %-16s %-32s %s\n",
+                substr((string) ($e['date'] ?? ''), 0, 19),
+                $klartext[$art] ?? $art,
+                substr((string) ($e['email'] ?? ''), 0, 32),
+                substr((string) ($e['reason'] ?? ''), 0, 60));
+        }
+
+        echo "\n";
+        echo "  So liest sich das:\n";
+        echo "    ZUGESTELLT      Die Mail ist im Postfach des Empfängers. Findet er\n";
+        echo "                    sie nicht, liegt sie in seinem Spam-Ordner.\n";
+        echo "    NICHT GESENDET  Adresse steht auf Brevos Sperrliste — dort entsperren.\n";
+        echo "    ADRESSE FALSCH  Die Adresse existiert nicht (Tippfehler beim Kunden).\n";
+        echo "    wartet noch     Noch in der Warteschlange, gleich nochmal nachsehen.\n";
+    }
+
+    echo "\n  Für eine bestimmte Adresse: &pruefe=adresse@example.de anhängen.\n";
+}
+
+// =====================================================================
+// 7) Protokoll
 // =====================================================================
 
 bkDiagHead('PROTOKOLL DER LETZTEN MAILS');

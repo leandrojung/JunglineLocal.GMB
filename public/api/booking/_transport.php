@@ -346,6 +346,118 @@ function bkApiPost(string $url, array $headers, array $payload, ?string $basicAu
 }
 
 /**
+ * Ein GET gegen eine JSON-API.
+ *
+ * Gegenstueck zu bkApiPost(). Gebraucht wird es fuer die Rueckfrage beim
+ * Maildienst: "Was ist mit der Mail passiert, die ich dir gegeben habe?"
+ *
+ * @param array<int,string> $headers
+ * @return array{status:int, json:?array, body:string, error:string}
+ */
+function bkApiGet(string $url, array $headers): array {
+    if (!function_exists('curl_init')) {
+        return ['status' => 0, 'json' => null, 'body' => '', 'error' => 'cURL ist auf diesem Server nicht verfügbar.'];
+    }
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => array_merge(['Accept: application/json'], $headers),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_CONNECTTIMEOUT => 8,
+    ]);
+
+    $body = curl_exec($ch);
+    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($body === false || $curlError !== '') {
+        return ['status' => 0, 'json' => null, 'body' => '', 'error' => 'Verbindung fehlgeschlagen: ' . $curlError];
+    }
+
+    $json = json_decode((string) $body, true);
+    return ['status' => $status, 'json' => is_array($json) ? $json : null, 'body' => (string) $body, 'error' => ''];
+}
+
+/**
+ * WAS BREVO ZU DEN VERSCHICKTEN MAILS SAGT.
+ *
+ * Das ist der Punkt, an dem "der Kunde hat nichts bekommen" aufhört, eine
+ * Vermutung zu sein. Unser eigenes Protokoll kann nur sagen, dass Brevo die
+ * Mail ANGENOMMEN hat. Was danach passiert ist — zugestellt, vom Empfänger
+ * abgelehnt, als Spam einsortiert, oder gar nicht erst verschickt, weil die
+ * Adresse auf Brevos Sperrliste steht —, weiß nur Brevo.
+ *
+ * Die Ereignisse, die hier auftauchen können:
+ *   delivered   angekommen. Liegt sie trotzdem nicht im Postfach, ist sie
+ *               im Spam-Ordner des Empfängers.
+ *   soft_bounce vorübergehend abgelehnt (Postfach voll, Server überlastet)
+ *   hard_bounce Adresse existiert nicht
+ *   blocked     Brevo hat gar nicht erst verschickt, weil die Adresse auf
+ *               der Sperrliste steht (früherer Bounce oder Spam-Klick)
+ *   spam        der Empfänger hat sie als Spam markiert
+ *   deferred    noch in der Warteschlange bei Brevo
+ *
+ * @return array{ok:bool, error:string, events:array<int,array<string,mixed>>}
+ */
+function bkBrevoEvents(string $email = '', int $limit = 25): array {
+    $key = envValue('BREVO_API_KEY');
+    if ($key === null || $key === '') {
+        return ['ok' => false, 'error' => 'Kein Brevo-Schlüssel hinterlegt.', 'events' => []];
+    }
+
+    $query = ['limit' => max(1, min($limit, 100)), 'offset' => 0, 'sort' => 'desc'];
+    if ($email !== '') $query['email'] = $email;
+
+    $res = bkApiGet('https://api.brevo.com/v3/smtp/statistics/events?' . http_build_query($query),
+                    ['api-key: ' . $key]);
+
+    if ($res['status'] < 200 || $res['status'] >= 300) {
+        return ['ok' => false, 'error' => bkApiError($res), 'events' => []];
+    }
+    return ['ok' => true, 'error' => '', 'events' => $res['json']['events'] ?? []];
+}
+
+/**
+ * Steht diese Adresse auf Brevos Sperrliste?
+ *
+ * Eine gesperrte Adresse ist der heimtückischste Fall: Brevo nimmt die Mail
+ * per API an und meldet Erfolg, verschickt sie aber nie. Im eigenen
+ * Protokoll steht dann "sent" — und beim Empfänger kommt trotzdem nichts an.
+ *
+ * @return array{ok:bool, blocked:bool, reason:string, error:string}
+ */
+function bkBrevoBlocked(string $email): array {
+    $key = envValue('BREVO_API_KEY');
+    if ($key === null || $key === '') {
+        return ['ok' => false, 'blocked' => false, 'reason' => '', 'error' => 'Kein Brevo-Schlüssel hinterlegt.'];
+    }
+
+    $res = bkApiGet('https://api.brevo.com/v3/smtp/blockedContacts?' . http_build_query(['email' => $email, 'limit' => 1]),
+                    ['api-key: ' . $key]);
+
+    // 404 heißt bei Brevo schlicht "steht nicht auf der Liste".
+    if ($res['status'] === 404) {
+        return ['ok' => true, 'blocked' => false, 'reason' => '', 'error' => ''];
+    }
+    if ($res['status'] < 200 || $res['status'] >= 300) {
+        return ['ok' => false, 'blocked' => false, 'reason' => '', 'error' => bkApiError($res)];
+    }
+
+    $liste = $res['json']['contacts'] ?? [];
+    if ($liste === []) {
+        return ['ok' => true, 'blocked' => false, 'reason' => '', 'error' => ''];
+    }
+    return [
+        'ok' => true,
+        'blocked' => true,
+        'reason' => (string) ($liste[0]['reason']['message'] ?? $liste[0]['reason']['code'] ?? 'unbekannt'),
+        'error' => '',
+    ];
+}
+
+/**
  * Kurzfassung einer Fehlerantwort für Protokoll und Diagnoseseite.
  *
  * Jeder Dienst legt den Grund woanders ab; abgefragt werden deshalb der
