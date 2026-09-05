@@ -33,7 +33,8 @@ const BK_BUFFER_MIN   = 0;       // Puffer vor/nach einem Termin
 // Buchungen pro IP und Tag werden abgelehnt. Wer einen bestehenden Termin
 // verschiebt, ist davon ausgenommen (siehe book.php) — sonst stünde ein
 // Kunde nach dem dritten Verschieben ganz ohne Termin da.
-const BK_RATE_PER_IP_DAY = 3;
+// TEMPORÄR für Live-Tests am 05.09. hochgesetzt (war 3) — danach zurückstellen.
+const BK_RATE_PER_IP_DAY = 20;
 
 const BK_TITLE    = 'Kostenloses Erstgespräch — JunglineLocal';
 const BK_DURATION_LABEL = '30 Minuten';
