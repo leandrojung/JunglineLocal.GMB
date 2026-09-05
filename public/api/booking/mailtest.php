@@ -74,6 +74,34 @@ $chain = bkTransportChain();
 echo "\n  Reihenfolge: " . ($chain === [] ? 'KEINER — es kann nichts verschickt werden!' : implode(' → ', $chain)) . "\n";
 echo "  Absender:    " . bkAddress(bkMailFrom(), bkMailFromName()) . "\n";
 
+// ---- Funktioniert der Schlüssel von DIESEM Server aus? ----------------
+//
+// "eingerichtet" oben heißt nur: ein Schlüssel steht in der .env. Ob Brevo
+// ihn annimmt, ist eine andere Frage — und genau daran hing wochenlang
+// alles: Brevo wies jeden Aufruf mit "401 unrecognised IP address" ab, der
+// Versand fiel still auf SMTP zurück, und die Bestätigungen verschwanden
+// dort. Deshalb steht diese Prüfung jetzt ganz oben und nicht im Kleinen.
+if (bkTransportConfigured('brevo')) {
+    $konto = bkBrevoAccountCheck();
+    echo "\n  Brevo-Schlüssel: ";
+    if ($konto['ok']) {
+        echo "FUNKTIONIERT" . ($konto['konto'] !== '' ? " (" . $konto['konto'] . ")" : '') . "\n";
+    } else {
+        echo "WIRD ABGELEHNT\n";
+        echo "  " . $konto['error'] . "\n";
+        echo "\n";
+        echo "  ==> SOLANGE DAS HIER STEHT, GEHT KEINE EINZIGE MAIL ÜBER BREVO.\n";
+        echo "      Alles fällt still auf SMTP zurück — also auf genau den Weg,\n";
+        echo "      der Bestätigungen ohne Fehlermeldung verschluckt.\n";
+        if (str_contains(strtolower($konto['error']), 'ip address')) {
+            echo "\n";
+            echo "      Das ist die IP-Freigabe in deinem Brevo-Konto. Die IP dieses\n";
+            echo "      Servers muss dort eingetragen (oder die Sperre abgeschaltet)\n";
+            echo "      werden: https://app.brevo.com/security/authorised_ips\n";
+        }
+    }
+}
+
 // Die Warnung haengt bewusst an bkHasVerifiedTransport() und nicht daran,
 // ob ueberhaupt etwas eingerichtet ist. Genau das war die Luecke: Mit
 // gesetzten SMTP-Daten sah die Zeile "Reihenfolge: smtp → mail" gesund aus,

@@ -381,6 +381,41 @@ function bkApiGet(string $url, array $headers): array {
 }
 
 /**
+ * Funktioniert der Brevo-Schlüssel von DIESEM Server aus?
+ *
+ * "Eingerichtet" heißt bisher nur: Es steht ein Schlüssel in der .env. Ob
+ * Brevo ihn auch annimmt, ist eine ganz andere Frage — und die entscheidet
+ * darüber, ob überhaupt eine Mail über den guten Weg hinausgeht.
+ *
+ * Genau hier lag der Fehler, der die Bestätigungen wochenlang gekostet hat:
+ * Brevo hatte die IP-Freigabe aktiv, die IP des Hostinger-Servers stand
+ * nicht auf der Liste, und jeder Aufruf endete mit
+ * "HTTP 401 unrecognised IP address". Der Versand fiel still auf SMTP
+ * zurück, das Protokoll meldete "sent" — und beim Kunden kam nichts an.
+ *
+ * @return array{ok:bool, error:string, konto:string}
+ */
+function bkBrevoAccountCheck(): array {
+    $key = envValue('BREVO_API_KEY');
+    if ($key === null || $key === '') {
+        return ['ok' => false, 'error' => 'Kein Schlüssel hinterlegt.', 'konto' => ''];
+    }
+
+    $res = bkApiGet('https://api.brevo.com/v3/account', ['api-key: ' . $key]);
+    if ($res['status'] < 200 || $res['status'] >= 300) {
+        return ['ok' => false, 'error' => bkApiError($res), 'konto' => ''];
+    }
+
+    $mail = (string) ($res['json']['email'] ?? '');
+    $plan = $res['json']['plan'][0]['credits'] ?? null;
+    return [
+        'ok' => true,
+        'error' => '',
+        'konto' => $mail . ($plan !== null ? ' — noch ' . $plan . ' Mails frei' : ''),
+    ];
+}
+
+/**
  * WAS BREVO ZU DEN VERSCHICKTEN MAILS SAGT.
  *
  * Das ist der Punkt, an dem "der Kunde hat nichts bekommen" aufhört, eine

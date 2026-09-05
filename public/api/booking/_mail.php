@@ -133,7 +133,21 @@ function bkDeliver(array $msg): array {
         $log = array_merge($log, $res['log']);
 
         if ($res['ok']) {
-            return ['ok' => true, 'transport' => $id, 'id' => $res['id'], 'error' => '', 'log' => $log];
+            // Gescheiterte Vorversuche MITSCHREIBEN, auch wenn am Ende einer
+            // geklappt hat.
+            //
+            // Ohne das verschluckt der Rückfall den eigentlichen Fehler: Der
+            // Maildienst weist jeden Aufruf ab, SMTP springt ein, im
+            // Protokoll steht "sent" — und niemand sieht, dass der gute Weg
+            // seit Tagen tot ist. Genau so ist es passiert: Brevo antwortete
+            // auf JEDEN Aufruf mit "HTTP 401 unrecognised IP address", jede
+            // Mail ging still über das Hoster-Postfach hinaus, und die
+            // Bestätigungen verschwanden dort wie zuvor.
+            return [
+                'ok' => true, 'transport' => $id, 'id' => $res['id'],
+                'error' => $errors === [] ? '' : 'RÜCKFALL auf ' . $id . ' — vorher gescheitert: ' . implode(' // ', $errors),
+                'log' => $log,
+            ];
         }
         $errors[] = $id . ': ' . $res['error'];
         $log[] = '!!! ' . $res['error'];
