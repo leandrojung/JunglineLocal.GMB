@@ -1694,6 +1694,49 @@
       if('inert' in HTMLElement.prototype) seite.inert = true;
     }
 
+    /* ---------- Eingangsanimation ----------
+       Ob sie ueberhaupt laeuft, hat das Inline-Skript in partials/chooser.html
+       vor dem ersten Bildaufbau entschieden (.zweig-intro auf <html>). Hier
+       geht es nur um ihr Ende: entweder sie laeuft aus, oder der Besucher
+       bricht sie mit Klick, Tipp oder Escape ab.
+
+       Der Abbruch setzt lediglich eine Klasse, die jedes beteiligte Element
+       auf seinen Endzustand springen laesst — nichts laeuft neu an, und weil
+       dieser Endzustand ohnehin der Ruhezustand des Layouts ist, verschiebt
+       sich dabei kein Pixel. */
+    var INTRO_DAUER = 1600;
+    var introLaeuft = wurzel.classList.contains('zweig-intro');
+    var introUhr = null;
+
+    // Fokus auf den Dialog selbst, NICHT auf die erste Karte: Chrome zeigt bei
+    // programmatischem Fokus direkt nach dem Laden den Fokusrahmen an, und ein
+    // Rahmen um "SEO Optimierung" saehe aus, als waere die Wahl schon getroffen.
+    // So liest ein Screenreader den Dialog vor, Tab beginnt trotzdem bei der
+    // ersten Karte — und optisch ist nichts vorbelegt.
+    var fokussieren = function(){
+      if(chooser.focus) chooser.focus({preventScroll:true});
+    };
+
+    var introEnde = function(abgebrochen){
+      if(!introLaeuft) return;
+      introLaeuft = false;
+      if(introUhr) window.clearTimeout(introUhr);
+      chooser.removeEventListener('pointerdown', aufTipp);
+      if(abgebrochen){
+        wurzel.classList.add('zweig-intro-skip');
+        fokussieren();
+      }
+    };
+
+    // pointerdown statt click: der Abbruch soll auf die Beruehrung reagieren,
+    // nicht erst auf das Loslassen. Trifft der Tipp eine Karte, laeuft der
+    // Klick danach unveraendert weiter — das Intro ist dann eben schon vorbei.
+    var aufTipp = function(){ introEnde(true); };
+    if(introLaeuft){
+      chooser.addEventListener('pointerdown', aufTipp);
+      introUhr = window.setTimeout(function(){ introEnde(false); }, INTRO_DAUER);
+    }
+
     var geschlossen = false;
     var schliessen = function(wert){
       if(geschlossen) return;
@@ -1717,7 +1760,12 @@
     };
 
     var aufEscape = function(e){
-      if(e.key === 'Escape' || e.key === 'Esc') schliessen('uebersprungen');
+      if(e.key !== 'Escape' && e.key !== 'Esc') return;
+      // Solange das Intro laeuft, bricht Escape zuerst nur dieses ab. Ein
+      // zweites Escape schliesst dann wie gewohnt den Startscreen: sonst
+      // uebersaehe man die Wahl, die man gerade erst zu sehen bekommt.
+      if(introLaeuft){ introEnde(true); return; }
+      schliessen('uebersprungen');
     };
     document.addEventListener('keydown', aufEscape);
 
@@ -1752,14 +1800,10 @@
       else if(!e.shiftKey && document.activeElement === letzte){ erste.focus(); e.preventDefault(); }
     });
 
-    // Fokus auf den Dialog selbst, NICHT auf die erste Karte: Chrome zeigt bei
-    // programmatischem Fokus direkt nach dem Laden den Fokusrahmen an, und ein
-    // Rahmen um "SEO Optimierung" saehe aus, als waere die Wahl schon getroffen.
-    // So liest ein Screenreader den Dialog vor, Tab beginnt trotzdem bei der
-    // ersten Karte — und optisch ist nichts vorbelegt.
-    window.setTimeout(function(){
-      if(chooser.focus) chooser.focus({preventScroll:true});
-    }, reduce ? 0 : 420);
+    // Der Fokus wartet, bis die Szene steht — waehrend des Intros waere die
+    // Ansage des Dialogs der Bewegung voraus. Bricht der Besucher ab, holt
+    // introEnde() den Fokus sofort nach.
+    window.setTimeout(fokussieren, reduce ? 0 : (introLaeuft ? INTRO_DAUER : 420));
   }
 
   /* ---------- Umschalter in der Navigationsleiste ---------- */
