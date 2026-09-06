@@ -75,13 +75,11 @@
 </script>
 <div class="chooser" id="chooser" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="chooserTitle" aria-describedby="chooserSub">
   <div class="chooser__inner">
-    <!-- Die beiden Linien und der Ring gehoeren allein zur Eingangsanimation
-         und stehen ohne .zweig-intro auf display:none. Sie liegen ausserhalb
-         des Textflusses (position:absolute), koennen also weder Groesse noch
-         Position der Wortmarke veraendern. -->
+    <!-- Der Ring gehoert allein zur Eingangsanimation und steht ohne
+         .zweig-intro auf display:none. Er liegt ausserhalb des Textflusses
+         (position:absolute), kann also weder Groesse noch Position der
+         Wortmarke veraendern. -->
     <span class="chooser__brand">
-      <i class="chooser__ray chooser__ray--l" aria-hidden="true"></i>
-      <i class="chooser__ray chooser__ray--r" aria-hidden="true"></i>
       <i class="chooser__ring" aria-hidden="true"></i>
       <span class="chooser__brand-tile"><img draggable="false" src="/logo-mark.png" alt="" width="160" height="171" decoding="async"></span>
       <span class="chooser__brand-name">Jungline<b>Local</b></span>
@@ -93,4 +91,22 @@
     </div>
     <a class="chooser__skip" href="/?zweig=uebersprungen" data-zweig-skip>Später entscheiden</a>
   </div>
+</div>
+<!-- Der Vorhang der Eingangsanimation. Er steht bewusst NEBEN dem Startscreen
+     und nicht darin: der Startscreen blendet sich in 0,28 s ein, ein Vorhang
+     darin wuerde dieselbe Blende mitmachen und in den ersten Millisekunden die
+     Seite durchscheinen lassen. Ausserdem hat der Startscreen dadurch weiterhin
+     sein gewohntes Einblendverhalten — wird er zu frueh undurchsichtig, zaehlt
+     Chrome eine spaetere Hoehenaenderung durch den nachgeladenen Schriftschnitt
+     als Layout-Versatz.
+
+     Ohne .zweig-intro ist der Vorhang nicht vorhanden (display:none), er nimmt
+     keine Eingaben an und ist reine Dekoration, deshalb aria-hidden. -->
+<div class="chooser__curtain" aria-hidden="true">
+  <span class="chooser__curtain-half chooser__curtain-half--l"></span>
+  <span class="chooser__curtain-half chooser__curtain-half--r"></span>
+  <span class="chooser__seam chooser__seam--l"></span>
+  <span class="chooser__seam chooser__seam--r"></span>
+  <span class="chooser__rift"></span>
+  <span class="chooser__burst"></span>
 </div>
