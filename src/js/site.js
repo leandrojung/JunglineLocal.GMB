@@ -1704,9 +1704,54 @@
        auf seinen Endzustand springen laesst — nichts laeuft neu an, und weil
        dieser Endzustand ohnehin der Ruhezustand des Layouts ist, verschiebt
        sich dabei kein Pixel. */
-    var INTRO_DAUER = 1600;
+    var INTRO_DAUER = 1950;
     var introLaeuft = wurzel.classList.contains('zweig-intro');
     var introUhr = null;
+
+    /* Die Ueberschrift steigt Wort fuer Wort aus einer Maske auf. Dafuer muss
+       jedes Wort in einem eigenen Kasten mit overflow:hidden stehen — das
+       laesst sich in HTML nicht vorhalten, ohne den Text fuer Screenreader in
+       Bruchstuecke zu zerlegen, also entsteht es hier zur Laufzeit.
+
+       Der Textinhalt bleibt dabei unveraendert, nur die Verpackung ist neu:
+       aria-labelledby am Dialog liest weiterhin denselben Satz. Klappt es
+       nicht — kein JavaScript, verringerte Bewegung, oder das Skript kommt zu
+       spaet —, steigt die Ueberschrift wie bisher als ein Stueck auf. */
+    var titelZerlegen = function(){
+      var titel = chooser.querySelector('.chooser__title');
+      if(!titel || reduce) return;
+      // Der Auftritt der Ueberschrift beginnt bei 800 ms. Wer spaeter dran
+      // ist, laesst besser die Finger davon: sonst zerspringt ein Satz, der
+      // schon zu steigen begonnen hat.
+      if(window.performance && performance.now() > 600) return;
+      var urtext = titel.textContent || '';
+      var woerter = urtext.trim().split(/\s+/);
+      if(woerter.length < 2) return;
+      var hoeheVorher = titel.offsetHeight;
+      titel.textContent = '';
+      woerter.forEach(function(wort, i){
+        var maske = document.createElement('span');
+        maske.className = 'w';
+        maske.style.setProperty('--w', i);
+        var innen = document.createElement('span');
+        innen.className = 'w__i';
+        innen.textContent = wort;
+        maske.appendChild(innen);
+        titel.appendChild(maske);
+        if(i < woerter.length - 1) titel.appendChild(document.createTextNode(' '));
+      });
+      // Jedes Wort steht nun als inline-block in der Zeile. Das kann den
+      // Zeilenumbruch anders ausfallen lassen als beim durchgehenden Text —
+      // und ein anderer Umbruch heisst eine andere Hoehe, also ein
+      // verschobenes Layout, und zwar nach dem ersten Bildaufbau. Passiert
+      // das, wird die Zerlegung ersatzlos zurueckgenommen: die Ueberschrift
+      // steigt dann als ein Stueck auf. Ein Effekt ist keinen Versatz wert.
+      if(titel.offsetHeight !== hoeheVorher){
+        titel.textContent = urtext;
+        return;
+      }
+      titel.classList.add('is-split');
+    };
 
     // Fokus auf den Dialog selbst, NICHT auf die erste Karte: Chrome zeigt bei
     // programmatischem Fokus direkt nach dem Laden den Fokusrahmen an, und ein
@@ -1717,15 +1762,25 @@
       if(chooser.focus) chooser.focus({preventScroll:true});
     };
 
+    /* Steht die Szene, wird jede beteiligte Animation abgeschaltet. Das ist
+       kein Kosmetikschritt: eine mit fill:both beendete Animation haelt ihren
+       Endwert dauerhaft fest und uebersteuert damit jede spaetere Regel — das
+       Anheben einer Karte beim Ueberfahren bliebe sonst wirkungslos. Der
+       Endzustand der Animationen ist identisch mit dem Ruhezustand der
+       Elemente, es springt dabei also nichts. */
+    var bereit = function(){ wurzel.classList.add('zweig-wahl-bereit'); };
+
     var introEnde = function(abgebrochen){
       if(!introLaeuft) return;
       introLaeuft = false;
       if(introUhr) window.clearTimeout(introUhr);
       chooser.removeEventListener('pointerdown', aufTipp);
+      wurzel.classList.add('zweig-intro-fertig');
       if(abgebrochen){
         wurzel.classList.add('zweig-intro-skip');
         fokussieren();
       }
+      bereit();
     };
 
     // pointerdown statt click: der Abbruch soll auf die Beruehrung reagieren,
@@ -1733,8 +1788,12 @@
     // Klick danach unveraendert weiter — das Intro ist dann eben schon vorbei.
     var aufTipp = function(){ introEnde(true); };
     if(introLaeuft){
+      titelZerlegen();
       chooser.addEventListener('pointerdown', aufTipp);
       introUhr = window.setTimeout(function(){ introEnde(false); }, INTRO_DAUER);
+    } else {
+      // Ohne Intro ist der gewohnte Auftritt nach rund 900 ms durch.
+      window.setTimeout(bereit, reduce ? 0 : 950);
     }
 
     var geschlossen = false;
