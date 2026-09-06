@@ -2522,22 +2522,30 @@ html{-webkit-tap-highlight-color:transparent}
 .chooser__ray,.chooser__ring{display:none}
 .zweig-intro .chooser__ray,.zweig-intro .chooser__ring{display:block}
 
-/* Die beiden Wege. Sie sitzen am Rand der Wortmarke und wachsen aus dem
-   Nichts auf sie zu; der Verlauf laesst das aeussere Ende weich auslaufen,
-   damit keine harte Kante im Milchglas steht. */
+/* Die beiden Wege. Sie sitzen links und rechts der Logo-Kachel und wachsen
+   aus dem Nichts auf sie zu — der Treffpunkt ist die Bildmarke, nicht der
+   Textblock daneben. Der Verlauf laesst das aeussere Ende weich auslaufen,
+   damit keine harte Kante im Milchglas steht.
+
+   Die rechte Linie laeuft dorthin, wo gleich der Schriftzug steht, und
+   verblasst genau waehrend er aufzieht: der Weg wird zur Wortmarke. */
 .chooser__ray{
   position:absolute;top:50%;height:1px;width:min(38vw,320px);
   pointer-events:none;opacity:0;
 }
 .zweig-intro .chooser__ray{animation:chIntroRay .92s both}
+/* Bezugsrahmen ist die Wortmarke, gemessen wird aber die Kachel: sie ist
+   deren erstes Element und damit 0…38px breit. Die Linien haengen bewusst
+   NICHT in der Kachel — die skaliert beim Auftritt und wuerde sie mitziehen. */
 .chooser__ray--l{right:calc(100% + 8px);transform-origin:100% 50%;
   background:linear-gradient(90deg,transparent,rgba(var(--green-bright-rgb),.55))}
-.chooser__ray--r{left:calc(100% + 8px);transform-origin:0 50%;
+.chooser__ray--r{left:46px;transform-origin:0 50%;
   background:linear-gradient(270deg,transparent,rgba(var(--green-bright-rgb),.55))}
 
 /* Der Ring quittiert den Treffpunkt: einmal nach aussen, dann weg. */
 .chooser__ring{
-  position:absolute;inset:0;border-radius:999px;pointer-events:none;opacity:0;
+  position:absolute;left:0;top:50%;width:38px;height:38px;margin-top:-19px;
+  border-radius:999px;pointer-events:none;opacity:0;
   border:1px solid rgba(var(--green-bright-rgb),.45);
 }
 .zweig-intro .chooser__ring{animation:chIntroRing .86s .46s both}
@@ -2604,6 +2612,9 @@ html{-webkit-tap-highlight-color:transparent}
   .chooser__card-tt{grid-area:tt;font-size:1.16rem}
   .chooser__card-tx{grid-area:tx;font-size:.9rem;line-height:1.55}
   .chooser__card-go{grid-area:go;margin-top:0}
+  /* Auf schmalen Bildschirmen kuerzer, damit die Linien nicht bis an den
+     Rand laufen und dort abgeschnitten wirken. */
+  .chooser__ray{width:min(26vw,150px)}
   .chooser__title{margin-top:20px;font-size:clamp(1.75rem,6.4vw,3.05rem)}
   .chooser__sub{font-size:.96rem;margin-top:12px}
   .chooser__skip{margin-top:20px}
