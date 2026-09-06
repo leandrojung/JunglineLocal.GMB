@@ -2509,94 +2509,244 @@ html{-webkit-tap-highlight-color:transparent}
    ersten Bildaufbau, zusammen mit .zweig-wahl. Ohne diese Klasse bleibt der
    bisherige, schlichte Aufstieg der Elemente unveraendert.
 
-   Die Bewegung ist die Aussage der Unterzeile: zwei Linien laufen von links
-   und rechts zusammen, treffen sich auf der Wortmarke, ein einzelner Ring
-   quittiert den Treffer — danach staffeln sich Ueberschrift, Karten und
-   Fussnote ein. Ende nach rund 1,55 Sekunden.
+   Ablauf, rund zwei Sekunden:
+     1. Der Bildschirm liegt zunaechst unter einer geschlossenen, tief
+        indigofarbenen Flaeche — dem Vorhang.
+     2. Vom linken und vom rechten Rand faehrt je ein Lichtstrahl auf die
+        Mitte zu. Wo sie sich treffen, blitzt ein Ring auf: „Zwei Wege, ein
+        Ziel", bevor der Satz ueberhaupt lesbar ist.
+     3. Entlang dieser Linie reisst der Vorhang auf, die beiden Haelften
+        fahren nach oben und unten aus dem Bild.
+     4. Aus dem Treffpunkt heraus baut sich die Szene auf: Bildmarke mit
+        Puls, Schriftzug, dann die Ueberschrift Wort fuer Wort aus einer
+        Maske, dann die beiden Karten mit einer leichten Drehung im Raum und
+        einem einmaligen Lichtstreif, zuletzt die Fussnote.
 
-   Bewusst nur transform, opacity und clip-path: alles laeuft im Compositor,
-   ohne Neuberechnung des Layouts. Kein Element aendert seine Groesse oder
-   Position im Fluss, es gibt also auch nach dem Intro keinen Versatz. Und weil
-   der Startscreen ohnehin nur eine Ebene UEBER der fertigen Seite liegt, haelt
-   die Animation weder Darstellung noch Indexierung des Inhalts auf. */
-.chooser__ray,.chooser__ring{display:none}
-.zweig-intro .chooser__ray,.zweig-intro .chooser__ring{display:block}
+   Bewegt werden ausschliesslich transform und opacity (die Wortmaske arbeitet
+   mit overflow statt clip-path, die Karten mit einer 3D-Drehung statt einer
+   Groessenaenderung). Alles laeuft damit im Compositor, ohne Neuberechnung des
+   Layouts; kein Element aendert seine Groesse oder Position im Fluss, es gibt
+   also auch nach dem Intro keinen Versatz. Und weil der Startscreen ohnehin
+   nur eine Ebene UEBER der fertigen Seite liegt, haelt die Animation weder
+   Darstellung noch Indexierung des Inhalts auf. */
 
-/* Die beiden Wege. Sie sitzen links und rechts der Logo-Kachel und wachsen
-   aus dem Nichts auf sie zu — der Treffpunkt ist die Bildmarke, nicht der
-   Textblock daneben. Der Verlauf laesst das aeussere Ende weich auslaufen,
-   damit keine harte Kante im Milchglas steht.
-
-   Die rechte Linie laeuft dorthin, wo gleich der Schriftzug steht, und
-   verblasst genau waehrend er aufzieht: der Weg wird zur Wortmarke. */
-.chooser__ray{
-  position:absolute;top:50%;height:1px;width:min(38vw,320px);
-  pointer-events:none;opacity:0;
+/* ---- Der Vorhang ---- */
+.chooser__curtain{display:none}
+.zweig-intro .chooser__curtain{
+  /* Eine Stufe ueber dem Startscreen, den er verdeckt. */
+  display:block;position:fixed;inset:0;z-index:calc(var(--z-chooser) + 1);
+  pointer-events:none;
+  /* Eigene Farbwerte statt der Flaechen-Token: der Vorhang ist die einzige
+     Stelle der Seite, die ins Tiefdunkle geht. Zur Mitte hin — dort, wo er
+     aufreisst — laeuft er heller aus. */
+  --vorhang-tief:#0C0E20;
+  --vorhang-mitte:var(--green-bright-2);
+  --vorhang-hoch:#2B3266;
 }
-.zweig-intro .chooser__ray{animation:chIntroRay .92s both}
-/* Bezugsrahmen ist die Wortmarke, gemessen wird aber die Kachel: sie ist
-   deren erstes Element und damit 0…38px breit. Die Linien haengen bewusst
-   NICHT in der Kachel — die skaliert beim Auftritt und wuerde sie mitziehen. */
-.chooser__ray--l{right:calc(100% + 8px);transform-origin:100% 50%;
-  background:linear-gradient(90deg,transparent,rgba(var(--green-bright-rgb),.55))}
-.chooser__ray--r{left:46px;transform-origin:0 50%;
-  background:linear-gradient(270deg,transparent,rgba(var(--green-bright-rgb),.55))}
+/* Er teilt sich SENKRECHT, nicht waagerecht. Das ist keine Geschmacksfrage:
+   der Startscreen ist mittig gesetzt, ein waagerechter Riss gaebe zuerst die
+   Karten frei und die Ueberschrift zuletzt — also genau in der falschen
+   Reihenfolge. Senkrecht laeuft die Freigabe von der Mitte nach aussen, jede
+   Zeile von ihrem eigenen Mittelpunkt her. Und die Richtungen, in die die
+   beiden Haelften abfahren, sind dieselben, aus denen gleich die beiden
+   Karten hereinkommen. */
+/* Kein will-change: das befoerderte die beiden bildschirmgrossen Flaechen
+   schon beim Aufbau der Seite auf eigene Compositor-Ebenen — also genau in
+   dem Moment, in dem ein schwaches Geraet am wenigsten Luft hat. Ihre
+   Bewegung beginnt erst nach 0,44 s; bis dahin reicht die Befoerderung durch
+   die laufende Animation selbst voellig aus. */
+.chooser__curtain-half{position:absolute;top:0;bottom:0;width:50.4%}
+.chooser__curtain-half--l{left:0;
+  background:linear-gradient(90deg,var(--vorhang-tief),var(--vorhang-mitte) 62%,var(--vorhang-hoch));
+  animation:chIntroVorhangL .54s .44s cubic-bezier(.62,0,.16,1) both}
+.chooser__curtain-half--r{right:0;
+  background:linear-gradient(270deg,var(--vorhang-tief),var(--vorhang-mitte) 62%,var(--vorhang-hoch));
+  animation:chIntroVorhangR .54s .44s cubic-bezier(.62,0,.16,1) both}
 
-/* Der Ring quittiert den Treffpunkt: einmal nach aussen, dann weg. */
+/* ---- Die beiden Wege ---- */
+/* Zwei Strahlen, je von einem Rand zur Mitte. Der Verlauf laesst das aeussere
+   Ende weich auslaufen, damit keine harte Kante am Bildrand steht. */
+.chooser__seam{position:absolute;top:50%;height:2px;margin-top:-1px;
+  transform:scaleX(0);opacity:0;
+  box-shadow:0 0 26px 3px rgba(150,175,255,.5)}
+.chooser__seam--l{left:0;right:50%;transform-origin:0 50%;
+  background:linear-gradient(90deg,rgba(255,255,255,0),#8FA8FF 55%,#FFFFFF);
+  animation:chIntroWeg .62s cubic-bezier(.16,1,.3,1) both}
+.chooser__seam--r{left:50%;right:0;transform-origin:100% 50%;
+  background:linear-gradient(270deg,rgba(255,255,255,0),#8FA8FF 55%,#FFFFFF);
+  animation:chIntroWeg .62s cubic-bezier(.16,1,.3,1) both}
+
+/* Der Treffpunkt: ein Ring, der einmal nach aussen laeuft, und die Bruchlinie,
+   die aus dem Treffpunkt nach oben und unten aufschiesst. */
+.chooser__burst{position:absolute;left:50%;top:50%;width:64px;height:64px;
+  margin:-32px 0 0 -32px;border-radius:999px;opacity:0;
+  border:1.5px solid rgba(190,208,255,.9);
+  animation:chIntroBurst .6s .3s cubic-bezier(.16,1,.3,1) both}
+.chooser__rift{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;
+  transform:scaleY(0);opacity:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0),#AFC0FF 22%,#FFFFFF 50%,#AFC0FF 78%,rgba(255,255,255,0));
+  box-shadow:0 0 30px 4px rgba(150,175,255,.55);
+  animation:chIntroRiss .55s .3s cubic-bezier(.16,1,.3,1) both}
+
+/* ---- Bildmarke ---- */
 .chooser__ring{
   position:absolute;left:0;top:50%;width:38px;height:38px;margin-top:-19px;
-  border-radius:999px;pointer-events:none;opacity:0;
+  border-radius:999px;pointer-events:none;opacity:0;display:none;
   border:1px solid rgba(var(--green-bright-rgb),.45);
 }
-.zweig-intro .chooser__ring{animation:chIntroRing .86s .46s both}
-
-/* Waehrend des Intros steigt die Wortmarke nicht als Ganzes auf: Kachel und
-   Schriftzug haben eigene Auftritte, sonst waere die Begegnung der Linien
-   nicht zu sehen. */
+.zweig-intro .chooser__ring{display:block;animation:chIntroRing .8s .64s both}
+/* Kachel und Schriftzug haben eigene Auftritte, damit die Marke aus dem
+   Treffpunkt heraus entsteht statt als Block einzuschweben. */
 .zweig-intro .chooser__brand{animation:none}
-.zweig-intro .chooser__brand-tile{animation:chIntroTile .62s .32s var(--ease-apple) both}
-.zweig-intro .chooser__brand-name{animation:chIntroName .5s .5s var(--ease-apple) both}
+.zweig-intro .chooser__brand-tile{animation:chIntroTile .62s .50s var(--ease-apple) both}
+.zweig-intro .chooser__brand-name{animation:chIntroName .5s .66s var(--ease-apple) both}
 
-/* Der Rest der Szene setzt hinter dem Treffpunkt an — gleiche Bewegung wie
-   ohne Intro, nur spaeter. */
-.zweig-intro .chooser__title{animation-delay:.70s}
-.zweig-intro .chooser__sub{animation-delay:.78s}
-.zweig-intro .chooser__card{animation-delay:calc(.84s + var(--i,0)*.08s)}
-.zweig-intro .chooser__skip{animation-delay:.98s}
+/* ---- Ueberschrift Wort fuer Wort ---- */
+/* Die Woerter zerlegt site.js zur Laufzeit; ohne JavaScript oder unter
+   prefers-reduced-motion bleibt die Ueberschrift ein einziger Textknoten und
+   behaelt ihren gewohnten Auftritt. Die Maske ist bewusst groesser als die
+   Zeile (Innenabstand plus gleich grosser negativer Aussenabstand), damit
+   Oberlaengen und Umlautpunkte nicht abgeschnitten werden und das Layout
+   trotzdem unveraendert bleibt. */
+.chooser__title.is-split{animation:none;opacity:1}
+/* Geschnitten wird mit clip-path, NICHT mit overflow:hidden. Ein
+   inline-block mit overflow:hidden verlegt seine Grundlinie auf die untere
+   Kante — die ganze Ueberschrift saesse dann ein paar Pixel tiefer als vor
+   der Zerlegung, und weil die erst nach dem ersten Bildaufbau stattfindet,
+   waere das ein echter Layout-Versatz. clip-path schneidet rein optisch und
+   laesst das Layout unberuehrt.
+
+   Oben ist reichlich Luft (Oberlaengen, Umlautpunkte), unten nur ein Hauch:
+   dort muss der Schnitt sitzen, sonst lugte das wartende Wort hervor. */
+.chooser__title .w{display:inline-block;
+  clip-path:inset(-.45em -.1em -.12em -.1em)}
+.chooser__title .w__i{display:inline-block;
+  animation:chIntroWort .6s cubic-bezier(.16,1,.3,1) both;
+  animation-delay:calc(.74s + var(--w,0)*.065s)}
+
+/* ---- Der Rest der Szene ---- */
+/* Rueckfall: bekommt site.js die Ueberschrift nicht zerlegt, steigt sie als
+   ein Stueck auf — zum selben Zeitpunkt, an dem sonst das erste Wort kommt. */
+.zweig-intro .chooser__title{animation-delay:.74s}
+.zweig-intro .chooser__sub{animation-delay:.96s}
+.zweig-intro .chooser__skip{animation-delay:1.38s}
+
+/* ---- Die beiden Karten ---- */
+/* Sie kommen aus dem Raum statt von unten: leichte Drehung um die Hochachse,
+   nach hinten versetzt, dann in die Flaeche. Waehrenddessen laeuft einmal ein
+   Lichtstreif darueber.
+
+   backdrop-filter ist waehrend des Intros abgeschaltet: eine bewegte Flaeche
+   mit Milchglas zwingt den Browser, die Unschaerfe in jedem Bild neu zu
+   rechnen — auf Mittelklasse-Telefonen der teuerste Posten der ganzen Szene.
+   Der Kartenhintergrund ist mit 82 % Deckkraft ohnehin fast blickdicht, der
+   Unterschied faellt in der Bewegung nicht auf. Sobald das Intro steht, holt
+   .zweig-intro-fertig das Milchglas zurueck. */
+.zweig-intro .chooser__grid{perspective:1400px}
+.zweig-intro .chooser__card{
+  overflow:hidden;-webkit-backdrop-filter:none;backdrop-filter:none;
+  animation:chIntroKarte .64s cubic-bezier(.16,1,.3,1) both;
+  animation-delay:calc(1.04s + var(--i,0)*.1s);
+}
+/* Die Karten kommen aus den Richtungen, in die eben die Vorhanghaelften
+   abgefahren sind: die linke von links, die rechte von rechts. */
+.zweig-intro .chooser__card:nth-child(1){--kipp:-13deg;--weg:-90px}
+.zweig-intro .chooser__card:nth-child(2){--kipp:13deg;--weg:90px}
+.zweig-intro .chooser__card::after{
+  /* Bewegt wird transform, NICHT left: eine Animation auf left rechnet in
+     jedem Bild das Layout neu und erzeugt dabei echte Layout-Shifts — beim
+     ersten Versuch 0,16 auf dem Telefon. Mit transform bleibt das Layout
+     unangetastet und die Bewegung liegt im Compositor. */
+  content:'';position:absolute;top:-60%;bottom:-60%;width:34%;left:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+  pointer-events:none;
+  animation:chIntroGlanz .56s cubic-bezier(.4,0,.3,1) both;
+  animation-delay:calc(1.26s + var(--i,0)*.1s);
+}
+.zweig-intro-fertig .chooser__card{
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+}
+.zweig-intro-fertig .chooser__card::after{display:none}
+
+/* Fertig heisst: keine laufende Animation mehr. Eine mit fill:both beendete
+   Animation haelt ihren Endwert sonst dauerhaft fest und uebersteuert damit
+   jede spaetere Regel — das Anheben der Karte beim Ueberfahren waere ohne
+   diese Zeile wirkungslos. Der Endzustand der Animationen ist identisch mit
+   dem Ruhezustand der Elemente, es springt also nichts. */
+.zweig-wahl-bereit .chooser__brand,
+.zweig-wahl-bereit .chooser__brand-tile,
+.zweig-wahl-bereit .chooser__brand-name,
+.zweig-wahl-bereit .chooser__title,
+.zweig-wahl-bereit .chooser__title .w__i,
+.zweig-wahl-bereit .chooser__sub,
+.zweig-wahl-bereit .chooser__card,
+.zweig-wahl-bereit .chooser__skip{animation:none}
+.zweig-wahl-bereit .chooser__curtain{display:none}
 
 /* Abbruch per Klick, Tipp oder Escape (siehe site.js): jedes Element springt
    sofort auf seinen Endzustand, nichts laeuft neu an. */
-.zweig-intro-skip .chooser__ray,.zweig-intro-skip .chooser__ring{display:none}
+.zweig-intro-skip .chooser__curtain{display:none}
+.zweig-intro-skip .chooser__ring{display:none}
+.zweig-intro-skip .chooser__card::after{display:none}
 .zweig-intro-skip .chooser__brand,
 .zweig-intro-skip .chooser__brand-tile,
 .zweig-intro-skip .chooser__brand-name,
 .zweig-intro-skip .chooser__title,
+.zweig-intro-skip .chooser__title .w__i,
 .zweig-intro-skip .chooser__sub,
 .zweig-intro-skip .chooser__card,
 .zweig-intro-skip .chooser__skip{
-  animation:none!important;opacity:1;transform:none;clip-path:none;
+  animation:none!important;opacity:1;transform:none;
 }
 
-@keyframes chIntroRay{
-  0%{transform:scaleX(0);opacity:0;animation-timing-function:cubic-bezier(.16,1,.3,1)}
-  18%{opacity:1}
-  55%{transform:scaleX(1);opacity:1;animation-timing-function:ease-in}
-  100%{transform:scaleX(1);opacity:0}
+@keyframes chIntroWeg{
+  0%{transform:scaleX(0) scaleY(.5);opacity:0}
+  8%{opacity:1}
+  52%{transform:scaleX(1) scaleY(1.4);opacity:1;animation-timing-function:cubic-bezier(.4,0,.6,1)}
+  62%{transform:scaleX(1) scaleY(2.6);opacity:1}
+  100%{transform:scaleX(1) scaleY(.3);opacity:0}
+}
+@keyframes chIntroBurst{
+  0%{transform:scale(.1);opacity:0}
+  18%{opacity:.95}
+  100%{transform:scale(7);opacity:0}
+}
+@keyframes chIntroVorhangL{from{transform:translate3d(0,0,0)}to{transform:translate3d(-101%,0,0)}}
+@keyframes chIntroVorhangR{from{transform:translate3d(0,0,0)}to{transform:translate3d(101%,0,0)}}
+@keyframes chIntroRiss{
+  0%{transform:scaleY(0);opacity:0}
+  12%{opacity:1}
+  38%{transform:scaleY(1);opacity:1}
+  100%{transform:scaleY(1);opacity:0}
 }
 @keyframes chIntroRing{
   0%{transform:scale(.7);opacity:0}
-  22%{opacity:.55}
-  100%{transform:scale(3.2);opacity:0}
+  22%{opacity:.5}
+  100%{transform:scale(3.4);opacity:0}
 }
 @keyframes chIntroTile{
-  0%{opacity:0;transform:scale(.5)}
-  62%{opacity:1;transform:scale(1.05)}
-  100%{opacity:1;transform:scale(1)}
+  0%{opacity:0;transform:translateY(10px) scale(.4)}
+  62%{opacity:1;transform:translateY(0) scale(1.07)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
 }
 @keyframes chIntroName{
   0%{opacity:0;clip-path:inset(0 100% 0 0)}
   28%{opacity:1}
   100%{opacity:1;clip-path:inset(0 -12% 0 0)}
+}
+@keyframes chIntroWort{
+  from{transform:translateY(140%)}
+  to{transform:translateY(0)}
+}
+@keyframes chIntroKarte{
+  from{opacity:0;transform:perspective(1400px) rotateY(var(--kipp,0deg)) translate3d(var(--weg,0),30px,-130px)}
+  60%{opacity:1}
+  to{opacity:1;transform:perspective(1400px) rotateY(0deg) translate3d(0,0,0)}
+}
+@keyframes chIntroGlanz{
+  from{transform:translateX(-170%) skewX(-18deg);opacity:0}
+  25%{opacity:1}
+  to{transform:translateX(370%) skewX(-18deg);opacity:0}
 }
 @media(max-width:700px){
   /* Auf dem Telefon muss die Entscheidung ohne Scrollen sichtbar sein. Deshalb
@@ -2612,9 +2762,15 @@ html{-webkit-tap-highlight-color:transparent}
   .chooser__card-tt{grid-area:tt;font-size:1.16rem}
   .chooser__card-tx{grid-area:tx;font-size:.9rem;line-height:1.55}
   .chooser__card-go{grid-area:go;margin-top:0}
-  /* Auf schmalen Bildschirmen kuerzer, damit die Linien nicht bis an den
-     Rand laufen und dort abgeschnitten wirken. */
-  .chooser__ray{width:min(26vw,150px)}
+  /* Auf dem Telefon sitzen die Karten untereinander statt nebeneinander. Eine
+     Drehung um die Hochachse liefe dort gegen die Leserichtung, deshalb kommen
+     sie hier flach von unten — und die Staffelung ist enger, damit die Szene
+     nicht laenger dauert als am Rechner. */
+  .zweig-intro .chooser__card:nth-child(1),
+  .zweig-intro .chooser__card:nth-child(2){--kipp:0deg;--weg:0px}
+  .zweig-intro .chooser__card{animation-delay:calc(1.04s + var(--i,0)*.08s)}
+  .zweig-intro .chooser__card::after{animation-delay:calc(1.26s + var(--i,0)*.08s)}
+  .chooser__burst{width:52px;height:52px;margin:-26px 0 0 -26px}
   .chooser__title{margin-top:20px;font-size:clamp(1.75rem,6.4vw,3.05rem)}
   .chooser__sub{font-size:.96rem;margin-top:12px}
   .chooser__skip{margin-top:20px}
@@ -2623,9 +2779,13 @@ html{-webkit-tap-highlight-color:transparent}
   /* Wer Bewegung abbestellt hat, bekommt auch das Intro nicht: die beiden
      Linien und der Ring verschwinden ersatzlos, alles andere steht sofort. */
   .zweig-wahl .chooser,.chooser__brand,.chooser__brand-tile,.chooser__brand-name,
-  .chooser__title,.chooser__sub,.chooser__card,.chooser__skip{
+  .chooser__title,.chooser__title .w__i,.chooser__sub,.chooser__card,.chooser__skip{
     animation:none!important;opacity:1;transform:none;clip-path:none}
-  .chooser__ray,.chooser__ring{display:none!important}
+  .chooser__curtain,.chooser__ring{display:none!important}
+  /* Die globale *{animation:none}-Regel dieser Datei greift nicht auf
+     Pseudo-Elemente — der Lichtstreif braucht seine eigene Abschaltung. */
+  .chooser__card::after{display:none!important}
+  .chooser__title .w__i{animation:none!important;transform:none}
   .zweig-wahl .chooser.is-closing{opacity:0}
 }
 
