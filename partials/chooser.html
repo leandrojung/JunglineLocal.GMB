@@ -16,6 +16,12 @@
      * der Aufruf hat kein "#abschnitt" (Deeplink — dorthin will der Besucher)
      * der Besucher kommt nicht aus einer Suchmaschine (siehe unten)
 
+   Zusaetzlich entscheidet dasselbe Skript, ob die Eingangsanimation laeuft
+   (.zweig-intro, gestaltet in site.css). Sie ist auf EINE pro Browser-Sitzung
+   begrenzt: ein Neuladen zeigt den Startscreen dann ohne die lange Fassung.
+   Das Merkzeichen liegt im sessionStorage und nicht im localStorage — es soll
+   mit dem Schliessen des Tabs vergehen, die Zweig-Entscheidung nicht.
+
    "?zweig=neu" an der Adresse erzwingt ihn jederzeit — zum Ansehen und
    Vorführen, ohne den Browserspeicher löschen zu müssen. */
 (function () {
@@ -27,13 +33,29 @@
      Auf false setzen, wenn der Startscreen ausnahmslos jedem erscheinen soll. */
   var SUCHTREFFER_AUSNEHMEN = true;
   var SCHLUESSEL = 'jl.zweig';
+  var INTRO_SCHLUESSEL = 'jl.intro';
 
   var speicher = null;
   try { speicher = window.localStorage; } catch (e) { /* Speicher gesperrt */ }
 
+  /* Startscreen sichtbar machen. "erzwingen" gilt nur fuer den Vorfuehrweg
+     "?zweig=neu": dort soll die Eingangsanimation jedes Mal laufen, sonst
+     liesse sich das Ergebnis nach dem ersten Aufruf nicht mehr ansehen. */
+  function oeffnen(erzwingen) {
+    var wurzel = document.documentElement;
+    wurzel.classList.add('zweig-wahl');
+    var sitzung = null;
+    try { sitzung = window.sessionStorage; } catch (e) { /* Speicher gesperrt */ }
+    if (!erzwingen) {
+      try { if (sitzung && sitzung.getItem(INTRO_SCHLUESSEL)) return; } catch (e) { return; }
+    }
+    try { if (sitzung) sitzung.setItem(INTRO_SCHLUESSEL, '1'); } catch (e) {}
+    wurzel.classList.add('zweig-intro');
+  }
+
   var treffer = /[?&]zweig=([a-z]+)/.exec(location.search);
   if (treffer) {
-    if (treffer[1] === 'neu') { document.documentElement.classList.add('zweig-wahl'); return; }
+    if (treffer[1] === 'neu') { oeffnen(true); return; }
     /* Rückweg ohne JavaScript-Interaktion: Die Karte wurde angeklickt, die
        Seite neu geladen, die Wahl steht in der Adresse. Merken und den
        Startscreen nicht erneut zeigen. */
@@ -48,12 +70,19 @@
   if (SUCHTREFFER_AUSNEHMEN &&
       /^https?:\/\/([^/]*\.)?(google|bing|duckduckgo|ecosia|yahoo|startpage|qwant|brave)\./i.test(document.referrer || '')) return;
 
-  document.documentElement.classList.add('zweig-wahl');
+  oeffnen(false);
 })();
 </script>
 <div class="chooser" id="chooser" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="chooserTitle" aria-describedby="chooserSub">
   <div class="chooser__inner">
+    <!-- Die beiden Linien und der Ring gehoeren allein zur Eingangsanimation
+         und stehen ohne .zweig-intro auf display:none. Sie liegen ausserhalb
+         des Textflusses (position:absolute), koennen also weder Groesse noch
+         Position der Wortmarke veraendern. -->
     <span class="chooser__brand">
+      <i class="chooser__ray chooser__ray--l" aria-hidden="true"></i>
+      <i class="chooser__ray chooser__ray--r" aria-hidden="true"></i>
+      <i class="chooser__ring" aria-hidden="true"></i>
       <span class="chooser__brand-tile"><img draggable="false" src="/logo-mark.png" alt="" width="160" height="171" decoding="async"></span>
       <span class="chooser__brand-name">Jungline<b>Local</b></span>
     </span>
