@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<!-- Diese Seite ist nur ueber die Webnummer erreichbar und steht nirgends
+     verlinkt. noindex ist der zweite Riegel: Sollte die Adresse doch je in
+     einer Suchmaschine landen, faellt sie wieder aus dem Index. -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Akquise · Jungline Local</title>
+<style>
+/* ==========================================================================
+   Farbsystem — semantische Token nach Apple HIG (Light + Dark)
+   ========================================================================== */
+:root{
+  color-scheme: light dark;
+
+  --blau:#007AFF; --blau-weich:rgba(0,122,255,.12);
+  --gruen:#34C759; --gruen-weich:rgba(52,199,89,.14);
+  --rot:#FF3B30;   --rot-weich:rgba(255,59,48,.12);
+  --orange:#FF9500;--orange-weich:rgba(255,149,0,.14);
+  --gelb:#FFCC00;
+  --indigo:#5856D6;
+  --grau:#8E8E93;
+
+  --hintergrund:#FFFFFF;
+  --hintergrund-2:#F2F2F7;
+  --hintergrund-3:#FFFFFF;
+  --gruppiert:#F2F2F7;
+
+  --label:#000000;
+  --label-2:rgba(60,60,67,.60);
+  --label-3:rgba(60,60,67,.30);
+  --trenner:rgba(60,60,67,.29);
+  --fuellung:rgba(118,118,128,.12);
+  --fuellung-2:rgba(118,118,128,.20);
+
+  --leiste:rgba(249,249,249,.82);
+  --schatten:0 .5px 2px rgba(0,0,0,.10), 0 4px 14px rgba(0,0,0,.05);
+
+  --radius-gross:14px;
+  --radius:10px;
+  --radius-klein:8px;
+
+  --sf:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --blau:#0A84FF; --blau-weich:rgba(10,132,255,.20);
+    --gruen:#30D158; --gruen-weich:rgba(48,209,88,.20);
+    --rot:#FF453A;   --rot-weich:rgba(255,69,58,.20);
+    --orange:#FF9F0A;--orange-weich:rgba(255,159,10,.20);
+    --gelb:#FFD60A;  --indigo:#5E5CE6; --grau:#8E8E93;
+
+    --hintergrund:#000000;
+    --hintergrund-2:#1C1C1E;
+    --hintergrund-3:#2C2C2E;
+    --gruppiert:#000000;
+
+    --label:#FFFFFF;
+    --label-2:rgba(235,235,245,.60);
+    --label-3:rgba(235,235,245,.30);
+    --trenner:rgba(84,84,88,.65);
+    --fuellung:rgba(120,120,128,.24);
+    --fuellung-2:rgba(120,120,128,.36);
+
+    --leiste:rgba(30,30,32,.80);
+    --schatten:none;
+  }
+}
+
+/* ==========================================================================
+   Grundlagen & Typo-Skala (SF-Stufen)
+   ========================================================================== */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--gruppiert); color:var(--label);
+  font-family:var(--sf); font-size:17px; line-height:1.42;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+input,select,textarea,button{font-family:inherit;font-size:17px;color:inherit}
+:focus-visible{outline:3px solid var(--blau);outline-offset:2px;border-radius:6px}
+a{color:var(--blau)}
+
+.gross-titel{font-size:34px;line-height:1.15;font-weight:700;letter-spacing:-.4px;margin:0}
+.titel-2{font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-.26px;margin:0}
+.titel-3{font-size:20px;line-height:1.3;font-weight:600;letter-spacing:-.2px;margin:0}
+.headline{font-size:17px;font-weight:600;letter-spacing:-.4px;margin:0}
+.body{font-size:17px;letter-spacing:-.4px}
+.callout{font-size:16px;letter-spacing:-.32px}
+.subhead{font-size:15px;letter-spacing:-.24px}
+.footnote{font-size:13px;letter-spacing:-.08px}
+.caption{font-size:12px}
+.sekundaer{color:var(--label-2)}
+.zahlen{font-variant-numeric:tabular-nums}
+
+/* ==========================================================================
+   Navigationsleiste
+   ========================================================================== */
+.navleiste{
+  position:sticky; top:0; z-index:30;
+  background:var(--leiste);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--trenner);
+  padding-top:env(safe-area-inset-top);
+}
+.nav-innen{max-width:1120px;margin:0 auto;padding:10px 20px 12px;display:flex;flex-direction:column;gap:12px}
+.nav-oben{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.nav-titel{display:flex;flex-direction:column}
+.nav-titel small{color:var(--label-2);font-size:13px;letter-spacing:-.08px;margin-top:1px}
+.nav-aktion{margin-left:auto;display:flex;align-items:center;gap:12px}
+
+.zeitanzeige{
+  font-variant-numeric:tabular-nums;font-size:17px;font-weight:600;letter-spacing:-.4px;
+  color:var(--label-2);min-width:52px;text-align:right}
+.zeitanzeige.laeuft{color:var(--gruen)}
+
+/* Segmentierte Steuerung */
+.segment{
+  display:inline-flex;background:var(--fuellung);border-radius:9px;padding:2px;gap:2px;
+  width:100%;max-width:520px}
+.segment button{
+  flex:1;border:0;background:transparent;border-radius:7px;padding:7px 10px;min-height:32px;
+  font-size:13px;font-weight:600;letter-spacing:-.08px;color:var(--label);cursor:pointer;
+  transition:background .16s ease}
+.segment button[aria-selected="true"]{
+  background:var(--hintergrund); box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+@media (prefers-color-scheme: dark){
+  .segment button[aria-selected="true"]{background:#636366;box-shadow:none}
+}
+
+/* ==========================================================================
+   Bühne, gruppierte Abschnitte
+   ========================================================================== */
+.buehne{max-width:1120px;margin:0 auto;padding:20px 20px 64px}
+.spalten{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+
+.abschnitt{margin-bottom:26px}
+.abschnitt > h2{
+  font-size:13px;font-weight:600;letter-spacing:-.08px;color:var(--label-2);
+  margin:0 0 8px 4px}
+.gruppe{
+  background:var(--hintergrund);border-radius:var(--radius-gross);overflow:hidden;
+  box-shadow:var(--schatten)}
+.gruppe.polster{padding:18px 20px}
+.gruppe + .gruppe{margin-top:16px}
+.fussnote{color:var(--label-2);font-size:13px;letter-spacing:-.08px;margin:8px 4px 0;line-height:1.4}
+
+/* Zeilen im Listenstil */
+.zeile{
+  display:flex;align-items:center;gap:12px;min-height:48px;padding:11px 18px;
+  position:relative;background:transparent;border:0;width:100%;text-align:left;color:var(--label);
+  font-size:17px;letter-spacing:-.4px;cursor:default}
+.zeile + .zeile::before{
+  content:'';position:absolute;top:0;left:18px;right:0;height:.5px;background:var(--trenner)}
+button.zeile{cursor:pointer;transition:background .12s}
+button.zeile:hover{background:var(--fuellung)}
+button.zeile:active{background:var(--fuellung-2)}
+.zeile-text{flex:1;min-width:0}
+.zeile-text small{display:block;color:var(--label-2);font-size:13px;letter-spacing:-.08px;margin-top:1px}
+.zeile-wert{color:var(--label-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chevron{color:var(--label-3);flex:none}
+.haken{color:var(--blau);flex:none}
+
+/* ==========================================================================
+   Bedienelemente
+   ========================================================================== */
+.knopf{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:44px;padding:11px 19px;border-radius:12px;border:0;cursor:pointer;
+  font-size:17px;font-weight:600;letter-spacing:-.4px;
+  background:var(--blau);color:#fff;transition:opacity .12s,transform .06s}
+.knopf:hover{opacity:.88}
+.knopf:active{transform:scale(.985)}
+.knopf:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.knopf.getoent{background:var(--blau-weich);color:var(--blau)}
+.knopf.schlicht{background:transparent;color:var(--blau);padding:11px 8px}
+.knopf.grau{background:var(--fuellung);color:var(--label)}
+.knopf.gruen{background:var(--gruen)}
+.knopf.rot{background:var(--rot)}
+.knopf.rand{background:transparent;color:var(--blau);box-shadow:inset 0 0 0 1.5px var(--blau)}
+.knopf.klein{min-height:34px;padding:7px 13px;font-size:15px;border-radius:9px}
+.knopfreihe{display:flex;gap:10px;flex-wrap:wrap}
+
+.feld{display:flex;flex-direction:column;gap:6px}
+.feld label{font-size:13px;color:var(--label-2);letter-spacing:-.08px;padding-left:2px}
+input[type=text],input[type=tel],input[type=date],input[type=time],select,textarea{
+  background:var(--fuellung);border:0;border-radius:10px;padding:12px 14px;min-height:44px;
+  width:100%;font-size:17px;letter-spacing:-.4px;color:var(--label);appearance:none}
+textarea{resize:vertical;line-height:1.45;min-height:88px}
+select{background-image:none}
+.raster{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+
+/* ==========================================================================
+   Gesprächsansicht
+   ========================================================================== */
+.kontaktzeile{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.kontaktzeile select{max-width:330px}
+.telefonlink{
+  display:inline-flex;align-items:center;gap:7px;color:var(--gruen);font-weight:600;
+  text-decoration:none;font-size:17px;letter-spacing:-.4px;min-height:44px}
+.telefonlink:hover{text-decoration:underline}
+
+.kapseln{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin-bottom:8px;scrollbar-width:none}
+.kapseln::-webkit-scrollbar{display:none}
+.kapsel{
+  flex:none;border:0;background:var(--fuellung);color:var(--label);border-radius:20px;
+  padding:9px 15px;min-height:36px;font-size:15px;font-weight:500;letter-spacing:-.24px;cursor:pointer}
+.kapsel:hover{background:var(--fuellung-2)}
+.kapsel[aria-current="true"]{background:var(--blau);color:#fff;font-weight:600}
+
+.skript{padding:22px 24px 24px}
+.skript-marke{
+  display:inline-block;font-size:13px;font-weight:600;letter-spacing:-.08px;
+  color:var(--blau);background:var(--blau-weich);border-radius:7px;padding:4px 10px;margin-bottom:14px}
+.sprechtext{font-size:24px;line-height:1.42;letter-spacing:-.5px;margin:0;max-width:40ch}
+.sprechtext b{font-weight:700;color:var(--blau)}
+.notiz-streifen{
+  display:flex;gap:11px;align-items:flex-start;margin-top:18px;
+  background:var(--fuellung);border-radius:12px;padding:12px 14px;
+  font-size:15px;line-height:1.45;letter-spacing:-.24px;color:var(--label-2);max-width:56ch}
+.notiz-streifen svg{flex:none;margin-top:1px;color:var(--label-2)}
+.pausenstreifen{
+  display:flex;gap:11px;align-items:center;margin-top:16px;
+  background:var(--orange-weich);color:var(--orange);border-radius:12px;padding:12px 14px;
+  font-size:16px;font-weight:600;letter-spacing:-.32px}
+.tasteninfo{color:var(--label-3);font-size:12px;margin:16px 0 0}
+
+.antwortgruppe{margin-top:16px;box-shadow:var(--schatten);border-radius:var(--radius-gross);overflow:hidden;background:var(--hintergrund)}
+.antwortkopf{background:var(--rot-weich);color:var(--rot);padding:12px 20px;font-size:13px;font-weight:600;letter-spacing:-.08px}
+.antwortkoerper{padding:18px 20px 20px}
+.antworttext{font-size:21px;line-height:1.45;letter-spacing:-.45px;margin:0;max-width:42ch}
+.antworttext b{font-weight:700;color:var(--rot)}
+
+.merkliste{list-style:none;margin:0;padding:0}
+.merkliste li{display:flex;gap:12px;align-items:flex-start;padding:11px 18px;position:relative;font-size:16px;letter-spacing:-.32px}
+.merkliste li + li::before{content:'';position:absolute;top:0;left:18px;right:0;height:.5px;background:var(--trenner)}
+.merkliste .nr{
+  flex:none;width:22px;height:22px;border-radius:50%;background:var(--blau);color:#fff;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.warnliste li{color:var(--label);gap:11px}
+.warnliste .pkt{flex:none;color:var(--orange);margin-top:2px}
+
+/* ==========================================================================
+   Anrufliste & Auswertung
+   ========================================================================== */
+.plakette{
+  display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:3px 10px;
+  font-size:13px;font-weight:600;letter-spacing:-.08px;white-space:nowrap}
+.punkt{width:7px;height:7px;border-radius:50%;flex:none}
+.faellig{color:var(--rot);font-weight:600}
+
+.kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px}
+.kennzahl{background:var(--hintergrund);border-radius:var(--radius-gross);padding:17px 19px;box-shadow:var(--schatten)}
+.kennzahl b{display:block;font-size:32px;font-weight:700;letter-spacing:-.6px;font-variant-numeric:tabular-nums;line-height:1.1}
+.kennzahl small{display:block;color:var(--label-2);font-size:13px;letter-spacing:-.08px;margin-top:3px}
+.balkenzeile{display:grid;grid-template-columns:minmax(140px,190px) 1fr 34px;gap:14px;align-items:center;padding:11px 18px;position:relative;font-size:16px;letter-spacing:-.32px}
+.balkenzeile + .balkenzeile::before{content:'';position:absolute;top:0;left:18px;right:0;height:.5px;background:var(--trenner)}
+.balken{height:8px;background:var(--fuellung);border-radius:4px;overflow:hidden}
+.balken i{display:block;height:100%;border-radius:4px;background:var(--blau)}
+.balken.erfolg i{background:var(--gruen)}
+.balken.warn i{background:var(--orange)}
+
+/* ==========================================================================
+   Training — Nachrichtenblasen
+   ========================================================================== */
+.verlauf{display:flex;flex-direction:column;gap:9px;padding:18px;max-height:460px;overflow:auto}
+.blase{max-width:76%;padding:11px 15px;border-radius:20px;font-size:17px;line-height:1.4;letter-spacing:-.4px}
+.blase.kunde{background:var(--fuellung);color:var(--label);align-self:flex-start;border-bottom-left-radius:6px}
+.blase.ich{background:var(--blau);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.coach{
+  align-self:stretch;background:var(--orange-weich);color:var(--label);border-radius:12px;
+  padding:11px 14px;font-size:15px;line-height:1.45;letter-spacing:-.24px;
+  display:flex;gap:10px;align-items:flex-start}
+.coach svg{flex:none;color:var(--orange);margin-top:1px}
+.eingabe{display:flex;gap:10px;padding:14px 18px;border-top:.5px solid var(--trenner);align-items:flex-end}
+.eingabe textarea{min-height:44px;flex:1}
+
+.leerzustand{padding:34px 20px;text-align:center;color:var(--label-2);font-size:16px;letter-spacing:-.32px}
+.leerzustand strong{display:block;color:var(--label);font-size:19px;font-weight:600;margin-bottom:5px;letter-spacing:-.4px}
+.fehlermeldung{color:var(--rot);font-size:15px;padding:12px 18px;letter-spacing:-.24px}
+.ladezeile{color:var(--label-2);font-size:15px;padding:12px 18px}
+
+@media (max-width:980px){
+  .spalten{grid-template-columns:1fr}
+  .sprechtext{font-size:21px}
+  .antworttext{font-size:19px}
+  .gross-titel{font-size:28px}
+  .buehne{padding:16px 16px 56px}
+  .nav-innen{padding:8px 16px 10px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Druck */
+.spick{display:none}
+@media print{
+  .navleiste,.buehne{display:none!important}
+  .spick{display:block;font-size:11pt;color:#000}
+  .spick h1{font-size:17pt;margin:0 0 3mm;letter-spacing:-.4px}
+  .spick h2{font-size:12pt;margin:6mm 0 2mm;border-bottom:.5pt solid #999;padding-bottom:1mm}
+  .spick p{margin:0 0 2mm}
+  .spick .s{font-weight:600}
+  .spick .r{color:#555}
+  @page{size:A4;margin:15mm}
+}
+
+/* ==========================================================================
+   Serverspeicher — Anzeige und Sperrbildschirm
+   ========================================================================== */
+#speicherAnzeige[data-art="ok"]{color:var(--gruen)}
+#speicherAnzeige[data-art="offen"]{color:var(--orange)}
+#speicherAnzeige[data-art="fehler"]{color:var(--rot)}
+body.gesperrt .navleiste{display:none}
+</style>
+</head>
+<body>
+
+<header class="navleiste">
+  <div class="nav-innen">
+    <div class="nav-oben">
+      <div class="nav-titel">
+        <h1 class="gross-titel">Akquise</h1>
+        <small>Jungline Local · <span id="speicherAnzeige" data-art="" aria-live="polite">wird geladen …</span></small>
+      </div>
+      <div class="nav-aktion">
+        <span class="zeitanzeige" id="uhrAnzeige" aria-live="off">0:00</span>
+        <button class="knopf gruen" id="anrufKnopf">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1l-2.3 2.2z"/></svg>
+          <span id="anrufKnopfText">Anruf starten</span>
+        </button>
+      </div>
+    </div>
+    <div class="segment" role="tablist" id="reiter">
+      <button role="tab" data-tab="gespraech" aria-selected="true">Gespräch</button>
+      <button role="tab" data-tab="liste" aria-selected="false">Anrufliste</button>
+      <button role="tab" data-tab="auswertung" aria-selected="false">Auswertung</button>
+      <button role="tab" data-tab="training" aria-selected="false">Training</button>
+    </div>
+  </div>
+</header>
+
+<main class="buehne" id="buehne"></main>
+<div class="spick" id="spick"></div>
+
+<script>
+/* ======================================================================
+   Jungline Akquise-Konsole
+   Skriptinhalte: Telefon-Skript Neukundengewinnung, Jungline Local
+   ====================================================================== */
+
+/* ======================================================================
+   Serverspeicher — der Grund, warum diese Seite überhaupt hier liegt.
+
+   Als Claude-Artefakt lief der Speicher über `window.storage`. Die gibt es
+   auf einer normalen Website nicht: Alles wäre beim Schließen des Tabs weg
+   gewesen. Stattdessen liegen Kontakte und Anrufe jetzt als eine Datei auf
+   dem Server (/api/akquise, Ablage oberhalb des Web-Roots). Damit sind sie
+   auf jedem Gerät dieselben und überleben jedes Neuladen.
+
+   Drei Sicherungen sind eingebaut, weil ein verlorener Akquise-Stand nicht
+   wiederherstellbar ist:
+
+     1. NOTKOPIE IM BROWSER. Jede Änderung landet sofort auch im
+        localStorage dieses Geräts. Ist der Server kurz nicht erreichbar,
+        geht nichts verloren — die Konsole versucht es im Hintergrund
+        weiter und schickt den Stand nach.
+     2. VERSIONSZÄHLER. Der Server nimmt einen Stand nur an, wenn er auf
+        der Version aufsetzt, die dieses Gerät geladen hat. Ein altes,
+        seit Stunden offenes iPhone kann den Mac-Stand nicht überschreiben.
+     3. ZUSAMMENFÜHREN. Passt die Version nicht, wird nicht verworfen,
+        sondern beides vereinigt (Kontakte und Anrufe haben eindeutige
+        IDs). Schlimmstenfalls kommt ein gelöschter Eintrag zurück — das
+        ist reparierbar, ein verschwundener Kontakt nicht.
+
+   Zugang: die Webnummer. Sie steht in der Adresse (?n=…), wird nach dem
+   ersten Aufruf im Gerät gemerkt und aus der Adresszeile entfernt, damit
+   sie nicht im Verlauf oder auf einem Screenshot landet.
+   ====================================================================== */
+
+const SPEICHER_URL  = '/api/akquise';
+const KI_URL        = '/api/akquise-ki';
+const NUMMER_KEY    = 'jungline:akquise:nummer';
+const SICHERUNG_KEY = 'jungline:akquise:sicherung';
+
+let daten = { kontakte:[], anrufe:[] };
+let nummer = '';
+let rev = null;
+let speicherOk = true;
+
+/* ---------------- Notkopie im Browser ---------------- */
+
+function lokalSchreiben(){
+  try{ localStorage.setItem(SICHERUNG_KEY, JSON.stringify({ zeit:Date.now(), daten })); }catch(e){}
+}
+function lokalLesen(){
+  try{ const r = JSON.parse(localStorage.getItem(SICHERUNG_KEY)||'null');
+    return r && r.daten && Array.isArray(r.daten.kontakte) ? r : null; }catch(e){ return null; }
+}
+function lokalLeeren(){ try{ localStorage.removeItem(SICHERUNG_KEY); }catch(e){} }
+
+/* ---------------- Anzeige oben in der Leiste ---------------- */
+
+function anzeigeSetzen(text, art){
+  const e = document.getElementById('speicherAnzeige');
+  if(!e) return;
+  e.textContent = text;
+  e.dataset.art = art || '';
+}
+
+/* ---------------- Netz ---------------- */
+
+async function anfrage(url, koerper){
+  try{
+    const a = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({ nummer }, koerper)),
+    });
+    let body = null;
+    try{ body = await a.json(); }catch(e){}
+    return { ok:a.ok, status:a.status, body };
+  }catch(e){
+    return { ok:false, status:0, body:{ meldung:'Keine Verbindung zum Server.' } };
+  }
+}
+
+/* ---------------- Laden ---------------- */
+
+async function laden(){
+  const a = await anfrage(SPEICHER_URL, { aktion:'laden' });
+  if(a.ok && a.body && a.body.ok){
+    daten = a.body.daten || { kontakte:[], anrufe:[] };
+    daten.kontakte = daten.kontakte || [];
+    daten.anrufe   = daten.anrufe   || [];
+    rev = a.body.rev;
+  }
+  return a;
+}
+
+/* ---------------- Sichern ---------------- */
+
+let sicherTimer=null, sicherLaeuft=false, nochEinmal=false, wiederholung=null;
+
+function sichern(){
+  lokalSchreiben();
+  anzeigeSetzen('nicht gesichert', 'offen');
+  clearTimeout(sicherTimer);
+  sicherTimer = setTimeout(sicherJetzt, 400);
+}
+
+/** Vereinigt zwei Stände über die IDs. Bei gleicher ID gewinnt die eigene
+ *  Fassung — sie ist die zuletzt bearbeitete auf diesem Gerät. */
+function zusammenfuehren(fremd, eigen){
+  const misch = (a, b) => {
+    const nach = new Map();
+    (a||[]).forEach(x=>{ if(x && x.id) nach.set(x.id, x); });
+    (b||[]).forEach(x=>{ if(x && x.id) nach.set(x.id, x); });
+    return [...nach.values()];
+  };
+  return { kontakte: misch(fremd.kontakte, eigen.kontakte),
+           anrufe:   misch(fremd.anrufe,   eigen.anrufe) };
+}
+
+async function sicherJetzt(versuch){
+  versuch = versuch || 1;
+  if(sicherLaeuft){ nochEinmal = true; return; }
+  sicherLaeuft = true;
+  clearTimeout(wiederholung);
+  anzeigeSetzen('sichert …', 'offen');
+
+  const a = await anfrage(SPEICHER_URL, { aktion:'sichern', rev, daten });
+  sicherLaeuft = false;
+
+  // Auf einem anderen Gerät wurde zwischendurch gespeichert.
+  if(a.status === 409 && a.body && a.body.daten){
+    daten = zusammenfuehren(a.body.daten, daten);
+    rev = a.body.rev;
+    zeichne();
+    if(versuch < 4){ sicherJetzt(versuch+1); }
+    else{ anzeigeSetzen('Stand wird gerade auf einem anderen Gerät geändert', 'fehler'); }
+    return;
+  }
+
+  if(a.ok && a.body && a.body.ok){
+    rev = a.body.rev;
+    lokalLeeren();
+    speicherOk = true;
+    anzeigeSetzen('gesichert', 'ok');
+    if(nochEinmal){ nochEinmal = false; sicherJetzt(); }
+    return;
+  }
+
+  if(a.status === 403 || a.status === 429){ sperrbildschirm((a.body&&a.body.meldung)||''); return; }
+
+  // Alles andere: Der Stand liegt weiter im Browser. Es wird ohne Zutun
+  // weiter versucht — genau dafür ist die Notkopie da.
+  speicherOk = false;
+  anzeigeSetzen('nicht gesichert — neuer Versuch läuft', 'fehler');
+  wiederholung = setTimeout(()=>sicherJetzt(1), 15000);
+}
+
+/* ---------------- Abgleich beim Zurückkommen ---------------- */
+
+async function abgleichen(){
+  if(anrufLaeuft || offenesErgebnis || sicherLaeuft || !speicherOk) return;
+  const a = await anfrage(SPEICHER_URL, { aktion:'laden' });
+  if(!(a.ok && a.body && a.body.ok) || a.body.rev === rev) return;
+  daten = a.body.daten; rev = a.body.rev;
+  daten.kontakte = daten.kontakte || []; daten.anrufe = daten.anrufe || [];
+  if(aktivKontakt && !kontakt(aktivKontakt)) aktivKontakt = daten.kontakte[0] ? daten.kontakte[0].id : null;
+  zeichne();
+  anzeigeSetzen('aktualisiert', 'ok');
+}
+
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) abgleichen(); });
+window.addEventListener('focus', abgleichen);
+window.addEventListener('online', ()=>{ if(!speicherOk) sicherJetzt(1); });
+
+/* ---------------- Webnummer ---------------- */
+
+function nummerHolen(){
+  const url = new URL(location.href);
+  let n = (url.searchParams.get('n') || '').trim();
+  if(!n && location.hash) n = (location.hash.replace(/^#n?=?/, '') || '').trim();
+  if(n) return n;
+  try{ return (localStorage.getItem(NUMMER_KEY) || '').trim(); }catch(e){ return ''; }
+}
+
+function nummerMerken(n){
+  try{ localStorage.setItem(NUMMER_KEY, n); }catch(e){}
+  // Nummer aus der Adresszeile nehmen: Sie soll nicht im Verlauf, in einem
+  // geteilten Link oder auf einem Screenshot stehen.
+  if(location.search || location.hash){
+    history.replaceState(null, '', location.pathname);
+  }
+}
+
+function sperrbildschirm(meldung){
+  document.body.classList.add('gesperrt');
+  const b = document.getElementById('buehne');
+  b.innerHTML = `<div class="abschnitt" style="max-width:420px;margin:12vh auto 0">
+    <h2>Akquise-Konsole</h2>
+    <div class="gruppe polster">
+      <p class="sekundaer" style="margin:0 0 14px">Diese Seite ist nicht verlinkt. Zum Öffnen die Webnummer eingeben.</p>
+      <input id="nummerFeld" type="text" inputmode="numeric" autocomplete="off"
+             placeholder="Webnummer" aria-label="Webnummer">
+      <div class="knopfreihe" style="margin-top:14px"><button class="knopf gruen" id="nummerKnopf">Öffnen</button></div>
+      ${meldung ? `<p class="fehlermeldung" style="margin-top:12px">${esc(meldung)}</p>` : ''}
+    </div>
+  </div>`;
+  const feld = document.getElementById('nummerFeld');
+  const los = async ()=>{
+    const n = (feld.value||'').trim();
+    if(!n) return;
+    nummer = n;
+    document.getElementById('nummerKnopf').disabled = true;
+    const a = await laden();
+    if(a.ok && a.body && a.body.ok){
+      nummerMerken(n);
+      document.body.classList.remove('gesperrt');
+      hochfahren();
+    }else{
+      sperrbildschirm((a.body && a.body.meldung) || 'Die Webnummer stimmt nicht.');
+    }
+  };
+  document.getElementById('nummerKnopf').addEventListener('click', los);
+  feld.addEventListener('keydown', e=>{ if(e.key==='Enter') los(); });
+  feld.focus();
+}
+
+/* ---------------- Zustand der Oberflaeche ---------------- */
+let tab = 'gespraech';
+let aktivKontakt = null;
+let stufe = 0;
+let offenerEinwand = null;
+let anrufLaeuft = false;
+let startZeit = 0, uhrTakt = null;
+let laufNotiz = '', laufEinwaende = [];
+let offenesErgebnis = null;
+let trainingVerlauf = [], trainingLaeuft = false;
+let trainingEinstellung = { branche:'Dachdecker', typ:'skeptisch und wortkarg', start:'Inhaber am Apparat' };
+
+/* ---------------- Symbole ---------------- */
+const IKON = {
+  chevron:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  haken:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>',
+  telefon:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1l-2.3 2.2z"/></svg>',
+  auflegen:'<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 6c-3.3 0-6.2.8-8.3 2.1-.9.6-1.2 1.8-.7 2.7l.9 1.5c.4.7 1.3 1 2 .7l2.4-.9c.7-.3 1.1-.9 1.1-1.6v-1c1.8-.5 3.4-.5 5.2 0v1c0 .7.4 1.3 1.1 1.6l2.4.9c.7.3 1.6 0 2-.7l.9-1.5c.5-.9.2-2.1-.7-2.7C18.2 6.8 15.3 6 12 6z"/></svg>',
+  info:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4.5a1.3 1.3 0 110 2.6 1.3 1.3 0 010-2.6zM13.2 17h-2.4v-6.2h2.4V17z"/></svg>',
+  pause:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 5h2.5v14H9zM12.5 5H15v14h-2.5z"/></svg>',
+  warnung:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.2 1.8 20.8h20.4L12 3.2zm1.1 13.1h-2.2v-2.2h2.2v2.2zm0-3.6h-2.2V8.4h2.2v4.3z"/></svg>',
+  plus:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+};
+
+/* ---------------- Skript ---------------- */
+const GATEKEEPER = {
+  titel:'Vorstufe · Sekretariat',
+  text:`Guten Tag, **Leandro Jung** hier von Jungline Local. **Mit wem habe ich das Vergnügen?** … Schön, Frau [Name]. **Sie können mir bestimmt weiterhelfen:** Ich würde gern kurz mit der Person sprechen, die bei Ihnen für Google und Neukunden zuständig ist – meist ist das die Inhaberin oder der Inhaber. **Können Sie mich bitte verbinden?**`,
+  regie:'Die Sekretärin ist der Türöffner, kein Hindernis. Selbstbewusst und freundlich – du klingst wie jemand, der erwartet wird, nicht wie ein Bittsteller. Ihren Namen merken und im Gespräch verwenden.',
+  einwaende:[
+    { f:'Worum geht es denn?',
+      a:`Es geht um die **Google-Sichtbarkeit von [Firma]** – dazu habe ich eine **konkrete Auswertung**, die ich kurz mit [dem Inhaber] besprechen möchte.`,
+      r:'Konkret und ruhig. Keine Verkaufssprache, sondern ein sachlicher Anlass.' },
+    { f:'Schicken Sie das bitte per E-Mail.',
+      a:`Mache ich gern. Damit die Mail nicht untergeht: **An wen genau darf ich sie adressieren** – und ist das auch die Person, die über solche Themen entscheidet?`,
+      r:'Ziel: Name und Funktion des Entscheiders. Beim nächsten Anruf fragst du gezielt nach dieser Person.' },
+    { f:'Der Inhaber ist gerade nicht da.',
+      a:`Kein Problem – **wann erreiche ich [ihn/sie] denn am besten?** Ich rufe dann gezielt noch einmal an.`,
+      r:'Konkrete Uhrzeit erfragen und notieren. Beim nächsten Anruf: „Ich hatte mit Frau [Name] vereinbart, um 14 Uhr zurückzurufen."' },
+    { f:'Wir haben kein Interesse.',
+      a:`Das kann ich nachvollziehen – deshalb möchte ich das gar nicht primär mit Ihnen klären, sondern [dem Inhaber] nur **kurz eine Frage stellen**. Verbinden Sie mich bitte, dann entscheidet er selbst, ob es interessant ist. **In Ordnung?**`,
+      r:'Immer freundlich bleiben. Wer die Sekretärin respektvoll behandelt, kommt beim nächsten Mal deutlich leichter durch.' }
+  ]
+};
+
+const PHASEN = [
+  { kurz:'Begrüßung', titel:'Phase 1 · Begrüßung & Einstieg',
+    text:`Guten Tag Herr [Name], mein Name ist **Leandro Jung von der Agentur Jungline Local**. **Ich fasse mich kurz** und sage Ihnen direkt, worum es geht: Und zwar würde ich Sie gerne **als neuen Kunden gewinnen**. **Ist das grundsätzlich für Sie interessant?**`,
+    regie:'Freundlich und ruhig sprechen – ein Lächeln hört man am Telefon.', pause:true },
+  { kurz:'Aufhänger', titel:'Phase 2 · Aufhänger & Problem',
+    text:`Ich bin **über Google auf Sie aufmerksam geworden** und habe gesehen, dass Ihr Google-Unternehmensprofil aktuell noch **recht wenig hergibt**. Dadurch gehen Ihnen **viele potenzielle Kunden verloren**, die online nach Ihnen suchen. **Ist Ihnen das bewusst?**`,
+    regie:'Sachlich bleiben, nicht abwertend. Es geht um Chancen, die liegen bleiben, nicht um Kritik am Kunden.', pause:true },
+  { kurz:'Angebot', titel:'Phase 3 · Angebot & Nutzen',
+    text:`Genau hier setzen wir an: Mit unserer professionellen Google-Unternehmensprofil-Optimierung sorgen wir dafür, dass Sie in der lokalen Google-Suche **deutlich besser gefunden werden**. **Das Ziel ist klar** – mehr Sichtbarkeit und mehr Anfragen aus Ihrer direkten Umgebung. **Wie klingt das für Sie?**`,
+    regie:'Immer vom „Ziel" sprechen, nie von einer Garantie. Einen festen Google-Platz darf man nicht versprechen.', pause:true },
+  { kurz:'Termin', titel:'Phase 4 · Termin vereinbaren',
+    text:`Damit Sie sehen, was das konkret für Sie bedeutet, habe ich Ihr Profil bereits in meinem Local-SEO-Tool hinterlegt und Ihre aktuelle Sichtbarkeit analysiert. Die Ergebnisse würde ich gern in einem **15-minütigen Gespräch** mit Ihnen durchgehen. Daher meine Frage: **Wann passt es Ihnen kommende Woche am besten – eher vormittags oder nachmittags?**`,
+    regie:'Alternativfrage statt Ja/Nein-Frage. Danach schweigen und den Kunden wählen lassen.', pause:true }
+];
+
+const EINWAENDE = [
+  { f:'Kein Interesse.',
+    a:`Das verstehe ich – **die meisten sagen das zuerst**, einfach weil sie noch gar nicht wissen, worum es genau geht. **Geben Sie mir 30 Sekunden:** Wenn es danach nichts für Sie ist, legen wir einfach auf. **Fair?**`,
+    r:'Ruhig und mit einem Lächeln. Der Kunde wehrt nicht dich ab, sondern eine typische Werbe-Situation – nimm ihm den Druck.' },
+  { f:'Ich habe keine Zeit.',
+    a:`**Genau deshalb rufe ich an** – ich nehme Ihnen die ganze Arbeit ab. Sie müssen nichts tun außer einmal kurz zuzuhören. **Wann passt es besser: heute Nachmittag oder morgen früh?**`,
+    r:'Direkt in die Alternativfrage gehen, nicht in die Rechtfertigung.' },
+  { f:'Schicken Sie mir etwas per E-Mail.',
+    a:`Mache ich gerne. Damit ich Ihnen **keine Standard-Mail** schicke, sondern genau das, was zu Ihrem Betrieb passt: **Was ist Ihnen am wichtigsten – mehr Anrufe, mehr Anfragen oder mehr Laufkundschaft?**`,
+    r:'So wird aus der Mail-Abwehr ein Gespräch. Eine Mail ohne Bezug landet ungelesen im Papierkorb. Antwort unten notieren.' },
+  { f:'Ich bin doch schon bei Google sichtbar.',
+    a:`**Schön zu hören!** Die entscheidende Frage ist aber: Werden Sie auch **bei den Begriffen gefunden, nach denen Ihre Kunden wirklich suchen** – und das im richtigen Umkreis? Genau das zeige ich Ihnen in wenigen Minuten. **Wollen wir da mal gemeinsam draufschauen?**`,
+    r:'Erst bestätigen, dann die Lücke aufmachen. Nie widersprechen.' },
+  { f:'Ich habe schon jemanden dafür.',
+    a:`Sehr gut, dann ist Ihnen das Thema also wichtig. **Wie zufrieden sind Sie mit den Ergebnissen** – und werden Sie regelmäßig informiert? Ich zeige Ihnen gerne **unverbindlich** den Vergleich zu Ihrer Branche.`,
+    r:'Den Wettbewerber nie schlechtreden. Nur nach Ergebnissen und Reporting fragen.' },
+  { f:'Das ist mir zu teuer.',
+    a:`Verständlich – deshalb schauen wir im Termin **zuerst, was es Ihnen bringt**, bevor wir über Zahlen reden. Wenn Sie dadurch nur wenige neue Kunden im Monat gewinnen, hat es sich meist schon gelohnt. **Lassen Sie uns unverbindlich draufschauen – einverstanden?**`,
+    r:'Keine Preise am Telefon. Erst den Wert zeigen, dann im Termin über die Investition sprechen.' },
+  { f:'Ich muss das überdenken / mit dem Partner besprechen.',
+    a:`Absolut sinnvoll. **Was müsste Ihr Partner wissen, um mit Ja zu antworten?** Am besten mache ich für Sie beide eine kurze, unverbindliche Übersicht – **wann passt Ihnen ein gemeinsamer Termin?**`,
+    r:'Nicht abwimmeln lassen: gleich den gemeinsamen Termin anbieten.' },
+  { f:'Woher haben Sie meine Nummer?',
+    a:`Ich bin ganz klassisch auf Ihren **öffentlichen Google- bzw. Firmeneintrag** gestoßen – da stehen Sie ja bewusst, **um gefunden zu werden**. Und genau darum geht es mir: dass Sie dort noch besser gefunden werden.`,
+    r:'Ruhig und selbstverständlich antworten. Kein schlechtes Gewissen zeigen.' }
+];
+
+const BEI_JA = [
+  'Tag und Uhrzeit sofort wiederholen und bestätigen',
+  'Name, Telefonnummer und E-Mail-Adresse notieren',
+  'Kurze Bestätigung per E-Mail ankündigen',
+  'Vor dem Termin: Profil im Prüfstand analysieren'
+];
+const REGELN_ERINNERUNG = [
+  'Keine Preise am Telefon nennen.',
+  'Nie eine Platzierung garantieren – immer vom Ziel sprechen.',
+  'Nach jeder Abschlussfrage: schweigen.',
+  'AHA: Anerkennen, Hinterfragen, Antworten.'
+];
+const ERGEBNISSE = [
+  { k:'termin',        l:'Termin vereinbart',   farbe:'var(--gruen)' },
+  { k:'rueckruf',      l:'Rückruf vereinbart',  farbe:'var(--orange)' },
+  { k:'mail',          l:'Mail gewünscht',      farbe:'var(--blau)' },
+  { k:'nichtErreicht', l:'Nicht erreicht',      farbe:'var(--grau)' },
+  { k:'gatekeeper',    l:'Am Sekretariat raus', farbe:'var(--indigo)' },
+  { k:'kein',          l:'Kein Interesse',      farbe:'var(--rot)' }
+];
+
+/* ---------------- Speicher ---------------- */
+
+/* ---------------- Hilfen ---------------- */
+const $ = (s,w)=>(w||document).querySelector(s);
+const $$ = (s,w)=>[...(w||document).querySelectorAll(s)];
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function fett(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+function heuteISO(){ return new Date().toISOString().slice(0,10); }
+function datumDE(iso){ if(!iso) return '—'; const d=new Date(iso); return isNaN(d)?'—':d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}); }
+function kontakt(id){ return daten.kontakte.find(k=>k.id===id)||null; }
+function neuerKontakt(){ return { id:'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+  firma:'', person:'', telefon:'', stadt:'', branche:'', mail:'',
+  status:'offen', wiedervorlage:'', wiederZeit:'', notiz:'', angelegt:heuteISO() }; }
+async function kopiere(t,btn){
+  try{ await navigator.clipboard.writeText(t); }catch(e){
+    const x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select();
+    try{document.execCommand('copy')}catch(e2){} x.remove(); }
+  if(btn){ const a=btn.textContent; btn.textContent='Kopiert'; setTimeout(()=>btn.textContent=a,1300); }
+}
+function mmss(s){ return Math.floor((s||0)/60)+':'+String((s||0)%60).padStart(2,'0'); }
+
+/* ---------------- Anruf & Uhr ---------------- */
+function uhrZeichnen(){
+  const e=$('#uhrAnzeige'); if(!e) return;
+  const s = anrufLaeuft ? Math.floor((Date.now()-startZeit)/1000) : 0;
+  e.textContent = mmss(s); e.classList.toggle('laeuft', anrufLaeuft);
+}
+function anrufStarten(){
+  anrufLaeuft = true; startZeit = Date.now();
+  stufe = 0; offenerEinwand=null; laufNotiz=''; laufEinwaende=[];
+  clearInterval(uhrTakt); uhrTakt = setInterval(uhrZeichnen,1000); uhrZeichnen();
+  const k=$('#anrufKnopf');
+  k.classList.remove('gruen'); k.classList.add('rot');
+  k.querySelector('svg').outerHTML = IKON.auflegen;
+  $('#anrufKnopfText').textContent = 'Anruf beenden';
+  if(tab!=='gespraech') tabWechsel('gespraech'); else zeichne();
+}
+function anrufBeenden(){
+  const dauer = Math.floor((Date.now()-startZeit)/1000);
+  anrufLaeuft = false; clearInterval(uhrTakt);
+  const k=$('#anrufKnopf');
+  k.classList.remove('rot'); k.classList.add('gruen');
+  k.querySelector('svg').outerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1l-2.3 2.2z"/></svg>';
+  $('#anrufKnopfText').textContent = 'Anruf starten';
+  offenesErgebnis = { kontaktId: aktivKontakt, dauer, einwaende:[...laufEinwaende], notiz: laufNotiz };
+  uhrZeichnen(); zeichne();
+}
+
+/* ---------------- Ansicht: Gespräch ---------------- */
+function ansichtGespraech(){
+  if(offenesErgebnis) return ansichtErgebnis();
+  const k = kontakt(aktivKontakt);
+  const inhalt = stufe===0 ? GATEKEEPER : PHASEN[stufe-1];
+  const gruppe = stufe===0 ? GATEKEEPER.einwaende : EINWAENDE;
+  const auswahl = daten.kontakte.map(x=>`<option value="${x.id}" ${x.id===aktivKontakt?'selected':''}>${esc(x.firma||'Ohne Namen')}${x.stadt?' · '+esc(x.stadt):''}</option>`).join('');
+
+  return `
+  <div class="kontaktzeile">
+    <select id="kontaktWahl" aria-label="Kontakt wählen">
+      <option value="">Kontakt wählen</option>${auswahl}
+    </select>
+    ${k && k.telefon ? `<a class="telefonlink" href="tel:${esc(k.telefon.replace(/\s/g,''))}">${IKON.telefon}${esc(k.telefon)}</a>`:''}
+    ${k ? `<span class="subhead sekundaer">${esc([k.person,k.branche].filter(Boolean).join(' · '))}</span>`:''}
+    <button class="knopf getoent klein" id="schnellKontakt">${IKON.plus}Neuer Kontakt</button>
+  </div>
+
+  <div class="spalten">
+    <div>
+      <div class="kapseln" role="tablist" aria-label="Gesprächsphase">
+        <button class="kapsel" data-stufe="0" aria-current="${stufe===0}">Sekretariat</button>
+        ${PHASEN.map((p,i)=>`<button class="kapsel" data-stufe="${i+1}" aria-current="${stufe===i+1}">${i+1}. ${p.kurz}</button>`).join('')}
+      </div>
+
+      <div class="gruppe">
+        <div class="skript">
+          <span class="skript-marke">${esc(inhalt.titel)}</span>
+          <p class="sprechtext">${fett(inhalt.text)}</p>
+          ${inhalt.pause?`<div class="pausenstreifen">${IKON.pause}Jetzt schweigen. Der Kunde antwortet zuerst.</div>`:''}
+          <div class="notiz-streifen">${IKON.info}<span>${esc(inhalt.regie)}</span></div>
+          <div class="knopfreihe" style="margin-top:20px">
+            <button class="knopf grau" id="zurueck" ${stufe===0?'disabled':''}>Zurück</button>
+            <button class="knopf" id="weiter" ${stufe===PHASEN.length?'disabled':''}>Weiter</button>
+            ${stufe===PHASEN.length?'<button class="knopf gruen" id="jaTermin">Er sagt ja</button>':''}
+          </div>
+          <p class="tasteninfo">Tasten 0–4 springen zur Phase, ← und → blättern, Esc schließt eine Antwort.</p>
+        </div>
+      </div>
+
+      ${offenerEinwand!==null ? antwortHtml(gruppe[offenerEinwand]) : ''}
+    </div>
+
+    <div>
+      <div class="abschnitt">
+        <h2>Einwand kam? Antippen.</h2>
+        <div class="gruppe">
+          ${gruppe.map((e,i)=>`<button class="zeile" data-einwand="${i}" aria-pressed="${offenerEinwand===i}">
+            <span class="zeile-text">${esc(e.f)}</span>
+            ${offenerEinwand===i?`<span class="haken">${IKON.haken}</span>`:`<span class="chevron">${IKON.chevron}</span>`}
+          </button>`).join('')}
+        </div>
+        ${stufe===0?'<p class="fussnote">Einwände am Sekretariat. Ab Phase 1 wechselt die Liste automatisch.</p>':''}
+      </div>
+
+      <div class="abschnitt">
+        <h2>Notizen zum Anruf</h2>
+        <div class="gruppe polster">
+          <div class="kapseln" style="padding-bottom:12px">
+            ${['Entscheider erreicht','Rückruf vereinbart','Sekretariat blockt','Hat schon Agentur','Kein Budget','Interessiert'].map(c=>`<button class="kapsel" data-chip="${esc(c)}">${esc(c)}</button>`).join('')}
+          </div>
+          <textarea id="laufNotiz" rows="5" placeholder="Was sagt er? Name der Sekretärin, beste Uhrzeit, was ihm wichtig ist …">${esc(laufNotiz)}</textarea>
+        </div>
+      </div>
+
+      <div class="abschnitt">
+        <h2>Wenn er zusagt</h2>
+        <div class="gruppe">
+          <ul class="merkliste">${BEI_JA.map((b,i)=>`<li><span class="nr">${i+1}</span><span>${esc(b)}</span></li>`).join('')}</ul>
+        </div>
+      </div>
+
+      <div class="abschnitt">
+        <h2>Nicht vergessen</h2>
+        <div class="gruppe">
+          <ul class="merkliste warnliste">${REGELN_ERINNERUNG.map(r=>`<li><span class="pkt">${IKON.warnung}</span><span>${esc(r)}</span></li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function antwortHtml(e){
+  return `<div class="antwortgruppe">
+    <div class="antwortkopf">Einwand · ${esc(e.f)}</div>
+    <div class="antwortkoerper">
+      <p class="antworttext">${fett(e.a)}</p>
+      <div class="notiz-streifen">${IKON.info}<span>${esc(e.r)}</span></div>
+      <div class="knopfreihe" style="margin-top:18px"><button class="knopf grau klein" id="antwortZu">Schließen</button></div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Ansicht: Ergebnis ---------------- */
+function ansichtErgebnis(){
+  const k = kontakt(offenesErgebnis.kontaktId);
+  return `
+  <div style="max-width:620px;margin:0 auto">
+    <div class="abschnitt">
+      <h2>Anruf beendet · ${mmss(offenesErgebnis.dauer)} Minuten${k?' · '+esc(k.firma||'Ohne Namen'):''}</h2>
+      <div class="gruppe">
+        ${ERGEBNISSE.map(e=>`<button class="zeile" data-erg="${e.k}" aria-pressed="${offenesErgebnis.ergebnis===e.k}">
+          <span class="punkt" style="background:${e.farbe}"></span>
+          <span class="zeile-text">${esc(e.l)}</span>
+          ${offenesErgebnis.ergebnis===e.k?`<span class="haken">${IKON.haken}</span>`:''}
+        </button>`).join('')}
+      </div>
+      <p class="fussnote">Wie ist der Anruf ausgegangen?</p>
+    </div>
+
+    <div id="ergebnisDetail">${ergebnisDetailHtml()}</div>
+
+    <div class="abschnitt">
+      <h2>Notiz</h2>
+      <div class="gruppe polster">
+        <textarea id="ergNotiz" rows="4" placeholder="Was war das Ergebnis, was ist beim nächsten Mal wichtig?">${esc(offenesErgebnis.notiz)}</textarea>
+        ${offenesErgebnis.einwaende.length?`<p class="fussnote" style="margin-left:0">Erfasste Einwände: ${offenesErgebnis.einwaende.map(esc).join(' · ')}</p>`:''}
+      </div>
+    </div>
+
+    <div class="knopfreihe">
+      <button class="knopf" id="ergSpeichern" ${offenesErgebnis.ergebnis?'':'disabled'}>Anruf sichern</button>
+      <button class="knopf schlicht" id="ergVerwerfen">Verwerfen</button>
+    </div>
+  </div>`;
+}
+function ergebnisDetailHtml(){
+  const e = offenesErgebnis.ergebnis;
+  if(e==='termin'){
+    return `<div class="abschnitt"><h2>Termin</h2><div class="gruppe polster">
+      <div class="raster">
+        <div class="feld"><label for="tDatum">Datum</label><input type="date" id="tDatum" data-erg-feld="terminDatum" value="${esc(offenesErgebnis.terminDatum||'')}"></div>
+        <div class="feld"><label for="tZeit">Uhrzeit</label><input type="time" id="tZeit" data-erg-feld="terminZeit" value="${esc(offenesErgebnis.terminZeit||'')}"></div>
+        <div class="feld"><label for="tMail">E-Mail des Kunden</label><input type="text" id="tMail" data-erg-feld="mail" value="${esc(offenesErgebnis.mail||'')}"></div>
+      </div></div>
+      <p class="fussnote">Termin sofort wiederholen und bestätigen. Die Bestätigungsmail erzeugst du danach in der Anrufliste.</p></div>`;
+  }
+  if(['rueckruf','nichtErreicht','gatekeeper','mail'].includes(e)){
+    return `<div class="abschnitt"><h2>Wiedervorlage</h2><div class="gruppe polster">
+      <div class="raster">
+        <div class="feld"><label for="wDatum">Datum</label><input type="date" id="wDatum" data-erg-feld="wiedervorlage" value="${esc(offenesErgebnis.wiedervorlage||'')}"></div>
+        <div class="feld"><label for="wZeit">Uhrzeit</label><input type="time" id="wZeit" data-erg-feld="wiederZeit" value="${esc(offenesErgebnis.wiederZeit||'')}"></div>
+        ${e==='mail'?`<div class="feld"><label for="mMail">E-Mail-Adresse</label><input type="text" id="mMail" data-erg-feld="mail" value="${esc(offenesErgebnis.mail||'')}"></div>`:''}
+      </div></div></div>`;
+  }
+  return '';
+}
+
+/* ---------------- Ansicht: Anrufliste ---------------- */
+function ansichtListe(){
+  const heute = heuteISO();
+  const sortiert = [...daten.kontakte].sort((a,b)=>(a.wiedervorlage||'9999').localeCompare(b.wiedervorlage||'9999'));
+  return `
+  <div class="abschnitt">
+    <h2>Neuer Kontakt</h2>
+    <div class="gruppe polster">
+      <div class="raster">
+        <div class="feld"><label for="nFirma">Firma</label><input type="text" id="nFirma"></div>
+        <div class="feld"><label for="nPerson">Ansprechpartner</label><input type="text" id="nPerson"></div>
+        <div class="feld"><label for="nTel">Telefon</label><input type="tel" id="nTel"></div>
+        <div class="feld"><label for="nBranche">Branche</label><input type="text" id="nBranche"></div>
+        <div class="feld"><label for="nStadt">Stadt</label><input type="text" id="nStadt"></div>
+      </div>
+      <div class="knopfreihe" style="margin-top:16px">
+        <button class="knopf" id="kontaktSpeichern">Kontakt anlegen</button>
+        <button class="knopf getoent" id="drucken">Spickzettel drucken</button>
+        <button class="knopf schlicht" id="exportBtn">Sichern</button>
+        <button class="knopf schlicht" id="importBtn">Laden</button>
+        <input type="file" id="importDatei" accept="application/json" hidden>
+      </div>
+    </div>
+  </div>
+
+  <div class="abschnitt">
+    <h2>Kontakte und Wiedervorlagen</h2>
+    <div class="gruppe">
+      ${!sortiert.length ? `<div class="leerzustand"><strong>Noch keine Kontakte</strong>Leg oben den ersten an. Firma und Telefonnummer reichen zum Starten.</div>` :
+      sortiert.map(k=>{
+        const anrufe = daten.anrufe.filter(a=>a.kontaktId===k.id);
+        const letzter = anrufe[anrufe.length-1];
+        const erg = letzter ? (ERGEBNISSE.find(e=>e.k===letzter.ergebnis)||{}) : null;
+        const faellig = k.wiedervorlage && k.wiedervorlage <= heute;
+        return `<div class="zeile" style="align-items:flex-start;flex-wrap:wrap">
+          <span class="zeile-text">
+            <span class="headline">${esc(k.firma||'Ohne Namen')}</span>
+            <small>${esc([k.person,k.stadt,k.branche].filter(Boolean).join(' · '))||'Keine weiteren Angaben'}</small>
+            <small>
+              ${erg?`<span class="plakette" style="background:var(--fuellung);color:${erg.farbe}"><span class="punkt" style="background:${erg.farbe}"></span>${esc(erg.l)}</span>`:'<span class="plakette" style="background:var(--fuellung);color:var(--label-2)">Noch nicht angerufen</span>'}
+              ${k.wiedervorlage?`<span class="${faellig?'faellig':'sekundaer'}" style="margin-left:8px">Wiedervorlage ${datumDE(k.wiedervorlage)}${k.wiederZeit?', '+esc(k.wiederZeit):''}${faellig?' · fällig':''}</span>`:''}
+              <span class="sekundaer" style="margin-left:8px">${anrufe.length} Anruf${anrufe.length===1?'':'e'}</span>
+            </small>
+            ${k.notiz?`<small>${esc(k.notiz)}</small>`:''}
+          </span>
+          <span class="knopfreihe" style="gap:8px">
+            ${k.telefon?`<a class="knopf getoent klein" href="tel:${esc(k.telefon.replace(/\s/g,''))}">${IKON.telefon}Anrufen</a>`:''}
+            <button class="knopf grau klein" data-waehlen="${k.id}">Konsole</button>
+            <button class="knopf grau klein" data-mail="${k.id}">Mail</button>
+            <button class="knopf schlicht klein" style="color:var(--rot)" data-loeschen="${k.id}">Löschen</button>
+          </span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+  <div id="mailAusgabe"></div>`;
+}
+
+/* ---------------- Ansicht: Auswertung ---------------- */
+function ansichtAuswertung(){
+  const a = daten.anrufe, heute = heuteISO();
+  const heuteN = a.filter(x=>x.datum===heute).length;
+  const erreicht = a.filter(x=>x.ergebnis!=='nichtErreicht' && x.ergebnis!=='gatekeeper').length;
+  const termine = a.filter(x=>x.ergebnis==='termin').length;
+  const quote = erreicht ? Math.round(termine/erreicht*100) : 0;
+  const quoteGesamt = a.length ? Math.round(termine/a.length*100) : 0;
+  const schnitt = a.length ? Math.round(a.reduce((s,x)=>s+(x.dauer||0),0)/a.length) : 0;
+
+  const zaehler = {};
+  a.forEach(x=>(x.einwaende||[]).forEach(e=>{ zaehler[e]=(zaehler[e]||0)+1; }));
+  const top = Object.entries(zaehler).sort((x,y)=>y[1]-x[1]);
+  const maxE = top.length?top[0][1]:1;
+  const nachErgebnis = ERGEBNISSE.map(e=>({...e, n:a.filter(x=>x.ergebnis===e.k).length}));
+  const maxErg = Math.max(1,...nachErgebnis.map(x=>x.n));
+
+  return `
+  <div class="abschnitt">
+    <div class="kennzahlen">
+      <div class="kennzahl"><b>${a.length}</b><small>Anrufe gesamt</small></div>
+      <div class="kennzahl"><b>${heuteN}</b><small>Anrufe heute</small></div>
+      <div class="kennzahl"><b style="color:var(--gruen)">${termine}</b><small>Termine vereinbart</small></div>
+      <div class="kennzahl"><b>${quote} %</b><small>Termine je erreichtem Entscheider</small></div>
+      <div class="kennzahl"><b>${quoteGesamt} %</b><small>Termine je Anruf</small></div>
+      <div class="kennzahl"><b>${mmss(schnitt)}</b><small>Ø Gesprächsdauer</small></div>
+    </div>
+  </div>
+
+  <div class="abschnitt">
+    <h2>Wie die Anrufe ausgehen</h2>
+    <div class="gruppe">
+      ${nachErgebnis.map(e=>`<div class="balkenzeile">
+        <span>${esc(e.l)}</span>
+        <span class="balken ${e.k==='termin'?'erfolg':''}"><i style="width:${Math.round(e.n/maxErg*100)}%;background:${e.farbe}"></i></span>
+        <span class="zahlen sekundaer" style="text-align:right">${e.n}</span></div>`).join('')}
+    </div>
+  </div>
+
+  <div class="abschnitt">
+    <h2>Welche Einwände dich am häufigsten stoppen</h2>
+    <div class="gruppe">
+      ${top.length ? top.map(([e,n])=>`<div class="balkenzeile">
+        <span>${esc(e)}</span><span class="balken warn"><i style="width:${Math.round(n/maxE*100)}%"></i></span>
+        <span class="zahlen sekundaer" style="text-align:right">${n}</span></div>`).join('')
+        : `<div class="leerzustand"><strong>Noch keine Einwände erfasst</strong>Sie werden mitgezählt, sobald du sie im Gespräch antippst.</div>`}
+    </div>
+    ${top.length?'<p class="fussnote">Der häufigste Einwand ist deine wichtigste Übung. Nimm ihn mit ins Training.</p>':''}
+  </div>
+
+  <div class="abschnitt">
+    <h2>Letzte Anrufe</h2>
+    <div class="gruppe">
+      ${a.length ? [...a].reverse().slice(0,25).map(x=>{
+        const k=kontakt(x.kontaktId); const e=ERGEBNISSE.find(y=>y.k===x.ergebnis)||{};
+        return `<div class="zeile">
+          <span class="punkt" style="background:${e.farbe||'var(--grau)'}"></span>
+          <span class="zeile-text">${esc(k?k.firma:'Gelöschter Kontakt')}
+            <small>${datumDE(x.datum)} · ${esc(e.l||x.ergebnis)}${x.notiz?' · '+esc(x.notiz):''}</small></span>
+          <span class="zeile-wert">${mmss(x.dauer)}</span></div>`;
+      }).join('') : `<div class="leerzustand"><strong>Noch keine Anrufe</strong>Starte oben rechts deinen ersten Anruf.</div>`}
+    </div>
+  </div>`;
+}
+
+/* ---------------- Ansicht: Training ---------------- */
+function ansichtTraining(){
+  const t = trainingEinstellung;
+  return `
+  <div class="abschnitt">
+    <h2>Übungsanruf</h2>
+    <div class="gruppe polster">
+      <div class="raster">
+        <div class="feld"><label for="tBranche">Branche des Gegenübers</label><input type="text" id="tBranche" value="${esc(t.branche)}"></div>
+        <div class="feld"><label for="tTyp">Charakter</label><select id="tTyp">
+          ${['freundlich, aber im Stress','skeptisch und wortkarg','abweisend und genervt','interessiert, aber preissensibel']
+            .map(o=>`<option ${o===t.typ?'selected':''}>${o}</option>`).join('')}
+        </select></div>
+        <div class="feld"><label for="tStart">Startpunkt</label><select id="tStart">
+          ${['Inhaber am Apparat','Sekretariat'].map(o=>`<option ${o===t.start?'selected':''}>${o}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="knopfreihe" style="margin-top:16px">
+        <button class="knopf" id="trainStart">Übung starten</button>
+        <button class="knopf schlicht" id="trainStop" ${trainingVerlauf.length?'':'disabled'}>Zurücksetzen</button>
+      </div>
+    </div>
+    <p class="fussnote">Du sprichst, das Gegenüber antwortet und gibt dir nach jeder Antwort eine kurze Rückmeldung. Die Antworten stammen von einem Sprachmodell, nicht von einem echten Kunden.</p>
+  </div>
+
+  ${trainingVerlauf.length?`<div class="abschnitt">
+    <div class="gruppe">
+      <div class="verlauf" id="dialog">
+        ${trainingVerlauf.map(z=> z.rolle==='kunde'
+          ? `<div class="blase kunde">${esc(z.text)}</div>${z.coaching?`<div class="coach">${IKON.warnung}<span>${esc(z.coaching)}</span></div>`:''}`
+          : `<div class="blase ich">${esc(z.text)}</div>`).join('')}
+        ${trainingLaeuft?'<div class="ladezeile">Antwortet …</div>':''}
+      </div>
+      <div class="eingabe">
+        <textarea id="trainEingabe" rows="1" placeholder="Was sagst du jetzt?"></textarea>
+        <button class="knopf" id="trainSenden">Sagen</button>
+      </div>
+      <div id="trainFehler"></div>
+    </div>
+    <p class="fussnote">Enter sendet, Umschalt+Enter macht eine neue Zeile.</p>
+  </div>`:''}`;
+}
+
+/* ---------------- Zeichnen ---------------- */
+function zeichne(){
+  const b = $('#buehne');
+  if(tab==='gespraech') b.innerHTML = ansichtGespraech();
+  else if(tab==='liste') b.innerHTML = ansichtListe();
+  else if(tab==='auswertung') b.innerHTML = ansichtAuswertung();
+  else b.innerHTML = ansichtTraining();
+  const d = $('#dialog'); if(d) d.scrollTop = d.scrollHeight;
+}
+function tabWechsel(t){
+  tab = t;
+  $$('#reiter button').forEach(x=>x.setAttribute('aria-selected', String(x.dataset.tab===t)));
+  zeichne();
+}
+
+/* ---------------- Ereignisse ---------------- */
+$$('#reiter button').forEach(b=> b.addEventListener('click', ()=>tabWechsel(b.dataset.tab)));
+$('#anrufKnopf').addEventListener('click', ()=> anrufLaeuft ? anrufBeenden() : anrufStarten());
+
+document.addEventListener('click', e=>{
+  const t = e.target;
+  const st = t.closest('[data-stufe]');
+  if(st){ stufe = Number(st.dataset.stufe); offenerEinwand=null; zeichne(); return; }
+  if(t.closest('#weiter')){ stufe=Math.min(PHASEN.length,stufe+1); offenerEinwand=null; zeichne(); return; }
+  if(t.closest('#zurueck')){ stufe=Math.max(0,stufe-1); offenerEinwand=null; zeichne(); return; }
+  if(t.closest('#jaTermin')){
+    if(anrufLaeuft){ anrufBeenden(); setTimeout(()=>{ const b=document.querySelector('[data-erg="termin"]'); if(b) b.click(); },30); }
+    return; }
+
+  const ei = t.closest('[data-einwand]');
+  if(ei){
+    const i = Number(ei.dataset.einwand);
+    offenerEinwand = (offenerEinwand===i) ? null : i;
+    if(offenerEinwand!==null){
+      const gruppe = stufe===0 ? GATEKEEPER.einwaende : EINWAENDE;
+      const name = (stufe===0?'Sekretariat: ':'') + gruppe[i].f;
+      if(!laufEinwaende.includes(name)) laufEinwaende.push(name);
+    }
+    zeichne(); return;
+  }
+  if(t.closest('#antwortZu')){ offenerEinwand=null; zeichne(); return; }
+
+  const chip = t.closest('[data-chip]');
+  if(chip){ laufNotiz = (laufNotiz?laufNotiz+'\n':'') + chip.dataset.chip; const n=$('#laufNotiz'); if(n) n.value=laufNotiz; return; }
+  if(t.closest('#schnellKontakt')){ tabWechsel('liste'); setTimeout(()=>{const f=$('#nFirma'); if(f) f.focus();},40); return; }
+
+  const erg = t.closest('[data-erg]');
+  if(erg && offenesErgebnis){
+    offenesErgebnis.ergebnis = erg.dataset.erg;
+    if(!offenesErgebnis.wiedervorlage && ['rueckruf','nichtErreicht','gatekeeper','mail'].includes(offenesErgebnis.ergebnis)){
+      const d=new Date(); d.setDate(d.getDate()+(offenesErgebnis.ergebnis==='nichtErreicht'?1:3));
+      offenesErgebnis.wiedervorlage = d.toISOString().slice(0,10);
+    }
+    zeichne(); return;
+  }
+  if(t.closest('#ergSpeichern')){ ergebnisSpeichern(); return; }
+  if(t.closest('#ergVerwerfen')){ offenesErgebnis=null; zeichne(); return; }
+
+  if(t.closest('#kontaktSpeichern')){
+    const k = neuerKontakt();
+    k.firma=$('#nFirma').value.trim(); k.person=$('#nPerson').value.trim();
+    k.telefon=$('#nTel').value.trim(); k.branche=$('#nBranche').value.trim(); k.stadt=$('#nStadt').value.trim();
+    if(!k.firma && !k.telefon){ alert('Firma oder Telefonnummer wird gebraucht.'); return; }
+    daten.kontakte.push(k); aktivKontakt=k.id; sichern(); zeichne(); return;
+  }
+  const w = t.closest('[data-waehlen]');
+  if(w){ aktivKontakt = w.dataset.waehlen; tabWechsel('gespraech'); return; }
+  const l = t.closest('[data-loeschen]');
+  if(l){ const k=kontakt(l.dataset.loeschen);
+    if(confirm(`„${k?k.firma:''}" mitsamt Anrufhistorie löschen?`)){
+      daten.kontakte=daten.kontakte.filter(x=>x.id!==l.dataset.loeschen);
+      daten.anrufe=daten.anrufe.filter(x=>x.kontaktId!==l.dataset.loeschen);
+      if(aktivKontakt===l.dataset.loeschen) aktivKontakt=null;
+      sichern(); zeichne(); } return; }
+  const m = t.closest('[data-mail]');
+  if(m){ mailErzeugen(m.dataset.mail, m); return; }
+
+  if(t.closest('#drucken')){ spickBauen(); window.print(); return; }
+  if(t.closest('#exportBtn')){ exportieren(); return; }
+  if(t.closest('#importBtn')){ $('#importDatei').click(); return; }
+  if(t.closest('#trainStart')){ trainingStart(); return; }
+  if(t.closest('#trainStop')){ trainingVerlauf=[]; zeichne(); return; }
+  if(t.closest('#trainSenden')){ trainingSenden(); return; }
+});
+
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if(t.id==='laufNotiz') laufNotiz = t.value;
+  if(t.id==='ergNotiz' && offenesErgebnis) offenesErgebnis.notiz = t.value;
+  if(t.dataset.ergFeld && offenesErgebnis) offenesErgebnis[t.dataset.ergFeld] = t.value;
+});
+document.addEventListener('change', e=>{
+  const t = e.target;
+  if(t.id==='kontaktWahl'){ aktivKontakt = t.value || null; zeichne(); }
+  if(t.id==='importDatei') importieren(t);
+  if(t.id==='tBranche') trainingEinstellung.branche = t.value;
+  if(t.id==='tTyp') trainingEinstellung.typ = t.value;
+  if(t.id==='tStart') trainingEinstellung.start = t.value;
+});
+document.addEventListener('keydown', e=>{
+  const tag = document.activeElement.tagName;
+  if(['INPUT','TEXTAREA','SELECT'].includes(tag)){
+    if(e.key==='Enter' && !e.shiftKey && document.activeElement.id==='trainEingabe'){ e.preventDefault(); trainingSenden(); }
+    return;
+  }
+  if(tab!=='gespraech' || offenesErgebnis) return;
+  if(e.key==='Escape'){ offenerEinwand=null; zeichne(); }
+  else if(e.key==='ArrowRight'){ stufe=Math.min(PHASEN.length,stufe+1); offenerEinwand=null; zeichne(); }
+  else if(e.key==='ArrowLeft'){ stufe=Math.max(0,stufe-1); offenerEinwand=null; zeichne(); }
+  else if(/^[0-4]$/.test(e.key)){ stufe=Number(e.key); offenerEinwand=null; zeichne(); }
+});
+
+function ergebnisSpeichern(){
+  const o = offenesErgebnis;
+  daten.anrufe.push({ id:'a'+Date.now().toString(36), kontaktId:o.kontaktId, datum:heuteISO(),
+    dauer:o.dauer, ergebnis:o.ergebnis, einwaende:o.einwaende, notiz:o.notiz,
+    terminDatum:o.terminDatum||'', terminZeit:o.terminZeit||'' });
+  const k = kontakt(o.kontaktId);
+  if(k){
+    k.status = o.ergebnis;
+    k.notiz = o.notiz || k.notiz;
+    if(o.mail) k.mail = o.mail;
+    if(o.ergebnis==='termin'){ k.wiedervorlage=o.terminDatum||''; k.wiederZeit=o.terminZeit||''; }
+    else { k.wiedervorlage=o.wiedervorlage||''; k.wiederZeit=o.wiederZeit||''; }
+  }
+  offenesErgebnis = null; sichern(); tabWechsel('liste');
+}
+
+function exportieren(){
+  const blob = new Blob([JSON.stringify(daten,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='jungline-akquise-'+heuteISO()+'.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function importieren(input){
+  const f = input.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{
+      const d = JSON.parse(r.result);
+      const kIds = new Set(daten.kontakte.map(k=>k.id));
+      (d.kontakte||[]).forEach(k=>{ if(!kIds.has(k.id)) daten.kontakte.push(k); });
+      const aIds = new Set(daten.anrufe.map(a=>a.id));
+      (d.anrufe||[]).forEach(a=>{ if(!aIds.has(a.id)) daten.anrufe.push(a); });
+      sichern(); zeichne();
+    }catch(err){ alert('Die Datei konnte nicht gelesen werden.'); } };
+  r.readAsText(f); input.value='';
+}
+
+function spickBauen(){
+  const teil = (t)=>`<p class="s">${t.replace(/\*\*(.+?)\*\*/g,'$1')}</p>`;
+  $('#spick').innerHTML = `
+    <h1>Telefon-Skript · Jungline Local</h1>
+    <h2>${GATEKEEPER.titel}</h2>${teil(GATEKEEPER.text)}<p class="r">${GATEKEEPER.regie}</p>
+    ${GATEKEEPER.einwaende.map(e=>`<p><b>${e.f}</b></p>${teil(e.a)}`).join('')}
+    ${PHASEN.map(p=>`<h2>${p.titel}</h2>${teil(p.text)}<p class="r">${p.regie}</p>`).join('')}
+    <h2>Einwandbehandlung — AHA: Anerkennen, Hinterfragen, Antworten</h2>
+    ${EINWAENDE.map(e=>`<p><b>${e.f}</b></p>${teil(e.a)}<p class="r">${e.r}</p>`).join('')}
+    <h2>Wenn er zusagt</h2><p>${BEI_JA.join(' · ')}</p>
+    <h2>Nicht vergessen</h2><p>${REGELN_ERINNERUNG.join(' · ')}</p>`;
+}
+
+/* ---------------- Claude-API ---------------- */
+const REGELN = `Du unterstützt Leandro Jung, Inhaber der Agentur Jungline Local (Optimierung von Google-Unternehmensprofilen, Sitz Dorsten/NRW).
+Feste Regeln: Alles auf Deutsch, sachlich, ohne Werbefloskeln. UWG-konform: keine unbelegten Superlative, keine erfundenen Zahlen, Zertifikate oder Referenzen. Niemals eine Platzierung bei Google zusagen oder garantieren, immer nur ein Ziel formulieren. Keine Preise nennen, solange kein Termin stattgefunden hat. Unbekannte Angaben als Platzhalter in eckigen Klammern.`;
+
+/**
+ * Geht bewusst NICHT direkt an api.anthropic.com: Ein API-Schluessel im
+ * Browser waere ein oeffentlicher Schluessel. Der Schluessel liegt in der
+ * .env oberhalb des Web-Roots, /api/akquise-ki reicht die Anfrage weiter.
+ */
+async function claude(system, nachrichten){
+  const a = await anfrage(KI_URL, { system, nachrichten });
+  if(!(a.ok && a.body && a.body.ok)){
+    throw new Error((a.body && a.body.meldung) || ('Antwort ' + a.status));
+  }
+  const s = String(a.body.text).replace(/```json/gi,'').replace(/```/g,'').trim();
+  return JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}')+1));
+}
+
+async function mailErzeugen(kid, btn){
+  const k = kontakt(kid); if(!k) return;
+  const anrufe = daten.anrufe.filter(a=>a.kontaktId===kid);
+  const letzter = anrufe[anrufe.length-1];
+  const alt = btn.textContent; btn.textContent='…'; btn.disabled=true;
+  const ziel = $('#mailAusgabe');
+  ziel.innerHTML = `<div class="abschnitt"><div class="gruppe"><div class="ladezeile">Entwurf wird geschrieben …</div></div></div>`;
+  try{
+    const art = letzter && letzter.ergebnis==='termin' ? 'eine Terminbestätigung'
+      : letzter && letzter.ergebnis==='mail' ? 'die gewünschte Informationsmail nach dem Telefonat'
+      : letzter ? 'eine kurze Nachfassmail nach dem Telefonat'
+      : 'eine kurze Erstkontaktmail';
+    const erg = await claude(REGELN+' Antworte ausschließlich mit reinem JSON.', [{role:'user', content:
+`Schreibe ${art} an folgenden Kontakt.
+Firma: ${k.firma||'[Firma]'}
+Ansprechpartner: ${k.person||'[Name]'}
+Branche: ${k.branche||'[Branche]'}
+Stadt: ${k.stadt||'[Stadt]'}
+Ergebnis des letzten Anrufs: ${letzter?letzter.ergebnis:'noch kein Anruf'}
+${letzter && letzter.terminDatum?'Vereinbarter Termin: '+letzter.terminDatum+' '+(letzter.terminZeit||''):''}
+Notizen: ${k.notiz||(letzter&&letzter.notiz)||'keine'}
+Genannte Einwände: ${((letzter&&letzter.einwaende)||[]).join(', ')||'keine'}
+
+Maximal 150 Wörter, Anrede "Guten Tag Herr/Frau [Name]", Absender Leandro Jung, Jungline Local, +49 176 55769680, jungline.de. Nimm die Notizen inhaltlich auf, damit es keine Standardmail ist. Kein Preis, keine Platzierungszusage.
+JSON: {"betreff":"...","text":"..."}`}]);
+    ziel.innerHTML = `<div class="abschnitt"><h2>Mailentwurf für ${esc(k.firma||'')}</h2>
+      <div class="gruppe polster">
+        <p class="subhead sekundaer" style="margin:0 0 4px">Betreff</p>
+        <p class="headline" style="margin:0 0 14px">${esc(erg.betreff)}</p>
+        <div style="white-space:pre-wrap;background:var(--fuellung);border-radius:12px;padding:15px 17px;font-size:16px;line-height:1.5">${esc(erg.text)}</div>
+        <div class="knopfreihe" style="margin-top:14px"><button class="knopf getoent klein" id="mailKopieren">Kopieren</button></div>
+      </div>
+      <p class="fussnote">Von einem Sprachmodell erzeugt. Vor dem Senden gegenlesen.</p></div>`;
+    $('#mailKopieren').addEventListener('click', ev=> kopiere('Betreff: '+erg.betreff+'\n\n'+erg.text, ev.target));
+    ziel.scrollIntoView({behavior:'smooth', block:'start'});
+  }catch(err){
+    ziel.innerHTML = `<div class="abschnitt"><div class="gruppe"><p class="fehlermeldung">Der Entwurf konnte nicht erstellt werden (${esc(err.message)}). Versuch es noch einmal.</p></div></div>`;
+  }finally{ btn.textContent=alt; btn.disabled=false; }
+}
+
+/* ---------------- Training ---------------- */
+function trainingSystem(){
+  const t = trainingEinstellung;
+  return `${REGELN}
+
+Du spielst ein Rollenspiel zum Üben von Kaltakquise am Telefon. Du bist ${t.start==='Sekretariat'?'die Sekretärin':'der Inhaber'} eines Betriebs der Branche ${t.branche} in einer deutschen Kleinstadt. Dein Charakter: ${t.typ}. Leandro ruft dich unangekündigt an.
+
+Verhalte dich realistisch: kurze Sätze, echte Einwände (kein Interesse, keine Zeit, schicken Sie eine Mail, bin schon sichtbar, habe schon jemanden, zu teuer, muss überlegen, woher haben Sie meine Nummer). Sei nicht zu leicht zu überzeugen, aber auch nicht unfair. Wenn Leandro wirklich gut argumentiert, darfst du einlenken und einem Termin zustimmen. Wenn er dreimal schwach argumentiert, legst du höflich auf.
+
+Zusätzlich bewertest du seine letzte Aussage als Coach: ein bis zwei Sätze, konkret und ehrlich, mit einem besseren Formulierungsvorschlag, falls nötig. Lobe nur, wenn es wirklich gut war.
+
+Antworte ausschließlich mit reinem JSON:
+{"kunde":"was der Angerufene sagt","coaching":"kurze ehrliche Rückmeldung an Leandro","ende":false}`;
+}
+async function trainingStart(){
+  trainingVerlauf = []; zeichne();
+  await trainingZug([{role:'user', content:'Das Telefon klingelt und du gehst ran. Sag deinen Meldespruch, kurz und branchentypisch. Das Coaching bleibt bei diesem ersten Zug leer.'}], true);
+}
+async function trainingSenden(){
+  const feld = $('#trainEingabe'); if(!feld) return;
+  const text = feld.value.trim(); if(!text || trainingLaeuft) return;
+  trainingVerlauf.push({rolle:'ich', text}); feld.value=''; 
+  trainingLaeuft = true; zeichne();
+  const nachrichten = [{role:'user', content:'Das Telefon klingelt und du gehst ran.'}];
+  trainingVerlauf.forEach(z=>{
+    if(z.rolle==='kunde') nachrichten.push({role:'assistant', content: JSON.stringify({kunde:z.text, coaching:z.coaching||'', ende:false})});
+    else nachrichten.push({role:'user', content: z.text});
+  });
+  await trainingZug(nachrichten, false);
+}
+async function trainingZug(nachrichten, ersterZug){
+  trainingLaeuft = true;
+  try{
+    const erg = await claude(trainingSystem(), nachrichten);
+    trainingVerlauf.push({rolle:'kunde', text: erg.kunde, coaching: ersterZug?'':erg.coaching});
+    trainingLaeuft = false; zeichne();
+    const e = $('#trainEingabe'); if(e) e.focus();
+  }catch(err){
+    trainingLaeuft = false; zeichne();
+    const f = $('#trainFehler');
+    if(f) f.innerHTML = `<p class="fehlermeldung">Der Übungspartner antwortet gerade nicht (${esc(err.message)}). Noch einmal versuchen.</p>`;
+  }
+}
+
+/* ---------------- Start ---------------- */
+function hochfahren(){
+  // Eine Notkopie aus einer frueheren Sitzung, die es nie auf den Server
+  // geschafft hat (Funkloch, Tab geschlossen), wird jetzt nachgereicht —
+  // zusammengefuehrt, nicht drueberkopiert.
+  const sicherung = lokalLesen();
+  if(sicherung){
+    daten = zusammenfuehren(daten, sicherung.daten);
+  }
+  if(daten.kontakte.length) aktivKontakt = daten.kontakte[0].id;
+  zeichne(); spickBauen();
+  if(sicherung){ sicherJetzt(1); }
+  else if(speicherOk){ anzeigeSetzen('gesichert', 'ok'); }
+}
+
+(async function start(){
+  nummer = nummerHolen();
+  if(!nummer){ zeichne(); sperrbildschirm(''); return; }
+
+  const a = await laden();
+
+  if(a.ok && a.body && a.body.ok){
+    nummerMerken(nummer);
+    hochfahren();
+    return;
+  }
+
+  if(a.status === 403 || a.status === 429){
+    try{ localStorage.removeItem(NUMMER_KEY); }catch(e){}
+    zeichne();
+    sperrbildschirm((a.body && a.body.meldung) || 'Die Webnummer stimmt nicht.');
+    return;
+  }
+
+  // Server nicht erreichbar oder falsch konfiguriert: Mit der Notkopie
+  // weiterarbeiten statt mit einer leeren Liste dazustehen. Gespeichert
+  // wird sofort wieder, sobald der Server antwortet.
+  speicherOk = false;
+  const sicherung = lokalLesen();
+  if(sicherung) daten = sicherung.daten;
+  if(daten.kontakte.length) aktivKontakt = daten.kontakte[0].id;
+  zeichne(); spickBauen();
+  anzeigeSetzen('Server nicht erreichbar', 'fehler');
+  const p = document.createElement('p'); p.className='fehlermeldung'; p.style.margin='0 0 14px';
+  p.textContent = 'Der Server antwortet nicht (' + ((a.body && a.body.meldung) || ('Fehler ' + a.status))
+    + '). Es wird weiter versucht zu speichern; deine Eingaben liegen so lange in diesem Browser.';
+  $('#buehne').prepend(p);
+  setTimeout(()=>sicherJetzt(1), 5000);
+})();
+</script>
+</body>
+</html>

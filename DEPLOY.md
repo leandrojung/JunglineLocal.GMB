@@ -57,6 +57,35 @@ Der eigene Safari ist zum Prüfen ungeeignet — er zeigt oft noch die alte,
 funktionierende Version. Aussagekräftig sind ein privates Fenster, ein
 anderer Browser oder der In-App-Browser von Instagram.
 
+## Akquise-Konsole (/akquise/)
+
+Das interne Telefon-Werkzeug liegt unter `public/akquise/index.html` und wird
+wie jede andere Datei aus `public/` unverändert mit deployt. Es steht auf
+keiner Seite verlinkt und trägt `noindex`; erreichbar ist es nur über die
+Webnummer:
+
+```
+https://jungline.de/akquise/?n=<Webnummer>
+```
+
+Der erste Aufruf merkt sich die Nummer im Browser und nimmt sie aus der
+Adresszeile. Danach genügt `https://jungline.de/akquise/`.
+
+**Was sonst noch mit muss:** `public/api/akquise.php`, `akquise-ki.php`,
+`_akquise.php` und die `.htaccess` (ohne sie fehlen die Routen
+`/api/akquise…`). Bei einem vollständigen Upload von `dist/` ist das
+automatisch der Fall.
+
+Die Kontakte und Anrufe liegen als `akquise.json` im selben Datenordner wie
+die Terminbuchung — eine Ebene **oberhalb** von `public_html`. Sie sind damit
+nicht über eine URL abrufbar und überstehen jeden Deploy: Der FTP-Upload
+fasst nur `public_html/` an.
+
+Nichts davon braucht eine `.env`. Nur die beiden KI-Funktionen (Mailentwurf
+und Übungspartner) wollen einen `ANTHROPIC_API_KEY` — siehe `.env.example`,
+Abschnitt „Akquise-Konsole". Ohne ihn sagen genau diese beiden Knöpfe das im
+Klartext, der Rest der Konsole läuft normal weiter.
+
 ## Terminbuchung
 
 Der Buchungskalender braucht einmalig Zugangsdaten (SMTP, Google-Kalender,

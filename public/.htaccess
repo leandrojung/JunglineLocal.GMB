@@ -136,6 +136,13 @@
   RewriteRule ^api/booking/calendar/?$ api/booking/calendar.php [L]
   RewriteRule ^api/booking/mailtest/?$ api/booking/mailtest.php [L]
   RewriteRule ^api/booking/gtest/?$  api/booking/gtest.php  [L]
+
+  # Akquise-Konsole. Die Seite selbst liegt unter /akquise/ und ist
+  # nirgends verlinkt; diese beiden Routen sind ihr Speicher und ihr
+  # Zugang zur Anthropic-API. Beide pruefen die Webnummer selbst — die
+  # saubere URL ist reine Kosmetik, kein Schutz.
+  RewriteRule ^api/akquise/?$    api/akquise.php    [L]
+  RewriteRule ^api/akquise-ki/?$ api/akquise-ki.php [L]
 </IfModule>
 
 # ---------- 0aa) Verzeichnis-Listing abschalten ----------
@@ -308,6 +315,24 @@ RedirectMatch 404 ^/\.jungline-data(/|$)
   Header always set X-Robots-Tag "noai, noimageai"
   Header always set tdm-reservation "1"
   Header always set tdm-policy "https://jungline.de/nutzungsbedingungen/"
+</IfModule>
+
+# ---------- 2b) Akquise-Konsole aus dem Suchindex halten ----------
+# /akquise/ ist Leandros internes Werkzeug. Es steht auf keiner Seite
+# verlinkt, eine Suchmaschine kann die Adresse also normalerweise gar nicht
+# finden. Falls sie doch irgendwo auftaucht (geteilter Link, Browser-Sync,
+# ein Add-on das URLs meldet), sorgt dieser Kopf dafuer, dass sie wieder aus
+# dem Index faellt. Bewusst KEIN Eintrag in der robots.txt: Der waere
+# oeffentlich lesbar und wuerde die Adresse erst recht bekannt machen.
+#
+# Der Block steht NACH dem allgemeinen X-Robots-Tag oben — "Header set"
+# ueberschreibt, und hier soll die engere Regel gewinnen.
+<IfModule mod_setenvif.c>
+  SetEnvIf Request_URI ^/akquise(/|$) AKQUISE_SEITE=1
+  SetEnvIf Request_URI ^/api/akquise  AKQUISE_SEITE=1
+</IfModule>
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive, noai, noimageai" env=AKQUISE_SEITE
 </IfModule>
 
 # ---------- 3) Fallback über mod_expires ----------
