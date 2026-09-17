@@ -2284,7 +2284,7 @@ html{-webkit-tap-highlight-color:transparent}
 @keyframes gspCard{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes gspWin{0%{border-color:#EBEDEF;box-shadow:0 0 0 rgba(52,199,89,0)}55%{border-color:#34C759;box-shadow:0 10px 34px rgba(52,199,89,.34)}100%{border-color:#34C759;box-shadow:0 8px 24px rgba(52,199,89,.18)}}
 @keyframes gspGlow{0%,100%{box-shadow:0 8px 24px rgba(52,199,89,.16)}50%{box-shadow:0 10px 38px rgba(52,199,89,.34)}}
-@keyframes gspRadar{0%{opacity:.75;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(4.2)}}
+@keyframes gspRadar{0%{opacity:.75;transform:scale(.2)}100%{opacity:0;transform:scale(4.2)}}
 @keyframes gspScroll1{0%,22%{transform:translateY(0)}62%,78%{transform:translateY(-64px)}100%{transform:translateY(0)}}
 @keyframes gspScroll2{0%,12%{transform:translateY(0)}52%,68%{transform:translateY(-176px)}100%{transform:translateY(0)}}
 @keyframes gspShake{0%{opacity:0;transform:translateX(-10px)}55%{opacity:1;transform:translateX(4px)}75%{transform:translateX(-2px)}100%{opacity:1;transform:translateX(0)}}
