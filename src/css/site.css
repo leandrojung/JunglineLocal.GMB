@@ -2860,6 +2860,50 @@ body[data-zweig="webdesign"]{
 .wd-ref__list li{display:flex;gap:9px;color:var(--dim);font-size:.93rem;line-height:1.45}
 .wd-ref__list svg{flex:none;margin-top:3px;color:var(--green-bright)}
 
+/* ============ WEBDESIGN: GLAS-ARBEITSPROBE ============
+   Steht direkt unter der Arbeitsprobe-Karte und ist deren Beleg: Die Marke
+   der Seite als Glaskoerper, in Echtzeit auf der Grafikkarte gerechnet.
+
+   Aufbau in zwei Ebenen im selben Rahmen:
+     .wd-glass__fallback  liegt UNTEN und ist das, was ohne JavaScript,
+                          ohne WebGL, im Datensparmodus oder bei
+                          "Bewegung reduzieren" stehen bleibt: dieselbe Marke,
+                          still, auf demselben dunklen Grund.
+     .wd-glass__stage     liegt DARUEBER und ist leer, bis die Insel geladen
+                          ist. Die Komponente setzt ihren eigenen
+                          undurchsichtigen Hintergrund (#061B33) und deckt die
+                          Rueckfallebene damit vollstaendig ab — es gibt also
+                          keinen sichtbaren Wechsel, nur ein Erwachen.
+
+   Die Buehne haelt ihr Seitenverhaeltnis selbst (aspect-ratio). Das ist
+   wichtiger als es aussieht: Der Block laedt nach, und ohne feste Hoehe waere
+   jedes Nachladen ein Layout-Versatz mitten in der Seite. */
+.wd-glass{margin-top:var(--sp-head)}
+.wd-glass__frame{position:relative;border-radius:var(--r-lg);overflow:hidden;
+  aspect-ratio:16/9;background:#061B33;border:1px solid rgba(23,80,154,.55);
+  box-shadow:var(--elev-2);isolation:isolate}
+.wd-glass__fallback{position:absolute;inset:0;z-index:0;display:grid;place-items:center;
+  background:radial-gradient(120% 90% at 50% 35%,#0C2F58 0%,#061B33 68%)}
+.wd-glass__mark{height:min(52%,300px);width:auto;opacity:.5;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,.45))}
+.wd-glass__stage{position:absolute;inset:0;z-index:1}
+/* Die Komponente setzt Groesse und Hintergrund auf ihr eigenes Wurzel-Element;
+   hier wird nur sichergestellt, dass die Leinwand den Rahmen wirklich fuellt. */
+.wd-glass__stage>div{width:100%;height:100%}
+.wd-glass__note{margin-top:14px;color:var(--dim-2);font-size:.88rem;line-height:1.55;
+  text-align:center;text-wrap:pretty}
+/* Der Ziehen-Hinweis gilt nur, solange es etwas zu ziehen gibt. Ohne die
+   Insel (kein WebGL, Bewegung reduziert) bliebe sonst eine Aufforderung
+   stehen, der niemand nachkommen kann. */
+.wd-glass__drag{display:none}
+.wd-glass.is-live .wd-glass__drag{display:inline}
+@media(max-width:700px){
+  .wd-glass__frame{aspect-ratio:4/3}
+  .wd-glass__note{font-size:.84rem}
+}
+/* Zeigegeraete ohne Maus koennen nicht ziehen — dort bleibt der Hinweis weg. */
+@media(hover:none){.wd-glass.is-live .wd-glass__drag{display:none}}
+
 /* ============ WEBDESIGN: VORHER/NACHHER-INHALT ============
    Nutzt die vorhandene Slider-Mechanik (.vnc__*, siehe oben) und tauscht nur
    den Inhalt der beiden Seiten aus: links eine in die Jahre gekommene Seite,

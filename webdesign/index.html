@@ -624,7 +624,7 @@
       <div>
         <span class="eyebrow"><svg class="eyebrow__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 13.5 2.5 2.5 5-5.5"/><circle cx="12" cy="12" r="9.2"/></svg>Arbeitsprobe</span>
         <h2>Die Seite, auf der Sie gerade sind, ist die Referenz.</h2>
-        <p>Ich baue den Webdesign-Zweig gerade auf und zeige deshalb keine fremden Projekte, an denen ich nicht gearbeitet habe. Was ich Ihnen zeigen kann, ist diese Website: von Hand gebaut, ohne Baukasten, ohne fremde Skripte.</p>
+        <p>Ich baue den Webdesign-Zweig gerade auf und zeige deshalb keine fremden Projekte, an denen ich nicht gearbeitet habe. Was ich Ihnen zeigen kann, ist diese Website: von Hand gebaut, ohne Baukasten, ohne Tracker, ohne Verbindung zu fremden Servern.</p>
         <p style="margin-top:14px">Prüfen Sie es ruhig nach — auf dem Telefon, mit der Tastatur, oder im Seitenquelltext.</p>
       </div>
       <ul class="wd-ref__list">
@@ -635,6 +635,30 @@
         <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Jede Seite fertig ausgeliefert, keine Wartezeit beim Klick</li>
         <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Bewegung, die sich abschalten lässt (Systemeinstellung)</li>
       </ul>
+    </div>
+
+    <!-- Glas-Arbeitsprobe.
+         Die Bildmarke der Seite als Glaskoerper, in Echtzeit auf der
+         Grafikkarte gerechnet (WebGL). Steht bewusst HIER und nicht im
+         Kopfbereich: Der Abschnitt behauptet handwerkliche Qualitaet, also
+         gehoert der Beleg dafuer daneben — und nicht dorthin, wo er die
+         Ladezeit der wichtigsten Bildflaeche belastet.
+
+         Der Block liegt tief in der Seite und laedt erst, wenn er in die
+         Naehe des Sichtfensters kommt (siehe src/js/glass-icon.js). Fuer
+         jeden, der vorher abspringt, kostet er null Byte.
+
+         aria-hidden: Die Flaeche ist Zierde. Was sie aussagt, steht im Text
+         darunter — ein Screenreader bekommt also nichts Zusaetzliches zu
+         hoeren, aber auch nichts Fehlendes. -->
+    <div class="wd-glass" data-reveal>
+      <div class="wd-glass__frame" aria-hidden="true">
+        <div class="wd-glass__fallback">
+          <img class="wd-glass__mark" src="/logo-glass.png" alt="" width="448" height="448" loading="lazy" decoding="async">
+        </div>
+        <div class="wd-glass__stage" data-glass-icon></div>
+      </div>
+      <p class="wd-glass__note">Kein Video, kein GIF: Diese Form wird Bild für Bild auf Ihrer Grafikkarte berechnet.<span class="wd-glass__drag"> Ziehen Sie sie mit der Maus.</span> Ist im System „Bewegung reduzieren“ gesetzt, bleibt sie ruhig stehen.</p>
     </div>
   </div>
 </section>
@@ -760,5 +784,6 @@
 </div><!-- /.page -->
 
 <!--ENDBODY_WEBDESIGN-->
+<script type="module" src="/src/js/glass-icon.js"></script>
 </body>
 </html>

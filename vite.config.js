@@ -503,6 +503,32 @@ function adminDateienSichern() {
 }
 
 export default defineConfig({
+  // ---------------------------------------------------------------------------
+  // REACT-KOMPONENTEN OHNE REACT
+  //
+  // Die Glass-Insel (src/components/LiquidGlassCluster.tsx) ist eine fertige
+  // React-Komponente von Originkit und bleibt deshalb unveraendert im Repo
+  // liegen — sie wird nicht nachgebaut, nur eingebunden.
+  //
+  // React selbst kostet rund 44 KB komprimiert. Preact ist API-gleich
+  // (useEffect/useRef/JSX) und kostet ueber "preact/compat" rund 12 KB. Der
+  // Alias uebersetzt die Importe der Komponente, ohne eine einzige Zeile in
+  // ihr zu aendern. Auf einer Seite, deren Verkaufsargument Tempo ist, sind
+  // die 32 KB Unterschied den Alias wert.
+  //
+  // esbuild uebersetzt das JSX (Vite bringt es mit, kein Zusatz-Plugin).
+  // ---------------------------------------------------------------------------
+  resolve: {
+    alias: {
+      react: 'preact/compat',
+      'react-dom': 'preact/compat',
+      'react-dom/client': 'preact/compat',
+    },
+  },
+  esbuild: {
+    jsx: 'automatic',
+    jsxImportSource: 'preact',
+  },
   plugins: [
     sharedShell(),
     dropSameOriginCrossorigin(),
