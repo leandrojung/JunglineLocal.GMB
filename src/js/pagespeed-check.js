@@ -97,6 +97,60 @@ if (root) {
     btn.addEventListener('click', resetToForm);
   });
 
+  // Fortschritt während der Messung. Google braucht 10 bis 30 Sekunden —
+  // ein stehender Satz wirkt nach zehn Sekunden wie ein Absturz. Die Stufen
+  // beschreiben, was tatsächlich passiert, in der Reihenfolge, in der es passiert.
+  const stepEl = document.getElementById('pscStep');
+  const barEl = document.getElementById('pscBar');
+  const STEPS = [
+    'Ihre Seite wird bei Google geöffnet …',
+    'Ladezeit auf einem Mittelklasse-Handy wird gemessen …',
+    'Bilder, Skripte und Schriften werden ausgewertet …',
+    'Fast fertig — das Ergebnis wird zusammengestellt …',
+  ];
+  let stepTimer = null;
+  const startProgress = () => {
+    let i = 0;
+    const t0 = performance.now();
+    if (stepEl) stepEl.textContent = STEPS[0];
+    if (barEl) barEl.style.transform = 'scaleX(0)';
+    clearInterval(stepTimer);
+    stepTimer = setInterval(() => {
+      const s = (performance.now() - t0) / 1000;
+      // Der Balken nähert sich 92 % an, erreicht ihn aber nie von selbst:
+      // fertig ist die Messung erst, wenn die Antwort da ist.
+      if (barEl) barEl.style.transform = 'scaleX(' + (0.92 * (1 - Math.exp(-s / 11))).toFixed(3) + ')';
+      const next = Math.min(STEPS.length - 1, Math.floor(s / 7));
+      if (next !== i && stepEl) { i = next; stepEl.textContent = STEPS[i]; }
+    }, 250);
+  };
+  const stopProgress = () => { clearInterval(stepTimer); stepTimer = null; };
+
+  // Zwei Adressen, derselbe Endpunkt: /api/pagespeed-check braucht die
+  // Weiterleitungsregel in der .htaccess. Fehlt sie auf dem Server (genau das
+  // war der Fehler, an dem der Check monatelang scheiterte), antwortet er mit
+  // einer 404-HTML-Seite — dann direkt die PHP-Datei ansprechen.
+  const ENDPOINTS = ['/api/pagespeed-check', '/api/pagespeed-check.php'];
+  const TIMEOUT_MS = 75000;
+
+  const request = async (url) => {
+    const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), TIMEOUT_MS) : null;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ url: (input && input.value || '').trim() }),
+        signal: ctrl ? ctrl.signal : undefined,
+      });
+      const isJson = (res.headers.get('content-type') || '').includes('application/json');
+      const data = isJson ? await res.json().catch(() => ({})) : null;
+      return { res, data };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
+
   if (form) {
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -109,21 +163,29 @@ if (root) {
       }
 
       setState('loading');
+      startProgress();
 
       try {
-        const res = await fetch('/api/pagespeed-check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: raw }),
-        });
-        const data = await res.json().catch(() => ({}));
+        let out = await request(ENDPOINTS[0]);
+        // Keine JSON-Antwort = die Route existiert nicht (404/HTML). Nur
+        // dann der zweite Weg; eine echte Fehlermeldung des Checks wird
+        // nicht durch einen doppelten Durchlauf verlängert.
+        if (!out.data) out = await request(ENDPOINTS[1]);
+        stopProgress();
 
-        if (res.ok && data.success) {
+        const data = out.data || {};
+        if (out.res.ok && data.success) {
+          if (barEl) barEl.style.transform = 'scaleX(1)';
           paintResult(data);
           return;
         }
         showError(errorTextFor(data));
-      } catch (_err) {
+      } catch (err) {
+        stopProgress();
+        if (err && err.name === 'AbortError') {
+          showError('Google braucht für Ihre Seite gerade ungewöhnlich lange. Versuchen Sie es in ein paar Minuten noch einmal — oder rufen Sie mich an, dann schaue ich persönlich nach.');
+          return;
+        }
         showError('Die Verbindung ist unterbrochen. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
       }
     });

@@ -60,12 +60,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $apiKey = envValue('GOOGLE_PAGESPEED_API_KEY');
     if ($apiKey === null) {
+        // Ohne Key laeuft der Check im gemeinsamen Google-Kontingent weiter
+        // (siehe pscRunWithFallback). Die Diagnose prueft genau diesen Weg.
+        if (!guardConsumeNamedBudget('pagespeed', pscDailyBudget())) {
+            respond(200, [
+                'diagnose' => true,
+                'api_key_gefunden' => false,
+                'testaufruf' => 'uebersprungen',
+                'hinweis' => 'Tagesbudget aufgebraucht oder Datenordner nicht beschreibbar.',
+            ]);
+        }
+        $test = pscRunPagespeed('https://jungline.de/', null);
         respond(200, [
             'diagnose' => true,
             'api_key_gefunden' => false,
-            'hinweis' => 'GOOGLE_PAGESPEED_API_KEY ist auf dem Server nicht gesetzt. '
-                . 'Entweder im Hostinger hPanel als Umgebungsvariable eintragen oder '
-                . 'in die .env-Datei oberhalb des Web-Roots eintragen (dieselbe Datei '
+            'testaufruf_ohne_key' => $test['ok'] ? 'erfolgreich' : 'fehlgeschlagen',
+            'http_status' => $test['status'],
+            'google_fehler' => $test['message'],
+            'hinweis' => 'GOOGLE_PAGESPEED_API_KEY ist nicht gesetzt. Der Check laeuft deshalb '
+                . 'ohne Key im gemeinsamen Kontingent von Google — das klappt meistens, kann '
+                . 'aber zu Stosszeiten mit "Quota exceeded" scheitern. Fuer einen verlaesslichen '
+                . 'Betrieb den Key in die .env oberhalb des Web-Roots eintragen (dieselbe Datei '
                 . 'wie GOOGLE_PLACES_API_KEY).',
         ]);
     }
@@ -150,7 +165,7 @@ guardRequirePost();
 
 // 3) Menge pro IP: 3 Anfragen / 10 Minuten (niedriger als beim GBP-Check —
 //    ein Durchlauf belegt bis zu 30 Sekunden lang einen PHP-Prozess).
-guardRateLimit('pagespeed-check');
+guardRateLimit('pagespeed-check', pscRateMax(), pscRateWindow());
 
 // ---------------------------------------------------------------------
 // Eingabe lesen & streng validieren
@@ -173,10 +188,13 @@ if (is_array($cached)) {
     respond(200, $cached);
 }
 
+// Fehlt der Key, wird NICHT mehr abgebrochen: PageSpeed Insights beantwortet
+// auch Aufrufe ohne Key, dann aus einem gemeinsamen Kontingent. Frueher
+// endete ein fehlender Key in "Der Check ist gerade nicht verfuegbar" —
+// obwohl Google die Seite problemlos haette pruefen koennen.
 $apiKey = envValue('GOOGLE_PAGESPEED_API_KEY');
 if ($apiKey === null) {
-    error_log('pagespeed-check: GOOGLE_PAGESPEED_API_KEY fehlt oder ist leer');
-    respond(500, ['success' => false, 'error' => 'server_not_configured']);
+    error_log('pagespeed-check: GOOGLE_PAGESPEED_API_KEY fehlt — Aufruf ohne Key');
 }
 
 // ---------------------------------------------------------------------
@@ -187,7 +205,7 @@ if (!guardConsumeNamedBudget('pagespeed', pscDailyBudget())) {
 }
 
 // 6) Google fragen.
-$result = pscRunPagespeed($normalized, $apiKey);
+$result = pscRunWithFallback($normalized, $apiKey);
 
 if (!$result['ok']) {
     respond(502, ['success' => false, 'error' => 'upstream_error']);
@@ -264,13 +282,33 @@ function pscNormalizeUrl(string $raw): ?string {
  * Shared Hosting mit begrenztem PHP-Zeitlimit ist "zuverlässig eine Zahl"
  * mehr wert als "vier Zahlen, die manchmal an der Zeitgrenze scheitern".
  */
-function pscRunPagespeed(string $url, string $apiKey): array {
-    $query = http_build_query([
+/**
+ * Erst mit Key, und wenn Google genau den Key ablehnt (falsche Einschraenkung,
+ * API im Projekt nicht aktiviert, Key ungueltig), ein zweiter Versuch ohne.
+ * Ohne Key sofort der Weg ohne. Zeitueberschreitungen und Netzfehler werden
+ * NICHT wiederholt — ein zweiter Lauf wuerde den Besucher nur noch einmal
+ * so lange warten lassen.
+ */
+function pscRunWithFallback(string $url, ?string $apiKey): array {
+    if ($apiKey === null) return pscRunPagespeed($url, null);
+
+    $result = pscRunPagespeed($url, $apiKey);
+    if ($result['ok'] || $result['reason'] !== 'api_error') return $result;
+    if (!in_array($result['status'], [400, 401, 403], true)) return $result;
+
+    error_log('pagespeed-check: Key abgelehnt (' . $result['status'] . '), zweiter Versuch ohne Key');
+    return pscRunPagespeed($url, null);
+}
+
+function pscRunPagespeed(string $url, ?string $apiKey): array {
+    $params = [
         'url' => $url,
-        'key' => $apiKey,
         'category' => 'performance',
         'strategy' => 'mobile',
-    ]);
+        'locale' => 'de',
+    ];
+    if ($apiKey !== null) $params['key'] = $apiKey;
+    $query = http_build_query($params);
     $ch = curl_init('https://www.googleapis.com/pagespeedonline/v5/runPagespeed?' . $query);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,

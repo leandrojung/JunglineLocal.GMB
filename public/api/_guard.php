@@ -267,8 +267,12 @@ function guardClientIp(): string {
  * nächste Runde umgehen.
  *
  * Bricht mit 429 ab, wenn das Limit erreicht ist.
+ *
+ * $max/$window sind optional: Ohne Angabe gelten die GBP-Werte. Der
+ * PageSpeed-Check uebergibt seine eigenen (PAGESPEED_RATE_MAX) — vorher
+ * waren dessen Stellschrauben zwar definiert, wurden aber nie benutzt.
  */
-function guardRateLimit(string $bucket): void {
+function guardRateLimit(string $bucket, ?int $max = null, ?int $window = null): void {
     $dir = guardDataDir();
     if ($dir === null) {
         respond(503, ['success' => false, 'error' => 'service_unavailable']);
@@ -277,8 +281,8 @@ function guardRateLimit(string $bucket): void {
     $rlDir = $dir . '/rl';
     if (!is_dir($rlDir)) @mkdir($rlDir, 0770, true);
 
-    $max    = guardRateMax();
-    $window = guardRateWindow();
+    $max    = $max ?? guardRateMax();
+    $window = $window ?? guardRateWindow();
     $now    = time();
     $file   = $rlDir . '/' . sha1($bucket . '|' . guardClientIp()) . '.json';
 

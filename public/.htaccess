@@ -119,6 +119,12 @@
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
 
+  # Geschwindigkeits-Check auf /webdesign/. Diese Zeile fehlte seit dem
+  # Einbau des Checks: Das Widget ruft /api/pagespeed-check ohne .php auf,
+  # der Server antwortete darauf mit 404 und der Besucher sah nur "Der Check
+  # ist gerade nicht moeglich".
+  RewriteRule ^api/pagespeed-check/?$ api/pagespeed-check.php [L]
+
   # Kontaktformular — eigener Versand statt eines fremden Dienstes.
   RewriteRule ^api/contact/?$ api/contact.php [L]
 
