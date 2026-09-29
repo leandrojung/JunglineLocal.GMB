@@ -1,4 +1,13 @@
-<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('js')</script>
+<script>
+/* .js schaltet die Einstiegs-Animationen ein (nicht bei "Bewegung reduzieren").
+   Auf Tablet/Telefon liegt die Hero-Karte unter dem ersten Bildschirm: Ihre
+   Szene wartet (.hero-wait), bis sie ins Bild kommt (.hero-in-view). Steht
+   hier statt in site.js, damit die Pause schon ab dem ersten Bild gilt. */
+(function(d){var r=d.documentElement;if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;r.classList.add('js');
+if(!matchMedia('(max-width:960px)').matches||!('IntersectionObserver' in window))return;r.classList.add('hero-wait');
+d.addEventListener('DOMContentLoaded',function(){var v=d.querySelector('.hero__visual');if(!v){r.classList.remove('hero-wait');return;}
+var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){v.classList.add('hero-in-view');io.disconnect();}},{threshold:.3});io.observe(v);});})(document);
+</script>
 <meta name="theme-color" content="#0A0D1F">
 <!-- Tab-Symbol als SVG (scharf in jeder Größe) mit PNG-Rückfall; das
      Vorschaubild für WhatsApp, LinkedIn & Co. im Querformat 1200 × 630. -->

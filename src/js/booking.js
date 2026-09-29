@@ -162,6 +162,10 @@ async function loadMonth(key) {
 /** Springt so lange vorwärts, bis ein Monat mit freien Tagen gefunden ist. */
 async function loadFirstMonthWithSlots(startKey) {
   let key = startKey;
+  // Schon während des ersten Abrufs den Kalender des Startmonats zeigen
+  // (alle Tage noch grau) — statt eines Ladehinweises mit anderer Höhe.
+  state.month = key;
+  state.firstLoad = true;
   for (let hop = 0; hop < 4; hop++) {
     await loadMonth(key);
     if (state.error) break;
@@ -170,6 +174,7 @@ async function loadFirstMonthWithSlots(startKey) {
     key = shiftMonth(key, 1);
   }
   state.month = key;
+  state.firstLoad = false;
 }
 
 // ---------------------------------------------------------------------
@@ -253,6 +258,11 @@ function renderCalendar() {
     grid.appendChild(cell);
   }
 
+  // Immer sechs Wochenzeilen (wie im Apple-Kalender): Der Kalender hat so in
+  // jedem Monat dieselbe Höhe — beim Blättern springt nichts, und der
+  // Ladehinweis davor kann genau diese Höhe reservieren.
+  for (let i = firstWeekday + daysInMonth; i < 42; i++) grid.appendChild(el('span', 'bk__pad'));
+
   wrap.appendChild(grid);
 
   const tz = el('p', 'bk__tz');
@@ -267,7 +277,9 @@ function renderTimes() {
 
   if (!state.date) {
     wrap.classList.add('bk__times--empty');
-    wrap.appendChild(el('p', 'bk__hint', 'Wählen Sie einen Tag – dann erscheinen hier die freien Uhrzeiten.'));
+    wrap.appendChild(el('p', 'bk__hint', state.firstLoad
+      ? 'Freie Termine werden geladen …'
+      : 'Wählen Sie einen Tag – dann erscheinen hier die freien Uhrzeiten.'));
     return wrap;
   }
 
@@ -500,7 +512,9 @@ function render() {
   if (state.date) stage.classList.add('bk__stage--split');
   stage.appendChild(renderCalendar());
   stage.appendChild(renderTimes());
-  if (state.loading) stage.classList.add('is-loading');
+  // Beim allerersten Abruf nicht abdunkeln: Die Tage färben sich einfach ein,
+  // sobald die freien Termine da sind (kein Aufblenden von halbtransparent).
+  if (state.loading && !state.firstLoad) stage.classList.add('is-loading');
   root.appendChild(stage);
 
   if (!state.loading && Object.keys(state.days).length === 0) {

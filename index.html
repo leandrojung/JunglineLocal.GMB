@@ -11,6 +11,9 @@
 <meta property="og:title" content="JunglineLocal: Google-Profil-Optimierung für regionale Unternehmen">
 <meta property="og:description" content="Ihre Kunden suchen bei Google und finden die Konkurrenz? Wir bringen Ihren Betrieb im Kartenbereich nach oben. Kostenloses Erstgespräch.">
 <!--HEAD-->
+<!-- Freie Termine schon waehrend des Seitenaufbaus holen: site.js liest
+     dieselbe Antwort, der Hinweis im Hero steht dann rechtzeitig fest. -->
+<link rel="preload" href="/api/booking/slots" as="fetch" crossorigin="anonymous">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -44,9 +47,14 @@
      (steht als Fussnote darunter). Sie tragen bewusst keine Namen und keine
      Zahlen, die sich als echte Kundendaten lesen liessen.
 
-     .hero__live zeigt zuerst einen festen Satz und tauscht ihn gegen den
-     naechsten freien Termin, sobald /api/booking/slots geantwortet hat
-     (site.js). Gleiche Zeilenhoehe in beiden Fassungen — kein Versatz. -->
+     Der ganze Einstieg laeuft ueber CSS-Keyframes (site.css, "Hero-Einstieg")
+     und startet mit dem ersten Bild, ohne auf JavaScript zu warten. Bewegt
+     werden nur opacity und transform — das rechnet die Grafikkarte.
+
+     .hero__live erscheint erst nach der Ueberschrift. Liegt bis dahin der
+     naechste freie Termin vor (Abruf per Preload im <head>, site.js), steht
+     er schon drin; sonst bleibt der feste Satz. Getauscht wird nie, waehrend
+     der Hinweis sichtbar ist. -->
 <header class="hero theme-dark" data-nav="dark">
   <div class="hero__bg" id="heroBg" aria-hidden="true">
     <div class="glow glow--a"></div>
@@ -58,18 +66,10 @@
             <stop offset="0%" style="stop-color:#9FB0FF"/>
             <stop offset="100%" style="stop-color:#7CF0C4"/>
           </linearGradient>
-          <filter id="jlBlur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="7"/>
-          </filter>
         </defs>
         <path id="logo-fill" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
         <path id="logo-glow" pathLength="1000" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
         <path id="logo-path" pathLength="1000" d="M 329.433594 105.574219 L 329.433594 211.457031 L 328.6875 211.046875 L 295.929688 192.085938 L 295.929688 124.941406 L 187.53125 62.351562 L 95.851562 115.222656 L 124.941406 132.011719 L 187.53125 95.855469 L 284.035156 151.652344 L 158.035156 221.855469 L 187.191406 239.863281 L 245.027344 201.398438 L 270.308594 215.941406 L 290.289062 227.496094 L 323.792969 246.863281 L 328.6875 249.648438 L 328.6875 269.902344 L 187.53125 351.386719 L 45.5625 269.425781 L 45.5625 163.542969 L 79.066406 182.914062 L 79.066406 250.125 L 187.53125 312.71875 L 279.140625 259.777344 L 246.316406 240.816406 L 187.804688 279.6875 L 91.84375 220.359375 L 216.074219 151.105469 L 187.53125 134.59375 L 124.941406 170.746094 L 110.53125 162.457031 L 45.5625 124.941406 L 45.5625 105.574219 L 187.53125 23.613281 Z"/>
-        <circle class="logo-spark" r="6" fill="#ffffff" filter="url(#jlBlur)">
-          <animateMotion dur="2.6s" begin="0.2s" fill="freeze" calcMode="spline" keySplines="0.65 0 0.35 1" keyTimes="0;1" keyPoints="0;1">
-            <mpath href="#logo-path"/>
-          </animateMotion>
-        </circle>
       </svg>
     </div>
   </div>
@@ -81,7 +81,7 @@
         <span class="hero__live-tx" id="heroLiveText">Erstgespräch: 30 Minuten, kostenlos</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg>
       </a>
-      <h1 id="heroTitle"><span class="hero-h1__d">Oben bei Google. <span class="hl">In Ihrer Stadt.</span></span><span class="hero-h1__m"><span class="hero-h1__line">Oben bei Google.</span><span class="hero-h1__line hl">In Ihrer Stadt.</span></span></h1>
+      <h1 id="heroTitle"><span class="hero-h1__line">Oben bei Google.</span> <span class="hero-h1__line"><span class="hl">In Ihrer Stadt.</span></span></h1>
       <p class="lead h-anim">Ich optimiere Ihr Google-Unternehmensprofil, damit Kunden aus Ihrer Region zuerst Sie finden – und nicht die Konkurrenz.</p>
       <div class="cta-row h-anim">
         <a href="#termin" class="btn btn--primary btn--lg">Kostenloses Erstgespräch</a>
@@ -89,15 +89,15 @@
       </div>
       <div class="hero__person h-anim">
         <picture>
-          <source type="image/webp" srcset="/leandro-2-600.webp">
-          <img draggable="false" src="/leandro-2-600.jpg" alt="" width="44" height="44" decoding="async">
+          <source type="image/webp" srcset="/leandro-2-96.webp">
+          <img draggable="false" src="/leandro-2-96.jpg" alt="" width="44" height="44" decoding="async">
         </picture>
         <span><b>Leandro Jung</b> betreut Sie persönlich – aus Dorsten, bundesweit.</span>
       </div>
     </div>
 
     <div class="hero__visual rankcard-wrap" id="tiltWrap">
-      <div class="rankcard" id="rankcard" data-reveal>
+      <div class="rankcard" id="rankcard">
         <div class="rankcard__head">
           <div class="gpill">
             <svg class="gpill__g" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -124,22 +124,22 @@
           </div>
         </div>
         <div class="results" id="results">
-          <div class="result result--ghost" data-slot="0">
-            <span class="rank">1</span>
+          <div class="result result--ghost result--r1">
+            <span class="rank"><span class="rank__v rank__v--vor">1</span><span class="rank__v rank__v--nach">2</span></span>
             <div class="result__body">
               <div class="name">Meridian Dienstleistungen</div>
               <div class="result__meta"><span class="stars">★★★★☆</span></div>
             </div>
           </div>
-          <div class="result result--ghost" data-slot="1">
-            <span class="rank">2</span>
+          <div class="result result--ghost result--r2">
+            <span class="rank"><span class="rank__v rank__v--vor">2</span><span class="rank__v rank__v--nach">3</span></span>
             <div class="result__body">
               <div class="name">Berger &amp; Partner</div>
               <div class="result__meta"><span class="stars">★★★★☆</span></div>
             </div>
           </div>
-          <div class="result result--you" id="you" data-slot="2">
-            <span class="rank" id="youRank">15</span>
+          <div class="result result--you" id="you">
+            <span class="rank"><span class="rank__v rank__v--vor">15</span><span class="rank__v rank__v--nach">1</span></span>
             <div class="result__body">
               <div class="name">Ihr Unternehmen</div>
               <div class="result__meta"><span class="stars">★★★★★</span><span class="openchip">Geöffnet</span></div>
@@ -150,7 +150,10 @@
       </div>
 
       <!-- Was nach dem Aufstieg passiert: iOS-Mitteilungen, die nacheinander
-           einlaufen, sobald "Ihr Unternehmen" oben steht (.is-top, site.js). -->
+           einlaufen, sobald "Ihr Unternehmen" oben steht. Aufstieg, Platzziffern
+           und Mitteilungen sind reine CSS-Keyframes mit festen Startzeiten
+           (site.css, "Hero-Einstieg") — kein Timer im Skript, der sich mit dem
+           Einblenden der Karte ueberschneiden koennte. -->
       <div class="hero__notes" aria-hidden="true">
         <div class="ios-note ios-note--call">
           <span class="ios-note__ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></span>
@@ -1150,7 +1153,7 @@
                Das JS-Modul wird von site.js nachgeladen, sobald dieser Block
                in Sichtweite kommt — bis dahin steht hier nur der Platzhalter. -->
           <div class="bk" id="bookingWidget" data-topic="seo" data-step="pick">
-            <div class="bk__msg">Freie Termine werden geladen …</div>
+            <!--BK_SKELETON-->
           </div>
           <noscript>
             <p class="bk__hint">Für die Online-Buchung wird JavaScript benötigt. Rufen Sie sonst einfach an —

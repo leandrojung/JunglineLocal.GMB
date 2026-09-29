@@ -187,6 +187,26 @@ function renderBranchenTiles(items) {
   return items.map((b) => `<a class="branche" href="${b.href}" data-reveal><span class="branche__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b.icon}</svg></span><span class="branche__tx">${b.label}</span>${SVG_GO}</a>`).join('\n        ')
 }
 
+// ---------------------------------------------------------------------------
+// Kalendergerüst der Terminbuchung: exakt dieselbe Struktur (Kopf, 7
+// Wochentage, 42 Felder, Zeitzonenzeile, Hinweis) wie der fertige Kalender
+// aus booking.js — nur ohne Tage. Steht im HTML, bis das Skript übernimmt,
+// und ist genau so hoch wie der fertige Kalender: Beim Laden springt nichts.
+// Token: <!--BK_SKELETON-->
+// ---------------------------------------------------------------------------
+function renderBookingSkeleton() {
+  const wd = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((d) => `<span class="bk__wd">${d}</span>`).join('')
+  const pads = '<span class="bk__pad"></span>'.repeat(42)
+  return `<div class="bk__stage" aria-busy="true">
+              <div class="bk__cal">
+                <div class="bk__calhead"><span class="bk__nav" aria-hidden="true"></span><h5 class="bk__month">&nbsp;</h5><span class="bk__nav" aria-hidden="true"></span></div>
+                <div class="bk__grid" aria-hidden="true">${wd}${pads}</div>
+                <p class="bk__tz"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Alle Zeiten in mitteleuropäischer Zeit (Berlin)</p>
+              </div>
+              <div class="bk__times bk__times--empty"><p class="bk__hint">Freie Termine werden geladen …</p></div>
+            </div>`
+}
+
 function renderBranchenGridHome() {
   return `<div class="branchen-grid">\n        ${renderBranchenTiles([...branchenList, ...branchenGridExtras])}\n      </div>`
 }
@@ -336,6 +356,7 @@ function sharedShell() {
     '<!--BAUSTEINE_LEISTUNGEN-->': renderBausteineLeistungen,
     '<!--BRANCHEN_GRID_HOME-->': renderBranchenGridHome,
     '<!--BRANCHEN_GRID_LEISTUNGEN-->': renderBranchenGridLeistungen,
+    '<!--BK_SKELETON-->': renderBookingSkeleton,
   }
   return {
     name: 'jungline-shared-shell',

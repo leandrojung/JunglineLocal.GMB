@@ -1,6 +1,7 @@
 (function(){
-  // Der Buchungskalender (src/js/booking.js) wird erst geladen, wenn er in
-  // Sichtweite kommt. Auf allen Seiten ohne Widget — also überall außer
+  // Der Buchungskalender (src/js/booking.js) wird geladen, wenn er sich
+  // nähert (anderthalb Bildschirmhöhen vorher) — so steht er fertig da,
+  // bevor er ins Bild kommt. Auf allen Seiten ohne Widget — also überall außer
   // Startseite und /kontakt/ — passiert hier gar nichts.
   var widget = document.getElementById('bookingWidget');
   if(!widget) return;
@@ -17,7 +18,7 @@
   } else if('IntersectionObserver' in window){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){ if(entry.isIntersecting) load(); });
-    }, {rootMargin:'600px'});
+    }, {rootMargin:'150% 0px'});
     io.observe(widget);
   } else {
     load();
@@ -601,119 +602,12 @@
     }
   }
 
-  // hero entrance: Schreibmaschinen-Effekt (skipped bei reduced motion — dann
-  // ist alles sofort als vollständiger Text sichtbar). Die .js-Klasse sitzt als
-  // winziges Inline-Script in head.html (vor dem ersten Paint), damit Hero-Text
-  // nie erst aufblitzt und dann durch die Reveal-Regeln verschwindet.
-  var mkCursor = function(){
-    var c = document.createElement('span');
-    c.className = 'lead__cursor';
-    c.setAttribute('aria-hidden', 'true');
-    return c;
-  };
-
-  if(!reduce){
-    // ---- Headline: einmaliger Schreibmaschinen-Effekt --------------------
-    // Tippt erst den normalen Teil, dann den grün hervorgehobenen (.hl) und
-    // hält danach an (kein Loop). Der volle Satz steht als aria-label, damit
-    // Screenreader nicht Wort für Wort ein wachsendes Fragment vorgelesen
-    // bekommen.
-    var h1 = document.getElementById('heroTitle');
-    var startLead;
-
-    var runLead = function(){ if(startLead) startLead(); };
-
-    // Getippt wird immer nur die lange Desktop-Fassung (.hero-h1__d). Auf dem
-    // Telefon (<=640px, derselbe Breakpoint wie der Mobile-Hero in site.css)
-    // steht dort eine kurze Zweizeilen-Headline, die zeichenweise aufgebaut
-    // laenger "halb geladen" aussieht als sie zu lesen dauert — die uebernimmt
-    // stattdessen die gestaffelte CSS-Einblendung. matchMedia wird bewusst
-    // einmalig beim Laden ausgewertet: ein Wechsel der Fassung mitten in einer
-    // laufenden Animation waere schlechter als die falsche Wahl nach einem
-    // Geraetedreh, den es beim Erstaufbau praktisch nicht gibt.
-    var mobileHero = window.matchMedia('(max-width:640px)').matches;
-    var typeTarget = (!mobileHero && h1) ? h1.querySelector('.hero-h1__d') : null;
-
-    if(typeTarget){
-      var hlEl = typeTarget.querySelector('.hl');
-      var hlText = hlEl ? hlEl.textContent : '';
-      var plainStr = '';
-      if(hlEl){
-        Array.prototype.slice.call(typeTarget.childNodes).forEach(function(n){
-          if(n === hlEl) return;
-          if(n.nodeType === 3) plainStr += n.textContent;
-        });
-      } else {
-        plainStr = typeTarget.textContent;
-      }
-
-      // Full text as accessible label so screen readers get the complete
-      // sentence. Sitzt am <h1>, nicht am getippten Span: das aria-label
-      // ersetzt damit auch die (auf dieser Breite ausgeblendete) kurze
-      // Mobile-Fassung, die sonst mit vorgelesen wuerde.
-      h1.setAttribute('aria-label', (plainStr + hlText).replace(/\s+/g, ' ').trim());
-      typeTarget.textContent = '';
-
-      var plainSpan = document.createElement('span');
-      var hlSpan = document.createElement('span');
-      // hlSpan intentionally has NO 'hl' class during typing. background-clip:text
-      // makes any child text contribute to the gradient mask regardless of
-      // visibility/opacity, so hidden chars would bleed through. We apply solid
-      // green instead, then swap in 'hl' (shimmer) once all chars are revealed.
-      hlSpan.style.color = 'var(--green-bright)';
-      typeTarget.appendChild(plainSpan);
-      typeTarget.appendChild(hlSpan);
-
-      // Pre-populate both spans with invisible char spans so all text occupies
-      // its final layout positions from the very first frame. Chars are revealed
-      // in sequence by removing .tc--h (visibility:hidden → visible). No reflow,
-      // no word-shift during typing.
-      var buildCharSpans = function(el, text){
-        var spans = [];
-        for(var i = 0; i < text.length; i++){
-          var s = document.createElement('span');
-          s.className = 'tc tc--h';
-          s.setAttribute('aria-hidden', 'true');
-          s.textContent = text.charAt(i);
-          el.appendChild(s);
-          spans.push(s);
-        }
-        return spans;
-      };
-
-      var allChars = buildCharSpans(plainSpan, plainStr).concat(buildCharSpans(hlSpan, hlText));
-      var ci = 0;
-      var typeHead = function(){
-        if(ci >= allChars.length){
-          // All chars typed: activate shimmer on the highlighted span. Läuft
-          // per CSS (animation-iteration-count:1, ease-out) nur einmal und
-          // hält per forwards am Ende — kein harter Klassenwechsel danach,
-          // das Ausklingen ist Teil derselben, weich auslaufenden Animation.
-          hlSpan.className = 'hl';
-          hlSpan.style.color = '';
-          runLead();
-          return;
-        }
-        allChars[ci].classList.remove('tc--h');
-        ci++;
-        setTimeout(typeHead, 14);
-      };
-      // Kürzere initiale Wartezeit: LCP-Text erscheint ca. 530 ms früher
-      // als bei den alten Werten (260 ms Initial + 42 ms/Zeichen).
-      setTimeout(typeHead, 80);
-    }
-
-    // Falls es keine Headline zum Tippen gibt (Unterseite oder Mobile-Hero),
-    // den Lead-Loop sofort starten.
-    if(!typeTarget) runLead();
-
-    var heroEl = document.querySelector('.hero');
-    if(heroEl){
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        heroEl.classList.add('hero-live');
-      }); });
-    }
-  }
+  // Hero-Einstieg: laeuft vollstaendig ueber CSS-Keyframes (site.css,
+  // "Hero-Einstieg") und startet mit dem ersten Bild. Frueher tippte hier ein
+  // Schreibmaschinen-Effekt die Ueberschrift Zeichen fuer Zeichen — das
+  // schrieb 30 Mal ins DOM, brach die Unterschneidung zwischen den Buchstaben
+  // und liess die zweite Zeile beim Umschalten auf den Schimmer sichtbar
+  // springen.
 
   // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
   // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
@@ -788,6 +682,12 @@
       countsNachlauf();
     }, {threshold:.14, rootMargin:'0px 0px -50px 0px'});
     counts.forEach(function(el){
+      // Breite des Endwerts festhalten, bevor auf 0 gesetzt wird: Beim
+      // Hochzaehlen waechst die Zahl sonst von einer auf zwei Stellen und
+      // schiebt die Einheit dahinter mit (Layout-Verschiebung).
+      el.style.display = 'inline-block';
+      el.style.textAlign = 'right';
+      el.style.minWidth = Math.ceil(el.getBoundingClientRect().width) + 'px';
       el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
       cio.observe(el);
     });
@@ -798,11 +698,13 @@
   // hero parallax + rankcard tilt (fine pointer only)
   var finePointer = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
   if(finePointer && !reduce){
-    var heroBg = document.getElementById('heroBg');
+    var glowA = document.querySelector('.glow--a');
+    var glowB = document.querySelector('.glow--b');
     var card = document.getElementById('rankcard');
     var tx=0,ty=0, raf=null;
     var apply = function(){
-      if(heroBg){ heroBg.style.setProperty('--mx', tx.toFixed(3)); heroBg.style.setProperty('--my', ty.toFixed(3)); }
+      if(glowA) glowA.style.transform = 'translate3d('+(tx*18).toFixed(1)+'px,'+(ty*18).toFixed(1)+'px,0)';
+      if(glowB) glowB.style.transform = 'translate3d('+(tx*-12).toFixed(1)+'px,'+(ty*-12).toFixed(1)+'px,0)';
       if(card){ card.style.transform = 'rotateY('+(tx*5).toFixed(2)+'deg) rotateX('+(-ty*5).toFixed(2)+'deg)'; }
       raf=null;
     };
@@ -815,15 +717,6 @@
 
   // premium pointer micro-interactions (fine pointer + motion ok)
   if(finePointer && !reduce){
-    // cursor-following spotlight on cards & panels
-    document.querySelectorAll('.panel, .linkcard').forEach(function(el){
-      el.addEventListener('mousemove', function(e){
-        var r = el.getBoundingClientRect();
-        el.style.setProperty('--sx', ((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
-        el.style.setProperty('--sy', ((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
-      }, {passive:true});
-      el.addEventListener('mouseleave', function(){ el.style.setProperty('--sy','-40%'); });
-    });
     // magnetic primary buttons — schwächerer Zug (0.22/0.30 -> 0.1/0.13) und
     // per Lerp sanft nachgeführt statt den Button beim ersten Mousemove
     // sofort auf den vollen Zielwert zu springen (das wirkte "hingezogen").
@@ -851,42 +744,9 @@
     });
   }
 
-  // ranking climb animation (nur Startseite — Unterseiten haben keine Rankcard)
-  var you = document.getElementById('you');
-  if(you){
-    var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
-    var youRank = document.getElementById('youRank');
-    var visual = you.closest ? you.closest('.hero__visual') : null;
-    // Zeilenhöhe aus dem DOM statt fester Pixelwerte: Wer in site.css die
-    // Höhe einer Ergebniszeile ändert, muss hier nichts nachziehen.
-    var GAP = 8;
-    var getRow = function(){ return (rows[0].offsetHeight || 62) + GAP; };
-    var current = null;
-    var place = function(order){ current = order; var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); };
-    var youIdx = rows.indexOf(you);
-    var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
-    var bottomOrder = others.concat([youIdx]);
-    var topOrder = [youIdx].concat(others);
-    var ghostRanks = others.map(function(i){ return rows[i].querySelector('.rank'); });
-
-    var setTopRanks = function(){
-      you.classList.add('is-top'); youRank.textContent='1';
-      ghostRanks.forEach(function(el, i){ el.textContent = String(i+2); });
-      // Danach laufen die Mitteilungen ein (Anruf, Bewertung) — das, worum
-      // es bei Platz 1 eigentlich geht. Verzögerung steckt im CSS.
-      if(visual) visual.classList.add('is-won');
-    };
-
-    // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
-    // ruhige, selbstbewusste Erzählung statt Endlosschleife.
-    if(reduce){
-      place(topOrder); setTopRanks();
-    } else {
-      place(bottomOrder);
-      setTimeout(function(){ place(topOrder); setTopRanks(); }, 1700);
-    }
-    window.addEventListener('resize', function(){ if(current) place(current); }, {passive:true});
-  }
+  // Aufstieg auf Platz 1, Platzziffern und Mitteilungen: reine CSS-Keyframes
+  // mit festen Startzeiten (site.css, "Hero-Einstieg"). Kein Timer mehr, der
+  // sich mit dem Einblenden der Karte ueberschneiden konnte.
 
   // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
   // Nur auf Geräten mit feinem Zeiger und ohne reduced motion — auf Touch
@@ -930,6 +790,9 @@
         }
       }
       curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)' + stretchTf;
+      // Hat der Ring aufgeholt, ruht die Schleife bis zur nächsten Bewegung —
+      // vorher lief sie nach der ersten Mausbewegung dauerhaft in jedem Bild.
+      if(Math.abs(cx - rx) < 0.3 && Math.abs(cy - ry) < 0.3){ curLoopRunning = false; return; }
       requestAnimationFrame(curLoop);
     };
     // Loop erst starten, wenn sich die Maus tatsächlich bewegt hat — sonst
@@ -1478,11 +1341,20 @@
   // macht, meldet sich hier — dann werden nur die neuen Icons nachgezogen.
   document.addEventListener('lico:rescan', collect);
 
-  // Failsafe: hat nach 1,8 s kein einziges Icon gezeichnet, arbeitet der
-  // Observer nicht (In-App-Browser, Bot, Screenshot-Renderer). Dann alle
-  // Icons unverzüglich sichtbar machen statt sie versteckt zu lassen.
+  // Failsafe: Steht nach 1,8 s ein Icon sichtbar im Bild und ist trotzdem
+  // noch nicht gezeichnet, arbeitet der Observer nicht (In-App-Browser, Bot,
+  // Screenshot-Renderer). Dann alle Icons unverzüglich sichtbar machen statt
+  // sie versteckt zu lassen. Nur "noch keins gezeichnet" reicht nicht: Auf
+  // der Startseite steht im ersten Bildschirm gar keins.
   setTimeout(function(){
     if(document.querySelector('.lico--draw')) return;
+    var vh = window.innerHeight, stuck = false;
+    icons.forEach(function(svg){
+      if(stuck || !svg.classList.contains('lico--pending')) return;
+      var r = svg.getBoundingClientRect();
+      if(r.height > 0 && r.top < vh - 60 && r.bottom > 60) stuck = true;
+    });
+    if(!stuck) return;
     observerDead = true;
     icons.forEach(function(svg){ svg.classList.remove('lico--pending'); });
   }, 1800);
@@ -1518,13 +1390,22 @@
   // .js [data-reveal] setzt opacity:0 und verlässt sich darauf, dass der
   // IntersectionObserver oben .in nachliefert. Bleibt das aus, wäre die halbe
   // Seite unsichtbar — das ist der Fehler, der sich in In-App-Browsern
-  // (Instagram, Google-App) und bei Vorschau-Renderern zeigt. Hat nach 1,6 s
-  // nichts reagiert, obwohl es Reveal-Elemente gibt, schalten wir die
-  // Versteck-Regel global ab.
+  // (Instagram, Google-App) und bei Vorschau-Renderern zeigt. Geprüft wird
+  // nach 1,6 s, ob ein Reveal-Element SICHTBAR im Bild steht und trotzdem
+  // noch versteckt ist — nur dann arbeitet der Beobachter nachweislich nicht,
+  // und die Versteck-Regel wird global abgeschaltet. (Früher reichte "noch
+  // keins aufgetaucht": Auf der Startseite steht im ersten Bildschirm aber
+  // gar keins, der Failsafe schaltete dort also grundlos alles ab.)
   if(document.querySelector('[data-reveal]')){
     setTimeout(function(){
-      if(!document.querySelector('[data-reveal].in')){
-        document.documentElement.classList.add('reveal-off');
+      var vh = window.innerHeight;
+      var offen = document.querySelectorAll('[data-reveal]:not(.in)');
+      for(var i = 0; i < offen.length; i++){
+        var r = offen[i].getBoundingClientRect();
+        if(r.height > 0 && r.top < vh - 80 && r.bottom > 80){
+          document.documentElement.classList.add('reveal-off');
+          return;
+        }
       }
     }, 1600);
   }
@@ -1920,15 +1801,15 @@
 /* ============================================================
    NÄCHSTER FREIER TERMIN (Hero der Startseite)
 
-   Die Zeile über der Überschrift zeigt zuerst einen festen Satz und tauscht
-   ihn gegen den nächsten freien Termin, sobald der Buchungskalender
-   geantwortet hat — dieselbe Quelle (/api/booking/slots), aus der auch der
-   Kalender unten liest. Beide Fassungen sind eine Zeile hoch, es verschiebt
-   sich also nichts.
+   Die Zeile über der Überschrift nennt den nächsten freien Termin — dieselbe
+   Quelle (/api/booking/slots), aus der auch der Kalender unten liest. Die
+   Antwort wird per <link rel="preload"> schon während des Seitenaufbaus
+   geholt; fetch() unten bekommt dieselbe Antwort ohne zweiten Abruf.
 
-   Der Abruf wartet, bis die Seite steht (kein Wettbewerb mit Bild und
-   Schrift). Bewusst ohne localStorage/sessionStorage: Es wird nichts auf dem
-   Gerät des Besuchers abgelegt, der Wert lebt nur, solange die Seite offen ist.
+   Getauscht wird NUR, solange der Hinweis noch unsichtbar auf seinen
+   Einsatz wartet (CSS-Animation im Verzögerungsabschnitt). Kommt die Antwort
+   später, bleibt der feste Satz stehen — es springt nie Text in eine schon
+   sichtbare Zeile. Bewusst ohne localStorage/sessionStorage.
 
    Ein Klick übergibt Tag und Uhrzeit an den Kalender (window.jlPick plus
    Ereignis 'jl:pick'). booking.js öffnet genau diesen Tag — der Besucher
@@ -1955,8 +1836,19 @@
     var wd = new Date(Date.UTC(p[0], p[1]-1, p[2])).getUTCDay();
     return WD[wd] + ' ' + p[2] + '. ' + MON[p[1]-1];
   };
+  // Noch unsichtbar? Dann darf der Text wechseln. Ohne laufende Animation
+  // (kein .js, "Bewegung reduzieren") ist die Zeile von Anfang an sichtbar.
+  var canSwap = function(){
+    if(!live.getAnimations) return false;
+    var anims = live.getAnimations();
+    for(var i = 0; i < anims.length; i++){
+      var t = anims[i].effect && anims[i].effect.getComputedTiming ? anims[i].effect.getComputedTiming() : null;
+      if(t && t.localTime !== null && t.localTime < t.delay - 30) return true;
+    }
+    return false;
+  };
   var show = function(slot){
-    if(!slot || !slot.date) return;
+    if(!slot || !slot.date || !canSwap()) return;
     var b = document.createElement('b');
     b.textContent = label(slot) + ', ' + slot.time + ' Uhr';
     tx.textContent = 'Nächster freier Termin: ';
@@ -2005,10 +1897,6 @@
     try { window.dispatchEvent(new CustomEvent('jl:pick', {detail: pick})); } catch(e){}
   });
 
-  var start = function(){
-    if('requestIdleCallback' in window) window.requestIdleCallback(load, {timeout: 2500});
-    else setTimeout(load, 1200);
-  };
-  if(document.readyState === 'complete') start();
-  else window.addEventListener('load', start);
+  // Sofort: die Antwort liegt dank Preload meist schon bereit.
+  load();
 })();

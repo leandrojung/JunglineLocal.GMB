@@ -64,7 +64,6 @@ function darfLaufen() {
 if (darfLaufen()) {
   let preact = null
   let Komponente = null
-  let laedt = false
   let montiert = false
 
   // Die Schriftgroesse der Hintergrund-Schrift haengt an der Breite des
@@ -130,45 +129,114 @@ if (darfLaufen()) {
     BLOCK.classList.remove('is-live')
   }
 
-  async function starten() {
-    if (montiert || laedt) return
-    laedt = true
-    try {
-      const [p, k] = await Promise.all([
-        import('preact'),
-        import('../components/LiquidGlassCluster.tsx'),
-      ])
-      preact = p
-      Komponente = k.default
-      zeichnen()
-    } catch (e) {
-      // Nachladen fehlgeschlagen (Netz weg, Datei fehlt): Die statische
-      // Fassung steht weiterhin, es passiert sichtbar nichts.
-      console.warn('Glass-Insel konnte nicht geladen werden:', e)
-    } finally {
-      laedt = false
+  // ---- Laden, Vorwaermen, Einhaengen ------------------------------------
+  // Die Komponente kompiliert beim Einhaengen zwei Shader SYNCHRON. Das
+  // blockiert den Grafikprozess des Browsers — je nach Geraet 100 bis 500 ms,
+  // in denen JEDE Animation auf der Seite steht (gemessen: ein Haenger mitten
+  // im Scrollen). Deshalb in drei Stufen:
+  //
+  //   1. Naehert sich der Abschnitt (zwei Bildschirmhoehen vorher), werden
+  //      die Dateien geladen und dieselben Shader-Quelltexte in einem
+  //      Wegwerf-Kontext vorkompiliert — mit KHR_parallel_shader_compile im
+  //      Hintergrund, ohne etwas zu blockieren. Das spaetere synchrone
+  //      Kompilieren in der Komponente trifft dann den Shader-Cache.
+  //   2. Eingehaengt wird erst, wenn der Block wirklich im Bild ist.
+  //   3. Kann der Browser nicht parallel kompilieren, wird erst eingehaengt,
+  //      wenn nicht gescrollt wird: Ein kurzer Stillstand faellt dann nicht
+  //      auf, weil sich ohnehin nichts bewegt.
+  let ladeVersprechen = null
+  let vorgewaermt = false
+  let imSichtfeld = false
+  let inRuhe = true
+
+  function laden() {
+    if (!ladeVersprechen) {
+      ladeVersprechen = Promise.all([import('preact'), import('../components/LiquidGlassCluster.tsx')])
+        .then(([p, k]) => {
+          preact = p
+          Komponente = k.default
+          return vorwaermen(k)
+        })
+        .then((ok) => {
+          vorgewaermt = ok
+          pruefen()
+        })
+        .catch((e) => {
+          // Nachladen fehlgeschlagen (Netz weg, Datei fehlt): Die statische
+          // Fassung steht weiterhin, es passiert sichtbar nichts.
+          console.warn('Glass-Insel konnte nicht geladen werden:', e)
+        })
     }
+    return ladeVersprechen
   }
 
-  // Grosszuegiger Rand: laden, bevor der Block wirklich zu sehen ist —
-  // abraeumen erst, wenn er deutlich weg ist. Ein schmaler Rand wuerde beim
-  // langsamen Scrollen an der Kante staendig auf- und abbauen.
-  let imSichtfeld = false
-  if ('IntersectionObserver' in window) {
-    const beobachter = new IntersectionObserver(
-      (eintraege) => {
-        for (const eintrag of eintraege) {
-          imSichtfeld = eintrag.isIntersecting
-          if (imSichtfeld) starten()
-          else abraeumen()
+  function vorwaermen(k) {
+    return new Promise((fertig) => {
+      try {
+        const leinwand = document.createElement('canvas')
+        const gl = leinwand.getContext('webgl2') || leinwand.getContext('webgl')
+        const parallel = gl && gl.getExtension('KHR_parallel_shader_compile')
+        if (!gl || !parallel || !k.FULLSCREEN_VS) { fertig(false); return }
+        const shader = (typ, quelle) => {
+          const s = gl.createShader(typ)
+          gl.shaderSource(s, quelle)
+          gl.compileShader(s)
+          return s
         }
-      },
-      { rootMargin: '300px 0px' },
-    )
-    beobachter.observe(HOST)
+        const programme = [k.PLATE_FS, k.GLASS_FS].map((fs) => {
+          const p = gl.createProgram()
+          gl.attachShader(p, shader(gl.VERTEX_SHADER, k.FULLSCREEN_VS))
+          gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs))
+          gl.linkProgram(p)
+          return p
+        })
+        const abfragen = () => {
+          if (programme.every((p) => gl.getProgramParameter(p, parallel.COMPLETION_STATUS_KHR))) {
+            const verlust = gl.getExtension('WEBGL_lose_context')
+            if (verlust) verlust.loseContext()
+            fertig(true)
+          } else {
+            setTimeout(abfragen, 60)
+          }
+        }
+        abfragen()
+      } catch (e) {
+        fertig(false)
+      }
+    })
+  }
+
+  function pruefen() {
+    if (montiert || !imSichtfeld || !Komponente) return
+    if (vorgewaermt || inRuhe) zeichnen()
+  }
+
+  let ruheUhr = 0
+  addEventListener('scroll', () => {
+    inRuhe = false
+    clearTimeout(ruheUhr)
+    ruheUhr = setTimeout(() => { inRuhe = true; pruefen() }, 220)
+  }, { passive: true })
+
+  if ('IntersectionObserver' in window) {
+    // Frueh: laden und vorwaermen.
+    const vorab = new IntersectionObserver((eintraege) => {
+      if (eintraege.some((e) => e.isIntersecting)) { laden(); vorab.disconnect() }
+    }, { rootMargin: '200% 0px' })
+    vorab.observe(HOST)
+    // Im Bild: einhaengen. Grosszuegig weg: abraeumen (ein schmaler Rand wuerde
+    // beim langsamen Scrollen an der Kante staendig auf- und abbauen).
+    const sicht = new IntersectionObserver((eintraege) => {
+      for (const e of eintraege) { imSichtfeld = e.isIntersecting; if (imSichtfeld) { laden(); pruefen() } }
+    })
+    sicht.observe(HOST)
+    const naehe = new IntersectionObserver((eintraege) => {
+      for (const e of eintraege) if (!e.isIntersecting) abraeumen()
+    }, { rootMargin: '300px 0px' })
+    naehe.observe(HOST)
   } else {
     imSichtfeld = true
-    starten()
+    laden()
   }
 
   // Das Bild hinter dem Glas wird in der Geraeteaufloesung gebacken. Aendert
@@ -189,6 +257,6 @@ if (darfLaufen()) {
   // stehen, denn der Beobachter meldet sich nicht erneut.
   addEventListener('visibilitychange', () => {
     if (document.hidden) abraeumen()
-    else if (imSichtfeld) starten()
+    else pruefen()
   })
 }

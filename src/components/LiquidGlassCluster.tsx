@@ -311,11 +311,11 @@ function fallbackAlpha(w: number, h: number): Uint8ClampedArray {
     return px
 }
 
-const FULLSCREEN_VS = `
+export const FULLSCREEN_VS = `
 attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`
 
-const PLATE_FS = `
+export const PLATE_FS = `
 precision highp float;
 uniform sampler2D uPlate;
 uniform vec2 uPlateFit;
@@ -325,7 +325,7 @@ void main() {
     gl_FragColor = texture2D(uPlate, clamp(uv, 0.0, 1.0));
 }`
 
-const GLASS_FS = `
+export const GLASS_FS = `
 precision highp float;
 
 uniform vec2 uRes;
