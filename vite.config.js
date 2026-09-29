@@ -80,7 +80,7 @@ function renderBausteineHome() {
   const items = HOME_TEASER_INDICES.map((idx) => bausteine[idx])
   const cards = items.map((b, i) => `
       <div class="svc" data-reveal${i % 2 === 1 ? ' data-d="1"' : ''}>
-        <span class="svc__idx" aria-hidden="true">${b.num}</span>
+        <span class="svc__ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${b.icon}</svg></span>
         <div>
           <h3>${b.title}</h3>
           <p>${b.teaser}</p>
@@ -105,26 +105,30 @@ function renderBausteineLeistungen() {
 // ---------------------------------------------------------------------------
 function renderRankcardIllu(youLabel, ariaLabel) {
   const [c1, c2] = rankcardCompetitors
+  // Die Fussnote steht INNERHALB der Karte. Als Geschwister stand sie im
+  // zweispaltigen Raster (.prose-illu) als drittes Element in der naechsten
+  // Zeile — links unter dem Text, weit weg von der Karte, zu der sie gehoert.
   return `<div class="illu illu-localpack" role="img" aria-label="${ariaLabel}">
         <div class="map" aria-hidden="true">
           <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice">
+            <path class="water" d="M-10 96 Q 90 80 180 100 T 410 88 L410 130 L-10 130 Z"/>
             <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
-            <path class="road thin" d="M-10 90 Q 150 70 250 95 T 410 80"/>
+            <path class="road thin" d="M-10 70 Q 150 54 250 76 T 410 64"/>
           </svg>
           <div class="pin">
             <span class="pulse"></span>
-            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#55D396"/><circle cx="14" cy="14" r="5.2" fill="#040605"/></svg>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#3D50C8"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
           </div>
         </div>
-        <div class="bam__rows" aria-hidden="true" style="margin-top:14px">
+        <div class="bam__rows" aria-hidden="true">
           <div class="bam__row bam__row--you"><span class="bam__rank bam__rank--you">1</span>
             <div class="bam__body"><span class="bam__name">${youLabel}</span><span class="bam__meta"><span class="bam__stars">★★★★★</span></span></div>
           </div>
           <div class="bam__row bam__row--comp bam__row--fade"><span class="bam__rank">2</span><div class="bam__body"><span class="bam__name">${c1.name}</span><span class="bam__meta"><span class="bam__stars">${c1.stars}</span></span></div></div>
           <div class="bam__row bam__row--comp bam__row--fade"><span class="bam__rank">3</span><div class="bam__body"><span class="bam__name">${c2.name}</span><span class="bam__meta"><span class="bam__stars">${c2.stars}</span></span></div></div>
         </div>
-      </div>
-      <p class="illu__caption illu__caption--example">${rankcardExampleNote}</p>`
+        <p class="illu__caption illu__caption--example">${rankcardExampleNote}</p>
+      </div>`
 }
 
 // ---------------------------------------------------------------------------
@@ -137,18 +141,18 @@ function renderRankcardIllu(youLabel, ariaLabel) {
 function renderCtaband(h2, p, ziel) {
   // ziel ist optional: Seiten mit eigenem Buchungsbereich (z. B. /webdesign/)
   // geben "#termin" an und schicken damit niemanden mehr auf die Kontaktseite.
-  return `<div class="ctaband" data-reveal>
-      <h2>${h2}</h2>
-      <p>${p}</p>
-      <div class="cta-row">
-        <a href="${ziel || '/kontakt/#termin'}" class="btn btn--primary btn--lg">Kostenloses Erstgespräch buchen</a>
-        <a href="/kontakt/" class="btn btn--ghost btn--lg">Kontakt &amp; Anfahrt</a>
+  // Die frühere Häkchen-Leiste darunter ("30 Min", "Keine Vorkasse",
+  // "DSGVO-konform") ist bewusst weg: dieselben drei Punkte standen auf jeder
+  // Seite doppelt, sie stehen jetzt einmal ausformuliert im Satz darüber.
+  return `<div class="ctaband theme-dark" data-reveal>
+      <div class="ctaband__tx">
+        <h2>${h2}</h2>
+        <p>${p}</p>
       </div>
-      <ul class="ctaband__trust">
-        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> 30 Min, unverbindlich</li>
-        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Keine Vorkasse</li>
-        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> DSGVO-konform</li>
-      </ul>
+      <div class="cta-row">
+        <a href="${ziel || '/kontakt/#termin'}" class="btn btn--primary btn--lg">Erstgespräch buchen</a>
+        <a href="tel:+4917655769680" class="btn btn--glass btn--lg">+49 176 55769680</a>
+      </div>
     </div>`
 }
 
@@ -167,25 +171,28 @@ const branchenList = [
   { href: '/branchen/gastronomie/', label: 'Gastronomie', icon: '<path d="M6 3v7a3 3 0 0 0 6 0V3M9 3v18M17 3c-1.5 1-2 3-2 6s.5 4 2 4v8"/>' },
   { href: '/branchen/kosmetik-und-friseure/', label: 'Kosmetik &amp; Friseure', icon: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 8.5 20 20M8.5 15.5 20 4"/>' },
   { href: '/branchen/autohaeuser/', label: 'Autohäuser', icon: '<path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13v5h-2v-2H7v2H5z"/><circle cx="7.5" cy="15.5" r="1"/><circle cx="16.5" cy="15.5" r="1"/>' },
-  { href: '/branchen/physiotherapie/', label: 'Physiotherapie', icon: '<path d="M20 6 9 17l-5-5"/>' },
+  { href: '/branchen/physiotherapie/', label: 'Physiotherapie', icon: '<circle cx="12" cy="4.6" r="1.7"/><path d="m9 21 3-6.5 3 6.5M5.5 8.5 12 10.5l6.5-2M12 10.5v4"/>' },
 ]
 
 const branchenGridExtras = [
-  { href: '/branchen/', label: 'Weitere Branchen', icon: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>' },
-  { href: '/leistungen/google-unternehmensprofil-optimierung/', label: 'Alle Leistungen', icon: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>' },
-  { href: '/ratgeber/', label: 'Ratgeber', icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5z"/>' },
+  { href: '/branchen/', label: 'Alle Branchen', icon: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>' },
 ]
 
-function renderBranchenLinks(items) {
-  return items.map((b) => `<a href="${b.href}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b.icon}</svg>${b.label}</a>`).join('\n        ')
+// Kacheln statt Pillen: Die frühere Chip-Reihe sah aus wie eine Wolke aus
+// Schlagwort-Badges. Als Raster mit Symbol, Name und Pfeil liest sie sich
+// als das, was sie ist — eine Auswahl, die weiterführt.
+const SVG_GO = '<svg class="branche__go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg>'
+
+function renderBranchenTiles(items) {
+  return items.map((b) => `<a class="branche" href="${b.href}" data-reveal><span class="branche__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b.icon}</svg></span><span class="branche__tx">${b.label}</span>${SVG_GO}</a>`).join('\n        ')
 }
 
 function renderBranchenGridHome() {
-  return `<div class="related__list">\n        ${renderBranchenLinks([...branchenList, ...branchenGridExtras])}\n      </div>`
+  return `<div class="branchen-grid">\n        ${renderBranchenTiles([...branchenList, ...branchenGridExtras])}\n      </div>`
 }
 
 function renderBranchenGridLeistungen() {
-  return `<div class="related__list">\n        ${renderBranchenLinks(branchenList)}\n      </div>`
+  return `<div class="branchen-grid">\n        ${renderBranchenTiles(branchenList)}\n      </div>`
 }
 
 // ---------------------------------------------------------------------------

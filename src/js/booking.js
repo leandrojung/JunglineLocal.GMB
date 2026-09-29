@@ -267,7 +267,7 @@ function renderTimes() {
 
   if (!state.date) {
     wrap.classList.add('bk__times--empty');
-    wrap.appendChild(el('p', 'bk__hint', 'Wählen Sie links einen Tag — die freien Uhrzeiten erscheinen dann hier.'));
+    wrap.appendChild(el('p', 'bk__hint', 'Wählen Sie einen Tag – dann erscheinen hier die freien Uhrzeiten.'));
     return wrap;
   }
 
@@ -656,6 +656,35 @@ async function loadReschedule(token) {
   }
 }
 
+// ---------------------------------------------------------------------
+// Vorauswahl aus dem Hero ("Nächster freier Termin")
+// ---------------------------------------------------------------------
+
+/** Liest einen im Hero angeklickten Termin (site.js legt ihn als
+ *  window.jlPick ab, nichts wird im Browser gespeichert) und vergisst ihn
+ *  sofort wieder. */
+function takePick() {
+  const pick = window.jlPick;
+  window.jlPick = null;
+  return pick && /^\d{4}-\d{2}-\d{2}$/.test(pick.date) ? pick : null;
+}
+
+/** Öffnet den gewählten Tag, aber nur, wenn der Server ihn noch als frei
+ *  meldet. Ist der Termin inzwischen weg, bleibt der Kalender, wie er ist. */
+async function applyPick(pick) {
+  if (!pick || state.step !== 'pick') return;
+  const key = pick.date.slice(0, 7);
+  if (key !== state.month) {
+    if ((state.minMonth && key < state.minMonth) || (state.maxMonth && key > state.maxMonth)) return;
+    state.month = key;
+    await loadMonth(key);
+  }
+  const times = state.days[pick.date] || [];
+  if (!times.length) return;
+  state.date = pick.date;
+  state.time = times.includes(pick.time) ? pick.time : null;
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('verschieben');
@@ -663,7 +692,16 @@ async function init() {
 
   const now = new Date();
   await loadFirstMonthWithSlots(monthKey(now.getFullYear(), now.getMonth()));
+  const pick = takePick();
+  if (pick) await applyPick(pick);
   render();
+
+  // Klick auf den Hinweis, während der Kalender schon geladen ist.
+  window.addEventListener('jl:pick', async (event) => {
+    takePick();
+    await applyPick(event.detail);
+    render();
+  });
 }
 
 init();

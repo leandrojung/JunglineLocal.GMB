@@ -10,4 +10,4 @@ export const rankcardCompetitors = [
 ]
 
 export const rankcardExampleNote =
-  'Beispieldarstellung — illustrative Beispieldaten, keine echten Firmen oder Bewertungen.'
+  'Beispieldarstellung · Firmennamen frei erfunden'

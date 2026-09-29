@@ -856,8 +856,13 @@
   if(you){
     var rows = Array.prototype.slice.call(document.querySelectorAll('#results .result'));
     var youRank = document.getElementById('youRank');
-    var getRow = function(){ return window.matchMedia('(max-width:560px)').matches ? 77 : 70; };
-    var place = function(order){ var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); };
+    var visual = you.closest ? you.closest('.hero__visual') : null;
+    // Zeilenhöhe aus dem DOM statt fester Pixelwerte: Wer in site.css die
+    // Höhe einer Ergebniszeile ändert, muss hier nichts nachziehen.
+    var GAP = 8;
+    var getRow = function(){ return (rows[0].offsetHeight || 62) + GAP; };
+    var current = null;
+    var place = function(order){ current = order; var row = getRow(); order.forEach(function(idx, slot){ rows[idx].style.transform = 'translateY(' + (slot*row) + 'px)'; }); };
     var youIdx = rows.indexOf(you);
     var others = rows.map(function(_,i){return i;}).filter(function(i){return i!==youIdx;});
     var bottomOrder = others.concat([youIdx]);
@@ -867,6 +872,9 @@
     var setTopRanks = function(){
       you.classList.add('is-top'); youRank.textContent='1';
       ghostRanks.forEach(function(el, i){ el.textContent = String(i+2); });
+      // Danach laufen die Mitteilungen ein (Anruf, Bewertung) — das, worum
+      // es bei Platz 1 eigentlich geht. Verzögerung steckt im CSS.
+      if(visual) visual.classList.add('is-won');
     };
 
     // Der Betrieb klettert einmal von Platz 3 auf Platz 1 und bleibt dort —
@@ -875,8 +883,9 @@
       place(topOrder); setTopRanks();
     } else {
       place(bottomOrder);
-      setTimeout(function(){ place(topOrder); setTopRanks(); }, 1600);
+      setTimeout(function(){ place(topOrder); setTopRanks(); }, 1700);
     }
+    window.addEventListener('resize', function(){ if(current) place(current); }, {passive:true});
   }
 
   // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
@@ -1150,7 +1159,9 @@
   // dauerhaft die letzte Footer-Zeile, ohne dass man daran vorbeiscrollen kann).
   var mcta = document.getElementById('mcta');
   if(mcta){
-    var kontakt = document.getElementById('kontakt');
+    // Startseite: #kontakt, Webdesign-Seite: #termin. Dort steht der Kalender
+    // bereits im Bild — die Leiste wäre eine zweite Aufforderung darüber.
+    var kontakt = document.getElementById('kontakt') || document.getElementById('termin');
     var footerEl = document.querySelector('.footer');
     var kontaktVisible = false, footerVisible = false;
     var updateMcta = function(){
@@ -1904,4 +1915,100 @@
   Array.prototype.forEach.call(knoepfe, function(b){
     b.addEventListener('click', function(){ setzen(b.getAttribute('data-topic-set')); });
   });
+})();
+
+/* ============================================================
+   NÄCHSTER FREIER TERMIN (Hero der Startseite)
+
+   Die Zeile über der Überschrift zeigt zuerst einen festen Satz und tauscht
+   ihn gegen den nächsten freien Termin, sobald der Buchungskalender
+   geantwortet hat — dieselbe Quelle (/api/booking/slots), aus der auch der
+   Kalender unten liest. Beide Fassungen sind eine Zeile hoch, es verschiebt
+   sich also nichts.
+
+   Der Abruf wartet, bis die Seite steht (kein Wettbewerb mit Bild und
+   Schrift). Bewusst ohne localStorage/sessionStorage: Es wird nichts auf dem
+   Gerät des Besuchers abgelegt, der Wert lebt nur, solange die Seite offen ist.
+
+   Ein Klick übergibt Tag und Uhrzeit an den Kalender (window.jlPick plus
+   Ereignis 'jl:pick'). booking.js öffnet genau diesen Tag — der Besucher
+   landet nicht vor einem leeren Kalender, sondern vor dem Termin, den er
+   gerade gesehen hat.
+   ============================================================ */
+(function(){
+  var live = document.getElementById('heroLive');
+  var tx = document.getElementById('heroLiveText');
+  if(!live || !tx || !window.fetch) return;
+
+  var WD = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
+  var MON = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'];
+
+  var dayDiff = function(a, b){
+    var pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+    return Math.round((Date.UTC(pb[0], pb[1]-1, pb[2]) - Date.UTC(pa[0], pa[1]-1, pa[2])) / 864e5);
+  };
+  var label = function(slot){
+    var d = dayDiff(slot.today, slot.date);
+    if(d === 0) return 'heute';
+    if(d === 1) return 'morgen';
+    var p = slot.date.split('-').map(Number);
+    var wd = new Date(Date.UTC(p[0], p[1]-1, p[2])).getUTCDay();
+    return WD[wd] + ' ' + p[2] + '. ' + MON[p[1]-1];
+  };
+  var show = function(slot){
+    if(!slot || !slot.date) return;
+    var b = document.createElement('b');
+    b.textContent = label(slot) + ', ' + slot.time + ' Uhr';
+    tx.textContent = 'Nächster freier Termin: ';
+    tx.appendChild(b);
+    live.setAttribute('data-date', slot.date);
+    live.setAttribute('data-time', slot.time);
+    live.setAttribute('aria-label', 'Nächster freier Termin: ' + label(slot) + ', ' + slot.time + ' Uhr. Jetzt buchen.');
+  };
+
+  var firstSlot = function(data){
+    var days = data && data.days ? data.days : {};
+    var keys = Object.keys(days).filter(function(k){ return Array.isArray(days[k]) && days[k].length; }).sort();
+    if(!keys.length) return null;
+    return {date: keys[0], time: days[keys[0]][0], today: data.today};
+  };
+  var getMonth = function(m){
+    return fetch('/api/booking/slots' + (m ? '?month=' + m : ''), {headers:{Accept:'application/json'}})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .catch(function(){ return null; });
+  };
+  var nextMonth = function(key){
+    var p = key.split('-').map(Number);
+    var d = new Date(Date.UTC(p[0], p[1], 1));
+    return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+  };
+
+  var load = function(){
+    getMonth('').then(function(data){
+      if(!data || !data.success) return null;
+      var slot = firstSlot(data);
+      if(slot || !data.month || data.month >= data.max_month) return slot;
+      // Im laufenden Monat ist nichts mehr frei: einen Monat weiter schauen.
+      return getMonth(nextMonth(data.month)).then(function(d2){ return d2 && d2.success ? firstSlot(d2) : null; });
+    }).then(function(slot){
+      if(slot) show(slot);
+    });
+  };
+
+  live.addEventListener('click', function(){
+    var date = live.getAttribute('data-date'), time = live.getAttribute('data-time');
+    if(!date) return;
+    var pick = {date: date, time: time};
+    // Für den Fall, dass booking.js erst beim Hinscrollen geladen wird …
+    window.jlPick = pick;
+    // … und für den Fall, dass der Kalender schon läuft.
+    try { window.dispatchEvent(new CustomEvent('jl:pick', {detail: pick})); } catch(e){}
+  });
+
+  var start = function(){
+    if('requestIdleCallback' in window) window.requestIdleCallback(load, {timeout: 2500});
+    else setTimeout(load, 1200);
+  };
+  if(document.readyState === 'complete') start();
+  else window.addEventListener('load', start);
 })();

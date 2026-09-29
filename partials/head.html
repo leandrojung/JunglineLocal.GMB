@@ -1,11 +1,16 @@
 <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('js')</script>
-<meta name="theme-color" content="#040605">
-<!-- Tab-Symbol klein, Apple-Touch-Symbol und og:image weiterhin in voller Größe -->
+<meta name="theme-color" content="#0A0D1F">
+<!-- Tab-Symbol als SVG (scharf in jeder Größe) mit PNG-Rückfall; das
+     Vorschaubild für WhatsApp, LinkedIn & Co. im Querformat 1200 × 630. -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
-<link rel="apple-touch-icon" href="/logo.png">
-<meta property="og:image" content="https://jungline.de/logo.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:image" content="https://jungline.de/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JunglineLocal – Mehr Kunden aus Ihrer Region. Google-Unternehmensprofil &amp; Webdesign.">
 <meta property="og:locale" content="de_DE">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="author" content="Leandro Jung — JunglineLocal">
 <!-- Nutzungsvorbehalt für Text und Data Mining (§ 44b Abs. 3 UrhG).
      "noai"/"noimageai" sind für Suchmaschinen unbekannte Direktiven und
@@ -32,7 +37,7 @@
   "description": "Optimierung von Google-Unternehmensprofilen (Google Business Profile) für regionale Unternehmen — bundesweit, branchenübergreifend.",
   "url": "https://jungline.de/",
   "logo": "https://jungline.de/logo.png",
-  "image": "https://jungline.de/logo.png",
+  "image": "https://jungline.de/og-image.jpg",
   "telephone": "+4917655769680",
   "email": "Info@jungline.de",
   "founder": { "@type": "Person", "name": "Leandro Jung" },
