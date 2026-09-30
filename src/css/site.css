@@ -679,28 +679,24 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
 .map>svg{position:absolute;inset:0;width:100%;height:100%}
 /* Karte im Stil von Apple Karten (Zeichnung: mapArt() in vite.config.js).
-   Farbwerte aus der hellen Kartendarstellung von Apple Karten abgenommen:
-   sandiges Land, kräftiges Hellblau fürs Wasser, blasses Grün, weiße
-   Straßen mit warmgrauer Kante, Häuserblöcke nur einen Hauch dunkler. */
+   Farben aus der hellen Stadtansicht von Apple Karten abgenommen: sandiges
+   Land, Gebäude einen Hauch dunkler mit feiner Kante, Einkaufsstraßen
+   gelblich, Ring hellgrau, Gassen weiß, Grün blass, Wasser hellblau. */
 .amap{position:absolute;inset:0;width:100%;height:100%;display:block}
-.amap__land{fill:#F5F1EA}
-.amap__block{fill:#ECE6DB}
-.amap__park{fill:#D2EBC0}
-.amap__bank{fill:none;stroke:#DDEFCD;stroke-width:30;stroke-linecap:butt}
-.amap__bank--kanal{stroke-width:18}
-.amap__water{fill:none;stroke:#91D2F4;stroke-width:13;stroke-linecap:butt}
-.amap__water--kanal{stroke-width:7.5}
+.amap__land{fill:#F6F1E8}
+.amap__shop{fill:#FBEACB}
+.amap__bldg{fill:rgba(96,80,56,.07);stroke:rgba(96,80,56,.09);stroke-width:.5}
+.amap__park{fill:#D3EABF}
+.amap__wall{fill:none;stroke:#D3EABF;stroke-width:13;stroke-linecap:round}
+.amap__water{fill:none;stroke:#92D0F2;stroke-width:4;stroke-linecap:round}
 .amap__case,.amap__road{fill:none;stroke-linecap:round;stroke-linejoin:round}
-.amap__case{stroke:#DED7CA}
+.amap__case{stroke:#E1DACE}
 .amap__road{stroke:#FFFFFF}
-.amap__case.amap--min{stroke-width:4.2}.amap__road.amap--min{stroke-width:2.8}
-.amap__case.amap--mid{stroke-width:7}.amap__road.amap--mid{stroke-width:5.2}
-.amap__case.amap--main{stroke-width:9.5}.amap__road.amap--main{stroke-width:7.4}
-.amap__rail{fill:none;stroke:#C8C1B5;stroke-width:2.4}
-.amap__rail--dash{stroke:#F5F1EA;stroke-width:1;stroke-dasharray:5 5}
-.amap__wlabel{font:italic 600 9.5px -apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;fill:#3E9BD4;letter-spacing:.04em}
-.amap__slabel{font:600 5.6px -apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;fill:#9A9386;letter-spacing:.14em;
-  paint-order:stroke;stroke:#F5F1EA;stroke-width:2px}
+.amap__case.amap--min{stroke-width:3.6}.amap__road.amap--min{stroke-width:2.4}
+.amap__case.amap--mid{stroke-width:5.6}.amap__road.amap--mid{stroke-width:4.2}
+.amap__case.amap--ring{stroke:#C7C6CB;stroke-width:8.2}.amap__road.amap--ring{stroke:#DDDCE1;stroke-width:6.4}
+.amap__slabel{font:600 4.6px -apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;fill:#8B8478;letter-spacing:.16em;
+  paint-order:stroke;stroke:#F6F1E8;stroke-width:1.6px}
 .amap__over{position:absolute;inset:0;width:100%;height:100%}
 .map__pin{position:absolute;width:12px;height:12px;border-radius:50% 50% 50% 0;background:#EA4335;
   transform:translate(-50%,-100%) rotate(-45deg);box-shadow:0 2px 4px rgba(0,0,0,.25)}

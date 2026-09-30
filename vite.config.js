@@ -108,41 +108,50 @@ function renderBausteineLeistungen() {
 //
 // Eine gezeichnete Karte statt echter Kartenkacheln: Apple-Karten dürfen nicht
 // als Bild eingebunden werden, und echte Kacheln kosten Ladezeit. Nachgebildet
-// ist nur die Gestaltung (helles Sandbeige als Land, sattes Hellblau für
-// Wasser, blasses Grün für Parks und Ufer, weiße Straßen mit grauer Kante,
-// kaum sichtbare Häuserblöcke, blaue kursive Gewässernamen, graue
-// Straßennamen in Versalien) — ohne Orte, Symbole und Beschriftungen von
-// Geschäften. Motiv: Lippe und Wesel-Datteln-Kanal wie in Dorsten.
+// ist nur die Gestaltung eines Stadtkerns in der hellen Darstellung von Apple
+// Karten: sandiges Land, feine Gebäudeumrisse, gelblich hinterlegte
+// Einkaufsstraßen, ein grauer Ring, weiße Gassen, ein grüner Wall mit
+// schmalem Wasserlauf, graue Straßennamen in Versalien — ohne Geschäfte,
+// Symbole und Orte. Motiv angelehnt an die Dorstener Altstadt.
 //
-// Eine Quelle für jede Karte der Seite (Hero, Kartenkarten der Unterseiten,
-// Umkreis-Karten, Live-Handy). Token: <!--MAPART-->. Farben stehen in
-// site.css (.amap …), damit sie an einer Stelle angepasst werden können.
+// Die Gebäude entstehen beim Build aus einem festen Zufallsstartwert: jedes
+// Mal dieselbe Karte, als EIN Pfad (klein, schnell). Farben in site.css
+// (.amap …). Token: <!--MAPART-->.
 // ---------------------------------------------------------------------------
+let mapArtCache = null
 function mapArt() {
-  const bloecke = [
-    [252,4,22,12],[278,6,18,10],[300,2,24,14],[330,8,20,10],[356,4,26,12],[386,6,18,12],
-    [258,28,16,10],[280,26,22,12],[308,30,18,9],[334,24,24,12],[364,28,20,10],
-    [6,108,20,12],[30,112,24,10],[58,106,18,12],[8,138,22,10],[34,140,20,8],[62,136,24,12],
-    [292,118,22,10],[320,114,18,12],[346,120,24,10],[378,116,20,12],[300,140,20,8],[330,138,24,10]
-  ].map(([x, y, w, h]) => `<rect class="amap__block" x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5"/>`).join('')
-  const strasse = (d, klasse) => `<path class="amap__case ${klasse}" d="${d}"/><path class="amap__road ${klasse}" d="${d}"/>`
-  return `<svg class="amap" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  if (mapArtCache) return mapArtCache
+  let seed = 7
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
+  let haeuser = ''
+  for (let y = 2; y < 150; y += 11) {
+    for (let x = 2; x < 400; x += 12) {
+      if (rnd() < 0.3) continue
+      const w = 5 + Math.round(rnd() * 5), h = 4 + Math.round(rnd() * 4)
+      const dx = Math.round(rnd() * 3), dy = Math.round(rnd() * 3)
+      haeuser += `M${x + dx} ${y + dy}h${w}v${h}h-${w}z`
+    }
+  }
+  const strasse = (d, k) => `<path class="amap__case ${k}" d="${d}"/><path class="amap__road ${k}" d="${d}"/>`
+  mapArtCache = `<svg class="amap" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
             <rect class="amap__land" width="400" height="150"/>
-            <g>${bloecke}</g>
-            <path class="amap__park" d="M-4 -4H128Q142 16 126 34Q96 52 44 48Q14 46-4 40Z"/>
-            <path class="amap__park" d="M196 112Q226 104 262 110Q282 124 270 150H190Q184 124 196 112Z"/>
-            <path class="amap__bank" d="M-10 70C80 52 170 60 250 78S360 92 410 84"/>
-            <path class="amap__bank amap__bank--kanal" d="M-10 99C90 85 190 93 270 105S370 113 410 107"/>
-            <path class="amap__water" d="M-10 70C80 52 170 60 250 78S360 92 410 84"/>
-            <path class="amap__water amap__water--kanal" d="M-10 99C90 85 190 93 270 105S370 113 410 107"/>
-            ${strasse('M300 -4L286 62M338 -4L332 60M250 16L242 64M40 104L58 154M104 106L96 154M150 110L156 154', 'amap--min')}
-            <path class="amap__rail" d="M-10 44C120 52 260 36 410 46"/><path class="amap__rail amap__rail--dash" d="M-10 44C120 52 260 36 410 46"/>
-            ${strasse('M-10 22C90 30 220 14 410 20M-10 132C110 124 240 140 410 128', 'amap--mid')}
-            ${strasse('M176 -10C168 40 172 84 188 160', 'amap--main')}
-            <text class="amap__wlabel" x="226" y="75" transform="rotate(10 226 75)">Lippe</text>
-            <text class="amap__slabel" x="74" y="128.5" transform="rotate(-2 74 128)">LIPPESTRASSE</text>
-            <text class="amap__slabel" x="238" y="17.5" transform="rotate(-1 238 17)">HALTERNER STR.</text>
+            <path class="amap__shop" d="M158 -4H286L282 40Q270 78 238 90L166 92Q152 60 158 -4Z"/>
+            <path class="amap__bldg" d="${haeuser}"/>
+            <path class="amap__park" d="M-4 112Q40 100 88 108Q120 116 128 154H-4Z"/>
+            <path class="amap__park" d="M322 -4H410V40Q372 30 340 22Q326 12 322 -4Z"/>
+            <path class="amap__wall" d="M148 -10C136 30 138 70 158 100"/>
+            <path class="amap__wall" d="M292 -10C300 30 288 70 250 96"/>
+            <path class="amap__water" d="M288 26C288 54 276 76 252 90"/>
+            ${strasse('M186 -10L190 94M222 -10L226 92M252 -6L258 60M166 20L284 12M162 48L280 42M170 72L262 68M60 -10L70 60M100 -10L110 90M20 30L140 26M30 62L130 60M320 40L410 52M330 70L410 78M90 110L96 160M170 118L178 160M300 120L360 160', 'amap--min')}
+            ${strasse('M-10 18C60 22 110 10 150 8M-10 128L230 134M340 98L410 110', 'amap--mid')}
+            ${strasse('M-10 92C80 84 180 98 262 92S360 80 410 86M296 -10C318 30 326 64 298 98S246 136 228 160', 'amap--ring')}
+            <text class="amap__slabel" x="182" y="118" transform="rotate(88 182 118)">GAHLENER STR.</text>
+            <text class="amap__slabel" x="40" y="89" transform="rotate(-4 40 89)">GAHLENER STRASSE</text>
+            <text class="amap__slabel" x="200" y="45" transform="rotate(-3 200 45)">LIPPESTRASSE</text>
+            <text class="amap__slabel" x="303" y="36" transform="rotate(68 303 36)">WILLY-BRANDT-RING</text>
+            <text class="amap__slabel" x="228" y="67.5" transform="rotate(-2 228 67)">SÜDGRABEN</text>
           </svg>`
+  return mapArtCache
 }
 
 function renderRankcardIllu(youLabel, ariaLabel) {
