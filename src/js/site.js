@@ -512,21 +512,44 @@
 
   // nav scrolled state
   var nav = document.getElementById('nav');
-  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24); };
+  // Die Browserleiste (Chrome auf Android, Safari-Statusleiste) nimmt die Farbe
+  // der Leiste an: dunkel über dem Hero, weiss, sobald die Leiste hell wird.
+  // Sonst stand über der weissen Leiste ein dunkelblauer Streifen.
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var themeNow = '';
+  var syncTheme = function(){
+    if(!themeMeta) return;
+    var hell = nav.classList.contains('scrolled') || nav.classList.contains('open');
+    var farbe = hell ? '#FFFFFF' : '#0A0D1F';
+    if(farbe !== themeNow){ themeNow = farbe; themeMeta.setAttribute('content', farbe); }
+  };
+  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24); syncTheme(); };
   onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
 
-  // mobile menu
+  // mobile menu — ein Blatt über die volle Höhe; solange es offen ist, steht
+  // die Seite dahinter still (html.menu-open).
   var toggle = document.getElementById('navToggle');
   var menu = document.getElementById('mobileMenu');
-  toggle.addEventListener('click', function(){
-    var open = nav.classList.toggle('open');
+  var setMenu = function(open){
+    nav.classList.toggle('open', open);
     menu.classList.toggle('show', open);
+    document.documentElement.classList.toggle('menu-open', open);
     toggle.setAttribute('aria-expanded', open);
     toggle.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
-  });
+    syncTheme();
+  };
+  toggle.addEventListener('click', function(){ setMenu(!nav.classList.contains('open')); });
   menu.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){ nav.classList.remove('open'); menu.classList.remove('show'); });
+    a.addEventListener('click', function(){ setMenu(false); });
   });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && nav.classList.contains('open')){ setMenu(false); toggle.focus(); }
+  });
+  // Dreht jemand das Tablet ins Querformat, verschwindet der Menüknopf — ein
+  // offenes Blatt samt Scroll-Sperre bliebe sonst ohne Ausgang stehen.
+  var breit = window.matchMedia('(min-width: 961px)');
+  var aufBreit = function(){ if(breit.matches && nav.classList.contains('open')) setMenu(false); };
+  if(breit.addEventListener) breit.addEventListener('change', aufBreit); else if(breit.addListener) breit.addListener(aufBreit);
 
   // smooth anchor scroll — nur seiteninterne Ziele; versteht "#id" und "/#id"
   // (Footer-Sektionslinks nutzen "/#id", damit sie auch von Unterseiten aus funktionieren).
@@ -1472,7 +1495,9 @@
   // Sekunden ein, ein Neustart alle paar Sekunden würde sie immer wieder
   // wegnehmen. Die Choreografie läuft einmal, wenn der Block ins Bild kommt,
   // und bleibt danach im Endzustand stehen.
+  var laeuft = false;
   function run(){
+    laeuft = true;
     if(timer) clearTimeout(timer);
     if(raf) cancelAnimationFrame(raf);
     if(stage.getAnimations){
@@ -1490,6 +1515,50 @@
   fit();
   if(window.ResizeObserver) new ResizeObserver(schedule).observe(stage);
   window.addEventListener('resize', schedule, {passive:true});
+
+  // Telefon: Umschalter zwischen den beiden Handys (sichtbar nur unter 760 px,
+  // site.css). Das eingeblendete Handy spielt seine Choreografie von vorn —
+  // ein Element mit display:none hat keine laufende Animation, beim
+  // Einblenden startet sie neu. Nur der Bewertungszähler ist ein Skript und
+  // wird hier eigens neu angestossen.
+  var opts = stage.querySelectorAll('[data-gsp-show]');
+  function zeige(welches){
+    if(stage.getAttribute('data-show') === welches) return;
+    stage.setAttribute('data-show', welches);
+    Array.prototype.forEach.call(opts, function(b){
+      var an = b.getAttribute('data-gsp-show') === welches;
+      b.classList.toggle('is-active', an);
+      b.setAttribute('aria-pressed', an ? 'true' : 'false');
+    });
+    schedule();
+    if(welches === 'a' && laeuft){
+      if(timer) clearTimeout(timer);
+      if(raf) cancelAnimationFrame(raf);
+      if(count) count.textContent = '9';
+      timer = setTimeout(countUp, 3570);
+    }
+  }
+  Array.prototype.forEach.call(opts, function(b){
+    b.addEventListener('click', function(){ zeige(b.getAttribute('data-gsp-show')); });
+  });
+  // Wischen nach links zeigt Platz 3, nach rechts Platz 1 — nur eindeutig
+  // waagerechte Gesten, damit normales Scrollen nie umschaltet.
+  var grid = stage.querySelector('.gsp__grid');
+  if(grid && opts.length){
+    var x0 = null, y0 = 0;
+    grid.addEventListener('touchstart', function(e){
+      if(e.touches.length !== 1){ x0 = null; return; }
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    }, {passive:true});
+    grid.addEventListener('touchend', function(e){
+      if(x0 === null) return;
+      var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      x0 = null;
+      if(Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      if(getComputedStyle(opts[0].parentNode).display === 'none') return;
+      zeige(dx < 0 ? 'b' : 'a');
+    }, {passive:true});
+  }
 
   // Bei prefers-reduced-motion gar nicht erst starten: site.css schaltet dort
   // global *{animation:none} und die Pausen-Regel unten greift nicht, der Block
@@ -1912,4 +1981,43 @@
 
   // Sofort: die Antwort liegt dank Preload meist schon bereit.
   load();
+})();
+
+/* ============================================================
+   WISCH-GALERIEN (Telefon) — Punkte unter .m-gallery
+   Die Galerie selbst ist reines CSS (scroll-snap, site.css). Hier kommt nur
+   die Anzeige dazu, welche Karte gerade vorne steht. Über 640 px sind die
+   Punkte per CSS ausgeblendet; das Skript läuft trotzdem, das kostet nichts,
+   weil dort nie ein Scroll-Ereignis der Reihe feuert.
+   ============================================================ */
+(function(){
+  var reihen = document.querySelectorAll('.m-gallery');
+  Array.prototype.forEach.call(reihen, function(reihe){
+    var karten = reihe.children;
+    if(karten.length < 2) return;
+    var punkte = document.createElement('div');
+    punkte.className = 'm-dots';
+    punkte.setAttribute('aria-hidden', 'true');
+    for(var i = 0; i < karten.length; i++) punkte.appendChild(document.createElement('i'));
+    reihe.parentNode.insertBefore(punkte, reihe.nextSibling);
+
+    var aktiv = -1, geplant = false;
+    var setze = function(){
+      geplant = false;
+      var max = reihe.scrollWidth - reihe.clientWidth;
+      var schritt = karten[1].offsetLeft - karten[0].offsetLeft;
+      var n = !schritt || max < 4 ? 0 : (reihe.scrollLeft >= max - 4 ? karten.length - 1 : Math.round(reihe.scrollLeft / schritt));
+      n = Math.max(0, Math.min(karten.length - 1, n));
+      if(n === aktiv) return;
+      if(aktiv > -1) punkte.children[aktiv].classList.remove('is-on');
+      punkte.children[n].classList.add('is-on');
+      aktiv = n;
+    };
+    reihe.addEventListener('scroll', function(){
+      if(geplant) return;
+      geplant = true;
+      requestAnimationFrame(setze);
+    }, {passive:true});
+    setze();
+  });
 })();

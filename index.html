@@ -231,7 +231,15 @@
     </div>
   </div>
 
-  <div class="gsp__stage" id="gspStage">
+  <!-- Auf dem Telefon stehen die beiden Handys nicht untereinander (fast drei
+       Bildschirme lang), sondern hinter einem Umschalter wie in iOS. Wischen
+       schaltet ebenfalls um (site.js). Ohne JavaScript bleibt der Umschalter
+       unsichtbar und beide Handys stehen wie bisher untereinander. -->
+  <div class="gsp__stage" id="gspStage" data-show="a">
+    <div class="gsp__seg" role="group" aria-label="Profil ansehen">
+      <button type="button" class="gsp__seg-opt is-active" data-gsp-show="a" aria-pressed="true" aria-controls="gspDevA"><span class="gsp__seg-dot gsp__seg-dot--ok" aria-hidden="true"></span>Platz 1</button>
+      <button type="button" class="gsp__seg-opt" data-gsp-show="b" aria-pressed="false" aria-controls="gspDevB"><span class="gsp__seg-dot gsp__seg-dot--warn" aria-hidden="true"></span>Platz 3</button>
+    </div>
     <div class="gsp__grid">
 
       <div class="gsp__notes gsp__notes--left">
@@ -249,7 +257,7 @@
         </div>
       </div>
 
-      <figure class="gsp__device gsp__device--a">
+      <figure class="gsp__device gsp__device--a" id="gspDevA">
         <div class="gsp__screen" data-gsp-screen>
       <div class="gsp__frame" aria-hidden="true">
         <div style="position:relative;width:390px;height:844px;border-radius:55px;overflow:hidden;background:#FFFFFF;color:#1D1D1F;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Helvetica,sans-serif;font-weight:400;line-height:normal;">
@@ -417,7 +425,7 @@
         <figcaption class="gsp__caption">Suchergebnis „Anwalt Dorsten“</figcaption>
       </figure>
 
-      <figure class="gsp__device gsp__device--b">
+      <figure class="gsp__device gsp__device--b" id="gspDevB">
         <div class="gsp__screen" data-gsp-screen>
       <div class="gsp__frame" aria-hidden="true">
         <div style="position:relative;width:390px;height:844px;border-radius:55px;overflow:hidden;background:#FFFFFF;color:#1D1D1F;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',Helvetica,sans-serif;font-weight:400;line-height:normal;">
@@ -605,15 +613,15 @@
       <form class="form gbp-badge__form" id="gbpForm" novalidate>
         <div class="field">
           <label for="gbp-company">Firmenname</label>
-          <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required>
+          <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required enterkeyhint="next">
         </div>
         <div class="field">
           <label for="gbp-city">Stadt</label>
-          <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required>
+          <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required enterkeyhint="next">
         </div>
         <div class="field">
           <label for="gbp-keyword">Keyword</label>
-          <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required>
+          <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required enterkeyhint="go">
         </div>
         <button type="submit" class="btn btn--primary">Profil kostenlos prüfen</button>
       </form>
@@ -996,16 +1004,16 @@
             <div class="form__row">
               <div class="field">
                 <label for="cf-name">Name</label>
-                <input type="text" id="cf-name" name="name" placeholder="Ihr Name" autocomplete="name" required>
+                <input type="text" id="cf-name" name="name" placeholder="Ihr Name" autocomplete="name" required enterkeyhint="next">
               </div>
               <div class="field">
                 <label for="cf-phone">Telefon <span class="field__opt">(optional)</span></label>
-                <input type="tel" id="cf-phone" name="phone" placeholder="+49 …" autocomplete="tel">
+                <input type="tel" id="cf-phone" name="phone" placeholder="+49 …" autocomplete="tel" enterkeyhint="next">
               </div>
             </div>
             <div class="field">
               <label for="cf-mail">E-Mail</label>
-              <input type="email" id="cf-mail" name="email" placeholder="name@firma.de" autocomplete="email" required>
+              <input type="email" id="cf-mail" name="email" placeholder="name@firma.de" autocomplete="email" required enterkeyhint="next">
             </div>
             <div class="field">
               <label for="cf-msg">Nachricht</label>

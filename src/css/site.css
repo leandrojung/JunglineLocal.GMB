@@ -249,6 +249,11 @@ h1,h2,h3,h4,.display,.chooser__title{
   text-wrap:balance;
 }
 p,li,blockquote{text-wrap:pretty}
+/* Sicherheitsnetz: Ein Wort, das allein breiter ist als die Spalte, bricht
+   um, statt über den Rand zu laufen. Bewusst KEIN hyphens:auto — das trennt
+   auch Wörter, die in die nächste Zeile passen würden ("Ansprech-partner").
+   Die bekannten Langwörter tragen ein &shy; an der richtigen Silbe. */
+h1,h2,h3{overflow-wrap:break-word}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit}
@@ -293,6 +298,12 @@ section,[id]{scroll-margin-top:calc(var(--nav-h) + 16px)}
 .sheet.section--soft{background:var(--bg-soft)}
 .sheet + .sheet{z-index:3}
 .sheet + .sheet + .sheet{z-index:4}
+/* Telefon: Folgen zwei weisse Abschnitte ohne Blattkante aufeinander, lagen
+   dazwischen zweimal die volle Abschnittsluft — rund 150 px leeres Weiss
+   (z. B. zwischen Ablauf und Branchen). Einmal Luft reicht. */
+@media(max-width:640px){
+  .section.sheet:not(.section--soft):not(.theme-dark) + .section:not(.sheet):not(.section--soft):not(.theme-dark){padding-top:calc(var(--sp) * .2)}
+}
 
 /* ============ ÜBERSCHRIFTEN-BLÖCKE ============ */
 .head-block{max-width:780px}
@@ -414,6 +425,15 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .chips svg{flex:none;color:var(--brand)}
 .section--soft .chips li{background:#fff}
 .chips--stack{flex-direction:column;align-items:flex-start}
+/* Telefon: ohne Pillen. Drei graue Kapseln untereinander wirkten wie ein
+   Baukasten-Muster und nahmen je eine eigene Zeile ein — als ruhige Zeile
+   mit Häkchen lesen sie sich wie das, was sie sind: Kleingedrucktes. */
+@media(max-width:640px){
+  .chips{gap:8px 18px}
+  .chips li,.section--soft .chips li{padding:0;border-radius:0;background:none;font-size:.95rem;color:var(--dim)}
+  .chips svg{width:15px;height:15px}
+  .chips--stack{gap:10px}
+}
 
 /* ============ 3  NAVIGATION ============
    Jede Seite beginnt auf einer dunklen Fläche (Hero bzw. Seitenkopf). Die
@@ -500,25 +520,43 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .zweig__item.is-active .zweig__item-ck{opacity:1}
 .zweig__item.is-active .zweig__item-ic{background:var(--brand);color:#fff}
 
-/* ---- Menü auf dem Telefon ---- */
-.mobile-menu{position:fixed;left:0;right:0;top:var(--nav-h);z-index:var(--z-menu);
-  max-height:calc(100dvh - var(--nav-h));overflow-y:auto;overscroll-behavior:contain;
-  background:#fff;color:#0E1122;border-bottom:1px solid rgba(14,17,34,.08);
-  box-shadow:0 30px 60px -30px rgba(14,17,34,.35);
-  padding:6px var(--gutter) 22px;
-  visibility:hidden;transform:translateY(-12px);opacity:0;
-  transition:opacity .3s var(--ease-apple),transform .35s var(--ease-apple),visibility 0s linear .35s}
+/* ---- Menü auf dem Telefon ----
+   Ein Blatt über die volle Höhe statt eines Kastens, unter dem die Seite
+   weiterlief: Früher lag unter dem letzten Eintrag die halbe Startseite frei,
+   und ein Wischen dort scrollte die Seite dahinter. Jetzt deckt das Blatt
+   alles ab, die Seite steht still (html.menu-open, site.js), und unten sitzen
+   in Daumenhöhe Termin, Anruf und E-Mail. */
+.mobile-menu{position:fixed;left:0;right:0;top:var(--nav-h);bottom:0;z-index:var(--z-menu);
+  display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;
+  background:#fff;color:#0E1122;
+  padding:6px var(--gutter) calc(20px + env(safe-area-inset-bottom,0px));
+  visibility:hidden;transform:translateY(-10px);opacity:0;
+  transition:opacity .3s var(--ease-apple),transform .4s var(--ease-apple),visibility 0s linear .4s}
 .mobile-menu.show{visibility:visible;transform:none;opacity:1;transition-delay:0s}
-.mobile-menu>a:not(.btn){display:flex;align-items:center;justify-content:space-between;min-height:56px;
-  font-family:var(--font-display);font-size:1.45rem;font-weight:700;letter-spacing:-.03em;
-  border-bottom:1px solid rgba(14,17,34,.07)}
+.menu-open,.menu-open body{overflow:hidden}
+.mobile-menu>a:not(.btn){display:flex;align-items:center;justify-content:space-between;flex:none;min-height:58px;
+  font-family:var(--font-display);font-size:1.5rem;font-weight:700;letter-spacing:-.03em;
+  border-bottom:1px solid rgba(14,17,34,.07);transition:color var(--dur-tap)}
 .mobile-menu>a:not(.btn)::after{content:"";width:9px;height:9px;border-top:2px solid #B4B8C8;border-right:2px solid #B4B8C8;
-  transform:rotate(45deg);margin-right:4px}
-.mobile-menu .btn{display:flex;width:100%;margin-top:20px}
-.js .mobile-menu>a:not(.btn){opacity:0;transform:translateY(-6px)}
-.js .mobile-menu.show>a:not(.btn){opacity:1;transform:none;
+  transform:rotate(45deg);margin-right:4px;transition:transform var(--dur-ui) var(--ease-apple)}
+.mobile-menu>a:not(.btn):active{color:var(--brand)}
+.mobile-menu>a:not(.btn):active::after{transform:translateX(3px) rotate(45deg)}
+.mobile-menu>a.active{color:var(--brand)}
+.mobile-menu .btn{display:flex;width:100%}
+.mobile-menu__foot{margin-top:auto;padding-top:28px;display:flex;flex-direction:column;gap:10px}
+.mobile-menu__quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mobile-menu__q{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:999px;
+  background:#F1F2F6;color:#0E1122;font-weight:600;font-size:.98rem;letter-spacing:-.012em;
+  transition:background var(--dur-tap),transform var(--dur-tap) var(--ease-apple)}
+.mobile-menu__q svg{color:var(--brand)}
+.mobile-menu__q:active{background:#E6E8EF;transform:scale(.97)}
+.mobile-menu__fine{margin-top:8px;text-align:center;font-size:.8rem;color:#8A8EA0}
+.mobile-menu__fine a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.js .mobile-menu>a:not(.btn),.js .mobile-menu__foot{opacity:0;transform:translateY(-6px)}
+.js .mobile-menu.show>a:not(.btn),.js .mobile-menu.show .mobile-menu__foot{opacity:1;transform:none;
   transition:opacity var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple);
   transition-delay:calc(var(--i,0)*.035s + .06s)}
+.js .mobile-menu.show .mobile-menu__foot{transition-delay:.26s}
 .zweig-seg{display:flex;gap:4px;margin:12px 0 6px;padding:4px;border-radius:14px;background:#F1F2F6}
 .mobile-menu .zweig-seg__opt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;
   padding:9px 6px;border-radius:10px;font-size:.92rem;font-weight:600;color:#4A4F63;
@@ -778,9 +816,11 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @media(max-width:640px){
   .hero{padding:calc(var(--nav-h) + 26px) 0 calc(var(--sheet-r) + 56px)}
   .hero__live{font-size:.84rem;padding:7px 12px 7px 11px}
-  /* "Oben bei Google." ist gut 7 Schriftgrößen breit: aus der freien Breite
-     gerechnet, steht die Zeile auf jedem Telefon ganz und mit Rand. */
-  .hero h1{font-size:min(calc((100vw - 2 * var(--gutter)) / 7.3),3.5rem);line-height:1;letter-spacing:-.03em;margin-top:20px}
+  /* "Oben bei Google." ist in SF Pro wie in Instrument Sans rund 7,7
+     Schriftgrößen breit (gemessen). Der frühere Teiler 7,3 ließ die Zeile bis
+     an den Bildschirmrand laufen — rechts blieben 0–4 px statt der 20 px
+     links. Mit 8 steht sie auf jedem Telefon ganz und mit sichtbarem Rand. */
+  .hero h1{font-size:min(calc((100vw - 2 * var(--gutter)) / 8),3.5rem);line-height:1;letter-spacing:-.03em;margin-top:20px}
   .hero-h1__line{white-space:nowrap}
   .hero .lead{margin-top:18px;font-size:1.08rem;max-width:none}
   .hero .cta-row{flex-direction:column;align-items:stretch;margin-top:26px}
@@ -935,6 +975,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .rank-check__grid{grid-template-columns:1fr}
   .rank-check--comparing .rank-check__stage{order:-1}
   .rank-check__stage{min-height:0;padding:36px 0}
+  /* Einspaltig steht der Kopf mittig — wie jeder andere Abschnittskopf. */
+  .rank-check__intro{text-align:center}
+  .rank-check__sub{margin-left:auto;margin-right:auto}
+  .rank-check__intro .chips{justify-content:center}
 }
 @media(max-width:640px){
   #gbp-badge,.gbp-compare{padding:24px 20px}
@@ -1118,6 +1162,29 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .gsp__notes--right .gsp__note-body{animation-name:gspRight}
   .gsp__screen{--gsp-s:.6}
 }
+/* Telefon: Umschalter statt zweier Handys untereinander (site.js schaltet
+   data-show). Dunkles iOS-Segment mit gleitendem Daumen. Ohne JavaScript
+   bleibt der Umschalter aus, und beide Handys stehen untereinander. */
+.gsp__seg{display:none}
+@media(max-width:759px){
+  .js .gsp__seg{position:relative;display:flex;width:min(280px,100%);margin:0 auto 30px;padding:4px;border-radius:14px;
+    background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  .gsp__seg::before{content:"";position:absolute;left:4px;top:4px;bottom:4px;width:calc(50% - 4px);border-radius:10px;
+    background:rgba(255,255,255,.15);box-shadow:0 1px 2px rgba(0,0,0,.3),inset 0 .5px 0 rgba(255,255,255,.14);
+    transition:transform .38s var(--ease-apple)}
+  .gsp__stage[data-show="b"] .gsp__seg::before{transform:translateX(100%)}
+  .gsp__seg-opt{position:relative;z-index:1;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;
+    border:0;border-radius:10px;background:none;color:rgba(235,235,245,.6);font-family:var(--font-text);font-size:.95rem;font-weight:600;
+    letter-spacing:-.01em;cursor:pointer;transition:color var(--dur-ui)}
+  .gsp__seg-opt.is-active{color:#fff}
+  .gsp__seg-dot{width:7px;height:7px;border-radius:50%;flex:none}
+  .gsp__seg-dot--ok{background:#52E07C}
+  .gsp__seg-dot--warn{background:#FF6B5E}
+  .js .gsp__stage[data-show="a"] :is(.gsp__device--b,.gsp__notes--right),
+  .js .gsp__stage[data-show="b"] :is(.gsp__device--a,.gsp__notes--left){display:none}
+  .gsp__grid{gap:24px}
+  .gsp__disclaimer{margin-top:22px}
+}
 @media(max-height:760px){.gsp__screen{--gsp-s:.52}}
 @media(max-height:620px){.gsp__screen{--gsp-s:.46}}
 @media(max-width:1439px){.gsp__note-body,.gsp__note-line{animation-delay:.12s}}
@@ -1180,7 +1247,8 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .bento__tile h3{font-size:1.18rem}
   .bento__tile p{font-size:.9rem}
   .bento__more{display:none}
-  .bento__foot{flex-direction:column;align-items:flex-start}
+  .bento__foot{flex-direction:column;align-items:center;text-align:center;gap:18px;margin-top:24px}
+  .bento__foot .chips{justify-content:center}
 }
 
 /* Profil-Check: Zusagen als Chips unter dem einen Satz. */
@@ -1203,10 +1271,23 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .branche:hover .branche__go{color:var(--brand);transform:translateX(3px)}
 }
 .section--soft .branche{background:#fff}
+/* Telefon: eine gruppierte Liste wie in den iOS-Einstellungen statt zehn
+   Kacheln im Zweierraster. Halb so hoch, jede Zeile ist eine volle
+   Daumenbreite, und das Kachelraster mit Symbol-Quadraten — das
+   typischste Vorlagen-Muster überhaupt — ist weg. Der Pfeil wird zum
+   iOS-Chevron (::before, per order ans Zeilenende gestellt). */
 @media(max-width:560px){
-  .branchen-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .branche{flex-direction:column;align-items:flex-start;gap:12px;padding:16px;font-size:.95rem;line-height:1.3}
+  .branchen-grid{grid-template-columns:minmax(0,1fr);gap:0;padding:4px 0;border-radius:22px;background:var(--bg-soft);overflow:hidden}
+  .section--soft .branchen-grid{background:#fff}
+  .branche,.section--soft .branche{position:relative;gap:14px;min-height:56px;padding:9px 18px 9px 14px;border-radius:0;background:none;
+    font-size:1rem;line-height:1.3;transition:background var(--dur-tap)}
+  .branche:not(:last-child)::after{content:"";position:absolute;left:60px;right:0;bottom:0;height:1px;background:rgba(14,17,34,.08)}
+  .branche::before{content:"";order:3;flex:none;width:8px;height:8px;margin-right:3px;
+    border-top:2px solid #C4C5CE;border-right:2px solid #C4C5CE;transform:rotate(45deg)}
+  .branche__ic{width:32px;height:32px;border-radius:9px;background:rgba(var(--brand-rgb),.1);box-shadow:none}
+  .branche__ic svg{width:18px;height:18px}
   .branche__go{display:none}
+  .branche:active{background:rgba(14,17,34,.05)}
 }
 
 /* Laufleiste mit weiteren Branchen */
@@ -1234,6 +1315,16 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .stat,.stat+.stat{padding:28px 0;border-left:0}
   .stat+.stat{border-top:1px solid var(--border)}
 }
+/* Telefon: Zahl links, Satz rechts — drei Zeilen statt drei Bildschirmhälften.
+   Die Zahlenspalte ist so breit wie die breiteste Zahl ("2,7 ×"), damit die
+   Sätze bündig untereinander beginnen. */
+@media(max-width:640px){
+  .stats__grid{margin-top:34px}
+  .stat,.stat+.stat{display:grid;grid-template-columns:minmax(0,6.6rem) minmax(0,1fr);align-items:center;gap:18px;padding:22px 0}
+  .stat__num{font-size:3rem;margin-bottom:0;white-space:nowrap}
+  .stat p{font-size:.98rem;line-height:1.45}
+  .stats__src{margin-top:22px;font-size:.76rem;line-height:1.55}
+}
 
 /* ---- Über mich ---- */
 .about__grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(40px,7vw,110px);align-items:center}
@@ -1256,6 +1347,17 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @media(max-width:860px){
   .about__grid{grid-template-columns:1fr}
   .portrait{max-width:380px}
+}
+/* Telefon: quadratischer Ausschnitt statt Hochformat. Im 4:5-Format füllte
+   das Foto einen ganzen Bildschirm, bevor ein einziges Wort zu lesen war. */
+@media(max-width:640px){
+  .about__grid{gap:30px}
+  .portrait{max-width:none}
+  .portrait__frame{aspect-ratio:1/1}
+  .portrait__frame img{object-position:50% 16%}
+  .about__text h2{margin-bottom:18px}
+  .about__text p{font-size:1.06rem}
+  .about__sign{margin:24px 0 18px}
 }
 
 /* ---- Hinweis auf den Webdesign-Zweig: ruhiges, helles Band ohne Screenshot ---- */
@@ -1306,8 +1408,13 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .theme-dark .faq__icon::before,.theme-dark .faq__icon::after{background:#fff}
 @media(max-width:900px){
   .faq__layout{grid-template-columns:1fr}
-  .faq__layout .head-block{position:static}
+  .faq__layout .head-block{position:static;margin:0 auto;text-align:center}
+  .faq__layout .head-block p{margin-left:auto;margin-right:auto}
   .faq__a-text{padding-right:0}
+}
+@media(max-width:640px){
+  .faq__q{padding:20px 0;gap:16px}
+  .faq__a-text{padding-bottom:22px;font-size:1rem;line-height:1.65}
 }
 
 /* ---- Kontakt & Terminbuchung ---- */
@@ -1488,7 +1595,15 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .manifest__inner.in .manifest__line:nth-child(1) .manifest__hl{animation-play-state:running;animation-delay:.15s}
 .manifest__inner.in .manifest__line:nth-child(2) .manifest__hl{animation-play-state:running;animation-delay:.33s}
 .manifest__inner.in .manifest__line:nth-child(3) .manifest__hl{animation-play-state:running;animation-delay:.51s}
-@media(max-width:640px){.manifest__line{white-space:normal}}
+/* Telefon: linksbündig, damit die drei Symbole eine saubere Spalte bilden.
+   Zentriert standen sie je nach Zeilenlänge versetzt untereinander. Die
+   Größe ist aus der längsten Zeile gerechnet ("Mehr Sichtbarkeit." samt
+   Symbol, rund 9,4 Schriftgrößen), jede Zeile bleibt ganz. */
+@media(max-width:640px){
+  .manifest{text-align:left}
+  .manifest__inner{display:flex;align-items:flex-start;gap:6px}
+  .manifest__line{justify-content:flex-start;gap:.3em;font-size:min(calc((100vw - 2 * var(--gutter)) / 9.8),2.7rem)}
+}
 
 /* ============ 6  FOOTER, LEISTEN, KLEINTEILE ============ */
 /* Der Footer ist selbst ein Sheet: auf Unterseiten schiebt er sich über das
@@ -1531,6 +1646,16 @@ main:has(> .manifest:last-child) + .footer{margin-top:0;border-radius:0;padding-
   .footer{padding-bottom:calc(34px + 84px + env(safe-area-inset-bottom,0px))}
 }
 @media(max-width:420px){.footer__cols{grid-template-columns:1fr 1fr;gap:26px 18px}}
+/* Telefon: Footer-Links mit echter Tippfläche (vorher gut 30 px hoch,
+   Apple empfiehlt 44). */
+@media(max-width:640px){
+  .fcol h3{margin-bottom:6px}
+  .fcol a{padding:10px 0}
+  .fcol span{padding:10px 0 0}
+  .footer__zweig{display:flex;width:100%}
+  .footer__zweig-tx{flex:1}
+  .footer__bottom{flex-direction:column;gap:6px}
+}
 
 /* ---- Aktionsleiste auf dem Telefon ---- */
 .mcta{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:var(--z-mcta);
@@ -1602,6 +1727,16 @@ body[data-zweig="webdesign"] .pagehead{
 .pagehead--center .lead{margin-left:auto;margin-right:auto}
 .pagehead--center .cta-row{justify-content:center}
 .gbp-icon-row{display:none}
+/* Deutsche Komposita sind breiter als ein Telefon: "Unternehmensprofil" misst
+   gut 9 Schriftgrößen, "Nutzungsbedingungen" über 10. Bei 40 px lief das Wort
+   auf 15 Unterseiten über den Rand und wurde abgeschnitten. Die Größe hier
+   lässt "Unternehmensprofil" ab 360 px ganz stehen; was dann noch zu lang ist
+   ("Datenschutzerklärung"), trennt am &shy; im Markup. */
+@media(max-width:640px){
+  .pagehead h1{font-size:clamp(2rem,9.2vw,2.6rem);margin-top:18px}
+  .pagehead .lead{margin-top:18px;font-size:1.06rem}
+  .pagehead .cta-row{margin-top:26px}
+}
 
 /* Die erste Fläche nach dem Seitenkopf ist automatisch ein Sheet. */
 .pagehead + .section{position:relative;z-index:2;margin-top:calc(var(--sheet-r) * -1);border-radius:var(--sheet-r) var(--sheet-r) 0 0;background:var(--bg)}
@@ -1861,7 +1996,7 @@ body[data-zweig="webdesign"] .pagehead{
   transition:background var(--dur-ui),border-color var(--dur-ui)}
 .wd-badge:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24)}
 .wd-badge__new{flex:none;padding:4px 10px;border-radius:999px;background:var(--brand);color:#fff;font-size:.78rem;font-weight:700;letter-spacing:.01em}
-.wd-badge__tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wd-badge__tx{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wd-badge svg{flex:none;opacity:.7;transition:transform var(--dur-ui) var(--ease-apple)}
 .wd-badge:hover svg{transform:translateX(3px)}
 
@@ -1892,13 +2027,13 @@ body[data-zweig="webdesign"] .pagehead{
 @keyframes wdFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-10px,0)}}
 
 @media(max-width:960px){
-  .wd-hero__inner{grid-template-columns:1fr;gap:56px}
+  .wd-hero__inner{grid-template-columns:minmax(0,1fr);gap:56px}
   .wd-hero__copy{max-width:640px}
   .wd-hero__visual{max-width:640px;width:100%;margin:0 auto}
 }
 @media(max-width:640px){
   .wd-hero{padding-top:calc(var(--nav-h) + 26px)}
-  .wd-hero h1{font-size:min(13.6vw,3.5rem)}
+  .wd-hero h1{font-size:min(calc((100vw - 2 * var(--gutter)) / 8),3.5rem)}
   .wd-hero .cta-row{flex-direction:column;align-items:stretch}
   .wd-hero .cta-row .btn{width:100%}
   .wd-badge{font-size:.85rem}
@@ -2181,6 +2316,35 @@ body[data-zweig="webdesign"] .pagehead{
   .wd-glass__frame{aspect-ratio:4/3}
 }
 
+/* ---- Wisch-Galerie (Telefon) ----
+   Karten-Raster (.m-gallery) werden auf dem Telefon zu einer waagerechten
+   Reihe, die man mit dem Daumen durchblättert — wie die Galerien auf
+   apple.com. Vier Karten untereinander waren dort über einen Bildschirm
+   lang; so steht eine Karte ganz im Bild, die nächste lugt rechts herein
+   und zeigt, dass es weitergeht. Die Punkte darunter setzt site.js. Die
+   Reihe läuft bis an die Bildschirmkanten (negativer Rand), die erste Karte
+   beginnt trotzdem bündig mit dem Text darüber (scroll-padding). */
+.m-dots{display:none}
+@media(max-width:640px){
+  .m-gallery{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
+    margin-left:calc(var(--gutter) * -1);margin-right:calc(var(--gutter) * -1);
+    padding:6px var(--gutter) 26px;scroll-padding-inline:var(--gutter);
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .m-gallery::-webkit-scrollbar{display:none}
+  .m-gallery>*{flex:0 0 84%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+  .m-dots{display:flex;justify-content:center;gap:8px;margin-top:-6px}
+  .m-dots i{width:7px;height:7px;border-radius:50%;background:rgba(14,17,34,.16);
+    transition:background var(--dur-ui) var(--ease-apple),transform var(--dur-ui) var(--ease-apple)}
+  .m-dots i.is-on{background:var(--ink);transform:scale(1.1)}
+  .theme-dark .m-dots i{background:rgba(255,255,255,.22)}
+  .theme-dark .m-dots i.is-on{background:#fff}
+  .wd-stake,.wd-pillar,.wd-step{box-shadow:0 1px 2px rgba(14,17,34,.04)}
+  .wd-pillar{padding:26px 22px 24px}
+  .wd-pillar h3,.wd-pillar__claim{font-size:1.3rem}
+  .wd-step{padding:24px 22px 22px}
+  .wd-case__point{padding:24px 22px}
+}
+
 /* ============ 9  STARTSCREEN ============ */
 /* ============ STARTSCREEN „Wofür interessieren Sie sich?“ ============
    Liegt ÜBER der Startseite statt an ihrer Stelle: "/" bleibt inhaltlich die
@@ -2426,9 +2590,18 @@ body[data-zweig="webdesign"] .pagehead{
 @media(hover:hover){.lico-host:hover .lico{transform:scale(1.08)}}
 .lico-host:focus-visible .lico{transform:scale(1.08)}
 
-/* ---- Hover nur mit Zeiger: auf Touch blieben Zustände sonst "kleben" ---- */
+/* ---- Hover nur mit Zeiger: auf Touch blieben Zustände sonst "kleben" ----
+   Dafür antworten Karten auf den Finger: kurzes Eindrücken beim Tippen, wie
+   bei nativen iOS-Zellen. Die .in-Varianten brauchen die höhere Spezifität,
+   weil das Einblenden (.js [data-reveal].in) sonst transform überschreibt. */
 @media(hover:none){
   .btn--primary:hover,.btn--ghost:hover,.btn--glass:hover{transform:none}
+  :is(.bento__tile,.linkcard,.crow,.zweig-band,.footer__zweig,.wd-termin__ref,.client-spotlight__card,.catcard,.chooser__card):active,
+  .js :is(.bento__tile,.linkcard,.zweig-band,.wd-termin__ref,.client-spotlight__card,.catcard).in:active{
+    transform:scale(.982);transition:transform var(--dur-tap) var(--ease-apple)}
+  .faq__q:active .faq__icon{transform:scale(.88)}
+  .faq__item.open .faq__q:active .faq__icon{transform:rotate(180deg) scale(.88)}
+  .hero__live:active,.wd-badge:active{transform:scale(.97)}
 }
 
 /* ---- Wer Bewegung abbestellt hat, bekommt keine ----
@@ -2448,7 +2621,7 @@ body[data-zweig="webdesign"] .pagehead{
   .manifest__ico .mi-ping{opacity:0}
   .gsp-win{border-color:#34C759!important;box-shadow:0 8px 24px rgba(52,199,89,.18)}
   .gsp-sweep{opacity:0}
-  .js .mobile-menu>a:not(.btn){opacity:1;transform:none}
+  .js .mobile-menu>a:not(.btn),.js .mobile-menu__foot{opacity:1;transform:none}
   .ticker__track{width:auto;flex-wrap:wrap;justify-content:center;max-height:none}
   .ticker__group{flex-wrap:wrap;justify-content:center;row-gap:8px}
   .ticker__group[aria-hidden="true"]{display:none}
