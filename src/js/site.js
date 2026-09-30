@@ -775,8 +775,12 @@
   // und liess die zweite Zeile beim Umschalten auf den Schimmer sichtbar
   // springen.
 
-  // stat count-up — der Endwert steht als Fallback im HTML (ohne JS/Animation
-  // sieht der Besucher die echte Zahl); JS nullt nur, wenn es auch animiert.
+  // stat count-up — Progressive Enhancement: Der Endwert steht im HTML und
+  // BLEIBT dort stehen, bis die Zahl wirklich ins Bild kommt. Erst im Moment
+  // des Hochzählens springt sie kurz auf 0. Früher wurde schon beim Laden
+  // genullt — wer nicht scrollte (Suchmaschinen, Analyse-Werkzeuge,
+  // Vorschaubilder), sah dauerhaft "0 %" und "0,0 ×".
+  // Bei "Bewegung reduzieren" läuft gar nichts, der Endwert bleibt stehen.
   var counts = document.querySelectorAll('.count');
   if(counts.length && !reduce && 'IntersectionObserver' in window){
     var fmtCount = function(v, dec){ return dec ? v.toFixed(dec).replace('.', ',') : String(Math.round(v)); };
@@ -789,6 +793,7 @@
       el.__countStarted = true;
       var target = parseFloat(el.getAttribute('data-count')) || 0;
       var dec = parseInt(el.getAttribute('data-dec'), 10) || 0;
+      el.textContent = fmtCount(0, dec);
       var start = null, dur = 1400, done = false;
       var finish = function(){
         if(done) return;
@@ -818,8 +823,8 @@
     //
     // Plus derselbe Nachlauf wie beim Reveal und den Live-Icons: Der Browser
     // darf Zwischenzustände bei schnellem Wischen auslassen. Ohne Nachlauf
-    // bliebe eine übersprungene Kennzahl für immer bei "0" stehen — der
-    // HTML-Fallback-Wert wird ja gerade erst durch runCount() gesetzt.
+    // bliebe eine übersprungene Kennzahl einfach unanimiert stehen (mit dem
+    // richtigen Endwert, aber ohne das Hochzählen).
     var countsOffen = Array.prototype.slice.call(counts);
     var countsNachlauf = function(){
       var grenze = window.innerHeight - 50;
@@ -854,7 +859,6 @@
       el.style.display = 'inline-block';
       el.style.textAlign = 'right';
       el.style.minWidth = Math.ceil(el.getBoundingClientRect().width) + 'px';
-      el.textContent = fmtCount(0, parseInt(el.getAttribute('data-dec'), 10) || 0);
       cio.observe(el);
     });
     window.addEventListener('scroll', countsAngestossen, {passive:true});
