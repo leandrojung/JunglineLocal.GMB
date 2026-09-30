@@ -210,7 +210,7 @@ $pathBlocked = static function (string $uri) use ($extPattern): bool {
 section('4) DATEIEN, DIE ERREICHBAR BLEIBEN MÜSSEN');
 foreach ([
     '/', '/index.html', '/nutzungsbedingungen/', '/assets/site.css', '/assets/site.js',
-    '/robots.txt', '/ai.txt', '/sitemap.xml', '/logo.png', '/leandro-2.jpg', '/leandro-2.webp',
+    '/robots.txt', '/ai.txt', '/sitemap.xml', '/logo.png', '/leandro-3.jpg', '/leandro-3.webp',
     '/fonts/instrument-sans-var.woff2', '/clients/energieberatung-nordbayern-logo.svg',
     '/api/gbp-check.php', '/api/booking/slots.php', '/google470510489ee8cbad.html',
     '/.well-known/ai.txt', '/.well-known/tdmrep.json', '/.well-known/acme-challenge/xyz123',
