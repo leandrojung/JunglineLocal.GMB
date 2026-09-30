@@ -128,6 +128,9 @@
   # Kontaktformular — eigener Versand statt eines fremden Dienstes.
   RewriteRule ^api/contact/?$ api/contact.php [L]
 
+  # Besucherstatistik ohne Cookies (siehe api/_stats.php).
+  RewriteRule ^api/stats/?$ api/stats.php [L]
+
   # Terminbuchung — saubere URLs ohne .php.
   RewriteRule ^api/booking/slots/?$  api/booking/slots.php  [L]
   RewriteRule ^api/booking/book/?$   api/booking/book.php   [L]

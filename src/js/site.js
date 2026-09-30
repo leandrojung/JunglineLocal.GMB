@@ -25,6 +25,90 @@
   }
 })();
 
+/* ============================================================
+   BESUCHERSTATISTIK — ohne Cookies, ohne Kennung
+   Zählt Seitenaufrufe und eine feste Liste von Ereignissen auf dem eigenen
+   Server (/api/stats, Speicherregeln in public/api/_stats.php). Auf dem Gerät
+   wird nichts gespeichert oder ausgelesen, deshalb braucht es keine
+   Einwilligung. Wer "Do Not Track" oder "Global Privacy Control" gesetzt hat,
+   wird trotzdem nicht gezählt.
+   Die Messpunkte hängen bewusst NICHT in den einzelnen Modulen, sondern
+   beobachten deren Zustände (data-state, data-step, Klassen) von außen: So
+   bleibt die Zählung ein Anbau, der nichts an Check, Kalender oder Formular
+   verändern kann.
+   ============================================================ */
+(function(){
+  var nav = window.navigator || {};
+  var aus = nav.doNotTrack === '1' || window.doNotTrack === '1' || nav.globalPrivacyControl === true
+    || /localhost|127\.0\.0\.1/.test(location.hostname);
+  var senden = function(daten){
+    if(aus) return;
+    var body = JSON.stringify(daten);
+    try {
+      if(nav.sendBeacon && nav.sendBeacon('/api/stats', new Blob([body], {type:'application/json'}))) return;
+    } catch(e){}
+    try { fetch('/api/stats', {method:'POST', body:body, keepalive:true, headers:{'Content-Type':'application/json'}}); } catch(e){}
+  };
+  var gezaehlt = {};
+  // Ereignisse, die pro Seitenaufruf höchstens einmal zählen sollen.
+  var einmalig = {chooser_shown:1, menu_open:1, gsp_switch:1};
+  window.jlTrack = function(name){
+    if(einmalig[name]){ if(gezaehlt[name]) return; gezaehlt[name] = 1; }
+    senden({e: name});
+  };
+
+  // Seitenaufruf: Pfad ohne Abfrage und Anker, Herkunft nur als Hostname.
+  var ref = '';
+  try {
+    var r = document.referrer ? new URL(document.referrer) : null;
+    if(r && r.hostname !== location.hostname) ref = r.hostname;
+  } catch(e){}
+  senden({p: location.pathname, r: ref, m: window.matchMedia('(max-width: 767px)').matches ? 1 : 0});
+
+  if(document.documentElement.classList.contains('zweig-wahl')) window.jlTrack('chooser_shown');
+
+  // Klicks: Telefon, E-Mail, Termin-Knöpfe, Startscreen-Wahl.
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a,button');
+    if(!a) return;
+    var href = a.getAttribute('href') || '';
+    if(href.indexOf('tel:') === 0) return window.jlTrack('tel_click');
+    if(href.indexOf('mailto:') === 0) return window.jlTrack('mail_click');
+    var wahl = a.getAttribute('data-zweig-wahl');
+    if(wahl) return window.jlTrack(wahl === 'webdesign' ? 'chooser_webdesign' : 'chooser_seo');
+    if(a.hasAttribute('data-zweig-skip')) return window.jlTrack('chooser_skip');
+    if(/#termin$|\/kontakt\/#termin$/.test(href) && a.classList.contains('btn')) window.jlTrack('cta_termin');
+  }, {capture:true, passive:true});
+
+  // Zustände der Werkzeuge beobachten.
+  var beobachte = function(el, attr, fn){
+    if(!el || !window.MutationObserver) return;
+    var vorher = el.getAttribute(attr);
+    new MutationObserver(function(){
+      var jetzt = el.getAttribute(attr);
+      if(jetzt !== vorher){ vorher = jetzt; fn(jetzt); }
+    }).observe(el, {attributes:true, attributeFilter:[attr]});
+  };
+  beobachte(document.getElementById('gbp-badge'), 'data-state', function(z){
+    if(z === 'loading') window.jlTrack('check_start');
+    else if(z === 'result') window.jlTrack('check_result');
+    else if(z === 'error') window.jlTrack('check_error');
+  });
+  beobachte(document.getElementById('pscWidget'), 'data-state', function(z){
+    if(z === 'loading') window.jlTrack('speed_start');
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.bk'), function(bk){
+    beobachte(bk, 'data-step', function(z){
+      if(z === 'form') window.jlTrack('booking_day');
+      else if(z === 'done') window.jlTrack('booking_done');
+    });
+  });
+  beobachte(document.getElementById('formStatus'), 'class', function(z){
+    if(/form-status--ok/.test(z || '')) window.jlTrack('contact_sent');
+  });
+})();
+
+
 (function(){
   // Das PageSpeed-Check-Widget (src/js/pagespeed-check.js) wird erst
   // geladen, wenn es in Sichtweite kommt. Nur auf /webdesign/ vorhanden —
@@ -495,6 +579,64 @@
       });
   });
 
+  // ---- Ausführliche Auswertung anfordern --------------------------------
+  // Nach dem Check: Name und E-Mail genügen, die Check-Daten kommen aus der
+  // Seite. Verschickt wird über /api/contact (Versandkette mit Ausgangskorb,
+  // Mengenbegrenzung, Eingangsbestätigung) — nichts Neues auf dem Server.
+  var reportForm = document.getElementById('reportForm');
+  var reportBtn = document.getElementById('rrSubmit');
+  var reportStatus = document.getElementById('reportStatus');
+  var reportMeldung = function(art, html){
+    reportStatus.className = 'form-status show form-status--' + art;
+    reportStatus.innerHTML = html;
+  };
+  if(reportForm) reportForm.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var name = (document.getElementById('rr-name').value || '').trim();
+    var email = (document.getElementById('rr-mail').value || '').trim();
+    if(!name || !email || !reportForm.checkValidity()){ reportForm.reportValidity && reportForm.reportValidity(); return; }
+
+    var wert = function(id){ var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+    var zeilen = Array.prototype.map.call(checklist ? checklist.querySelectorAll('li') : [], function(li){
+      var teile = Array.prototype.map.call(li.children, function(c){ return c.textContent.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+      return '- ' + (teile.length > 1 ? teile.join(': ') : li.textContent.replace(/\s+/g, ' ').trim());
+    });
+    var vergleich = document.getElementById('gbpCompareSub');
+    var nachricht = 'Ausführliche Auswertung angefordert.\n\n'
+      + 'Firma: ' + wert('gbp-company') + '\nStadt: ' + wert('gbp-city') + '\nKeyword: ' + wert('gbp-keyword') + '\n'
+      + 'Basis-Check: ' + (ringNum ? ringNum.textContent : '?') + ' von ' + TOTAL_FACTORS + '\n'
+      + (zeilen.length ? '\n' + zeilen.join('\n') + '\n' : '')
+      + (vergleich && vergleich.textContent ? '\nVergleich: ' + vergleich.textContent.trim() + '\n' : '');
+
+    reportBtn.disabled = true;
+    reportBtn.textContent = 'Wird gesendet …';
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({
+        name: name, email: email, message: nachricht,
+        _gotcha: reportForm.querySelector('[name="_gotcha"]').value,
+        _subject: 'Profil-Check: Auswertung angefordert'
+      })
+    })
+      .then(function(res){ return res.json().catch(function(){ return {}; }).then(function(d){ return {ok: res.ok, data: d}; }); })
+      .then(function(r){
+        if(r.ok && r.data && r.data.success){
+          reportForm.hidden = true;
+          reportMeldung('ok', 'Danke! Die Auswertung kommt persönlich von mir an ' + email.replace(/</g, '&lt;')
+            + ' — meist am selben Werktag. Eine kurze Bestätigung liegt gleich in Ihrem Postfach.');
+          if(window.jlTrack) window.jlTrack('report_request');
+          return;
+        }
+        var feld = r.data && r.data.fields ? r.data.fields[Object.keys(r.data.fields)[0]] : '';
+        reportMeldung('err', feld || 'Das Senden hat leider nicht geklappt. Rufen Sie mich gern an: <a href="tel:+4917655769680">+49 176 55769680</a>.');
+      })
+      .catch(function(){
+        reportMeldung('err', 'Die Verbindung kam nicht zustande. Rufen Sie mich gern an: <a href="tel:+4917655769680">+49 176 55769680</a>.');
+      })
+      .then(function(){ reportBtn.disabled = false; reportBtn.textContent = 'Auswertung anfordern'; });
+  });
+
   Array.prototype.forEach.call(badge.querySelectorAll('[data-gbp-reset]'), function(btn){
     btn.addEventListener('click', function(){
       if(form) form.reset();
@@ -537,6 +679,7 @@
     toggle.setAttribute('aria-expanded', open);
     toggle.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
     syncTheme();
+    if(open && window.jlTrack) window.jlTrack('menu_open');
   };
   toggle.addEventListener('click', function(){ setMenu(!nav.classList.contains('open')); });
   menu.querySelectorAll('a').forEach(function(a){
@@ -1531,6 +1674,7 @@
       b.setAttribute('aria-pressed', an ? 'true' : 'false');
     });
     schedule();
+    if(welches === 'b' && window.jlTrack) window.jlTrack('gsp_switch');
     if(welches === 'a' && laeuft){
       if(timer) clearTimeout(timer);
       if(raf) cancelAnimationFrame(raf);

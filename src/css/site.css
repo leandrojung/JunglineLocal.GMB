@@ -642,25 +642,15 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .hero__live:hover svg{transform:translateX(3px)}
 .hero__live-tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hero__live-tx b{font-weight:650;color:#fff}
-.hero__live-dot{position:relative;flex:none;width:8px;height:8px;border-radius:50%;background:var(--mint)}
-.hero__live-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--mint);
-  animation:liveDot 2.2s ease-out infinite}
-@keyframes liveDot{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+.hero__live-dot{position:relative;flex:none;width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(111,232,189,.18)}
 
 .hero h1{margin:24px 0 0;color:#fff;font-size:var(--fs-hero);font-weight:700;line-height:.98;letter-spacing:-.03em}
 .hero-h1__line{display:block}
 
-/* Der Schimmer: ein heller Streifen zieht einmal durch die zweite Zeile und
-   hinterlässt einen Verlauf von Indigo nach Mint. */
-.hero h1 .hl,.pagehead h1 .hl,.wd-hero h1 .hl{
-  background:linear-gradient(100deg,#AEBBFF 0%,#86EFC9 33%,#86EFC9 44%,#F4FFFA 50%,#AEBBFF 56%,#AEBBFF 67%,#86EFC9 100%);
-  background-size:300% 100%;background-position:0% 0;
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:heroSweepOnce 2.2s linear 1 both;
-  padding-bottom:.06em;
-}
-.hero h1 .hl{animation-delay:.55s}
-@keyframes heroSweepOnce{0%{background-position:100% 0}100%{background-position:0% 0}}
+/* Zweite Zeile: eine ruhige Vollfarbe. Früher lief hier ein Farbverlauf von
+   Indigo nach Mint mit einmal durchziehendem Lichtstreifen — das bekannteste
+   Erkennungszeichen generierter Landingpages. Eine Farbe wirkt gesetzter. */
+.hero h1 .hl,.pagehead h1 .hl,.wd-hero h1 .hl{color:var(--brand-on-dark)}
 
 .hero .lead{margin-top:26px;max-width:34ch;color:rgba(232,235,248,.74);font-size:clamp(1.12rem,1.5vw,1.34rem);line-height:1.5}
 .hero .cta-row{margin-top:36px;gap:12px}
@@ -885,12 +875,7 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result{flex:1;display:flex;flex-direction:column}
 .rank-check--comparing #gbp-badge[data-state="result"] .gbp-badge__result [data-gbp-reset]{margin-top:auto}
 .rank-check__headline{font-size:var(--fs-h2)}
-/* Der Schimmer läuft erst, wenn der Block ins Bild kommt (.in vom Reveal). */
-.rank-check__accent{display:inline-block;
-  background:linear-gradient(100deg,var(--brand) 0%,var(--brand) 38%,#A6F6D6 50%,var(--brand) 62%,var(--brand) 100%);
-  background-size:300% 100%;background-position:0% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:heroSweepOnce 2s linear 1 both;animation-play-state:paused;padding-bottom:.06em}
-.rank-check__intro.in .rank-check__accent{animation-play-state:running}
+.rank-check__accent{color:var(--brand)}
 .rank-check__sub{margin-top:22px;max-width:44ch;color:var(--dim);font-size:clamp(1.05rem,1.25vw,1.18rem);line-height:1.6}
 
 /* Radar hinter dem Formular: läuft, solange gesucht wird. */
@@ -970,6 +955,21 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   border-radius:14px;background:var(--bg-soft)}
 .rank-check__cta-list li svg{flex:none;color:var(--brand);overflow:visible}
 .rank-check__cta-btn{min-width:240px}
+/* Zweiter Weg nach dem Check: Auswertung per E-Mail statt Gespräch. */
+.rank-report{margin:30px auto 0;padding-top:26px;border-top:1px solid var(--border);max-width:640px;text-align:left}
+.rank-report__lead{color:var(--dim);font-size:.98rem;line-height:1.55;margin-bottom:16px}
+.rank-report__lead b{color:var(--ink)}
+.rank-report__form{position:relative;display:grid;grid-template-columns:1fr 1fr auto;gap:0 10px;align-items:end}
+.rank-report__form[hidden]{display:none}
+.rank-report__form .field{margin-bottom:0}
+.rank-report__form .btn{width:auto;margin-top:0;height:50px}
+.rank-report__fine{margin-top:12px;font-size:.8rem;color:var(--dim-2)}
+.rank-report__fine a{text-decoration:underline;text-underline-offset:2px}
+@media(max-width:640px){
+  .rank-report__form{grid-template-columns:1fr;gap:12px}
+  .rank-report__form .btn{width:100%}
+  .rank-check__cta{padding:28px 20px}
+}
 
 @media(max-width:900px){
   .rank-check__grid{grid-template-columns:1fr}
@@ -1588,13 +1588,7 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @keyframes mi-rise{0%,16%{opacity:0;transform:translateY(2.5px)}38%,72%{opacity:1;transform:translateY(0)}92%,100%{opacity:0;transform:translateY(-1.8px)}}
 .js .manifest__ico [class*="mi-"]{animation-play-state:paused}
 .js .manifest__inner.in .manifest__ico [class*="mi-"]{animation-play-state:running}
-.manifest__hl{background:linear-gradient(100deg,#AEBBFF 0%,#AEBBFF 30%,#E9FFF6 42%,#86EFC9 54%,#86EFC9 100%);
-  background-size:260% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  animation:manifestSweep 2.6s var(--ease-out) both;animation-play-state:paused;padding-bottom:.05em}
-@keyframes manifestSweep{from{background-position:0% 0}to{background-position:100% 0}}
-.manifest__inner.in .manifest__line:nth-child(1) .manifest__hl{animation-play-state:running;animation-delay:.15s}
-.manifest__inner.in .manifest__line:nth-child(2) .manifest__hl{animation-play-state:running;animation-delay:.33s}
-.manifest__inner.in .manifest__line:nth-child(3) .manifest__hl{animation-play-state:running;animation-delay:.51s}
+.manifest__hl{color:var(--mint)}
 /* Telefon: linksbündig, damit die drei Symbole eine saubere Spalte bilden.
    Zentriert standen sie je nach Zeilenlänge versetzt untereinander. Die
    Größe ist aus der längsten Zeile gerechnet ("Mehr Sichtbarkeit." samt
@@ -1764,6 +1758,9 @@ body[data-zweig="webdesign"] .pagehead{
 .prose li{color:var(--dim);font-size:1.06rem;line-height:1.7;padding-left:4px}
 .prose li strong{color:var(--ink)}
 .prose ul li::marker{color:var(--brand)}
+.prose ul.orte{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;padding:0}
+.prose ul.orte li{padding:0;color:var(--ink);font-weight:500}
+.inline-link{color:var(--link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 .prose ol li::marker{color:var(--brand);font-weight:700}
 .prose blockquote{border-left:2px solid var(--brand);margin:24px 0;padding:4px 0 4px 20px;color:var(--ink);font-size:1.1rem}
 .prose .lead{font-size:clamp(1.14rem,1.5vw,1.3rem);color:var(--ink);line-height:1.6;margin-bottom:24px}
@@ -2006,7 +2003,6 @@ body[data-zweig="webdesign"] .pagehead{
 .wd-hero__copy>*:nth-child(3){animation-delay:.2s}
 .wd-hero__copy>*:nth-child(4){animation-delay:.3s}
 .wd-hero__copy>*:nth-child(5){animation-delay:.4s}
-.wd-hero h1 .hl{animation:heroSweepOnce 2.2s linear .5s 1 both}
 @keyframes wdIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 
 /* Geräte: Rechner-Fenster + Telefon, echte Bildschirmfotos. */

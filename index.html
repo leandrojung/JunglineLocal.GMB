@@ -662,6 +662,29 @@
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 12.4h4.1l2.3-5.6 3.6 11.2 2.3-5.6h4.1"/></svg>Laufendes Monitoring</li>
       </ul>
       <a href="#termin" class="btn btn--primary btn--lg rank-check__cta-btn">Erstgespräch buchen</a>
+
+      <!-- Wer (noch) kein Gespräch will, bekommt die ausführliche Auswertung
+           per E-Mail. Läuft über /api/contact: Leandro erhält die Check-Daten,
+           der Besucher die übliche Eingangsbestätigung. Die Auswertung selbst
+           schreibt Leandro persönlich — keine automatische Mail mit
+           fremdem Text an beliebige Adressen. -->
+      <div class="rank-report">
+        <p class="rank-report__lead"><b>Lieber erst schriftlich?</b> Ich schicke Ihnen die ausführliche Auswertung Ihres Profils per E-Mail – persönlich erstellt, meist am selben Werktag.</p>
+        <form class="rank-report__form" id="reportForm" novalidate>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+          <div class="field">
+            <label for="rr-name">Name</label>
+            <input type="text" id="rr-name" name="name" placeholder="Ihr Name" autocomplete="name" required enterkeyhint="next">
+          </div>
+          <div class="field">
+            <label for="rr-mail">E-Mail</label>
+            <input type="email" id="rr-mail" name="email" placeholder="name@firma.de" autocomplete="email" required enterkeyhint="send">
+          </div>
+          <button type="submit" class="btn btn--ghost" id="rrSubmit">Auswertung anfordern</button>
+        </form>
+        <p class="rank-report__fine">Kostenlos und unverbindlich. Ihre Angaben nutze ich nur für diese Auswertung – <a href="/datenschutz/">Datenschutz</a>.</p>
+        <p class="form-status" id="reportStatus" role="status" aria-live="polite"></p>
+      </div>
     </div>
 
   </div>
@@ -749,8 +772,8 @@
     </div>
     <div class="stats__grid">
       <div class="stat" data-reveal>
-        <div class="stat__num"><span class="count" data-count="46">46</span><span class="unit">&thinsp;%</span></div>
-        <p>aller Google-Suchen haben einen lokalen Bezug.</p>
+        <div class="stat__num"><span class="count" data-count="3">3</span><span class="unit">&thinsp;Plätze</span></div>
+        <p>zeigt Google im Kartenbereich. Wer nicht dabei ist, wird erst nach einem weiteren Klick gesehen.</p>
       </div>
       <div class="stat" data-reveal data-d="1">
         <div class="stat__num"><span class="count" data-count="76">76</span><span class="unit">&thinsp;%</span></div>
@@ -761,7 +784,7 @@
         <p>so oft gelten vollständige Profile als vertrauenswürdig.</p>
       </div>
     </div>
-    <p class="stats__src" data-reveal>Quellen: Google (Wirkung vollständiger Unternehmensprofile) · Think with Google, Studien zum lokalen Suchverhalten · BrightLocal, Local Consumer Review Survey.</p>
+    <p class="stats__src" data-reveal>Quellen: 76&nbsp;% – Google/Ipsos, „Understanding Consumers’ Local Search Behavior“, 2014 · 2,7× – Google, Angaben zum Unternehmensprofil (vollständige Profile gelten 2,7-mal häufiger als seriös).</p>
     <!-- ============================================================
          KUNDENSTIMMEN — Struktur liegt bereit.
          Sobald echte Testimonials vorliegen: diesen Block einkommentieren
@@ -857,7 +880,7 @@
       </div>
       <div class="about__text">
         <h2>Ein Ansprechpartner. <span class="soft">Kein Callcenter.</span></h2>
-        <p>Ich bin <span class="mark">Leandro Jung</span> aus Dorsten. Sie sprechen immer direkt mit mir – ohne Agentur-Überbau.</p>
+        <p>Ich bin <span class="mark">Leandro Jung</span> aus <a class="inline-link" href="/dorsten/">Dorsten</a>. Sie sprechen immer direkt mit mir – ohne Agentur-Überbau.</p>
         <ul class="chips chips--stack">
           <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ehrliche Einschätzung statt Versprechen</li>
           <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Berichte, die zeigen, was sich bewegt</li>
