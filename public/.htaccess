@@ -71,6 +71,10 @@
   # Stelle statt in einem 404.
   RewriteRule ^nutzungsbedingungen\.html$ /nutzungsbedingungen/ [R=301,L]
 
+  # Die Regionalseite /dorsten/ ist in /local-seo-dorsten/ aufgegangen. Zwei
+  # Seiten zum selben Ort würden bei Google gegeneinander antreten.
+  RewriteRule ^dorsten/?$ /local-seo-dorsten/ [R=301,L]
+
   # =======================================================================
   # 0c) VERSTECKTE DATEIEN UND ENTWICKLER-DATEIEN SPERREN
   #

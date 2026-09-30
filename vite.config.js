@@ -6,6 +6,7 @@ import { bausteine } from './src/data/bausteine.js'
 import { rankcardCompetitors, rankcardExampleNote } from './src/data/rankcard-example.js'
 import { zweige, zweigListe } from './src/data/zweige.js'
 import { referenzen } from './src/data/referenzen.js'
+import { ablauf } from './src/data/ablauf.js'
 import { copyrightMetadata } from './scripts/stamp-copyright.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
@@ -104,6 +105,18 @@ function renderBausteineLeistungen() {
 // ("Ihr Betrieb", "Ihr Büro", …), die Wettbewerber-Namen aber überall identisch
 // bleiben. Token-Syntax: <!--RANKCARD_ILLU youLabel="…" ariaLabel="…"-->
 // ---------------------------------------------------------------------------
+// Vier Schritte als Bento-Raster (Daten: src/data/ablauf.js). Token: <!--ABLAUF-->
+function renderAblauf() {
+  const more = '<span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>'
+  const tiles = ablauf.map((s, i) => `<a class="bento__tile" href="${s.href}" data-reveal${i ? ` data-d="${i}"` : ''}>
+        <span class="bento__top"><span class="bento__ic">${s.icon}</span><span class="bento__step">Schritt ${i + 1}</span></span>
+        <h3>${s.titel}</h3>
+        <p>${s.text}</p>
+        ${more}
+      </a>`).join('\n      ')
+  return `<div class="bento">\n      ${tiles}\n    </div>`
+}
+
 // ---------------------------------------------------------------------------
 // Kundenreferenzen (src/data/referenzen.js). Zeigt nur, was belegt ist: ohne
 // Anzahl keine Anzahl, ohne Zitat kein Zitat, ohne Kennzahlen keine Tabelle.
@@ -441,6 +454,7 @@ function sharedShell() {
     '<!--BK_SKELETON-->': renderBookingSkeleton,
     '<!--MAPART-->': mapArt,
     '<!--REFERENZEN-->': renderReferenzen,
+    '<!--ABLAUF-->': renderAblauf,
   }
   return {
     name: 'jungline-shared-shell',

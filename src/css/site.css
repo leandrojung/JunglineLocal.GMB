@@ -1799,6 +1799,7 @@ body[data-zweig="webdesign"] .pagehead{
 .container > :not(.head-block):not(.breadcrumb) + .head-block{margin-top:clamp(72px,9vw,120px)}
 .container > .step-path + *,.container > .callout + .prose{margin-top:clamp(64px,8vw,104px)}
 .container > .prose + .prose-illu{margin-top:clamp(56px,7vw,96px)}
+.container > .bento + .prose,.container > .prose + .related{margin-top:clamp(56px,7vw,96px)}
 
 /* Hinweiskasten */
 .callout{display:flex;align-items:flex-start;gap:14px;margin:28px 0;padding:22px 24px;border-radius:var(--r-lg);
@@ -1958,6 +1959,8 @@ body[data-zweig="webdesign"] .pagehead{
 .related__list a:hover{gap:11px}
 .related__list svg{flex:none}
 .related .branchen-grid{margin-top:4px}
+.related__lead{color:var(--dim);font-size:.98rem;margin:-4px 0 14px}
+.ctaband-alt{margin-top:18px;text-align:center}
 
 /* Abschlussband jeder Unterseite */
 .ctaband{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px 48px;

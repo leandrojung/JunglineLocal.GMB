@@ -58,7 +58,7 @@ export const zweige = {
     footerLinks: [
       { href: '/leistungen/google-unternehmensprofil-optimierung/', label: 'Leistungen' },
       { href: '/#branchen', label: 'Branchen' },
-      { href: '/dorsten/', label: 'Dorsten &amp; Umgebung' },
+      { href: '/local-seo-dorsten/', label: 'Local SEO Dorsten' },
       { href: '/ratgeber/', label: 'Ratgeber' },
       { href: '/ueber-mich/', label: 'Über mich' },
       { href: '/kontakt/', label: 'Kontakt' },
