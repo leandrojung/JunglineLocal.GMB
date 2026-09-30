@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { bausteine } from './src/data/bausteine.js'
 import { rankcardCompetitors, rankcardExampleNote } from './src/data/rankcard-example.js'
 import { zweige, zweigListe } from './src/data/zweige.js'
+import { referenzen } from './src/data/referenzen.js'
 import { copyrightMetadata } from './scripts/stamp-copyright.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
@@ -103,6 +104,40 @@ function renderBausteineLeistungen() {
 // ("Ihr Betrieb", "Ihr Büro", …), die Wettbewerber-Namen aber überall identisch
 // bleiben. Token-Syntax: <!--RANKCARD_ILLU youLabel="…" ariaLabel="…"-->
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Kundenreferenzen (src/data/referenzen.js). Zeigt nur, was belegt ist: ohne
+// Anzahl keine Anzahl, ohne Zitat kein Zitat, ohne Kennzahlen keine Tabelle.
+// Token: <!--REFERENZEN-->
+// ---------------------------------------------------------------------------
+const PIN_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.8a7.6 7.6 0 0 0-7.6 7.6c0 5.6 6.7 12.2 7 12.5a.9.9 0 0 0 1.2 0c.3-.3 7-6.9 7-12.5A7.6 7.6 0 0 0 12 1.8Zm0 10.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg>'
+const EXT_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>'
+
+function renderReferenzen() {
+  return referenzen.map((r, i) => {
+    const logo = r.logo ? `<div class="client-spotlight__logo-wrap">
+          <picture>
+            ${r.logo.webp ? `<source srcset="${r.logo.webp}" type="image/webp">` : ''}
+            <img draggable="false" class="client-spotlight__logo" src="${r.logo.png}" alt="${r.logo.alt}" width="${r.logo.width}" height="${r.logo.height}" loading="lazy" decoding="async">
+          </picture>
+        </div>` : ''
+    const rang = r.suchbegriff ? `<p class="inote inote--flat client-spotlight__rank"><span class="inote__ic inote__ic--maps" aria-hidden="true">${PIN_SVG}</span><span class="inote__tx"><span class="inote__top"><b>Platz 1 bei Google</b>${r.platzStand ? `<span class="inote__time">Stand ${r.platzStand}</span>` : ''}</span><small>„${r.suchbegriff}“</small></span></p>` : ''
+    const anzahl = r.bewertungen && r.bewertungen.anzahl ? ` · ${r.bewertungen.anzahl} Bewertungen${r.bewertungen.stand ? ` (Stand ${r.bewertungen.stand})` : ''}` : ' bei Google'
+    const meta = r.sterne ? `<p class="client-spotlight__meta"><span class="client-spotlight__stars" aria-hidden="true">★★★★★</span> <b>${r.sterne}</b>${anzahl}</p>` : ''
+    const zitat = r.zitat ? `<blockquote class="client-spotlight__quote"><p>${r.zitat.text}</p><cite>${r.zitat.quelle}</cite></blockquote>` : `<p class="client-spotlight__name">${r.name}</p>`
+    const kz = r.kennzahlen ? `<div class="client-spotlight__kpis"><p class="client-spotlight__kpis-head">${r.kennzahlen.zeitraum}</p><dl>${r.kennzahlen.werte.map((w) => `<div><dt>${w.label}</dt><dd><span>${w.vorher}</span> → <b>${w.nachher}</b></dd></div>`).join('')}</dl>${r.kennzahlen.quelle ? `<p class="client-spotlight__kpis-src">Quelle: ${r.kennzahlen.quelle}</p>` : ''}</div>` : ''
+    return `<article class="client-spotlight__card" data-reveal${i % 2 ? ' data-d="1"' : ''}>
+        ${logo}
+        <div class="client-spotlight__content">
+          ${rang}
+          ${meta}
+          ${zitat}
+          ${kz}
+          <a href="${r.googleUrl}" class="link-arrow client-spotlight__cta" target="_blank" rel="noopener">Profil bei Google ansehen${EXT_SVG}</a>
+        </div>
+      </article>`
+  }).join('\n      ')
+}
+
 // ---------------------------------------------------------------------------
 // KARTE IM STIL VON APPLE KARTEN
 //
@@ -405,6 +440,7 @@ function sharedShell() {
     '<!--BRANCHEN_GRID_LEISTUNGEN-->': renderBranchenGridLeistungen,
     '<!--BK_SKELETON-->': renderBookingSkeleton,
     '<!--MAPART-->': mapArt,
+    '<!--REFERENZEN-->': renderReferenzen,
   }
   return {
     name: 'jungline-shared-shell',

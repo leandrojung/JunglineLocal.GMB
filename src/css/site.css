@@ -872,6 +872,14 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .client-spotlight__quote cite{display:block;margin-top:4px;font-style:normal;font-size:.86rem;color:var(--dim-2)}
 .client-spotlight__name{font-size:.94rem;color:var(--dim-2)}
 .client-spotlight__cta{margin-top:auto;padding-top:4px;font-size:.95rem}
+.client-spotlight__kpis{padding:14px 16px;border-radius:14px;background:var(--bg-soft)}
+.client-spotlight__kpis-head{font-size:.82rem;font-weight:600;color:var(--dim-2);margin-bottom:8px}
+.client-spotlight__kpis dl{display:grid;gap:6px}
+.client-spotlight__kpis dl>div{display:flex;justify-content:space-between;gap:12px;font-size:.92rem}
+.client-spotlight__kpis dt{color:var(--dim)}
+.client-spotlight__kpis dd span{color:var(--dim-2)}
+.client-spotlight__kpis dd b{color:var(--ink)}
+.client-spotlight__kpis-src{margin-top:8px;font-size:.76rem;color:var(--dim-2)}
 @media(max-width:760px){
   .client-spotlight__grid{grid-template-columns:1fr}
   .client-spotlight__logo-wrap{height:156px;padding:20px 20px 46px}
