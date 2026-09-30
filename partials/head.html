@@ -36,17 +36,22 @@ var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){v.classList.
 <!-- Kein Preconnect zu Fremdhosts: Terminbuchung (/api/booking/) und
      Kontaktformular (/api/contact) laufen beide über die eigene Domain. -->
 <link rel="stylesheet" href="/src/css/site.css">
+<!-- TODO(Leandro): Link zum Google-Unternehmensprofil in "sameAs" eintragen
+     (z. B. https://maps.google.com/?cid=… oder der g.page-/share-Link).
+     TODO(Leandro): Adresse Zeichen für Zeichen mit dem Google-Profil
+     abgleichen (Straße, PLZ 46286, Ort "Dorsten" bzw. Ortsteil Lembeck). -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   "@id": "https://jungline.de/#business",
   "name": "Jungline Local",
+  "alternateName": "JunglineLocal",
   "description": "Optimierung von Google-Unternehmensprofilen (Google Business Profile) für regionale Unternehmen — bundesweit, branchenübergreifend.",
   "url": "https://jungline.de/",
   "logo": "https://jungline.de/logo.png",
   "image": "https://jungline.de/og-image.jpg",
-  "telephone": "+4917655769680",
+  "telephone": "+49 176 55769680",
   "email": "Info@jungline.de",
   "founder": { "@type": "Person", "name": "Leandro Jung" },
   "address": {
@@ -57,7 +62,10 @@ var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){v.classList.
     "addressRegion": "NRW",
     "addressCountry": "DE"
   },
-  "areaServed": { "@type": "Country", "name": "Deutschland" },
+  "areaServed": [
+    { "@type": "City", "name": "Dorsten" },
+    { "@type": "Country", "name": "Deutschland" }
+  ],
   "priceRange": "€€"
 }
 </script>
