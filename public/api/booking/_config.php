@@ -36,6 +36,13 @@ const BK_BUFFER_MIN   = 0;       // Puffer vor/nach einem Termin
 // TEMPORÄR für Live-Tests am 05.09. hochgesetzt (war 3) — danach zurückstellen.
 const BK_RATE_PER_IP_DAY = 20;
 
+// Wohin neue Buchungen, Absagen und Kontaktanfragen gemeldet werden. Steht
+// bewusst hier und nicht in der .env: Ein OWNER_EMAIL in der Server-.env
+// konnte die Meldungen unbemerkt in ein anderes Postfach umleiten, und von
+// außen war nicht zu sehen, welches. Ein solcher Eintrag wird jetzt
+// ignoriert — maßgeblich ist allein diese Zeile.
+const BK_OWNER_EMAIL = 'Info@jungline.de';
+
 const BK_TITLE    = 'Kostenloses Erstgespräch — Jungline Local';
 const BK_DURATION_LABEL = '30 Minuten';
 
@@ -174,7 +181,7 @@ function bkMeetingUrl(): string {
 }
 
 function bkOwnerEmail(): string {
-    return envValue('OWNER_EMAIL') ?? 'Info@jungline.de';
+    return BK_OWNER_EMAIL;
 }
 
 function bkOwnerName(): string {

@@ -73,6 +73,7 @@ foreach ($alle as $id) {
 $chain = bkTransportChain();
 echo "\n  Reihenfolge: " . ($chain === [] ? 'KEINER — es kann nichts verschickt werden!' : implode(' → ', $chain)) . "\n";
 echo "  Absender:    " . bkAddress(bkMailFrom(), bkMailFromName()) . "\n";
+echo "  Buchungen an: " . bkOwnerEmail() . "\n";
 
 // ---- Funktioniert der Schlüssel von DIESEM Server aus? ----------------
 //

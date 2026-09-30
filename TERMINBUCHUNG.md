@@ -73,11 +73,16 @@ deutschsprachige Oberfläche. Für den Bedarf hier ist das dauerhaft gratis.
 BREVO_API_KEY=xkeysib-....
 MAIL_FROM=Info@jungline.de
 MAIL_FROM_NAME=JunglineLocal
-OWNER_EMAIL=Info@jungline.de
 SITE_URL=https://jungline.de
 ```
 
 Das ist alles. Der Rest passiert von selbst.
+
+Die Meldungen über neue Buchungen, Absagen und Kontaktanfragen gehen immer
+an **Info@jungline.de**. Die Adresse steht fest in
+`public/api/booking/_config.php` (`BK_OWNER_EMAIL`); ein `OWNER_EMAIL` in der
+`.env` wird ignoriert. Welche Adresse gerade gilt, zeigt
+`/api/booking/mailtest` in der Zeile „Buchungen an“.
 
 > **Schritt 3 ist der entscheidende.** Ohne die DNS-Einträge verschickt auch
 > Brevo nur unsignierte Mails, und dann ist nichts gewonnen. Wer die
@@ -298,7 +303,7 @@ Sobald der Maildienst aus Abschnitt 1 steht, funktioniert das Formular mit.
 
 Was beim Absenden passiert:
 
-1. Du bekommst die Nachricht an `OWNER_EMAIL`. Ein Klick auf „Antworten"
+1. Du bekommst die Nachricht an Info@jungline.de. Ein Klick auf „Antworten"
    geht direkt an den Interessenten.
 2. Der Absender bekommt eine kurze Eingangsbestätigung — damit er sieht,
    dass die Nachricht angekommen ist.
