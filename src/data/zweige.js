@@ -51,7 +51,7 @@ export const zweige = {
       { href: '/kontakt/', label: 'Kontakt' },
     ],
     // Fließtext unter dem Logo im Footer und die kleine Zeile ganz unten.
-    claim: '<b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich bringe regionale Unternehmen bei Google nach oben: persönlich, transparent, messbar.',
+    claim: '<b>Mehr Sichtbarkeit. Mehr Kunden. Mehr Umsatz.</b> Ich mache regionale Unternehmen bei Google sichtbar: persönlich, transparent, messbar.',
     claimKlein: 'Google-Unternehmensprofil-Optimierung · bundesweit',
     // Erste Footer-Spalte: das Angebot des Zweigs.
     footerTitel: 'Local SEO',
