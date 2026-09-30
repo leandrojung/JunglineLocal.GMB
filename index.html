@@ -82,7 +82,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg>
       </a>
       <h1 id="heroTitle"><span class="hero-h1__line">Oben bei Google.</span> <span class="hero-h1__line"><span class="hl">In Ihrer Stadt.</span></span></h1>
-      <p class="lead h-anim">Ich optimiere Ihr Google-Unternehmensprofil, damit Kunden aus Ihrer Region zuerst Sie finden – und nicht die Konkurrenz.</p>
+      <p class="lead h-anim">Ich optimiere Ihr Google-Unternehmensprofil – damit Kunden aus Ihrer Region Sie finden, nicht die Konkurrenz.</p>
       <div class="cta-row h-anim">
         <a href="#termin" class="btn btn--primary btn--lg">Kostenloses Erstgespräch</a>
         <a href="#rank-check" class="btn btn--glass btn--lg">Profil jetzt prüfen</a>
@@ -155,16 +155,8 @@
            (site.css, "Hero-Einstieg") — kein Timer im Skript, der sich mit dem
            Einblenden der Karte ueberschneiden koennte. -->
       <div class="hero__notes" aria-hidden="true">
-        <div class="ios-note ios-note--call">
-          <span class="ios-note__ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></span>
-          <span class="ios-note__tx"><b>Anruf über Google Maps</b><small>Neuer Kunde aus Ihrer Stadt</small></span>
-          <span class="ios-note__time">jetzt</span>
-        </div>
-        <div class="ios-note ios-note--review">
-          <span class="ios-note__ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.8 5.9 6.4.8-4.7 4.5 1.2 6.4L12 17.1l-5.7 3.1 1.2-6.4-4.7-4.5 6.4-.8z"/></svg></span>
-          <span class="ios-note__tx"><b>Neue Bewertung</b><small>★★★★★ auf Google</small></span>
-          <span class="ios-note__time">vor 2 Min.</span>
-        </div>
+        <div class="inote ios-note ios-note--call"><span class="inote__ic inote__ic--phone" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 16.4v3.2a1.9 1.9 0 0 1-2.1 1.9 18.9 18.9 0 0 1-8.2-2.9 18.6 18.6 0 0 1-5.7-5.7A18.9 18.9 0 0 1 1.6 4.6 1.9 1.9 0 0 1 3.5 2.5h3.2a1.9 1.9 0 0 1 1.9 1.6c.1.9.4 1.8.7 2.6a1.9 1.9 0 0 1-.4 2L7.5 10a15.2 15.2 0 0 0 5.7 5.7l1.3-1.4a1.9 1.9 0 0 1 2-.4c.8.3 1.7.6 2.6.7a1.9 1.9 0 0 1 1.4 1.8z"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Anruf über Google Maps</b><span class="inote__time">jetzt</span></span><small>Neuer Kunde aus Ihrer Stadt</small></span></div>
+        <div class="inote ios-note ios-note--review inote--stack"><span class="inote__ic inote__ic--star" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.8 5.9 6.4.8-4.7 4.5 1.2 6.4L12 17.1l-5.7 3.1 1.2-6.4-4.7-4.5 6.4-.8z"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Neue Bewertung</b><span class="inote__time">vor 2 Min.</span></span><small>★★★★★ auf Google</small></span></div>
       </div>
       <p class="hero__caption">Beispieldarstellung</p>
     </div>
@@ -182,11 +174,11 @@
      Beide Logos liegen als WebP + PNG vor. Ein <source> nur ergaenzen, wenn
      die .webp-Datei wirklich existiert: der Browser faellt NICHT auf das PNG
      zurueck, wenn die WebP-Quelle 404t. -->
-<section class="section sheet results-sec" id="kundenbeispiel">
+<section class="section section--soft sheet results-sec" id="kundenbeispiel">
   <div class="container">
-    <div class="head-block head-block--split" data-reveal>
-      <h2>Platz 1. <span class="soft">Bei echten Kunden, nachprüfbar bei Google.</span></h2>
-      <p>Zwei Betriebe, zwei Branchen, zwei Städte. Beide stehen heute für ihren wichtigsten Suchbegriff ganz oben – suchen Sie ruhig selbst.</p>
+    <div class="head-block center" data-reveal>
+      <h2>Platz 1. <span class="soft">Bei echten Kunden.</span></h2>
+      <p>Nachprüfbar bei Google – suchen Sie ruhig selbst.</p>
     </div>
     <div class="client-spotlight__grid">
 
@@ -198,7 +190,7 @@
           </picture>
         </div>
         <div class="client-spotlight__content">
-          <p class="client-spotlight__rank"><span class="client-spotlight__num">1</span><span>Platz bei Google für<b>„Energieberatung Nürnberg“</b></span></p>
+          <p class="inote inote--flat client-spotlight__rank"><span class="inote__ic inote__ic--maps" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.8a7.6 7.6 0 0 0-7.6 7.6c0 5.6 6.7 12.2 7 12.5a.9.9 0 0 0 1.2 0c.3-.3 7-6.9 7-12.5A7.6 7.6 0 0 0 12 1.8Zm0 10.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Platz 1 bei Google</b></span><small>„Energieberatung Nürnberg“</small></span></p>
           <p class="client-spotlight__meta"><span class="client-spotlight__stars" aria-hidden="true">★★★★★</span> <b>5,0</b> · 24 Bewertungen</p>
           <blockquote class="client-spotlight__quote">
             <p>„Sehr empfehlenswert – fünf Sterne!“</p>
@@ -216,278 +208,13 @@
           </picture>
         </div>
         <div class="client-spotlight__content">
-          <p class="client-spotlight__rank"><span class="client-spotlight__num">1</span><span>Platz bei Google für<b>„Großhandel Italienischer Backwaren Duisburg“</b></span></p>
+          <p class="inote inote--flat client-spotlight__rank"><span class="inote__ic inote__ic--maps" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.8a7.6 7.6 0 0 0-7.6 7.6c0 5.6 6.7 12.2 7 12.5a.9.9 0 0 0 1.2 0c.3-.3 7-6.9 7-12.5A7.6 7.6 0 0 0 12 1.8Zm0 10.6a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Platz 1 bei Google</b></span><small>„Großhandel Italienischer Backwaren Duisburg“</small></span></p>
           <p class="client-spotlight__meta"><span class="client-spotlight__stars" aria-hidden="true">★★★★★</span> <b>5,0</b> bei Google</p>
           <p class="client-spotlight__name">Sicitalia – So schmeckt der Süden</p>
           <a href="https://www.google.com/maps/place/Sicitalia+-+So+schmeckt+der+S%C3%BCden/@51.3555518,6.7756117,17z/data=!3m1!4b1!4m6!3m5!1s0x47b8e9dd1f73f467:0xd67128ca58cc4146!8m2!3d51.3555485!4d6.7781866!16s%2Fg%2F1v5fq_kw" class="link-arrow client-spotlight__cta" target="_blank" rel="noopener">Profil bei Google ansehen<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
         </div>
       </article>
 
-    </div>
-  </div>
-</section>
-
-<!-- ============ GBP-PROFIL-CHECK ============
-     Das Werkzeug ist der Beleg, nicht ein weiteres Versprechen: kein Kasten
-     "Kein Verkaufstext", keine Trust-Punkte, kein Google-Siegel mehr — nur
-     die Frage, ein Satz und das Formular. Die Google-Marke erscheint im
-     Formular selbst, klein und unverändert (Brand Guidelines). -->
-<section class="section section--soft sheet rank-check" id="rank-check">
-  <div class="container">
-    <div class="rank-check__grid">
-      <div class="rank-check__left">
-      <div class="rank-check__intro" data-reveal>
-        <h2 class="rank-check__headline">Wo steht Ihr Betrieb <span class="rank-check__accent">bei Google?</span></h2>
-        <p class="rank-check__sub">Drei Angaben, etwa 30 Sekunden. Der Check liest Ihr Google-Profil live aus und stellt es neben die Betriebe, die für Ihren Suchbegriff gerade oben stehen. Kostenlos und ohne Anmeldung.</p>
-      </div>
-
-      <!-- ============ WETTBEWERBSVERGLEICH (ersetzt nach dem Check den Intro-Text links) ============ -->
-      <div class="gbp-compare" id="gbp-compare" data-state="hidden">
-        <div class="gbp-compare__head">
-          <h3 class="gbp-compare__title">Wo Sie im Vergleich stehen</h3>
-          <p class="gbp-compare__sub" id="gbpCompareSub">Basierend auf echten Google-Daten.</p>
-        </div>
-
-        <div class="gbp-compare__loading">Wir gleichen ab, wie Sie im Vergleich zu anderen Treffern abschneiden …</div>
-
-        <div class="gbp-compare__result">
-          <div class="bam__rows" id="gbpCompareList"></div>
-          <ul class="gbp-checklist gbp-compare__gaps" id="gbpCompareGaps"></ul>
-        </div>
-
-        <div class="gbp-compare__empty">
-          <p>Für dieses Keyword und diese Stadt haben wir aktuell keine Vergleichsdaten gefunden.</p>
-        </div>
-
-        <div class="gbp-compare__error">
-          <p id="gbpCompareErrorText">Der Wettbewerbsvergleich ist gerade nicht verfügbar.</p>
-        </div>
-      </div>
-      </div>
-
-      <!-- data-scan="on": der Radar läuft, solange geprüft wird. site.js
-           schaltet auf "off", sobald das Ergebnis steht — dann übernimmt die
-           ruhige Geprüft-Aura. -->
-      <div class="rank-check__stage" data-reveal data-scan="on">
-        <div class="rank-check__radar" aria-hidden="true">
-          <span class="rank-check__ring"></span>
-          <span class="rank-check__ring rank-check__ring--2"></span>
-          <span class="rank-check__ring rank-check__ring--3"></span>
-          <span class="rank-check__beam"></span>
-        </div>
-        <div class="rank-check__verified" aria-hidden="true"></div>
-        <div class="gbp-badge" id="gbp-badge" data-state="form">
-
-      <form class="form gbp-badge__form" id="gbpForm" novalidate>
-        <div class="field">
-          <label for="gbp-company">Firmenname</label>
-          <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required>
-        </div>
-        <div class="field">
-          <label for="gbp-city">Stadt</label>
-          <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required>
-        </div>
-        <div class="field">
-          <label for="gbp-keyword">Keyword</label>
-          <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required>
-        </div>
-        <button type="submit" class="btn btn--primary">Profil kostenlos prüfen</button>
-      </form>
-
-      <div class="gbp-badge__loading">Profil wird geprüft …</div>
-
-      <div class="gbp-badge__result">
-        <p class="gbp-badge__eyebrow">Ihr Basis-Check</p>
-        <div class="gbp-ring">
-          <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
-            <circle class="gbp-ring__track" cx="60" cy="60" r="52"/>
-            <circle class="gbp-ring__value" cx="60" cy="60" r="52"/>
-          </svg>
-          <span class="gbp-ring__num" id="gbpScoreNum">0</span>
-        </div>
-        <p class="gbp-ring__caption">von über <span id="gbpFactorTotal">25</span> Sichtbarkeits-Faktoren bei Google</p>
-        <p class="gbp-badge__name" id="gbpCompanyName"></p>
-        <ul class="gbp-checklist" id="gbpChecklist"></ul>
-        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
-      </div>
-
-      <div class="gbp-badge__error">
-        <p id="gbpErrorText">Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.</p>
-        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
-      </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Gemeinsamer CTA-Block mittig unter beiden Cards (nur nach dem Check sichtbar) -->
-    <div class="rank-check__cta">
-      <p class="rank-check__cta-lead">Das war die Basis. Im Erstgespräch schaue ich zusätzlich auf:</p>
-      <!-- Je Leistung ein eigenes Motiv statt fünf gleicher Punkte. Die Icons
-           laufen über den Live-Icon-Mechanismus und zeichnen sich, sobald der
-           Block nach dem Check eingeblendet wird (siehe lico:rescan). -->
-      <ul class="rank-check__cta-list">
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.6"/><path d="M19.8 19.8 15.3 15.3"/><path d="M7.9 9.2h5.4M7.9 12.1h3.4"/></svg>Suchbegriffe &amp; Profilbeschreibung</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6.4h9.8M10 12h9.8M10 17.6h9.8"/><path d="m4.2 6.2 1.3 1.3 2.2-2.4"/><path d="m4.2 11.8 1.3 1.3 2.2-2.4"/><path d="m4.2 17.4 1.3 1.3 2.2-2.4"/></svg>Leistungen &amp; Attribute</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.8L12 16.9l-5.2 2.75 1-5.8-4.2-4.1 5.8-.85z"/></svg>Bewertungsstrategie</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6.6-5.8 6.6-11A6.6 6.6 0 0 0 5.4 10c0 5.2 6.6 11 6.6 11Z"/><path d="m9.2 9.9 1.9 1.9 3.7-3.9"/></svg>Verzeichnis-Konsistenz (NAP)</li>
-        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 12.4h4.1l2.3-5.6 3.6 11.2 2.3-5.6h4.1"/></svg>Laufendes Monitoring</li>
-      </ul>
-      <a href="#termin" class="btn btn--primary btn--lg rank-check__cta-btn">Erstgespräch buchen</a>
-    </div>
-
-  </div>
-</section>
-
-<!-- ============ VORHER / NACHHER ============ -->
-<section class="section ba" id="vorher-nachher">
-  <div class="container">
-    <div class="head-block center" data-reveal>
-      <h2>Wer oben steht, <span class="soft">bekommt den Anruf.</span></h2>
-      <p>Dieselbe Suche, einmal vor und einmal nach der Optimierung. Ziehen Sie den Regler.</p>
-    </div>
-    <div class="vnc" data-reveal>
-      <div class="vnc__stage" id="vncStage" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
-           aria-label="Vergleich vorher und nachher: Regler ziehen, um das Profil bei Google vor und nach der Optimierung zu sehen">
-        <!-- VORHER: unsichtbar, unvollständig -->
-        <div class="vnc__side vnc__side--before" aria-hidden="true">
-          <div class="vnc__card">
-            <div class="vnc__pill">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-              Ihre Leistung · in Ihrer Stadt
-            </div>
-            <div class="vnc__map vnc__map--empty">
-              <svg viewBox="0 0 400 104" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <rect x="-10" y="-10" width="420" height="124" fill="#F2EFE8"/>
-                <path d="M-10 88 Q 90 70 176 92 T 410 78 L410 114 L-10 114 Z" fill="#A9D8F5"/>
-                <path d="M-10 88 Q 90 70 176 92 T 410 78" fill="none" stroke="#8FC9EC" stroke-width="1"/>
-                <ellipse cx="66" cy="24" rx="54" ry="25" fill="#D3E7C0"/>
-                <ellipse cx="330" cy="86" rx="46" ry="20" fill="#D3E7C0"/>
-                <rect x="196" y="8" width="46" height="26" rx="3" fill="#E9E5DC"/>
-                <rect x="256" y="16" width="34" height="20" rx="3" fill="#E9E5DC"/>
-                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#E3DDD1" stroke-width="11" stroke-linecap="round"/>
-                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#E3DDD1" stroke-width="9" stroke-linecap="round"/>
-                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
-                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#E7E2D8" stroke-width="5" stroke-linecap="round"/>
-                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
-                <path d="M118 -6 L104 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
-                <path d="M118 -6 L104 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
-                <path d="M300 -6 L288 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
-                <path d="M300 -6 L288 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="vnc__rows">
-              <div class="vnc__row">
-                <span class="vnc__rank">1</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Meridian Dienstleistungen</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,6 · 218 Rezensionen</span>
-                </span>
-              </div>
-              <div class="vnc__row">
-                <span class="vnc__rank">2</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Berger &amp; Partner</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,4 · 146 Rezensionen</span>
-                </span>
-              </div>
-              <div class="vnc__row">
-                <span class="vnc__rank">3</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Stadtwerk Profis</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,7 · 321 Rezensionen</span>
-                </span>
-              </div>
-              <div class="vnc__dots">···</div>
-              <div class="vnc__row vnc__row--missing">
-                <span class="vnc__rank vnc__rank--missing">?</span>
-                <span class="vnc__body">
-                  <span class="vnc__name vnc__name--dim">Ihr Unternehmen</span>
-                  <span class="vnc__meta vnc__meta--dim">Keine Bewertungen · Profil unvollständig</span>
-                </span>
-                <span class="vnc__chip vnc__chip--warn">Nicht sichtbar</span>
-              </div>
-            </div>
-          </div>
-          <span class="vnc__label vnc__label--before">Vorher</span>
-        </div>
-        <!-- NACHHER: Platz 1 im Local Pack -->
-        <div class="vnc__side vnc__side--after" id="vncAfter" aria-hidden="true">
-          <div class="vnc__card">
-            <div class="vnc__pill vnc__pill--after">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-              Ihre Leistung · in Ihrer Stadt
-            </div>
-            <div class="vnc__map">
-              <svg viewBox="0 0 400 104" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <rect x="-10" y="-10" width="420" height="124" fill="#F2EFE8"/>
-                <path d="M-10 88 Q 90 70 176 92 T 410 78 L410 114 L-10 114 Z" fill="#A9D8F5"/>
-                <path d="M-10 88 Q 90 70 176 92 T 410 78" fill="none" stroke="#8FC9EC" stroke-width="1"/>
-                <ellipse cx="66" cy="24" rx="54" ry="25" fill="#D3E7C0"/>
-                <ellipse cx="330" cy="86" rx="46" ry="20" fill="#D3E7C0"/>
-                <rect x="196" y="8" width="46" height="26" rx="3" fill="#E9E5DC"/>
-                <rect x="256" y="16" width="34" height="20" rx="3" fill="#E9E5DC"/>
-                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#E3DDD1" stroke-width="11" stroke-linecap="round"/>
-                <path d="M-10 30 Q 120 52 200 22 T 410 38" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
-                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#E3DDD1" stroke-width="9" stroke-linecap="round"/>
-                <path d="M40 114 Q 90 52 200 60 T 380 -8" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
-                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#E7E2D8" stroke-width="5" stroke-linecap="round"/>
-                <path d="M-10 70 Q 150 54 250 76 T 410 64" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
-                <path d="M118 -6 L104 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
-                <path d="M118 -6 L104 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
-                <path d="M300 -6 L288 114" fill="none" stroke="#EBE6DC" stroke-width="4" stroke-linecap="round"/>
-                <path d="M300 -6 L288 114" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
-              </svg>
-              <span class="vnc__pulse" aria-hidden="true"></span>
-              <span class="vnc__pin" aria-hidden="true">
-                <svg width="26" height="34" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#FF3B30"/><path d="M14 1.4C7.1 1.4 1.4 7.03 1.4 14c0 5 3.6 11.1 7.2 15.9C10.9 32.5 14 35.9 14 35.9V1.4z" fill="#FFFFFF" opacity=".12"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
-              </span>
-            </div>
-            <div class="vnc__rows">
-              <div class="vnc__row vnc__row--you">
-                <span class="vnc__rank vnc__rank--you">1</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Ihr Unternehmen</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,9 · <span class="vnc__open">Jetzt geöffnet</span></span>
-                </span>
-                <span class="vnc__chip vnc__chip--top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>Platz 1</span>
-              </div>
-              <div class="vnc__row">
-                <span class="vnc__rank">2</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Meridian Dienstleistungen</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,6 · 218 Rezensionen</span>
-                </span>
-              </div>
-              <div class="vnc__row">
-                <span class="vnc__rank">3</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Stadtwerk Profis</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,7 · 321 Rezensionen</span>
-                </span>
-              </div>
-              <div class="vnc__dots">···</div>
-              <div class="vnc__row vnc__row--fade">
-                <span class="vnc__rank">6</span>
-                <span class="vnc__body">
-                  <span class="vnc__name">Berger &amp; Partner</span>
-                  <span class="vnc__meta"><span class="vnc__stars">★★★★★</span> 4,4 · 146 Rezensionen</span>
-                </span>
-              </div>
-            </div>
-          </div>
-          <span class="vnc__label vnc__label--after">Nachher</span>
-        </div>
-        <!-- Griff -->
-        <div class="vnc__handle" id="vncHandle" aria-hidden="true">
-          <span class="vnc__line"></span>
-          <span class="vnc__grip" id="vncGrip">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
-          </span>
-        </div>
-      </div>
-      <p class="vnc__caption">Beispieldarstellung · Firmennamen frei erfunden</p>
     </div>
   </div>
 </section>
@@ -500,7 +227,7 @@
   <div class="container">
     <div class="head-block center" data-reveal>
       <h2>Platz 1 ist kein Zufall.</h2>
-      <p>Wer bei „Anwalt Dorsten“ oben steht, hat ein gepflegtes Profil. Wer unten steht, meistens nicht. Der Unterschied liegt in wenigen Details – hier sehen Sie, in welchen.</p>
+      <p>Gleiche Suche, gleiche Stadt. Den Unterschied macht das Profil.</p>
     </div>
   </div>
 
@@ -509,24 +236,15 @@
 
       <div class="gsp__notes gsp__notes--left">
         <div class="gsp__note">
-          <div class="gsp__note-body" style="--d:4.34s">
-            <span class="gsp__note-title">Profilfoto vorhanden</span>
-            <p>Ergebnisse mit Bild werden deutlich häufiger angeklickt.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:4.34s"><span class="inote__ic inote__ic--ok" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Profilfoto vorhanden</b><span class="inote__time">Platz 1</span></span><small>Wird deutlich häufiger angeklickt</small></span></div>
           <span class="gsp__note-line" style="--d:4.55s" aria-hidden="true"></span>
         </div>
         <div class="gsp__note">
-          <div class="gsp__note-body" style="--d:4.62s">
-            <span class="gsp__note-title">187 Bewertungen</span>
-            <p>Menge und Aktualität der Bewertungen zählen zu den stärksten lokalen Faktoren.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:4.62s"><span class="inote__ic inote__ic--ok" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span class="inote__tx"><span class="inote__top"><b>187 Bewertungen</b><span class="inote__time">Platz 1</span></span><small>Einer der stärksten Faktoren</small></span></div>
           <span class="gsp__note-line" style="--d:4.83s" aria-hidden="true"></span>
         </div>
         <div class="gsp__note gsp__note--warn">
-          <div class="gsp__note-body" style="--d:4.9s">
-            <span class="gsp__note-title">Kein Bild, 9 Bewertungen</span>
-            <p>Platz 3 — unterhalb der Aufmerksamkeitsgrenze der meisten Suchenden.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:4.9s"><span class="inote__ic inote__ic--warn" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 18h.01"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Kein Foto, 9 Bewertungen</b><span class="inote__time">Platz 3</span></span><small>Unter der Aufmerksamkeitsgrenze</small></span></div>
           <span class="gsp__note-line" style="--d:5.11s" aria-hidden="true"></span>
         </div>
       </div>
@@ -803,26 +521,17 @@
       </figure>
 
       <div class="gsp__notes gsp__notes--right">
-        <div class="gsp__note">
+        <div class="gsp__note gsp__note--warn">
           <span class="gsp__note-line" style="--d:5.32s" aria-hidden="true"></span>
-          <div class="gsp__note-body" style="--d:5.39s">
-            <span class="gsp__note-title">Kein Titelbild</span>
-            <p>Das erste, was Suchende sehen — hier bleibt es leer.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:5.39s"><span class="inote__ic inote__ic--warn" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 18h.01"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Kein Titelbild</b><span class="inote__time">Platz 3</span></span><small>Der erste Eindruck bleibt leer</small></span></div>
         </div>
-        <div class="gsp__note">
+        <div class="gsp__note gsp__note--warn">
           <span class="gsp__note-line" style="--d:5.6s" aria-hidden="true"></span>
-          <div class="gsp__note-body" style="--d:5.67s">
-            <span class="gsp__note-title">Öffnungszeiten ungepflegt</span>
-            <p>Google stuft unbestätigte Profile in der lokalen Sortierung zurück.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:5.67s"><span class="inote__ic inote__ic--warn" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 18h.01"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Öffnungszeiten ungepflegt</b><span class="inote__time">Platz 3</span></span><small>Kostet Vertrauen und Sichtbarkeit</small></span></div>
         </div>
-        <div class="gsp__note">
+        <div class="gsp__note gsp__note--warn">
           <span class="gsp__note-line" style="--d:5.88s" aria-hidden="true"></span>
-          <div class="gsp__note-body" style="--d:5.95s">
-            <span class="gsp__note-title">Keine Bewertungsantworten</span>
-            <p>Jede unbeantwortete Kritik bleibt als letzter Eindruck stehen.</p>
-          </div>
+          <div class="inote inote--dark gsp__note-body" style="--d:5.95s"><span class="inote__ic inote__ic--warn" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6.5v7"/><path d="M12 18h.01"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Kritik unbeantwortet</b><span class="inote__time">Platz 3</span></span><small>Bleibt als letzter Eindruck stehen</small></span></div>
         </div>
       </div>
 
@@ -832,70 +541,173 @@
 
   <div class="container">
     <div class="gsp__foot" data-reveal>
-      <p>Dieselbe Suche, dieselbe Stadt, dasselbe Fachgebiet. <span class="soft">Der Abstand entsteht im Profil, nicht im Betrieb.</span></p>
-      <a class="btn btn--glass" href="#rank-check">Eigenes Profil prüfen</a>
+      <a class="btn btn--primary btn--lg" href="#rank-check">Eigenes Profil prüfen</a>
     </div>
   </div>
 </section>
 
-<!-- ============ STEPS ============ -->
+<!-- ============ GBP-PROFIL-CHECK ============
+     Das Werkzeug ist der Beleg, nicht ein weiteres Versprechen: kein Kasten
+     "Kein Verkaufstext", keine Trust-Punkte, kein Google-Siegel mehr — nur
+     die Frage, ein Satz und das Formular. Die Google-Marke erscheint im
+     Formular selbst, klein und unverändert (Brand Guidelines). -->
+<section class="section section--soft sheet rank-check" id="rank-check">
+  <div class="container">
+    <div class="rank-check__grid">
+      <div class="rank-check__left">
+      <div class="rank-check__intro" data-reveal>
+        <h2 class="rank-check__headline">Wo steht Ihr Betrieb <span class="rank-check__accent">bei Google?</span></h2>
+        <p class="rank-check__sub">Ihr Profil im Live-Vergleich mit den Top 3 – in 30 Sekunden.</p>
+        <ul class="chips">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Echte Google-Daten</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Kostenlos</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ohne Anmeldung</li>
+        </ul>
+      </div>
+
+      <!-- ============ WETTBEWERBSVERGLEICH (ersetzt nach dem Check den Intro-Text links) ============ -->
+      <div class="gbp-compare" id="gbp-compare" data-state="hidden">
+        <div class="gbp-compare__head">
+          <h3 class="gbp-compare__title">Wo Sie im Vergleich stehen</h3>
+          <p class="gbp-compare__sub" id="gbpCompareSub">Basierend auf echten Google-Daten.</p>
+        </div>
+
+        <div class="gbp-compare__loading">Wir gleichen ab, wie Sie im Vergleich zu anderen Treffern abschneiden …</div>
+
+        <div class="gbp-compare__result">
+          <div class="bam__rows" id="gbpCompareList"></div>
+          <ul class="gbp-checklist gbp-compare__gaps" id="gbpCompareGaps"></ul>
+        </div>
+
+        <div class="gbp-compare__empty">
+          <p>Für dieses Keyword und diese Stadt haben wir aktuell keine Vergleichsdaten gefunden.</p>
+        </div>
+
+        <div class="gbp-compare__error">
+          <p id="gbpCompareErrorText">Der Wettbewerbsvergleich ist gerade nicht verfügbar.</p>
+        </div>
+      </div>
+      </div>
+
+      <!-- data-scan="on": der Radar läuft, solange geprüft wird. site.js
+           schaltet auf "off", sobald das Ergebnis steht — dann übernimmt die
+           ruhige Geprüft-Aura. -->
+      <div class="rank-check__stage" data-reveal data-scan="on">
+        <div class="rank-check__radar" aria-hidden="true">
+          <span class="rank-check__ring"></span>
+          <span class="rank-check__ring rank-check__ring--2"></span>
+          <span class="rank-check__ring rank-check__ring--3"></span>
+          <span class="rank-check__beam"></span>
+        </div>
+        <div class="rank-check__verified" aria-hidden="true"></div>
+        <div class="gbp-badge" id="gbp-badge" data-state="form">
+
+      <form class="form gbp-badge__form" id="gbpForm" novalidate>
+        <div class="field">
+          <label for="gbp-company">Firmenname</label>
+          <input type="text" id="gbp-company" name="company" placeholder="z. B. Mustermann GmbH" autocomplete="organization" required>
+        </div>
+        <div class="field">
+          <label for="gbp-city">Stadt</label>
+          <input type="text" id="gbp-city" name="city" placeholder="z. B. Dorsten" autocomplete="address-level2" required>
+        </div>
+        <div class="field">
+          <label for="gbp-keyword">Keyword</label>
+          <input type="text" id="gbp-keyword" name="keyword" placeholder="z. B. Dachdecker Dorsten" required>
+        </div>
+        <button type="submit" class="btn btn--primary">Profil kostenlos prüfen</button>
+      </form>
+
+      <div class="gbp-badge__loading">Profil wird geprüft …</div>
+
+      <div class="gbp-badge__result">
+        <p class="gbp-badge__eyebrow">Ihr Basis-Check</p>
+        <div class="gbp-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+            <circle class="gbp-ring__track" cx="60" cy="60" r="52"/>
+            <circle class="gbp-ring__value" cx="60" cy="60" r="52"/>
+          </svg>
+          <span class="gbp-ring__num" id="gbpScoreNum">0</span>
+        </div>
+        <p class="gbp-ring__caption">von über <span id="gbpFactorTotal">25</span> Sichtbarkeits-Faktoren bei Google</p>
+        <p class="gbp-badge__name" id="gbpCompanyName"></p>
+        <ul class="gbp-checklist" id="gbpChecklist"></ul>
+        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+      </div>
+
+      <div class="gbp-badge__error">
+        <p id="gbpErrorText">Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.</p>
+        <button type="button" class="btn btn--ghost" data-gbp-reset>Neue Prüfung starten</button>
+      </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Gemeinsamer CTA-Block mittig unter beiden Cards (nur nach dem Check sichtbar) -->
+    <div class="rank-check__cta">
+      <p class="rank-check__cta-lead">Das war die Basis. Im Erstgespräch schaue ich zusätzlich auf:</p>
+      <!-- Je Leistung ein eigenes Motiv statt fünf gleicher Punkte. Die Icons
+           laufen über den Live-Icon-Mechanismus und zeichnen sich, sobald der
+           Block nach dem Check eingeblendet wird (siehe lico:rescan). -->
+      <ul class="rank-check__cta-list">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.6"/><path d="M19.8 19.8 15.3 15.3"/><path d="M7.9 9.2h5.4M7.9 12.1h3.4"/></svg>Suchbegriffe &amp; Profilbeschreibung</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6.4h9.8M10 12h9.8M10 17.6h9.8"/><path d="m4.2 6.2 1.3 1.3 2.2-2.4"/><path d="m4.2 11.8 1.3 1.3 2.2-2.4"/><path d="m4.2 17.4 1.3 1.3 2.2-2.4"/></svg>Leistungen &amp; Attribute</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.8L12 16.9l-5.2 2.75 1-5.8-4.2-4.1 5.8-.85z"/></svg>Bewertungsstrategie</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6.6-5.8 6.6-11A6.6 6.6 0 0 0 5.4 10c0 5.2 6.6 11 6.6 11Z"/><path d="m9.2 9.9 1.9 1.9 3.7-3.9"/></svg>Verzeichnis-Konsistenz (NAP)</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.8 12.4h4.1l2.3-5.6 3.6 11.2 2.3-5.6h4.1"/></svg>Laufendes Monitoring</li>
+      </ul>
+      <a href="#termin" class="btn btn--primary btn--lg rank-check__cta-btn">Erstgespräch buchen</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ ABLAUF ============
+     Vorgehen und Leistungen in einem Raster (vorher zwei Abschnitte mit
+     insgesamt acht Textblöcken). Jede Kachel ist ein Link auf die Seite, die
+     den Schritt ausführlich erklärt; die acht Bausteine stehen vollständig
+     auf der Leistungsseite. -->
 <section class="section sheet steps" id="vorgehen">
   <div class="container">
-    <div class="head-block head-block--split" data-reveal>
-      <h2>So läuft die Zusammenarbeit.</h2>
-      <p>Vier Schritte, ein Ansprechpartner. Sie wissen jederzeit, woran ich arbeite und was es bringt.</p>
+    <div class="head-block center" data-reveal>
+      <h2>Vier Schritte. <span class="soft">Ein Ansprechpartner.</span></h2>
+      <p>Sie wissen jederzeit, woran ich arbeite – und was es bringt.</p>
     </div>
-    <div class="chapters">
-      <article class="chapter" data-reveal>
-        <div class="chapter__num" data-pd="-0.12" aria-hidden="true"><span>01</span></div>
-        <div class="chapter__body">
-          <svg class="chapter__ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.9"/><path d="M20 20l-4.4-4.4"/><path d="M8.2 12.4v-1.9M10.6 12.4V8.7M13 12.4v-3"/></svg>
-          <h3>Analyse</h3>
-          <p>Profil, Sichtbarkeit und Konkurrenz im Check: Sie sehen schwarz auf weiß, wo Sie stehen.</p>
-          <a class="chapter__more" href="/leistungen/google-unternehmensprofil-optimierung/">Mehr erfahren <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-      </article>
-      <article class="chapter" data-reveal>
-        <div class="chapter__num" data-pd="-0.12" aria-hidden="true"><span>02</span></div>
-        <div class="chapter__body">
-          <svg class="chapter__ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h8M17.5 6H20M4 12h3.5M13 12h7M4 18h8M17.5 18H20"/><circle cx="14.7" cy="6" r="2.3"/><circle cx="10.2" cy="12" r="2.3"/><circle cx="14.7" cy="18" r="2.3"/></svg>
-          <h3>Optimierung</h3>
-          <p>Kategorien, Suchbegriffe, Bilder, Leistungen: Ihr Profil wird vollständig und richtlinienkonform aufgesetzt.</p>
-          <a class="chapter__more" href="/ratgeber/checkliste-profil-optimieren/">Mehr erfahren <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-      </article>
-      <article class="chapter" data-reveal>
-        <div class="chapter__num" data-pd="-0.12" aria-hidden="true"><span>03</span></div>
-        <div class="chapter__body">
-          <svg class="chapter__ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.4l2.68 5.43 6 .87-4.34 4.23 1.02 5.97L12 17.09l-5.36 2.81 1.02-5.97L3.32 9.7l6-.87z"/></svg>
-          <h3>Bewertungen</h3>
-          <p>Mit System zu mehr echten Bewertungen, inklusive professioneller Antworten.</p>
-          <a class="chapter__more" href="/ratgeber/mehr-google-bewertungen-bekommen/">Mehr erfahren <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-      </article>
-      <article class="chapter" data-reveal>
-        <div class="chapter__num" data-pd="-0.12" aria-hidden="true"><span>04</span></div>
-        <div class="chapter__body">
-          <svg class="chapter__ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 12a8.4 8.4 0 1 1-2.46-5.94"/><path d="M20.7 3.3v4.2h-4.2"/></svg>
-          <h3>Betreuung</h3>
-          <p>Laufende Pflege, Beiträge und Monitoring mit Berichten zu Vorher und Nachher.</p>
-          <a class="chapter__more" href="/ratgeber/google-maps-ranking-verbessern/">Mehr erfahren <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        </div>
-      </article>
+    <div class="bento">
+      <a class="bento__tile" href="/leistungen/google-unternehmensprofil-optimierung/" data-reveal>
+        <span class="bento__top"><span class="bento__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.9"/><path d="M20 20l-4.4-4.4"/><path d="M8.2 12.4v-1.9M10.6 12.4V8.7M13 12.4v-3"/></svg></span><span class="bento__step">Schritt 1</span></span>
+        <h3>Analyse</h3>
+        <p>Profil, Sichtbarkeit und Konkurrenz im Check.</p>
+        <span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="bento__tile" href="/ratgeber/checkliste-profil-optimieren/" data-reveal data-d="1">
+        <span class="bento__top"><span class="bento__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h8M17.5 6H20M4 12h3.5M13 12h7M4 18h8M17.5 18H20"/><circle cx="14.7" cy="6" r="2.3"/><circle cx="10.2" cy="12" r="2.3"/><circle cx="14.7" cy="18" r="2.3"/></svg></span><span class="bento__step">Schritt 2</span></span>
+        <h3>Optimierung</h3>
+        <p>Kategorien, Suchbegriffe, Bilder und Leistungen.</p>
+        <span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="bento__tile" href="/ratgeber/mehr-google-bewertungen-bekommen/" data-reveal data-d="2">
+        <span class="bento__top"><span class="bento__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.4l2.68 5.43 6 .87-4.34 4.23 1.02 5.97L12 17.09l-5.36 2.81 1.02-5.97L3.32 9.7l6-.87z"/></svg></span><span class="bento__step">Schritt 3</span></span>
+        <h3>Bewertungen</h3>
+        <p>Mehr echte Bewertungen – und gute Antworten.</p>
+        <span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
+      <a class="bento__tile" href="/ratgeber/google-maps-ranking-verbessern/" data-reveal data-d="3">
+        <span class="bento__top"><span class="bento__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 12a8.4 8.4 0 1 1-2.46-5.94"/><path d="M20.7 3.3v4.2h-4.2"/></svg></span><span class="bento__step">Schritt 4</span></span>
+        <h3>Betreuung</h3>
+        <p>Pflege und Berichte, die zeigen, was sich bewegt.</p>
+        <span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>
+      </a>
     </div>
-  </div>
-</section>
-
-<!-- ============ LEISTUNGEN IM DETAIL ============ -->
-<section class="section section--soft services" id="leistungen">
-  <div class="container">
-    <div class="head-block head-block--split" data-reveal>
-      <h2>Was in einer Optimierung steckt.</h2>
-      <p>Acht Bausteine, die ineinandergreifen – hier vier davon. Alles richtlinienkonform: keine gekauften Bewertungen, keine Tricks, die Ihr Profil riskieren.</p>
+    <div class="bento__foot" data-reveal>
+      <ul class="chips">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Richtlinienkonform</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Keine gekauften Bewertungen</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Kein Knebelvertrag</li>
+      </ul>
+      <a class="link-arrow" href="/leistungen/google-unternehmensprofil-optimierung/#bausteine">Alle acht Bausteine ansehen<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
-    <!--BAUSTEINE_HOME-->
-    <div class="snapdots" id="svcDots" aria-hidden="true"></div>
-    <p class="services__more" data-reveal><a class="link-arrow" href="/leistungen/google-unternehmensprofil-optimierung/#bausteine">Alle acht Bausteine ansehen<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
   </div>
 </section>
 
@@ -905,9 +717,9 @@
      selbst: neun Branchen mit eigener Seite, darunter die Bandbreite. -->
 <section class="section" id="branchen">
   <div class="container">
-    <div class="head-block head-block--split" data-reveal>
+    <div class="head-block center" data-reveal>
       <h2>Für Ihre Branche. <span class="soft">Nicht für irgendeine.</span></h2>
-      <p>Ein Handwerksbetrieb wird anders gesucht als eine Kanzlei oder ein Restaurant. Für neun Branchen gibt es eine eigene Seite mit den Stellschrauben, die dort wirklich zählen.</p>
+      <p>Jede Branche wird anders gesucht. Neun haben ihre eigene Seite.</p>
     </div>
     <!--BRANCHEN_GRID_HOME-->
   </div>
@@ -928,22 +740,21 @@
      Quellen stehen darunter, klein, aber vollständig. -->
 <section class="section sheet theme-dark proof" id="ergebnisse">
   <div class="container">
-    <div class="head-block head-block--split" data-reveal>
+    <div class="head-block center" data-reveal>
       <h2>Lokale Suche <span class="soft">entscheidet, wer anruft.</span></h2>
-      <p>Die Zahlen zur lokalen Suche sind seit Jahren eindeutig. Was sich bei Ihrem Profil verändert, zeigen die Berichte – schwarz auf weiß.</p>
     </div>
     <div class="stats__grid">
       <div class="stat" data-reveal>
         <div class="stat__num"><span class="count" data-count="46">46</span><span class="unit">&thinsp;%</span></div>
-        <p>aller Suchanfragen bei Google haben einen lokalen Bezug.</p>
+        <p>aller Google-Suchen haben einen lokalen Bezug.</p>
       </div>
       <div class="stat" data-reveal data-d="1">
         <div class="stat__num"><span class="count" data-count="76">76</span><span class="unit">&thinsp;%</span></div>
-        <p>der lokalen Suchen per Smartphone führen binnen 24 Stunden zu einem Besuch vor Ort.</p>
+        <p>der lokalen Handy-Suchen führen binnen 24 Stunden zu einem Besuch.</p>
       </div>
       <div class="stat" data-reveal data-d="2">
         <div class="stat__num"><span class="count" data-count="2.7" data-dec="1">2,7</span><span class="unit">&thinsp;×</span></div>
-        <p>so häufig gelten Unternehmen mit vollständigem Profil als vertrauenswürdig.</p>
+        <p>so oft gelten vollständige Profile als vertrauenswürdig.</p>
       </div>
     </div>
     <p class="stats__src" data-reveal>Quellen: Google (Wirkung vollständiger Unternehmensprofile) · Think with Google, Studien zum lokalen Suchverhalten · BrightLocal, Local Consumer Review Survey.</p>
@@ -1042,8 +853,12 @@
       </div>
       <div class="about__text">
         <h2>Ein Ansprechpartner. <span class="soft">Kein Callcenter.</span></h2>
-        <p>Ich bin <span class="mark">Leandro Jung</span> und sitze in Dorsten. Ich sehe jeden Tag Betriebe, die hervorragende Arbeit leisten und bei Google trotzdem unsichtbar bleiben. Genau das ändere ich – direkt mit Ihnen, ohne Agentur-Überbau.</p>
-        <p>Sie erreichen mich persönlich, bekommen ehrliche Einschätzungen statt Versprechen und sehen in jedem Bericht, was sich bewegt hat.</p>
+        <p>Ich bin <span class="mark">Leandro Jung</span> aus Dorsten. Sie sprechen immer direkt mit mir – ohne Agentur-Überbau.</p>
+        <ul class="chips chips--stack">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ehrliche Einschätzung statt Versprechen</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Berichte, die zeigen, was sich bewegt</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Persönlich erreichbar</li>
+        </ul>
         <div class="about__sign">
           <span class="about__name">Leandro Jung</span>
           <span class="about__role">Gründer, JunglineLocal · Dorsten, NRW</span>
@@ -1077,8 +892,8 @@
     <a class="zweig-band" href="/webdesign/#referenz" data-reveal>
       <span class="zweig-band__tx">
         <small>Auch im Angebot: Webdesign</small>
-        <b>Und wenn die Website selbst in die Jahre gekommen ist?</b>
-        <span>Ich baue Websites von Grund auf neu – zuletzt für Rowi Maschinenservice aus Heiden.</span>
+        <b>Ihre Website ist in die Jahre gekommen?</b>
+        <span>Zuletzt neu gebaut: Rowi Maschinenservice aus Heiden.</span>
       </span>
       <span class="zweig-band__go">Arbeitsprobe ansehen<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M12 5.5 18.5 12 12 18.5"/></svg></span>
     </a>
@@ -1091,7 +906,7 @@
     <div class="faq__layout">
       <div class="head-block" data-reveal>
         <h2>Häufige Fragen.</h2>
-        <p>Die Fragen, die im Erstgespräch fast immer kommen. Alles Weitere klären wir am Telefon.</p>
+        <p>Alles Weitere klären wir im Gespräch.</p>
         <a class="link-arrow" href="#kontakt">Frage stellen<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
     <div class="faq__list" data-reveal>
@@ -1127,9 +942,9 @@
 <!-- ============ CONTACT ============ -->
 <section class="section sheet contact" id="kontakt">
   <div class="container">
-    <div class="head-block head-block--split" data-reveal>
+    <div class="head-block center" data-reveal>
       <h2>Lassen Sie uns sprechen.</h2>
-      <p>30 Minuten, kostenlos und unverbindlich. Suchen Sie sich einen Termin aus – oder schreiben Sie mir, wenn Ihnen das lieber ist.</p>
+      <div class="inote inote--flat contact__note"><span class="inote__ic inote__ic--cal" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span class="inote__tx"><span class="inote__top"><b>Erstgespräch</b><span class="inote__time">30 Min.</span></span><small>Kostenlos und unverbindlich</small></span></div>
     </div>
     <div class="contact__grid">
       <!-- Buchung = Hauptweg -->
@@ -1137,9 +952,9 @@
         <h3>Erstgespräch buchen</h3>
         <p class="panel__sub">Sie gehen mit drei Dingen raus:</p>
         <ul class="offer-list">
-          <li><span class="offer-list__n">1</span><span><b>Drei bis fünf konkrete Tipps</b>, die Sie sofort umsetzen können.</span></li>
-          <li><span class="offer-list__n">2</span><span><b>Ein Blick auf die Konkurrenz</b>: wo Ihr Betrieb im Kartenbereich steht.</span></li>
-          <li><span class="offer-list__n">3</span><span><b>Eine ehrliche Einschätzung</b>, was realistisch drin ist.</span></li>
+          <li><span class="offer-list__n">1</span><span><b>3–5 konkrete Tipps</b> zum Sofort-Umsetzen</span></li>
+          <li><span class="offer-list__n">2</span><span><b>Ihr Stand</b> im Vergleich zur Konkurrenz</span></li>
+          <li><span class="offer-list__n">3</span><span><b>Ehrliche Einschätzung</b>, was drin ist</span></li>
         </ul>
         <div class="cal-frame">
           <!-- Eigener Kalender statt Fremd-Widget: Markup, Sprache, Mails und
@@ -1172,7 +987,7 @@
         </div>
         <div class="panel">
           <h3>Oder schreiben Sie mir</h3>
-          <p class="panel__sub">Ein paar Sätze genügen. Ich antworte werktags innerhalb von 24 Stunden.</p>
+          <p class="panel__sub">Antwort werktags innerhalb von 24 Stunden.</p>
           <form class="form" id="contactForm" novalidate>
             <!-- Spamschutz: Honigtopf (fuer Menschen unsichtbar). _subject sagt /api/contact,
                  aus welchem Formular die Nachricht kam — es steht in der Mail an Leandro. -->

@@ -199,7 +199,7 @@ function renderBookingSkeleton() {
   const pads = '<span class="bk__pad"></span>'.repeat(42)
   return `<div class="bk__stage" aria-busy="true">
               <div class="bk__cal">
-                <div class="bk__calhead"><span class="bk__nav" aria-hidden="true"></span><h5 class="bk__month">&nbsp;</h5><span class="bk__nav" aria-hidden="true"></span></div>
+                <div class="bk__calhead"><span class="bk__nav" aria-hidden="true"></span><h4 class="bk__month">&nbsp;</h4><span class="bk__nav" aria-hidden="true"></span></div>
                 <div class="bk__grid" aria-hidden="true">${wd}${pads}</div>
                 <p class="bk__tz"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Alle Zeiten in mitteleuropäischer Zeit (Berlin)</p>
               </div>

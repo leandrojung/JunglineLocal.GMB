@@ -210,7 +210,7 @@ function renderCalendar() {
   next.addEventListener('click', () => goMonth(1));
 
   head.appendChild(prev);
-  head.appendChild(el('h5', 'bk__month', MONTHS[monthIndex] + ' ' + year));
+  head.appendChild(el('h4', 'bk__month', MONTHS[monthIndex] + ' ' + year));
   head.appendChild(next);
   wrap.appendChild(head);
 
@@ -288,7 +288,7 @@ function renderTimes() {
   // bestimmen. Ohne ihn würden 16 Uhrzeiten die ganze Card in die Länge
   // ziehen und links neben dem Kalender eine leere Fläche hinterlassen.
   const inner = el('div', 'bk__timesinner');
-  inner.appendChild(el('h5', 'bk__timeshead', dayLabel(state.date)));
+  inner.appendChild(el('h4', 'bk__timeshead', dayLabel(state.date)));
 
   const list = el('div', 'bk__slots');
   (state.days[state.date] || []).forEach((time) => {

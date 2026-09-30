@@ -1230,7 +1230,7 @@
   if(!('IntersectionObserver' in window)) return;
 
   // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
-  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,[data-noanim]';
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,.inote,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
   var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';
@@ -1424,18 +1424,31 @@
 
   var screens = stage.querySelectorAll('[data-gsp-screen]');
   var count   = document.getElementById('gspCount');
-  var FRAME_W = 414;
+  var FRAME_W = 414, FRAME_H = 868;
+  // Die Geräte sollen frei auf der Bühne stehen, nicht den Bildschirm füllen:
+  // höchstens 64 % der Fensterhöhe und nie größer als 0,68 (≈ 590 px hoch).
+  // Unter 0,42 wird der Bildschirminhalt unleserlich — kleiner nur, wenn die
+  // Spaltenbreite es erzwingt.
+  var MAX_S = 0.68, MIN_S = 0.42, HOEHE = 0.64;
   var raf = null, timer = null, pending = false;
+  // Die Fensterhöhe nur bei geänderter Breite neu lesen: Auf dem iPhone ändert
+  // sie sich beim Scrollen (Adressleiste klappt ein) — die Geräte würden sonst
+  // mitten im Lesen wachsen und schrumpfen.
+  var hoeheBreite = -1, hoeheFaktor = MAX_S;
 
   // Die Mockups sind in festen Pixeln gebaut. Hier wird aus der wirklich
-  // verfügbaren Spaltenbreite der exakte Faktor berechnet; site.css hat dafür
-  // nur grobe Breakpoint-Stufen als Fallback.
+  // verfügbaren Spaltenbreite und der Fensterhöhe der exakte Faktor
+  // berechnet; site.css hat dafür nur grobe Stufen als Fallback.
   function fit(){
     pending = false;
+    if(window.innerWidth !== hoeheBreite){
+      hoeheBreite = window.innerWidth;
+      hoeheFaktor = Math.max(MIN_S, Math.min(MAX_S, window.innerHeight * HOEHE / FRAME_H));
+    }
     Array.prototype.forEach.call(screens, function(el){
       var avail = el.parentNode.clientWidth;
       if(!avail) return;
-      var s = String(Math.round(Math.min(1, avail / FRAME_W) * 1000) / 1000);
+      var s = String(Math.round(Math.min(hoeheFaktor, avail / FRAME_W) * 1000) / 1000);
       // Nur schreiben, wenn sich etwas ändert — sonst tickt der
       // ResizeObserver sich selbst an.
       if(el.style.getPropertyValue('--gsp-s') !== s) el.style.setProperty('--gsp-s', s);

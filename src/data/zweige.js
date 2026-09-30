@@ -66,7 +66,7 @@ export const zweige = {
     // Absolute Pfade ("/#…"), damit sie auch von Unterseiten aus funktionieren.
     footerAnkerTitel: 'Startseite',
     footerAnker: [
-      { href: '/#vorher-nachher', label: 'Vorher &amp; Nachher' },
+      { href: '/#rank-check', label: 'Profil-Check' },
       { href: '/#vorgehen', label: 'Vorgehen' },
       { href: '/#ergebnisse', label: 'Ergebnisse' },
       { href: '/#faq', label: 'FAQ' },
