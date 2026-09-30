@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jungline Local — Ranking Dashboard</title>
+<title>Jungline Local: Ranking Dashboard</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root {
@@ -364,7 +364,7 @@ async function triggerWorkflow() {
   try {
     const res = await fetch(N8N_BASE_URL + TRIGGER_PATH, { method: 'POST' });
     if (!res.ok) throw new Error('Server antwortete mit ' + res.status);
-    showToast('Ranking-Check gestartet — das dauert ein paar Sekunden.');
+    showToast('Ranking-Check gestartet. Das dauert ein paar Sekunden.');
     setTimeout(loadData, 8000);
   } catch (err) {
     showToast('Fehler beim Starten: ' + err.message);

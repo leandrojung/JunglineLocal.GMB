@@ -43,7 +43,7 @@ const BK_RATE_PER_IP_DAY = 20;
 // ignoriert — maßgeblich ist allein diese Zeile.
 const BK_OWNER_EMAIL = 'Info@jungline.de';
 
-const BK_TITLE    = 'Kostenloses Erstgespräch — Jungline Local';
+const BK_TITLE    = 'Kostenloses Erstgespräch · Jungline Local';
 const BK_DURATION_LABEL = '30 Minuten';
 
 /**
@@ -67,14 +67,14 @@ const BK_TOPICS = [
     'seo' => [
         'label' => 'Google-Unternehmensprofil',
         'kurz'  => 'Google-Profil',
-        'titel' => 'Erstgespräch Google-Profil — Jungline Local',
+        'titel' => 'Erstgespräch Google-Profil · Jungline Local',
         'thema' => 'Optimierung Ihres Google-Unternehmensprofils',
         'seite' => '/kontakt/#termin',
     ],
     'webdesign' => [
         'label' => 'Webdesign & Relaunch',
         'kurz'  => 'Webdesign',
-        'titel' => 'Erstgespräch Webdesign — Jungline Local',
+        'titel' => 'Erstgespräch Webdesign · Jungline Local',
         'thema' => 'Ihre neue Website',
         'seite' => '/webdesign/kontakt/#termin',
     ],
@@ -185,7 +185,7 @@ function bkOwnerEmail(): string {
 }
 
 function bkOwnerName(): string {
-    return envValue('OWNER_NAME') ?? 'Leandro Jung — Jungline Local';
+    return envValue('OWNER_NAME') ?? 'Leandro Jung · Jungline Local';
 }
 
 function bkSiteUrl(): string {
@@ -248,5 +248,5 @@ function bkFormatDate(DateTimeImmutable $utc): string {
 
 /** Uhrzeit-Spanne lokal, z. B. "09:30 – 10:00 Uhr". */
 function bkFormatTime(DateTimeImmutable $startUtc, DateTimeImmutable $endUtc): string {
-    return bkLocal($startUtc)->format('H:i') . ' – ' . bkLocal($endUtc)->format('H:i') . ' Uhr';
+    return bkLocal($startUtc)->format('H:i') . ' bis ' . bkLocal($endUtc)->format('H:i') . ' Uhr';
 }

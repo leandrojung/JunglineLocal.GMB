@@ -236,9 +236,9 @@ function renderCalendar() {
     cell.type = 'button';
     if (!free) {
       cell.disabled = true;
-      cell.setAttribute('aria-label', day + '. ' + MONTHS[monthIndex] + ' — keine freien Zeiten');
+      cell.setAttribute('aria-label', day + '. ' + MONTHS[monthIndex] + ', keine freien Zeiten');
     } else {
-      cell.setAttribute('aria-label', dayLabel(dateStr) + ' — ' + slots.length + ' freie Zeiten');
+      cell.setAttribute('aria-label', dayLabel(dateStr) + ', ' + slots.length + ' freie Zeiten');
       if (state.date === dateStr) {
         cell.classList.add('is-active');
         cell.setAttribute('aria-current', 'date');
@@ -279,7 +279,7 @@ function renderTimes() {
     wrap.classList.add('bk__times--empty');
     wrap.appendChild(el('p', 'bk__hint', state.firstLoad
       ? 'Freie Termine werden geladen …'
-      : 'Wählen Sie einen Tag – dann erscheinen hier die freien Uhrzeiten.'));
+      : 'Wählen Sie einen Tag, dann erscheinen hier die freien Uhrzeiten.'));
     return wrap;
   }
 
@@ -374,7 +374,7 @@ function renderForm() {
   summary.innerHTML =
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M8 3v3M16 3v3M3 10h18"/></svg>';
   summary.appendChild(el('b', null, dayLabel(state.date)));
-  summary.appendChild(el('span', null, state.time + ' – ' + addMinutes(state.time, 30) + ' Uhr'));
+  summary.appendChild(el('span', null, state.time + ' bis ' + addMinutes(state.time, 30) + ' Uhr'));
   wrap.appendChild(summary);
 
   const form = el('form', 'bk__fields');
@@ -434,7 +434,7 @@ function renderDone() {
 
   wrap.appendChild(el('h4', 'bk__donetitle', state.reschedule ? 'Termin verschoben' : 'Termin steht!'));
   wrap.appendChild(el('p', 'bk__donesub', 'Eine Bestätigung ist unterwegs an ' + b.email
-    + ' — mit Videolink und Kalendereintrag. Am Tag davor erinnere ich Sie noch einmal.'));
+    + ', mit Videolink und Kalendereintrag. Am Tag davor erinnere ich Sie noch einmal.'));
 
   const facts = el('div', 'bk__facts');
   [['Termin', b.date_label], ['Uhrzeit', b.time_label]].forEach(([label, value]) => {
@@ -451,7 +451,7 @@ function renderDone() {
     link.target = '_blank';
     link.rel = 'noopener';
     wrap.appendChild(link);
-    wrap.appendChild(el('p', 'bk__hint', 'Der Link steht auch in Ihrer Bestätigungsmail — Sie müssen ihn sich nicht merken.'));
+    wrap.appendChild(el('p', 'bk__hint', 'Der Link steht auch in Ihrer Bestätigungsmail. Sie müssen ihn sich nicht merken.'));
   }
 
   // Führt auf dieselbe Seite wie der Link in der Bestätigungsmail: eintragen,
@@ -471,7 +471,7 @@ function render() {
     const banner = el('div', 'bk__banner');
     banner.appendChild(el('b', null, 'Sie verschieben Ihren Termin'));
     banner.appendChild(el('span', null, state.reschedule.dateLabel + ', ' + state.reschedule.timeLabel
-      + ' — der alte Termin wird abgesagt, sobald der neue steht.'));
+      + '. Der alte Termin wird abgesagt, sobald der neue steht.'));
     root.appendChild(banner);
   }
 
@@ -519,7 +519,7 @@ function render() {
 
   if (!state.loading && Object.keys(state.days).length === 0) {
     root.appendChild(el('p', 'bk__hint bk__hint--none',
-      'In diesem Monat ist nichts mehr frei. Blättern Sie einen Monat weiter — oder rufen Sie einfach an: +49 176 55769680.'));
+      'In diesem Monat ist nichts mehr frei. Blättern Sie einen Monat weiter oder rufen Sie einfach an: +49 176 55769680.'));
   }
 }
 
@@ -620,7 +620,7 @@ async function submitBooking(form, submit, status) {
   } catch (_) {
     status.className = 'bk__status bk__status--err';
     status.innerHTML = 'Die Buchung hat leider nicht geklappt. Rufen Sie mich an: '
-      + '<a href="tel:+4917655769680">+49 176 55769680</a> — oder schreiben Sie an '
+      + '<a href="tel:+4917655769680">+49 176 55769680</a> oder schreiben Sie an '
       + '<a href="mailto:Info@jungline.de">Info@jungline.de</a>.';
   } finally {
     submit.disabled = false;

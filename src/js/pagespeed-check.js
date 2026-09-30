@@ -35,9 +35,9 @@ if (root) {
   // wie bei ERROR_TEXTS im GBP-Check.
   const ERROR_TEXTS = {
     invalid_url: 'Das sieht nicht nach einer gültigen Internetadresse aus. Bitte prüfen Sie die Schreibweise, z. B. „ihre-firma.de".',
-    could_not_check: 'Ihre Seite konnte automatisch nicht geprüft werden — manche Seiten blockieren automatisierte Aufrufe. Rufen Sie mich gern direkt an, dann schaue ich manuell nach.',
+    could_not_check: 'Ihre Seite konnte automatisch nicht geprüft werden. Manche Seiten blockieren automatisierte Aufrufe. Rufen Sie mich gern direkt an, dann schaue ich manuell nach.',
     rate_limited: 'Sie haben den Check gerade mehrfach hintereinander gestartet. Bitte warten Sie ein paar Minuten und versuchen Sie es dann noch einmal.',
-    daily_limit_reached: 'Der kostenlose Check ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung — oder Sie schreiben mir kurz, dann prüfe ich Ihre Seite persönlich.',
+    daily_limit_reached: 'Der kostenlose Check ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung, oder Sie schreiben mir kurz, dann prüfe ich Ihre Seite persönlich.',
     forbidden_origin: 'Der Check lässt sich nur direkt auf jungline.de starten. Bitte laden Sie die Seite neu.',
     server_not_configured: 'Der Check ist gerade nicht verfügbar. Bitte versuchen Sie es später erneut.',
     upstream_error: 'Google hat gerade nicht geantwortet. Bitte versuchen Sie es in ein paar Minuten erneut.',
@@ -64,9 +64,9 @@ if (root) {
   };
 
   const VERDICTS = {
-    gut: 'Solide Werte — hier ist eher Feinschliff möglich als ein kompletter Neubau nötig.',
+    gut: 'Solide Werte: Hier ist eher Feinschliff möglich als ein kompletter Neubau nötig.',
     mittel: 'Ausbaufähig. Das kostet vermutlich den einen oder anderen Besucher, der vorher wieder weg ist.',
-    schlecht: 'Deutlich unter dem, was Besucher heute erwarten — ein guter Anlass für ein Erstgespräch.',
+    schlecht: 'Deutlich unter dem, was Besucher heute erwarten. Ein guter Anlass für ein Erstgespräch.',
   };
 
   // "4.8" (Punkt, englisches JSON) → "4,8" (deutsches Komma) fürs Auge.
@@ -106,7 +106,7 @@ if (root) {
     'Ihre Seite wird bei Google geöffnet …',
     'Ladezeit auf einem Mittelklasse-Handy wird gemessen …',
     'Bilder, Skripte und Schriften werden ausgewertet …',
-    'Fast fertig — das Ergebnis wird zusammengestellt …',
+    'Fast fertig, das Ergebnis wird zusammengestellt …',
   ];
   let stepTimer = null;
   const startProgress = () => {
@@ -183,7 +183,7 @@ if (root) {
       } catch (err) {
         stopProgress();
         if (err && err.name === 'AbortError') {
-          showError('Google braucht für Ihre Seite gerade ungewöhnlich lange. Versuchen Sie es in ein paar Minuten noch einmal — oder rufen Sie mich an, dann schaue ich persönlich nach.');
+          showError('Google braucht für Ihre Seite gerade ungewöhnlich lange. Versuchen Sie es in ein paar Minuten noch einmal oder rufen Sie mich an, dann schaue ich persönlich nach.');
           return;
         }
         showError('Die Verbindung ist unterbrochen. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');

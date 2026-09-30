@@ -39,7 +39,7 @@ import { join, extname } from 'node:path'
 const HOLDER = 'Leandro Jung / Jungline Local'
 const YEAR = new Date().getFullYear()
 const COPYRIGHT = `© ${YEAR} ${HOLDER}. Alle Rechte vorbehalten.`
-const DESCRIPTION = 'Nutzung nur mit schriftlicher Genehmigung. Text und Data Mining vorbehalten (§ 44b Abs. 3 UrhG) — https://jungline.de/nutzungsbedingungen/'
+const DESCRIPTION = 'Nutzung nur mit schriftlicher Genehmigung. Text und Data Mining vorbehalten (§ 44b Abs. 3 UrhG): https://jungline.de/nutzungsbedingungen/'
 
 // ---------------------------------------------------------------------------
 // CRC32 (für PNG-Chunks). Bewusst selbst implementiert statt über zlib.crc32:

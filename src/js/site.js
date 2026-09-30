@@ -334,10 +334,10 @@
   // kann: kurz warten, es morgen erneut versuchen oder direkt anrufen.
   var ERROR_TEXTS = {
     not_found: 'Zu diesem Unternehmen konnten wir kein Google-Profil finden. Bitte prüfen Sie Firmenname, Stadt und Keyword.',
-    missing_fields: 'Bitte füllen Sie alle drei Felder aus — Firmenname, Ort und Leistung.',
-    invalid_body: 'Bitte füllen Sie alle drei Felder aus — Firmenname, Ort und Leistung.',
+    missing_fields: 'Bitte füllen Sie alle drei Felder aus: Firmenname, Ort und Leistung.',
+    invalid_body: 'Bitte füllen Sie alle drei Felder aus: Firmenname, Ort und Leistung.',
     rate_limited: 'Sie haben den Check gerade mehrfach hintereinander gestartet. Bitte warten Sie ein paar Minuten und versuchen Sie es dann noch einmal.',
-    daily_limit_reached: 'Der kostenlose Check ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung — oder Sie schreiben mir kurz, dann prüfe ich Ihr Profil persönlich.',
+    daily_limit_reached: 'Der kostenlose Check ist für heute ausgebucht. Morgen früh steht er wieder zur Verfügung, oder Sie schreiben mir kurz, dann prüfe ich Ihr Profil persönlich.',
     forbidden_origin: 'Der Check lässt sich nur direkt auf jungline.de starten. Bitte laden Sie die Seite neu.',
     service_unavailable: 'Der Check ist gerade nicht möglich. Bitte versuchen Sie es später erneut.'
   };
@@ -370,7 +370,7 @@
   };
 
   var fmtRating = function(r){
-    return (typeof r === 'number' && r > 0) ? (Math.round(r * 10) / 10).toFixed(1).replace('.', ',') : '–';
+    return (typeof r === 'number' && r > 0) ? (Math.round(r * 10) / 10).toFixed(1).replace('.', ',') : '-';
   };
 
   var buildRow = function(rank, name, rating, reviewCount, isYou){
@@ -624,7 +624,7 @@
         if(r.ok && r.data && r.data.success){
           reportForm.hidden = true;
           reportMeldung('ok', 'Danke! Die Auswertung kommt persönlich von mir an ' + email.replace(/</g, '&lt;')
-            + ' — meist am selben Werktag. Eine kurze Bestätigung liegt gleich in Ihrem Postfach.');
+            + ', meist am selben Werktag. Eine kurze Bestätigung liegt gleich in Ihrem Postfach.');
           if(window.jlTrack) window.jlTrack('report_request');
           return;
         }
@@ -1321,7 +1321,7 @@
   // Der Weg, der immer bleibt, wenn der Versand klemmt. Steht an einer
   // Stelle, damit die Nummer nicht in drei Fehlermeldungen auseinanderläuft.
   var FALLBACK = 'Rufen Sie mich an: <a href="tel:+4917655769680">+49 176 55769680</a>'
-    + ' — oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.';
+    + ' oder schreiben Sie an <a href="mailto:Info@jungline.de">Info@jungline.de</a>.';
 
   // Feldname im Formular → id des Eingabefeldes, damit eine Rückmeldung des
   // Servers am richtigen Feld landet.
@@ -1377,7 +1377,7 @@
 
         if(antwort.ok && data.success){
           form.reset();
-          showStatus('ok', 'Danke, Ihre Nachricht ist angekommen — ich antworte werktags innerhalb'
+          showStatus('ok', 'Danke, Ihre Nachricht ist angekommen. Ich antworte werktags innerhalb'
             + ' von 24 Stunden. Eine kurze Bestätigung liegt gleich in Ihrem Postfach.');
           return;
         }
@@ -1392,7 +1392,7 @@
 
         if(data.error === 'rate_limited'){
           showStatus('err', 'Es sind gerade sehr viele Nachrichten von Ihrem Anschluss gekommen.'
-            + ' Bitte versuchen Sie es in einer Stunde noch einmal — oder direkt: ' + FALLBACK);
+            + ' Bitte versuchen Sie es in einer Stunde noch einmal oder direkt: ' + FALLBACK);
           return;
         }
 

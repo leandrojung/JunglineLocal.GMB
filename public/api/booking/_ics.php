@@ -80,7 +80,7 @@ function bkGoogleCalendarUrl(array $booking): string {
     $start = new DateTimeImmutable($booking['start_utc'], bkUtcTz());
     $end   = new DateTimeImmutable($booking['end_utc'], bkUtcTz());
 
-    $details = ['Kostenloses Erstgespräch — Thema: ' . bkTopic($booking)['thema'] . '.'];
+    $details = ['Kostenloses Erstgespräch. Thema: ' . bkTopic($booking)['thema'] . '.'];
     if (bkMeetingUrl() !== '') $details[] = 'Videoraum: ' . bkMeetingUrl();
     $details[] = 'Absagen oder verschieben: ' . bkManageUrl($booking['token']);
 

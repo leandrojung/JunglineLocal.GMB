@@ -41,7 +41,7 @@ export const zweige = {
     // nach denen Kunden selbst fragen — nicht die Fachbegriffe von oben.
     startscreenTitel: 'SEO-Optimierung',
     // Zusatzzeile nur auf dem Startscreen (etwas ausführlicher als oben).
-    startscreen: 'Ihr Google-Unternehmensprofil so aufstellen, dass Kunden Sie im Kartenbereich zuerst sehen — statt den Wettbewerb.',
+    startscreen: 'Ihr Google-Unternehmensprofil so aufstellen, dass Kunden Sie im Kartenbereich zuerst sehen, statt den Wettbewerb.',
     icon: '<path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/>',
     // aktiv: optionaler Pfadanfang, unter dem der Eintrag in der Leiste als
     // aktuelle Seite markiert wird (sonst gilt der Pfad aus href).
@@ -87,7 +87,7 @@ export const zweige = {
     // SEO-Zweig, wo sie auf /kontakt/#termin zeigt.
     terminHref: '/webdesign/kontakt/#termin',
     startscreenTitel: 'Webdesign',
-    startscreen: 'Ihre bestehende Website von Grund auf erneuern: schneller, klarer, auf dem Handy so gut wie am Rechner — und danach gepflegt.',
+    startscreen: 'Ihre bestehende Website von Grund auf erneuern: schneller, klarer, auf dem Handy so gut wie am Rechner, und danach gepflegt.',
     icon: '<rect x="2.5" y="4" width="19" height="14.5" rx="2.4"/><path d="M2.5 8.6h19"/><path d="M5.6 6.3h.01M8.1 6.3h.01M10.6 6.3h.01"/>',
     // "Über mich" und "Kontakt" sind eigene Seiten INNERHALB des Zweigs.
     // Vorher zeigten sie auf die gemeinsamen Seiten /ueber-mich/ und
@@ -100,7 +100,7 @@ export const zweige = {
       { href: '/webdesign/ueber-mich/', label: 'Über mich' },
       { href: '/webdesign/kontakt/', label: 'Kontakt' },
     ],
-    claim: '<b>Neu gebaut. Nicht neu gestrichen.</b> Ich erneuere Websites regionaler Unternehmen von Grund auf — und pflege sie danach weiter.',
+    claim: '<b>Neu gebaut. Nicht neu gestrichen.</b> Ich erneuere Websites regionaler Unternehmen von Grund auf und pflege sie danach weiter.',
     claimKlein: 'Webdesign, Relaunch &amp; Pflege · bundesweit',
     footerTitel: 'Webdesign',
     footerLinks: [

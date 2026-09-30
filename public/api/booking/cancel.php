@@ -120,7 +120,7 @@ if ($booking === null) {
 } elseif ($booking['status'] !== 'confirmed') {
     $heading = $done ? 'Termin abgesagt' : 'Dieser Termin ist bereits abgesagt';
     $lead = $done
-        ? 'Erledigt. Sie bekommen gleich eine Bestätigung per E-Mail — der Termin verschwindet damit auch aus Ihrem Kalender.'
+        ? 'Erledigt. Sie bekommen gleich eine Bestätigung per E-Mail. Der Termin verschwindet damit auch aus Ihrem Kalender.'
         : 'Der Termin wurde bereits storniert. Sie können sich jederzeit einen neuen aussuchen.';
     $state = 'cancelled';
 } else {
@@ -139,7 +139,7 @@ header('Content-Type: text/html; charset=utf-8');
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title><?= bkEsc($heading) ?> — Jungline Local</title>
+<title><?= bkEsc($heading) ?> | Jungline Local</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <style>
   /* Dieselben lokal gehosteten Schriften wie die Website. font-display:optional

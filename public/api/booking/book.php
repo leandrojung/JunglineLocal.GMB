@@ -143,11 +143,11 @@ try {
         bkSetEventId($booking['token'], $eventId);
         $booking['gcal_event_id'] = $eventId;
     } elseif (bkGoogleEnabled()) {
-        $warnings[] = 'Der Termin konnte nicht in den Google-Kalender eingetragen werden — bitte von Hand nachtragen.';
+        $warnings[] = 'Der Termin konnte nicht in den Google-Kalender eingetragen werden. Bitte von Hand nachtragen.';
     }
 } catch (Throwable $e) {
     error_log('booking/book: Google-Eintrag fehlgeschlagen — ' . $e->getMessage());
-    $warnings[] = 'Der Termin konnte nicht in den Google-Kalender eingetragen werden — bitte von Hand nachtragen.';
+    $warnings[] = 'Der Termin konnte nicht in den Google-Kalender eingetragen werden. Bitte von Hand nachtragen.';
 }
 
 // 3) Den alten Termin absagen — erst jetzt, wo der neue sicher steht.
@@ -182,7 +182,7 @@ try {
                    'bestaetigung');
     if (!$sent) {
         $warnings[] = 'Die Bestätigungsmail an ' . $booking['email']
-            . ' ging nicht sofort raus und liegt im Ausgangskorb — sie wird automatisch wiederholt.';
+            . ' ging nicht sofort raus und liegt im Ausgangskorb. Sie wird automatisch wiederholt.';
     }
 } catch (Throwable $e) {
     error_log('booking/book: Bestätigungsmail fehlgeschlagen — ' . $e->getMessage());

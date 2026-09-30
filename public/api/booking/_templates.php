@@ -75,7 +75,7 @@ function bkEmailShell(string $preheader, string $heading, string $content): stri
         . '</td></tr>'
         . '</table>'
         . '<div style="max-width:560px;margin:18px auto 0;font:400 12px/1.6 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:#8A93AC;text-align:center;">'
-        . 'Jungline Local — Leandro Jung · <a href="' . $site . '" style="color:#8A93AC;">jungline.de</a><br>'
+        . 'Jungline Local · Leandro Jung · <a href="' . $site . '" style="color:#8A93AC;">jungline.de</a><br>'
         . '<a href="' . $site . '/impressum/" style="color:#8A93AC;">Impressum</a> · '
         . '<a href="' . $site . '/datenschutz/" style="color:#8A93AC;">Datenschutz</a>'
         . '</div>'
@@ -165,14 +165,14 @@ function bkMailConfirmation(array $booking): array {
 
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
         . '<p style="margin:0;">Ihr Termin zum Thema <b>' . bkEsc($thema) . '</b> steht. '
-        . 'Alles Wichtige steht in der Übersicht — den Videoraum finden Sie dort ebenfalls.</p>'
+        . 'Alles Wichtige steht in der Übersicht. Den Videoraum finden Sie dort ebenfalls.</p>'
         . bkEmailFactBox($booking)
         // Als Knopf, nicht als Textlink: Es ist der einzige Link der Mail und
         // die einzige Handlung, die der Empfänger hier hat. Zusätzliche
         // Adressen entstehen dadurch nicht — es bleibt derselbe eine Link.
         . bkEmailButton(bkManageUrl($booking['token']), 'Termin in den Kalender eintragen')
         . '<p style="margin:10px 0 0;font-size:13px;">Auf derselben Seite können Sie den Termin '
-        . 'verschieben oder absagen — ohne dass Sie mir schreiben müssen.</p>'
+        . 'verschieben oder absagen, ohne dass Sie mir schreiben müssen.</p>'
         . '<p style="margin:18px 0 0;">Am Tag vor unserem Gespräch bekommen Sie von mir noch eine kurze Erinnerung.</p>'
         . '<p style="margin:18px 0 0;">Bis dahin!<br>Leandro</p>';
 
@@ -217,8 +217,8 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
         ['Thema', bkTopic($booking)['label']],
         ['Name', $booking['name']],
         ['E-Mail', $booking['email']],
-        ['Telefon', $booking['phone'] !== '' ? $booking['phone'] : '—'],
-        ['Firma / Ort', $booking['company'] !== '' ? $booking['company'] : '—'],
+        ['Telefon', $booking['phone'] !== '' ? $booking['phone'] : 'keine Angabe'],
+        ['Firma / Ort', $booking['company'] !== '' ? $booking['company'] : 'keine Angabe'],
     ];
 
     $content = '<p style="margin:0;">Neue Buchung über die Website.</p>'
@@ -251,8 +251,8 @@ function bkMailOwnerNotice(array $booking, string $warning = ''): array {
         . bkTextFacts($booking) . "\n\n"
         . "Name:    " . $booking['name'] . "\n"
         . "E-Mail:  " . $booking['email'] . "\n"
-        . "Telefon: " . ($booking['phone'] !== '' ? $booking['phone'] : '—') . "\n"
-        . "Firma:   " . ($booking['company'] !== '' ? $booking['company'] : '—') . "\n"
+        . "Telefon: " . ($booking['phone'] !== '' ? $booking['phone'] : 'keine Angabe') . "\n"
+        . "Firma:   " . ($booking['company'] !== '' ? $booking['company'] : 'keine Angabe') . "\n"
         . "Thema:   " . bkTopic($booking)['label'] . "\n\n"
         . (trim($booking['message']) !== '' ? "Anliegen:\n" . $booking['message'] . "\n\n" : '')
         . ($warning !== '' ? "ACHTUNG: " . $warning . "\n\n" : '')
@@ -307,10 +307,10 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
     $bookingUrl = bkBookingPageUrl($booking);
 
     if ($toOwner) {
-        $content = '<p style="margin:0;">Dieser Termin wurde abgesagt — der Slot ist wieder frei.</p>'
+        $content = '<p style="margin:0;">Dieser Termin wurde abgesagt. Der Slot ist wieder frei.</p>'
             . bkEmailFactBox($booking)
             . '<p style="margin:0;font-size:14px;">' . bkEsc($booking['name']) . ' · ' . bkEsc($booking['email']) . '</p>';
-        $text = "Termin abgesagt — der Slot ist wieder frei.\n\n"
+        $text = "Termin abgesagt. Der Slot ist wieder frei.\n\n"
             . bkTextFacts($booking) . "\n\n"
             . $booking['name'] . " · " . $booking['email'] . "\n";
         return [
@@ -322,7 +322,7 @@ function bkMailCancelled(array $booking, bool $toOwner): array {
 
     $firstName = bkFirstName($booking);
     $content = '<p style="margin:0 0 4px;">Hallo ' . bkEsc($firstName) . ',</p>'
-        . '<p style="margin:0;">Ihr Termin ist abgesagt — Sie müssen nichts weiter tun. Bitte denken Sie daran, ihn auch in Ihrem eigenen Kalender zu löschen.</p>'
+        . '<p style="margin:0;">Ihr Termin ist abgesagt. Sie müssen nichts weiter tun. Bitte denken Sie daran, ihn auch in Ihrem eigenen Kalender zu löschen.</p>'
         . bkEmailFactBox($booking)
         . '<p style="margin:0;">Wenn Sie mögen, suchen Sie sich einfach einen neuen Termin aus:</p>'
         . bkEmailButton($bookingUrl, 'Neuen Termin wählen')
@@ -360,8 +360,8 @@ function bkMailContactNotice(array $anfrage): array {
     $zeilen = [
         ['Name', $anfrage['name']],
         ['E-Mail', $anfrage['email']],
-        ['Telefon', $anfrage['phone'] !== '' ? $anfrage['phone'] : '—'],
-        ['Kam von', $anfrage['quelle'] !== '' ? $anfrage['quelle'] : '—'],
+        ['Telefon', $anfrage['phone'] !== '' ? $anfrage['phone'] : 'keine Angabe'],
+        ['Kam von', $anfrage['quelle'] !== '' ? $anfrage['quelle'] : 'keine Angabe'],
     ];
 
     $content = '<p style="margin:0;">Neue Nachricht über das Kontaktformular.</p>'
@@ -388,8 +388,8 @@ function bkMailContactNotice(array $anfrage): array {
     $text = "Neue Nachricht über das Kontaktformular.\n\n"
         . "Name:    " . $anfrage['name'] . "\n"
         . "E-Mail:  " . $anfrage['email'] . "\n"
-        . "Telefon: " . ($anfrage['phone'] !== '' ? $anfrage['phone'] : '—') . "\n"
-        . "Kam von: " . ($anfrage['quelle'] !== '' ? $anfrage['quelle'] : '—') . "\n\n"
+        . "Telefon: " . ($anfrage['phone'] !== '' ? $anfrage['phone'] : 'keine Angabe') . "\n"
+        . "Kam von: " . ($anfrage['quelle'] !== '' ? $anfrage['quelle'] : 'keine Angabe') . "\n\n"
         . "Nachricht:\n" . $anfrage['message'] . "\n"
         . (($anfrage['warnung'] ?? '') !== '' ? "\nACHTUNG: " . $anfrage['warnung'] . "\n" : '');
 
