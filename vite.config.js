@@ -103,6 +103,48 @@ function renderBausteineLeistungen() {
 // ("Ihr Betrieb", "Ihr Büro", …), die Wettbewerber-Namen aber überall identisch
 // bleiben. Token-Syntax: <!--RANKCARD_ILLU youLabel="…" ariaLabel="…"-->
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// KARTE IM STIL VON APPLE KARTEN
+//
+// Eine gezeichnete Karte statt echter Kartenkacheln: Apple-Karten dürfen nicht
+// als Bild eingebunden werden, und echte Kacheln kosten Ladezeit. Nachgebildet
+// ist nur die Gestaltung (helles Sandbeige als Land, sattes Hellblau für
+// Wasser, blasses Grün für Parks und Ufer, weiße Straßen mit grauer Kante,
+// kaum sichtbare Häuserblöcke, blaue kursive Gewässernamen, graue
+// Straßennamen in Versalien) — ohne Orte, Symbole und Beschriftungen von
+// Geschäften. Motiv: Lippe und Wesel-Datteln-Kanal wie in Dorsten.
+//
+// Eine Quelle für jede Karte der Seite (Hero, Kartenkarten der Unterseiten,
+// Umkreis-Karten, Live-Handy). Token: <!--MAPART-->. Farben stehen in
+// site.css (.amap …), damit sie an einer Stelle angepasst werden können.
+// ---------------------------------------------------------------------------
+function mapArt() {
+  const bloecke = [
+    [252,4,22,12],[278,6,18,10],[300,2,24,14],[330,8,20,10],[356,4,26,12],[386,6,18,12],
+    [258,28,16,10],[280,26,22,12],[308,30,18,9],[334,24,24,12],[364,28,20,10],
+    [6,108,20,12],[30,112,24,10],[58,106,18,12],[8,138,22,10],[34,140,20,8],[62,136,24,12],
+    [292,118,22,10],[320,114,18,12],[346,120,24,10],[378,116,20,12],[300,140,20,8],[330,138,24,10]
+  ].map(([x, y, w, h]) => `<rect class="amap__block" x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5"/>`).join('')
+  const strasse = (d, klasse) => `<path class="amap__case ${klasse}" d="${d}"/><path class="amap__road ${klasse}" d="${d}"/>`
+  return `<svg class="amap" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <rect class="amap__land" width="400" height="150"/>
+            <g>${bloecke}</g>
+            <path class="amap__park" d="M-4 -4H128Q142 16 126 34Q96 52 44 48Q14 46-4 40Z"/>
+            <path class="amap__park" d="M196 112Q226 104 262 110Q282 124 270 150H190Q184 124 196 112Z"/>
+            <path class="amap__bank" d="M-10 70C80 52 170 60 250 78S360 92 410 84"/>
+            <path class="amap__bank amap__bank--kanal" d="M-10 99C90 85 190 93 270 105S370 113 410 107"/>
+            <path class="amap__water" d="M-10 70C80 52 170 60 250 78S360 92 410 84"/>
+            <path class="amap__water amap__water--kanal" d="M-10 99C90 85 190 93 270 105S370 113 410 107"/>
+            ${strasse('M300 -4L286 62M338 -4L332 60M250 16L242 64M40 104L58 154M104 106L96 154M150 110L156 154', 'amap--min')}
+            <path class="amap__rail" d="M-10 44C120 52 260 36 410 46"/><path class="amap__rail amap__rail--dash" d="M-10 44C120 52 260 36 410 46"/>
+            ${strasse('M-10 22C90 30 220 14 410 20M-10 132C110 124 240 140 410 128', 'amap--mid')}
+            ${strasse('M176 -10C168 40 172 84 188 160', 'amap--main')}
+            <text class="amap__wlabel" x="226" y="75" transform="rotate(10 226 75)">Lippe</text>
+            <text class="amap__slabel" x="74" y="128.5" transform="rotate(-2 74 128)">LIPPESTRASSE</text>
+            <text class="amap__slabel" x="238" y="17.5" transform="rotate(-1 238 17)">HALTERNER STR.</text>
+          </svg>`
+}
+
 function renderRankcardIllu(youLabel, ariaLabel) {
   const [c1, c2] = rankcardCompetitors
   // Die Fussnote steht INNERHALB der Karte. Als Geschwister stand sie im
@@ -110,11 +152,7 @@ function renderRankcardIllu(youLabel, ariaLabel) {
   // Zeile — links unter dem Text, weit weg von der Karte, zu der sie gehoert.
   return `<div class="illu illu-localpack" role="img" aria-label="${ariaLabel}">
         <div class="map" aria-hidden="true">
-          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice">
-            <path class="water" d="M-10 96 Q 90 80 180 100 T 410 88 L410 130 L-10 130 Z"/>
-            <path class="road" d="M-10 30 Q 120 50 200 20 T 410 40"/>
-            <path class="road thin" d="M-10 70 Q 150 54 250 76 T 410 64"/>
-          </svg>
+          ${mapArt()}
           <div class="pin">
             <span class="pulse"></span>
             <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#3D50C8"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
@@ -357,6 +395,7 @@ function sharedShell() {
     '<!--BRANCHEN_GRID_HOME-->': renderBranchenGridHome,
     '<!--BRANCHEN_GRID_LEISTUNGEN-->': renderBranchenGridLeistungen,
     '<!--BK_SKELETON-->': renderBookingSkeleton,
+    '<!--MAPART-->': mapArt,
   }
   return {
     name: 'jungline-shared-shell',
