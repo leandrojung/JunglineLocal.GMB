@@ -1541,7 +1541,7 @@
   Array.prototype.forEach.call(opts, function(b){
     b.addEventListener('click', function(){ zeige(b.getAttribute('data-gsp-show')); });
   });
-  // Wischen nach links zeigt Platz 3, nach rechts Platz 1 — nur eindeutig
+  // Wischen nach links zeigt Platz 11, nach rechts Platz 1 — nur eindeutig
   // waagerechte Gesten, damit normales Scrollen nie umschaltet.
   var grid = stage.querySelector('.gsp__grid');
   if(grid && opts.length){
