@@ -2077,8 +2077,15 @@
     }
     return false;
   };
+  // Nur plausible Daten zeigen: echtes Datum, echte Uhrzeit, nicht in der
+  // Vergangenheit. Alles andere (Fehler, leere oder kaputte Antwort) lässt
+  // den neutralen Satz aus dem HTML stehen — nie eine ausgedachte Zeit.
+  var plausibel = function(slot){
+    return !!slot && /^\d{4}-\d{2}-\d{2}$/.test(slot.date) && /^\d{2}:\d{2}$/.test(slot.time || '')
+      && /^\d{4}-\d{2}-\d{2}$/.test(slot.today || '') && dayDiff(slot.today, slot.date) >= 0;
+  };
   var show = function(slot){
-    if(!slot || !slot.date || !canSwap()) return;
+    if(!plausibel(slot) || !canSwap()) return;
     var b = document.createElement('b');
     b.textContent = label(slot) + ', ' + slot.time + ' Uhr';
     tx.textContent = 'Nächster freier Termin: ';
