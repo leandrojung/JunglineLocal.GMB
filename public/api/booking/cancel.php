@@ -139,7 +139,7 @@ header('Content-Type: text/html; charset=utf-8');
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title><?= bkEsc($heading) ?> — JunglineLocal</title>
+<title><?= bkEsc($heading) ?> — Jungline Local</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <style>
   /* Dieselben lokal gehosteten Schriften wie die Website. font-display:optional

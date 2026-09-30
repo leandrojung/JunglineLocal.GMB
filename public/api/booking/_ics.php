@@ -124,7 +124,7 @@ function bkIcs(array $booking, string $method = 'REQUEST'): string {
     $lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//JunglineLocal//Terminbuchung//DE',
+        'PRODID:-//Jungline Local//Terminbuchung//DE',
         'CALSCALE:GREGORIAN',
         'METHOD:' . $method,
         'BEGIN:VEVENT',

@@ -36,7 +36,7 @@ const BK_BUFFER_MIN   = 0;       // Puffer vor/nach einem Termin
 // TEMPORÄR für Live-Tests am 05.09. hochgesetzt (war 3) — danach zurückstellen.
 const BK_RATE_PER_IP_DAY = 20;
 
-const BK_TITLE    = 'Kostenloses Erstgespräch — JunglineLocal';
+const BK_TITLE    = 'Kostenloses Erstgespräch — Jungline Local';
 const BK_DURATION_LABEL = '30 Minuten';
 
 /**
@@ -60,14 +60,14 @@ const BK_TOPICS = [
     'seo' => [
         'label' => 'Google-Unternehmensprofil',
         'kurz'  => 'Google-Profil',
-        'titel' => 'Erstgespräch Google-Profil — JunglineLocal',
+        'titel' => 'Erstgespräch Google-Profil — Jungline Local',
         'thema' => 'Optimierung Ihres Google-Unternehmensprofils',
         'seite' => '/kontakt/#termin',
     ],
     'webdesign' => [
         'label' => 'Webdesign & Relaunch',
         'kurz'  => 'Webdesign',
-        'titel' => 'Erstgespräch Webdesign — JunglineLocal',
+        'titel' => 'Erstgespräch Webdesign — Jungline Local',
         'thema' => 'Ihre neue Website',
         'seite' => '/webdesign/kontakt/#termin',
     ],
@@ -178,7 +178,7 @@ function bkOwnerEmail(): string {
 }
 
 function bkOwnerName(): string {
-    return envValue('OWNER_NAME') ?? 'Leandro Jung — JunglineLocal';
+    return envValue('OWNER_NAME') ?? 'Leandro Jung — Jungline Local';
 }
 
 function bkSiteUrl(): string {

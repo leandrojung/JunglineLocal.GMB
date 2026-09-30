@@ -12,7 +12,7 @@
 # DEUTSCH
 # =========================================================================
 #
-# Rechteinhaber:  Leandro Jung / JunglineLocal
+# Rechteinhaber:  Leandro Jung / Jungline Local
 # Anschrift:      Rhader Straße 132, 46286 Dorsten, Deutschland
 # Kontakt:        Info@jungline.de
 # Betrifft:       sämtliche Inhalte unter https://jungline.de/ und allen
@@ -58,7 +58,7 @@
 # ENGLISH
 # =========================================================================
 #
-# Rights holder: Leandro Jung / JunglineLocal
+# Rights holder: Leandro Jung / Jungline Local
 # Address:       Rhader Strasse 132, 46286 Dorsten, Germany
 # Contact:       Info@jungline.de
 # Scope:         all content at https://jungline.de/ and all sub-pages —
@@ -110,5 +110,5 @@ Allow: search
 TDM-Reservation: 1
 TDM-Policy: https://jungline.de/nutzungsbedingungen/
 Contact: Info@jungline.de
-Copyright: (c) 2026 Leandro Jung / JunglineLocal. Alle Rechte vorbehalten.
+Copyright: (c) 2026 Leandro Jung / Jungline Local. Alle Rechte vorbehalten.
 Last-Updated: 2026-08-09

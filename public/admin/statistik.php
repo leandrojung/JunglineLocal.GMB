@@ -50,7 +50,7 @@ $liste = static function (array $werte, int $max = 12) use ($h): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Statistik · JunglineLocal</title>
+<title>Statistik · Jungline Local</title>
 <style>
   :root{--bg:#F5F5F7;--card:#fff;--ink:#1D1D1F;--dim:#6E6E73;--line:#E3E3E8;--brand:#3D50C8;--bar:rgba(61,80,200,.12)}
   @media (prefers-color-scheme:dark){:root{--bg:#0A0D1F;--card:#151A36;--ink:#F4F5FB;--dim:rgba(232,235,248,.6);--line:rgba(255,255,255,.1);--brand:#AEBBFF;--bar:rgba(174,187,255,.16)}}

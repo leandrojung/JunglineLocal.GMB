@@ -51,7 +51,7 @@ function bkMailFrom(): string {
 }
 
 function bkMailFromName(): string {
-    return envValue('MAIL_FROM_NAME') ?? 'JunglineLocal';
+    return envValue('MAIL_FROM_NAME') ?? 'Jungline Local';
 }
 
 /**

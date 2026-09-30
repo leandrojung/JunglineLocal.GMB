@@ -75,7 +75,7 @@ function bkEmailShell(string $preheader, string $heading, string $content): stri
         . '</td></tr>'
         . '</table>'
         . '<div style="max-width:560px;margin:18px auto 0;font:400 12px/1.6 -apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:#8A93AC;text-align:center;">'
-        . 'JunglineLocal — Leandro Jung · <a href="' . $site . '" style="color:#8A93AC;">jungline.de</a><br>'
+        . 'Jungline Local — Leandro Jung · <a href="' . $site . '" style="color:#8A93AC;">jungline.de</a><br>'
         . '<a href="' . $site . '/impressum/" style="color:#8A93AC;">Impressum</a> · '
         . '<a href="' . $site . '/datenschutz/" style="color:#8A93AC;">Datenschutz</a>'
         . '</div>'
@@ -199,7 +199,7 @@ function bkMailConfirmation(array $booking): array {
     // mit dem sichtbaren Inhalt — versteckter Text, der etwas anderes sagt
     // als die Mail, ist ein klassisches Filtersignal.
     return [
-        'subject' => 'Ihr Termin bei JunglineLocal (' . bkTopic($booking)['kurz'] . ')',
+        'subject' => 'Ihr Termin bei Jungline Local (' . bkTopic($booking)['kurz'] . ')',
         'html' => bkEmailShell('Ihr Termin steht.', 'Ihr Termin steht', $content),
         'text' => $text,
     ];

@@ -36,7 +36,7 @@
 import { readdirSync, statSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, extname } from 'node:path'
 
-const HOLDER = 'Leandro Jung / JunglineLocal'
+const HOLDER = 'Leandro Jung / Jungline Local'
 const YEAR = new Date().getFullYear()
 const COPYRIGHT = `© ${YEAR} ${HOLDER}. Alle Rechte vorbehalten.`
 const DESCRIPTION = 'Nutzung nur mit schriftlicher Genehmigung. Text und Data Mining vorbehalten (§ 44b Abs. 3 UrhG) — https://jungline.de/nutzungsbedingungen/'
@@ -182,7 +182,7 @@ function pngTextChunk(keyword, text) {
 
 function stampPng(buf) {
   if (buf.length < 8 || !buf.slice(0, 8).equals(PNG_SIGNATURE)) return null
-  if (buf.includes(Buffer.from('JunglineLocal', 'latin1'))) return null // schon gestempelt
+  if (buf.includes(Buffer.from(HOLDER, 'latin1'))) return null // schon gestempelt
 
   // Erster Chunk muss IHDR sein; direkt dahinter wird eingefügt.
   const ihdrLength = buf.readUInt32BE(8)
@@ -203,7 +203,7 @@ function stampPng(buf) {
 // ---------------------------------------------------------------------------
 
 function stampSvg(text) {
-  if (text.includes('JunglineLocal')) return null
+  if (text.includes(HOLDER)) return null
 
   const open = text.match(/<svg\b[^>]*>/)
   if (!open) return null

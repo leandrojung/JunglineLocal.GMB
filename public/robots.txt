@@ -23,7 +23,7 @@
 # -------------------------------------------------------------------------
 # NUTZUNGSVORBEHALT FÜR TEXT UND DATA MINING (§ 44b Abs. 3 UrhG)
 #
-# Der Betreiber dieser Website, Leandro Jung / JunglineLocal, Rhader Straße
+# Der Betreiber dieser Website, Leandro Jung / Jungline Local, Rhader Straße
 # 132, 46286 Dorsten, behält sich hiermit ausdrücklich und in maschinen-
 # lesbarer Form die Nutzung sämtlicher Inhalte dieser Website — Texte,
 # Bilder, Grafiken, Layouts, Quellcode, strukturierte Daten — für Zwecke des
@@ -42,7 +42,7 @@
 #
 # TEXT AND DATA MINING RESERVATION (Sec. 44b (3) German Copyright Act)
 #
-# The operator of this website, Leandro Jung / JunglineLocal, Rhader Strasse
+# The operator of this website, Leandro Jung / Jungline Local, Rhader Strasse
 # 132, 46286 Dorsten, Germany, hereby expressly reserves, in machine-readable
 # form, the use of all content on this website — text, images, graphics,
 # layouts, source code and structured data — for the purposes of text and
