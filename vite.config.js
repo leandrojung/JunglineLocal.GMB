@@ -341,7 +341,7 @@ function renderZweigSwitch(aktivId) {
         <button class="zweig__btn" id="zweigBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="zweigMenu">
           <span class="zweig__btn-ic" aria-hidden="true">${zweigIcon(aktiv, 15, 2.1)}</span>
           <span class="zweig__btn-lb">${aktiv.kurz}</span>
-          <span class="u-sr">— Bereich wechseln</span>
+          <span class="u-sr">, Bereich wechseln</span>
           ${SVG_CHEVRON}
         </button>
         <div class="zweig__menu" id="zweigMenu" role="menu" aria-labelledby="zweigBtn">
@@ -375,8 +375,11 @@ function renderZweigWechsel(aktivId) {
 
 function renderNav(aktivId) {
   const aktiv = zweige[aktivId]
-  const links = aktiv.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join('\n      ')
-  const mobil = aktiv.links.map((l) => `<a href="${l.href}">${l.label}</a>`).join('\n  ')
+  // data-aktiv: Pfadanfang, unter dem der Eintrag als aktuelle Seite gilt
+  // (z. B. "Branchen" auch auf /branchen/handwerker/). site.js liest es aus.
+  const link = (l) => `<a href="${l.href}"${l.aktiv ? ` data-aktiv="${l.aktiv}"` : ''}>${l.label}</a>`
+  const links = aktiv.links.map(link).join('\n      ')
+  const mobil = aktiv.links.map(link).join('\n  ')
   return fuellen(partial('nav.html'), {
     ZWEIG: aktiv.id,
     ZWEIG_KURZ: aktiv.kurz,

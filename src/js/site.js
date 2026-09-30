@@ -1169,22 +1169,104 @@
     });
   });
 
-  // Scrollspy: aktive Sektion in der Navigation markieren
-  var spyLinks = document.querySelectorAll('.nav__links a[href^="#"]');
-  if(spyLinks.length && 'IntersectionObserver' in window){
-    var byId = {};
-    spyLinks.forEach(function(a){ byId[a.getAttribute('href').slice(1)] = a; });
-    var setActive = function(id){
-      spyLinks.forEach(function(a){ a.classList.remove('active'); a.removeAttribute('aria-current'); });
-      if(byId[id]){ byId[id].classList.add('active'); byId[id].setAttribute('aria-current','true'); }
-    };
-    var spy = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){ if(e.isIntersecting) setActive(e.target.id); });
-    }, {rootMargin:'-35% 0px -55% 0px'});
-    Object.keys(byId).forEach(function(id){
-      var sec = document.getElementById(id);
-      if(sec) spy.observe(sec);
+  // Navigationsleiste: aktuelle Seite und gleitende Pillen.
+  // Unterseiten werden über den Pfad erkannt ("Über mich", "Kontakt", mit
+  // data-aktiv auch ganze Bereiche wie /branchen/). Auf der Startseite eines
+  // Zweigs zeigen Einträge wie "/webdesign/#preise" auf Abschnitte derselben
+  // Seite. Dort wandert die gefüllte Pille beim Scrollen mit dem Abschnitt,
+  // in dem man gerade liest. Die blasse Pille folgt Maus und Tastaturfokus.
+  var navLinks = document.querySelector('.nav__links');
+  var navBrand = document.querySelector('.nav .brand');
+  if(navLinks && navBrand){
+    var eintraege = Array.prototype.slice.call(navLinks.querySelectorAll('a'));
+    var mobilEintraege = menu ? Array.prototype.slice.call(menu.querySelectorAll(':scope > a:not(.btn)')) : [];
+    var zweigStart = navBrand.getAttribute('href');
+    var hier = window.location.pathname.replace(/index\.html$/, '');
+    var seitenTreffer = -1;
+    var abschnitte = [];
+    eintraege.forEach(function(a, i){
+      var url = new URL(a.getAttribute('href'), window.location.href);
+      var basis = a.getAttribute('data-aktiv') || url.pathname;
+      if(url.hash && url.pathname === hier){
+        var el = document.getElementById(url.hash.slice(1));
+        if(el) abschnitte.push({i:i, el:el});
+      } else if(basis !== zweigStart && hier.indexOf(basis) === 0){
+        seitenTreffer = i;
+      }
     });
+
+    var pille = function(art){
+      var p = document.createElement('span');
+      p.className = 'nav__glide nav__glide--' + art;
+      p.setAttribute('aria-hidden', 'true');
+      navLinks.insertBefore(p, navLinks.firstChild);
+      return p;
+    };
+    // Reihenfolge im DOM: die blasse Pille zuerst, die gefüllte liegt darüber.
+    var aktivPille = pille('active');
+    var hoverPille = pille('hover');
+    navLinks.classList.add('has-glide');
+
+    var setze = function(p, a, sofort){
+      if(!a || !a.offsetWidth){ p.classList.remove('is-on'); return; }
+      // Taucht die Pille neu auf, springt sie an ihren Platz und blendet dort
+      // ein, statt vom linken Rand herüberzufliegen.
+      var springen = sofort || !p.classList.contains('is-on');
+      if(springen) p.classList.add('no-anim');
+      p.style.setProperty('--x', a.offsetLeft + 'px');
+      p.style.setProperty('--w', a.offsetWidth + 'px');
+      if(springen){ void p.offsetWidth; p.classList.remove('no-anim'); }
+      p.classList.add('is-on');
+    };
+
+    var aktiv = -2;
+    var markiere = function(i, sofort){
+      if(i === aktiv && !sofort) return;
+      aktiv = i;
+      eintraege.forEach(function(a, k){
+        if(k === i) a.setAttribute('aria-current', seitenTreffer === i ? 'page' : 'true');
+        else a.removeAttribute('aria-current');
+      });
+      mobilEintraege.forEach(function(a, k){ a.classList.toggle('active', k === i); });
+      setze(aktivPille, eintraege[i], sofort);
+    };
+
+    var abschnittJetzt = function(){
+      var linie = window.innerHeight * 0.4, treffer = -1;
+      abschnitte.forEach(function(s){
+        var r = s.el.getBoundingClientRect();
+        if(r.top <= linie && r.bottom > linie) treffer = s.i;
+      });
+      return treffer;
+    };
+    var aktualisiere = function(sofort){
+      markiere(seitenTreffer > -1 ? seitenTreffer : abschnittJetzt(), sofort);
+    };
+    aktualisiere(true);
+
+    if(seitenTreffer < 0 && abschnitte.length){
+      var spyWartet = false;
+      window.addEventListener('scroll', function(){
+        if(spyWartet) return;
+        spyWartet = true;
+        requestAnimationFrame(function(){ spyWartet = false; aktualisiere(false); });
+      }, {passive:true});
+    }
+
+    eintraege.forEach(function(a){
+      a.addEventListener('mouseenter', function(){ setze(hoverPille, a); });
+      a.addEventListener('focus', function(){ setze(hoverPille, a); });
+    });
+    navLinks.addEventListener('mouseleave', function(){ setze(hoverPille, null); });
+    navLinks.addEventListener('focusout', function(e){
+      if(!navLinks.contains(e.relatedTarget)) setze(hoverPille, null);
+    });
+
+    // Breite und Lage der Einträge ändern sich, wenn die Schrift nachlädt oder
+    // das Fenster seine Größe ändert.
+    var neuVermessen = function(){ aktualisiere(true); };
+    window.addEventListener('resize', neuVermessen);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(neuVermessen);
   }
 
   // Sticky Mobile-CTA: nach dem Hero zeigen, im Kontaktbereich und im

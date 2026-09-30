@@ -115,7 +115,11 @@
   /* Masse */
   --maxw:1200px;
   --gutter:clamp(20px,3.4vw,32px);
-  --nav-h:68px;
+  /* Die Leiste schwebt: --nav-top Abstand nach oben, --nav-bar ihre Höhe,
+     --nav-h der Platz, den sie oben insgesamt belegt. */
+  --nav-top:12px;
+  --nav-bar:60px;
+  --nav-h:calc(var(--nav-top) + var(--nav-bar));
   --r:18px;
   --r-lg:26px;
   --r-xl:34px;
@@ -436,26 +440,33 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 }
 
 /* ============ 3  NAVIGATION ============
-   Jede Seite beginnt auf einer dunklen Fläche (Hero bzw. Seitenkopf). Die
-   Leiste ist dort durchsichtig mit heller Schrift und wird beim Scrollen zur
-   hellen Milchglas-Leiste — dieselbe Materiallogik wie bei Apple: kräftiger
-   Blur mit Sättigungs-Boost, darunter nur eine Haarlinie.
+   Eine schwebende, abgerundete Leiste mit Abstand zum Rand. Die aktuelle
+   Seite steht als gefüllte Pille in der Markenfarbe darin, eine zweite, blasse
+   Pille gleitet beim Überfahren von Eintrag zu Eintrag (site.js setzt beide).
+   Jede Seite beginnt auf einer dunklen Fläche (Hero bzw. Seitenkopf). Dort
+   ist die Leiste dunkles Glas mit heller Schrift, beim Scrollen wird sie zur
+   hellen Milchglas-Leiste: kräftiger Blur mit Sättigungs-Boost wie bei Apple.
    Seiten mit hellem Kopf setzen body[data-top="light"]. */
 .skip-link{position:fixed;top:-60px;left:12px;z-index:210;background:var(--brand);color:#fff;
   padding:12px 20px;border-radius:12px;font-weight:600;font-size:.94rem;transition:top .25s var(--ease-out)}
 .skip-link:focus{top:12px}
 
-.nav{position:fixed;top:0;left:0;right:0;z-index:var(--z-nav);height:var(--nav-h);
-  color:#fff;border-bottom:1px solid transparent;
-  transition:background-color .35s var(--ease),border-color .35s,box-shadow .35s,color .35s}
-.nav.scrolled,.nav.open,body[data-top="light"] .nav{
-  color:var(--ink);
-  background:rgba(255,255,255,.78);
+/* Die Fläche um die Leiste herum lässt Klicks durch, nur die Leiste selbst
+   nimmt sie an. */
+.nav{position:fixed;top:var(--nav-top);left:0;right:0;z-index:var(--z-nav);height:var(--nav-bar);
+  color:#fff;pointer-events:none;transition:color .35s}
+.nav__wrap{height:100%}
+.nav__inner{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:20px;height:100%;
+  padding:0 10px 0 12px;border-radius:22px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
   -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
-  border-bottom-color:rgba(14,17,34,.07);
-}
-.nav.open{background:#fff}
-.nav__inner{display:flex;align-items:center;justify-content:space-between;gap:20px;height:100%}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 14px 34px -18px rgba(0,0,0,.55);
+  transition:background-color .35s var(--ease),border-color .35s,box-shadow .35s}
+.nav.scrolled,.nav.open,body[data-top="light"] .nav{color:var(--ink)}
+.nav.scrolled .nav__inner,.nav.open .nav__inner,body[data-top="light"] .nav .nav__inner{
+  background:rgba(255,255,255,.84);border-color:rgba(14,17,34,.07);
+  box-shadow:0 1px 2px rgba(14,17,34,.05),0 16px 38px -18px rgba(14,17,34,.26)}
+.nav.open .nav__inner{background:#fff}
 .nav__lead{display:flex;align-items:center;gap:14px;min-width:0}
 
 .brand{display:flex;align-items:center;gap:10px;flex:none}
@@ -470,14 +481,27 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .brand__name b{font-weight:700;color:var(--brand-on-dark);transition:color .35s}
 .nav.scrolled .brand__name b,.nav.open .brand__name b,body[data-top="light"] .nav .brand__name b{color:var(--brand)}
 
-.nav__links{display:flex;align-items:center;gap:30px}
-.nav__links a{position:relative;font-size:.93rem;font-weight:500;letter-spacing:-.01em;opacity:.78;transition:opacity .2s}
-.nav__links a:hover,.nav__links a.active{opacity:1}
-.nav__links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1.5px;border-radius:2px;
-  background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease)}
-.nav__links a:hover::after,.nav__links a.active::after{transform:scaleX(1)}
+.nav__links{position:relative;display:flex;align-items:center;gap:2px}
+.nav__links a{position:relative;z-index:1;display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;
+  font-size:.93rem;font-weight:500;letter-spacing:-.01em;opacity:.8;
+  transition:opacity .2s,color var(--dur-ui) var(--ease-apple)}
+.nav__links a:hover{opacity:1}
+/* Aktuelle Seite. Ohne Skript trägt der Eintrag die Pille selbst, mit Skript
+   übernimmt das die gleitende Pille dahinter. */
+.nav__links a[aria-current]{opacity:1;color:#fff;font-weight:600}
+.nav__links:not(.has-glide) a[aria-current]{background:var(--brand)}
+.nav__glide{position:absolute;top:50%;left:0;height:40px;margin-top:-20px;border-radius:999px;pointer-events:none;
+  width:var(--w,0px);transform:translateX(var(--x,0px));opacity:0;
+  transition:transform .5s var(--ease-apple),width .5s var(--ease-apple),opacity .25s,background-color .35s}
+.nav__glide.is-on{opacity:1}
+.nav__glide.no-anim{transition:none}
+.nav__glide--hover{background:rgba(255,255,255,.1)}
+.nav.scrolled .nav__glide--hover,body[data-top="light"] .nav .nav__glide--hover{background:rgba(14,17,34,.055)}
+.nav__glide--active{background:var(--brand);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 20px -10px rgba(var(--brand-rgb),.85)}
+@media(prefers-reduced-motion:reduce){.nav__glide{transition:opacity .2s}}
 .nav__right{display:flex;align-items:center;gap:12px}
-.nav__cta-desktop{padding:10px 18px;font-size:.92rem}
+.nav__cta-desktop{height:42px;padding:0 20px;font-size:.92rem}
 
 .nav__toggle{display:none;width:44px;height:44px;margin-right:-8px;background:none;border:0;cursor:pointer;color:inherit}
 .nav__toggle span{display:block;width:20px;height:1.8px;margin:5px auto;border-radius:2px;background:currentColor;
@@ -526,10 +550,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
    und ein Wischen dort scrollte die Seite dahinter. Jetzt deckt das Blatt
    alles ab, die Seite steht still (html.menu-open, site.js), und unten sitzen
    in Daumenhöhe Termin, Anruf und E-Mail. */
-.mobile-menu{position:fixed;left:0;right:0;top:var(--nav-h);bottom:0;z-index:var(--z-menu);
+.mobile-menu{position:fixed;left:0;right:0;top:0;bottom:0;z-index:var(--z-menu);
   display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;
   background:#fff;color:#0E1122;
-  padding:6px var(--gutter) calc(20px + env(safe-area-inset-bottom,0px));
+  padding:calc(var(--nav-h) + 6px) var(--gutter) calc(20px + env(safe-area-inset-bottom,0px));
   visibility:hidden;transform:translateY(-10px);opacity:0;
   transition:opacity .3s var(--ease-apple),transform .4s var(--ease-apple),visibility 0s linear .4s}
 .mobile-menu.show{visibility:visible;transform:none;opacity:1;transition-delay:0s}
@@ -566,14 +590,16 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .mobile-menu .zweig-seg__opt.is-active svg{color:var(--brand);opacity:1}
 
 @media(max-width:1060px){
-  .nav__links{gap:22px}
+  .nav__links a{padding:0 12px}
 }
 @media(max-width:960px){
   .nav__links,.nav__cta-desktop{display:none}
   .nav__toggle{display:block}
 }
 @media(max-width:640px){
-  :root{--nav-h:60px}
+  :root{--nav-top:8px;--nav-bar:56px}
+  .nav__wrap{padding:0 10px}
+  .nav__inner{border-radius:18px;padding:0 6px 0 10px}
   .zweig{display:none}
   .brand__tile{width:34px;height:34px}
 }
@@ -1960,6 +1986,93 @@ body[data-zweig="webdesign"] .pagehead{
 .related__list svg{flex:none}
 .related .branchen-grid{margin-top:4px}
 .related__lead{color:var(--dim);font-size:.98rem;margin:-4px 0 14px}
+
+/* ---- Seitenbausteine: Kacheln, Geschichte, Hinweise ----
+   Für Unterseiten, die sonst aus langen Absätzen bestünden. Aufzählungen
+   werden zu Kacheln mit Symbol, eine Erzählung zu einer Folge von Schritten.
+   Auf grauen Abschnitten (.section--soft) sind die Kacheln weiss, auf weissen
+   grau. */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:var(--sp-head)}
+.tiles--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tile{display:flex;flex-direction:column;gap:10px;padding:30px 28px 28px;border-radius:var(--r-xl);background:var(--bg-soft);color:var(--ink);
+  transition:transform var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui),background-color var(--dur-ui)}
+.section--soft .tile{background:#fff}
+@media(hover:hover){.tile:hover{transform:translateY(-3px);background:#fff;box-shadow:var(--elev-2)}}
+.tile__ic{display:flex;align-items:center;justify-content:center;flex:none;width:46px;height:46px;margin-bottom:8px;border-radius:13px;
+  background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(0,0,0,.06),0 6px 16px -10px rgba(var(--brand-rgb),.5)}
+.section--soft .tile__ic{background:rgba(var(--brand-rgb),.08);box-shadow:none}
+.tile h3{font-size:1.22rem;letter-spacing:-.025em;line-height:1.25}
+.tile p{color:var(--dim);font-size:.99rem;line-height:1.62}
+/* Kachel als Verweis: gefüllt in der Markenfarbe, der Pfeil unten */
+.tile--link,.section--soft .tile--link{background:var(--brand);color:#fff;justify-content:space-between}
+.tile--link p{color:rgba(255,255,255,.84)}
+.tile--link .tile__ic,.section--soft .tile--link .tile__ic{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+.tile__go{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:14px;font-family:var(--font-display);
+  font-size:1.18rem;font-weight:700;letter-spacing:-.022em;line-height:1.25}
+.tile__go svg{flex:none;transition:transform var(--dur-ui) var(--ease-apple)}
+@media(hover:hover){
+  .tile--link:hover,.section--soft .tile--link:hover{background:var(--brand);box-shadow:0 22px 44px -22px rgba(var(--brand-rgb),.8)}
+  .tile--link:hover .tile__go svg{transform:translateX(4px)}
+}
+
+/* Erzählung neben dem Porträt: ein Satz zur Begrüssung, darunter die
+   Absätze als Schritte mit Symbol, verbunden durch eine feine Linie. */
+.about__text .about__hello{font-family:var(--font-display);font-size:clamp(1.55rem,2.5vw,2.05rem);font-weight:700;letter-spacing:-.03em;
+  line-height:1.15;color:var(--ink);margin-bottom:28px;max-width:none}
+.about__text .about__hello .mark{color:var(--brand);font-weight:700}
+.story{list-style:none;margin:0;padding:0;display:grid;gap:26px}
+.story__item{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:18px;align-items:start}
+.story__item:not(:last-child)::before{content:"";position:absolute;left:21.5px;top:54px;bottom:-18px;width:1px;background:var(--border)}
+.story__ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;
+  background:rgba(var(--brand-rgb),.08);color:var(--brand)}
+.about__text .story__item p{margin:0;padding-top:8px;font-size:1.05rem;line-height:1.65;max-width:54ch}
+
+/* Hinweise: kurze Absätze, die neben Kacheln stehen, ohne eigene Überschrift */
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+.notes--single{grid-template-columns:1fr}
+.note{display:flex;align-items:flex-start;gap:16px;padding:24px 26px;border-radius:var(--r-lg);background:var(--bg-soft)}
+.section--soft .note{background:#fff}
+.note svg{flex:none;margin-top:2px;color:var(--brand)}
+.note p{color:var(--dim);font-size:.99rem;line-height:1.62}
+.note--accent,.section--soft .note--accent{background:rgba(var(--brand-rgb),.07);box-shadow:inset 0 0 0 1px rgba(var(--brand-rgb),.16)}
+.note--accent p{color:var(--ink)}
+
+/* Abschnitt mit knapper Luft oben, aber voller Luft unten: nötig, wenn das
+   nächste Blatt sich mit seiner runden Kante darüberschiebt. */
+.section--tight-top{padding:calc(var(--sp)*.56) 0 calc(var(--sp)*.56 + var(--sheet-r))}
+/* "Weiter zu" als erstes Element eines Abschnitts: ohne Trennlinie oben */
+.container > .related:first-child{margin-top:0;padding-top:0;border-top:0}
+.related + .ctaband,.related + * > .ctaband{margin-top:clamp(40px,5vw,64px)}
+
+/* Porträt in kleinerem Format neben einem Textblock (Stadtseiten) */
+.container > .bento + .about__grid{margin-top:clamp(72px,9vw,120px)}
+.container > .about__grid + .related{margin-top:clamp(64px,8vw,104px)}
+.prose-illu__text .callout{margin:22px 0 0}
+.about__text .about__more{margin:20px 0 0;font-size:.98rem;color:var(--dim-2)}
+.about__grid--compact{grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(36px,6vw,88px)}
+.about__grid--compact .about__text h2{font-size:clamp(1.7rem,3vw,2.4rem);letter-spacing:-.025em;margin-bottom:18px}
+.about__grid--compact .note{margin-top:8px;max-width:640px}
+.about__text .note p{margin:0;max-width:none;font-size:.99rem;line-height:1.62}
+.about__grid--compact .link-arrow{margin-top:22px}
+
+@media(max-width:960px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .about__grid--compact{grid-template-columns:1fr}
+  .about__grid--compact .portrait{max-width:340px}
+}
+@media(max-width:700px){
+  .tiles,.tiles--2,.notes{grid-template-columns:1fr}
+  .tile{padding:26px 22px 24px}
+}
+@media(max-width:640px){
+  .about__grid--compact .portrait{max-width:none}
+  .about__text .about__hello{margin-bottom:22px}
+  .story{gap:22px}
+  .story__item{grid-template-columns:40px minmax(0,1fr);gap:14px}
+  .story__ic{width:40px;height:40px;border-radius:12px}
+  .story__item:not(:last-child)::before{left:19.5px;top:50px}
+  .about__text .story__item p{padding-top:6px;font-size:1.02rem}
+}
 .ctaband-alt{margin-top:18px;text-align:center}
 
 /* Abschlussband jeder Unterseite */

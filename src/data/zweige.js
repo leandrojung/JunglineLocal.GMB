@@ -43,9 +43,11 @@ export const zweige = {
     // Zusatzzeile nur auf dem Startscreen (etwas ausführlicher als oben).
     startscreen: 'Ihr Google-Unternehmensprofil so aufstellen, dass Kunden Sie im Kartenbereich zuerst sehen — statt den Wettbewerb.',
     icon: '<path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"/><circle cx="12" cy="9.4" r="2.1"/>',
+    // aktiv: optionaler Pfadanfang, unter dem der Eintrag in der Leiste als
+    // aktuelle Seite markiert wird (sonst gilt der Pfad aus href).
     links: [
-      { href: '/leistungen/google-unternehmensprofil-optimierung/', label: 'Leistungen' },
-      { href: '/#branchen', label: 'Branchen' },
+      { href: '/leistungen/google-unternehmensprofil-optimierung/', label: 'Leistungen', aktiv: '/leistungen/' },
+      { href: '/#branchen', label: 'Branchen', aktiv: '/branchen/' },
       { href: '/ratgeber/', label: 'Ratgeber' },
       { href: '/ueber-mich/', label: 'Über mich' },
       { href: '/kontakt/', label: 'Kontakt' },
