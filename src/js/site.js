@@ -2201,4 +2201,80 @@
     }, {passive:true});
     setze();
   });
+  // ---- Arbeitsproben umschalten (Webdesign-Seite) ---------------------------
+  // Ohne JavaScript stehen beide Projekte untereinander. Mit JavaScript
+  // erscheint die Leiste, und ein Wisch in der Markenfarbe des Ziels (--case
+  // am Tab) leitet den Wechsel ein: Das Projekt wird getauscht, während der
+  // Wisch die Bühne ganz bedeckt. Pfeiltasten, Pos1 und Ende wie bei Tabs
+  // üblich; #case-gloria in der Adresse öffnet direkt das passende Projekt.
+  var cases = document.querySelector('.wd-cases');
+  var caseTabs = cases ? Array.prototype.slice.call(cases.querySelectorAll('[role="tab"]')) : [];
+  if(caseTabs.length > 1){
+    var caseReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var caseWipe = cases.querySelector('.wd-cases__wipe');
+    var caseBusy = false;
+    var casePanel = function(tab){ return document.getElementById(tab.getAttribute('aria-controls')); };
+    var caseShow = function(tab, animate){
+      caseTabs.forEach(function(t){
+        var on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        casePanel(t).hidden = !on;
+      });
+      var panel = casePanel(tab);
+      // Inhalte, die per Einblenden noch verborgen wären, gleich zeigen.
+      Array.prototype.forEach.call(panel.querySelectorAll('[data-reveal]'), function(el){ el.classList.add('in'); });
+      if(animate){
+        panel.classList.remove('is-entering');
+        void panel.offsetWidth;
+        panel.classList.add('is-entering');
+      }
+    };
+    var caseSelect = function(tab, focus){
+      if(focus) tab.focus();
+      if(caseBusy || tab.getAttribute('aria-selected') === 'true') return;
+      if(caseReduce || !caseWipe){ caseShow(tab, false); return; }
+      caseBusy = true;
+      caseWipe.style.setProperty('--wipe', getComputedStyle(tab).getPropertyValue('--case'));
+      caseWipe.firstElementChild.textContent = tab.querySelector('b').textContent;
+      caseWipe.classList.remove('is-run');
+      void caseWipe.offsetWidth;
+      caseWipe.classList.add('is-run');
+      setTimeout(function(){ caseShow(tab, true); }, 430);
+      setTimeout(function(){ caseWipe.classList.remove('is-run'); caseBusy = false; }, 920);
+    };
+    cases.classList.add('is-tabs');
+    cases.querySelector('[role="tablist"]').hidden = false;
+    var caseStart = caseTabs.filter(function(t){ return '#' + t.getAttribute('aria-controls') === location.hash; })[0] || caseTabs[0];
+    caseShow(caseStart, false);
+    caseTabs.forEach(function(tab, i){
+      tab.addEventListener('click', function(){ caseSelect(tab, false); });
+      tab.addEventListener('keydown', function(e){
+        var n = null;
+        if(e.key === 'ArrowRight') n = (i + 1) % caseTabs.length;
+        else if(e.key === 'ArrowLeft') n = (i - 1 + caseTabs.length) % caseTabs.length;
+        else if(e.key === 'Home') n = 0;
+        else if(e.key === 'End') n = caseTabs.length - 1;
+        if(n === null) return;
+        e.preventDefault();
+        caseSelect(caseTabs[n], true);
+      });
+    });
+    // Links auf ein Projekt (z. B. das Etikett im Hero): Der allgemeine
+    // Anker-Scroll oben findet das verborgene Feld nicht, darum hier ohne
+    // Wisch umschalten und zum Abschnitt fahren.
+    var caseJump = function(hash){
+      var t = caseTabs.filter(function(t){ return '#' + t.getAttribute('aria-controls') === hash; })[0];
+      if(!t) return false;
+      caseShow(t, false);
+      var y = cases.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({top:y, behavior: caseReduce ? 'auto' : 'smooth'});
+      return true;
+    };
+    document.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('a[href^="#case-"]');
+      if(a && caseJump(a.getAttribute('href'))) e.preventDefault();
+    });
+    window.addEventListener('hashchange', function(){ caseJump(location.hash); });
+  }
 })();
