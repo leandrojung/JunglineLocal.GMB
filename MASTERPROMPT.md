@@ -36,10 +36,10 @@ Repository (`src/css/site.css`, `src/js/site.js`, `index.html`, `partials/`,
   echte Logos, echte Arbeitsproben. Fehlen die, wird auch dieser Stil generisch.
   Dann lieber weniger Bausteine als aufgefüllte.
 - **Zwei Schwächen der eigenen Seite** habe ich bewusst *nicht* in die Regeln
-  übernommen: Im Schlusssatz stehen die drei Symbole am Desktop nicht in einer
-  Spalte (zentrierte Zeilen unterschiedlicher Länge), und die 76-%-Statistik
-  stammt von 2014. Der Prompt verlangt deshalb linksbündige Symbolspalten und
-  Quellen, die nicht älter als drei Jahre sind.
+  übernommen: Im Schlusssatz standen die drei Symbole am Desktop nicht in einer
+  Spalte (zentrierte Zeilen unterschiedlicher Länge; auf jungline.de inzwischen
+  behoben), und die 76-%-Statistik stammt von 2014. Der Prompt verlangt deshalb
+  linksbündige Symbolspalten und Quellen, die nicht älter als drei Jahre sind.
 - **Der Code in Teil B ist geprüft**: Alle CSS- und JS-Blöcke sind
   syntaktisch fehlerfrei (esbuild, Node). Zusätzlich habe ich nur aus den
   Snippets eine Demo-Seite für einen erfundenen Gartenbau-Kunden (Grün statt
