@@ -152,54 +152,25 @@ function renderReferenzen() {
 }
 
 // ---------------------------------------------------------------------------
-// KARTE IM STIL VON APPLE KARTEN
+// KARTE: LUFTBILD DER DORSTENER ALTSTADT
 //
-// Eine gezeichnete Karte statt echter Kartenkacheln: Apple-Karten dürfen nicht
-// als Bild eingebunden werden, und echte Kacheln kosten Ladezeit. Nachgebildet
-// ist nur die Gestaltung eines Stadtkerns in der hellen Darstellung von Apple
-// Karten: sandiges Land, feine Gebäudeumrisse, gelblich hinterlegte
-// Einkaufsstraßen, ein grauer Ring, weiße Gassen, ein grüner Wall mit
-// schmalem Wasserlauf, graue Straßennamen in Versalien — ohne Geschäfte,
-// Symbole und Orte. Motiv angelehnt an die Dorstener Altstadt.
+// Früher eine gezeichnete Karte im Stil von Apple Karten, jetzt auf Leandros
+// Wunsch ein Luftbild (Altstadt, Lippe und Kanal). Liegt in public/karte/ in
+// zwei Breiten als AVIF und WebP; die Kartenkästen sind höchstens rund 460 px
+// breit, das größere Bild reicht für Retina. object-fit:cover in site.css
+// (.amap) zeigt das Band um die Altstadt.
 //
-// Die Gebäude entstehen beim Build aus einem festen Zufallsstartwert: jedes
-// Mal dieselbe Karte, als EIN Pfad (klein, schnell). Farben in site.css
-// (.amap …). Token: <!--MAPART-->.
+// TODO(Leandro): Herkunft und Nutzungsrecht des Bildes klären. Ein Ausschnitt
+// aus Apple Karten oder Google Maps darf nicht auf die Website. Frei nutzbar
+// sind die Luftbilder von Geobasis NRW (DOP, Lizenz dl-de/zero-2-0), z. B.
+// über tim-online.nrw.de. Ersatz einfach unter denselben Dateinamen ablegen.
+// Token: <!--MAPART-->.
 // ---------------------------------------------------------------------------
-let mapArtCache = null
 function mapArt() {
-  if (mapArtCache) return mapArtCache
-  let seed = 7
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
-  let haeuser = ''
-  for (let y = 2; y < 150; y += 11) {
-    for (let x = 2; x < 400; x += 12) {
-      if (rnd() < 0.3) continue
-      const w = 5 + Math.round(rnd() * 5), h = 4 + Math.round(rnd() * 4)
-      const dx = Math.round(rnd() * 3), dy = Math.round(rnd() * 3)
-      haeuser += `M${x + dx} ${y + dy}h${w}v${h}h-${w}z`
-    }
-  }
-  const strasse = (d, k) => `<path class="amap__case ${k}" d="${d}"/><path class="amap__road ${k}" d="${d}"/>`
-  mapArtCache = `<svg class="amap" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-            <rect class="amap__land" width="400" height="150"/>
-            <path class="amap__shop" d="M158 -4H286L282 40Q270 78 238 90L166 92Q152 60 158 -4Z"/>
-            <path class="amap__bldg" d="${haeuser}"/>
-            <path class="amap__park" d="M-4 112Q40 100 88 108Q120 116 128 154H-4Z"/>
-            <path class="amap__park" d="M322 -4H410V40Q372 30 340 22Q326 12 322 -4Z"/>
-            <path class="amap__wall" d="M148 -10C136 30 138 70 158 100"/>
-            <path class="amap__wall" d="M292 -10C300 30 288 70 250 96"/>
-            <path class="amap__water" d="M288 26C288 54 276 76 252 90"/>
-            ${strasse('M186 -10L190 94M222 -10L226 92M252 -6L258 60M166 20L284 12M162 48L280 42M170 72L262 68M60 -10L70 60M100 -10L110 90M20 30L140 26M30 62L130 60M320 40L410 52M330 70L410 78M90 110L96 160M170 118L178 160M300 120L360 160', 'amap--min')}
-            ${strasse('M-10 18C60 22 110 10 150 8M-10 128L230 134M340 98L410 110', 'amap--mid')}
-            ${strasse('M-10 92C80 84 180 98 262 92S360 80 410 86M296 -10C318 30 326 64 298 98S246 136 228 160', 'amap--ring')}
-            <text class="amap__slabel" x="182" y="118" transform="rotate(88 182 118)">GAHLENER STR.</text>
-            <text class="amap__slabel" x="40" y="89" transform="rotate(-4 40 89)">GAHLENER STRASSE</text>
-            <text class="amap__slabel" x="200" y="45" transform="rotate(-3 200 45)">LIPPESTRASSE</text>
-            <text class="amap__slabel" x="303" y="36" transform="rotate(68 303 36)">WILLY-BRANDT-RING</text>
-            <text class="amap__slabel" x="228" y="67.5" transform="rotate(-2 228 67)">SÜDGRABEN</text>
-          </svg>`
-  return mapArtCache
+  return `<picture class="amap">
+            <source type="image/avif" srcset="/karte/dorsten-luftbild-640.avif 640w, /karte/dorsten-luftbild-1200.avif 1200w" sizes="(max-width:640px) 92vw, 460px">
+            <img src="/karte/dorsten-luftbild-1200.webp" srcset="/karte/dorsten-luftbild-640.webp 640w, /karte/dorsten-luftbild-1200.webp 1200w" sizes="(max-width:640px) 92vw, 460px" alt="" width="1200" height="832" loading="lazy" decoding="async">
+          </picture>`
 }
 
 function renderRankcardIllu(youLabel, ariaLabel) {
