@@ -2201,4 +2201,64 @@
     }, {passive:true});
     setze();
   });
+  // ---- Kartenstapel im Webdesign-Hero ------------------------------------
+  // Holt eine Arbeitsprobe nach vorne: erst schiebt sich die vordere Karte
+  // zur Seite, dann tauschen beide die Ebene (CSS übernimmt die Bewegung).
+  // Mischt von selbst alle 6 Sekunden, solange der Stapel im Bild ist, die
+  // Maus nicht darüber steht und niemand selbst geklickt hat. Bei „Bewegung
+  // reduzieren“ nur auf Klick, ohne Automatik.
+  var stack = document.querySelector('.wd-stack');
+  if(stack){
+    var stackItems = Array.prototype.slice.call(stack.querySelectorAll('.wd-stack__item'));
+    var stackSwitch = document.querySelector('.wd-stack__switch');
+    var stackBtns = stackSwitch ? Array.prototype.slice.call(stackSwitch.querySelectorAll('button')) : [];
+    var stackReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var stackBusy = false, stackManual = false, stackHover = false, stackSeen = true;
+    var stackFront = function(){ return stack.querySelector('[data-pos="front"]'); };
+    var stackMark = function(site){
+      stackBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-show') === site ? 'true' : 'false'); });
+    };
+    var stackShow = function(site){
+      var front = stackFront();
+      if(stackBusy || !front || front.getAttribute('data-site') === site) return;
+      var next = stack.querySelector('[data-site="' + site + '"]');
+      if(!next) return;
+      stackBusy = true;
+      stackMark(site);
+      var tauschen = function(){
+        front.classList.remove('is-leaving');
+        front.setAttribute('data-pos', 'back');
+        next.setAttribute('data-pos', 'front');
+        setTimeout(function(){ stackBusy = false; }, stackReduce ? 0 : 760);
+      };
+      if(stackReduce){ tauschen(); return; }
+      front.classList.add('is-leaving');
+      setTimeout(tauschen, 380);
+    };
+    var stackNext = function(){
+      var back = stack.querySelector('[data-pos="back"]');
+      if(back) stackShow(back.getAttribute('data-site'));
+    };
+    if(stackSwitch){
+      stackSwitch.hidden = false;
+      stackBtns.forEach(function(b){
+        b.addEventListener('click', function(){ stackManual = true; stackShow(b.getAttribute('data-show')); });
+      });
+    }
+    stack.addEventListener('click', function(e){
+      var item = e.target.closest('.wd-stack__item');
+      if(item && item.getAttribute('data-pos') === 'back'){ stackManual = true; stackShow(item.getAttribute('data-site')); }
+    });
+    if(!stackReduce){
+      stack.addEventListener('mouseenter', function(){ stackHover = true; });
+      stack.addEventListener('mouseleave', function(){ stackHover = false; });
+      if('IntersectionObserver' in window){
+        new IntersectionObserver(function(entries){ stackSeen = entries[0].isIntersecting; }).observe(stack);
+      }
+      setInterval(function(){
+        if(stackManual || stackHover || !stackSeen || document.hidden) return;
+        stackNext();
+      }, 6000);
+    }
+  }
 })();

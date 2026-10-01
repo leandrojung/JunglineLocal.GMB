@@ -83,20 +83,47 @@
       <p class="wd-hero__fine">Festpreis vor dem Start · keine Vorkasse · Pflege optional</p>
     </div>
 
+    <!-- Kartenstapel: die zwei zuletzt gebauten Websites, echte Bildschirmfotos.
+         Vorne Gloria, dahinter leicht gedreht Rowi. site.js mischt die Karten
+         alle paar Sekunden (Pause beim Überfahren, nach eigenem Klick und bei
+         „Bewegung reduzieren“). Ohne JavaScript bleibt der Stapel stehen. -->
     <div class="wd-hero__visual">
-      <figure class="device-mac">
-        <div class="device-mac__bar" aria-hidden="true"><i></i><i></i><i></i><span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>rowi-maschinenservice.de</span></div>
-        <picture>
-          <source type="image/avif" srcset="/referenzen/rowi/rowi-desktop-800.avif 800w, /referenzen/rowi/rowi-desktop-1600.avif 1600w" sizes="(max-width:960px) 92vw, 620px">
-          <img src="/referenzen/rowi/rowi-desktop-1600.webp" srcset="/referenzen/rowi/rowi-desktop-800.webp 800w, /referenzen/rowi/rowi-desktop-1600.webp 1600w" sizes="(max-width:960px) 92vw, 620px" alt="Startseite von Rowi Maschinenservice am Rechner: Maschinenservice für die Steinbearbeitung, direkt vom Fachmann" width="1600" height="1000" fetchpriority="high" decoding="async">
-        </picture>
-      </figure>
-      <figure class="device-phone">
-        <picture>
-          <source type="image/avif" srcset="/referenzen/rowi/rowi-mobile-600.avif">
-          <img src="/referenzen/rowi/rowi-mobile-600.webp" alt="Dieselbe Seite auf dem Telefon, mit Aktionsleiste zum Anrufen, für WhatsApp und Anfragen" width="600" height="1298" decoding="async">
-        </picture>
-      </figure>
+      <div class="wd-stack">
+        <div class="wd-stack__item" data-site="gloria" data-pos="front" style="--case:#B4007B">
+          <figure class="device-mac">
+            <div class="device-mac__bar" aria-hidden="true"><i></i><i></i><i></i><span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>mobile-pflegepraxis-gloria.de</span></div>
+            <picture>
+              <source type="image/avif" srcset="/referenzen/gloria/gloria-desktop-800.avif 800w, /referenzen/gloria/gloria-desktop-1600.avif 1600w" sizes="(max-width:960px) 92vw, 620px">
+              <img src="/referenzen/gloria/gloria-desktop-1600.webp" srcset="/referenzen/gloria/gloria-desktop-800.webp 800w, /referenzen/gloria/gloria-desktop-1600.webp 1600w" sizes="(max-width:960px) 92vw, 620px" alt="Startseite der Mobilen Pflegepraxis Gloria am Rechner: Pflege zu Hause. In Dorsten." width="1600" height="1000" fetchpriority="high" decoding="async">
+            </picture>
+          </figure>
+          <figure class="device-phone">
+            <picture>
+              <source type="image/avif" srcset="/referenzen/gloria/gloria-mobile-600.avif">
+              <img src="/referenzen/gloria/gloria-mobile-600.webp" alt="Dieselbe Seite auf dem Telefon, mit großen Knöpfen zum Anfragen und zum Pflege-Check" width="600" height="1298" decoding="async">
+            </picture>
+          </figure>
+        </div>
+        <div class="wd-stack__item" data-site="rowi" data-pos="back" style="--case:#C8102E">
+          <figure class="device-mac">
+            <div class="device-mac__bar" aria-hidden="true"><i></i><i></i><i></i><span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>rowi-maschinenservice.de</span></div>
+            <picture>
+              <source type="image/avif" srcset="/referenzen/rowi/rowi-desktop-800.avif 800w, /referenzen/rowi/rowi-desktop-1600.avif 1600w" sizes="(max-width:960px) 92vw, 620px">
+              <img src="/referenzen/rowi/rowi-desktop-1600.webp" srcset="/referenzen/rowi/rowi-desktop-800.webp 800w, /referenzen/rowi/rowi-desktop-1600.webp 1600w" sizes="(max-width:960px) 92vw, 620px" alt="Startseite von Rowi Maschinenservice am Rechner: Maschinenservice für die Steinbearbeitung, direkt vom Fachmann" width="1600" height="1000" decoding="async">
+            </picture>
+          </figure>
+          <figure class="device-phone">
+            <picture>
+              <source type="image/avif" srcset="/referenzen/rowi/rowi-mobile-600.avif">
+              <img src="/referenzen/rowi/rowi-mobile-600.webp" alt="Dieselbe Seite auf dem Telefon, mit Aktionsleiste zum Anrufen, für WhatsApp und Anfragen" width="600" height="1298" decoding="async">
+            </picture>
+          </figure>
+        </div>
+      </div>
+      <div class="wd-stack__switch" role="group" aria-label="Arbeitsprobe nach vorne holen" hidden>
+        <button type="button" data-show="gloria" aria-pressed="true" style="--case:#B4007B"><span aria-hidden="true"></span><i>Pflegepraxis </i>Gloria</button>
+        <button type="button" data-show="rowi" aria-pressed="false" style="--case:#C8102E"><span aria-hidden="true"></span>Rowi<i> Maschinenservice</i></button>
+      </div>
     </div>
   </div>
 </header>

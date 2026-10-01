@@ -2148,7 +2148,33 @@ body[data-zweig="webdesign"] .pagehead{
 @keyframes wdIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 
 /* Geräte: Rechner-Fenster + Telefon, echte Bildschirmfotos. */
-.wd-hero__visual{position:relative;padding:0 6% 9% 0;animation:wdDevices 1.3s var(--ease-out) .15s both}
+.wd-hero__visual{position:relative;animation:wdDevices 1.3s var(--ease-out) .15s both}
+/* Kartenstapel: beide Karten liegen in derselben Rasterzelle. Die hintere
+   ist nach oben rechts versetzt, leicht gedreht und abgedunkelt, ihr Telefon
+   ausgeblendet. Beim Mischen schiebt sich die vordere erst zur Seite
+   (.is-leaving), dann tauschen beide die Ebene und gleiten an ihren Platz. */
+.wd-stack{display:grid;padding-top:7%}
+.wd-stack__item{grid-area:1/1;position:relative;padding:0 6% 9% 0;
+  transition:transform .75s cubic-bezier(.65,0,.25,1),filter .75s,opacity .75s}
+.wd-stack__item[data-pos="front"]{z-index:2}
+.wd-stack__item[data-pos="back"]{z-index:1;transform:translate(5%,-8%) scale(.9) rotate(2.5deg);filter:brightness(.5) saturate(.8);cursor:pointer}
+.wd-stack__item[data-pos="back"] .device-phone{opacity:0;visibility:hidden}
+.wd-stack__item .device-phone{transition:opacity .45s,visibility .45s}
+.wd-stack__item.is-leaving{z-index:2;transform:translate(-14%,6%) rotate(-3deg);transition-duration:.38s;transition-timing-function:cubic-bezier(.5,0,.75,0)}
+@media(hover:hover){.wd-stack__item[data-pos="back"]:hover{filter:brightness(.68) saturate(.9)}}
+.wd-stack__switch{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.wd-stack__switch[hidden]{display:none}
+.wd-stack__switch button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:rgba(232,235,248,.62);font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;
+  transition:background var(--dur-ui),color var(--dur-ui),border-color var(--dur-ui)}
+.wd-stack__switch button span{width:8px;height:8px;border-radius:50%;background:var(--case);opacity:.5;transition:opacity var(--dur-ui),box-shadow var(--dur-ui)}
+.wd-stack__switch button[aria-pressed="true"]{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24)}
+.wd-stack__switch button[aria-pressed="true"] span{opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--case) 35%,transparent)}
+@media(hover:hover){.wd-stack__switch button:hover{color:#fff}}
+.wd-stack__switch i{font-style:normal}
+@media(max-width:640px){.wd-stack__switch i{display:none}}
+.wd-stack__switch button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.wd-stack__item,.wd-stack__item.is-leaving{transition:none}}
 @keyframes wdDevices{from{opacity:0;transform:translateY(40px) scale(.97)}to{opacity:1;transform:none}}
 .device-mac{position:relative;margin:0;border-radius:16px;overflow:hidden;background:#1B1D24;
   box-shadow:0 0 0 1px rgba(255,255,255,.1),0 60px 120px -40px rgba(0,0,0,.9),0 24px 50px -24px rgba(0,0,0,.6)}
