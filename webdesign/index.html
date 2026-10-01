@@ -84,12 +84,13 @@
     </div>
 
     <!-- Kartenstapel: die zwei zuletzt gebauten Websites, echte Bildschirmfotos.
-         Vorne Gloria, dahinter leicht gedreht Rowi. site.js mischt die Karten
-         alle paar Sekunden (Pause beim Überfahren, nach eigenem Klick und bei
-         „Bewegung reduzieren“). Ohne JavaScript bleibt der Stapel stehen. -->
+         Vorne Gloria, dahinter leicht gedreht Rowi. Ein Klick auf die hintere
+         Karte oder auf den Knopf oben rechts holt sie nach vorn (site.js). Ohne JavaScript bleibt der Stapel
+         stehen. -->
     <div class="wd-hero__visual">
       <div class="wd-stack">
-        <div class="wd-stack__item" data-site="gloria" data-pos="front" style="--case:#B4007B">
+        <button class="wd-stack__peek" type="button" style="--case:#C8102E" hidden><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg><span>Rowi ansehen</span></button>
+        <div class="wd-stack__item" data-site="gloria" data-pos="front" data-name="Pflegepraxis Gloria" data-short="Gloria" style="--case:#B4007B">
           <figure class="device-mac">
             <div class="device-mac__bar" aria-hidden="true"><i></i><i></i><i></i><span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>mobile-pflegepraxis-gloria.de</span></div>
             <picture>
@@ -104,7 +105,7 @@
             </picture>
           </figure>
         </div>
-        <div class="wd-stack__item" data-site="rowi" data-pos="back" style="--case:#C8102E">
+        <div class="wd-stack__item" data-site="rowi" data-pos="back" data-name="Rowi Maschinenservice" data-short="Rowi" style="--case:#C8102E">
           <figure class="device-mac">
             <div class="device-mac__bar" aria-hidden="true"><i></i><i></i><i></i><span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.4"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>rowi-maschinenservice.de</span></div>
             <picture>
@@ -119,10 +120,6 @@
             </picture>
           </figure>
         </div>
-      </div>
-      <div class="wd-stack__switch" role="group" aria-label="Arbeitsprobe nach vorne holen" hidden>
-        <button type="button" data-show="gloria" aria-pressed="true" style="--case:#B4007B"><span aria-hidden="true"></span><i>Pflegepraxis </i>Gloria</button>
-        <button type="button" data-show="rowi" aria-pressed="false" style="--case:#C8102E"><span aria-hidden="true"></span>Rowi<i> Maschinenservice</i></button>
       </div>
     </div>
   </div>
