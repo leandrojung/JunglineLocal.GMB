@@ -101,148 +101,93 @@
   </div>
 </header>
 
-<!-- ============ ARBEITSPROBEN: ROWI UND GLORIA ============
-     Direkt nach dem Hero: erst der Beweis, dann die Argumente. Zwei Betriebe,
-     die nichts gemeinsam haben, damit sichtbar wird, dass keine Seite nach
-     Schablone entsteht. Mit JavaScript schaltet die Leiste oben zwischen den
-     Projekten um, ein Wisch in der Markenfarbe des Kunden (--case) leitet den
-     Wechsel ein. Ohne JavaScript bleibt die Leiste verborgen und beide
-     Projekte stehen untereinander. Direktlinks: #case-rowi, #case-gloria.
+<!-- ============ ARBEITSPROBEN ============
+     Direkt nach dem Hero: erst der Beweis, dann die Argumente. Zwei Kacheln
+     nebeneinander, je ein kleines Rechner-Fenster (fährt beim Überfahren die
+     ganze Startseite ab) mit Telefon davor, darunter drei belegte Zahlen.
+     --case ist die Markenfarbe des Kunden.
 
-     Rowi: Kennzahlen aus der Lighthouse-Messung beim Relaunch (Repo
+     Rowi: Zahlen aus der Lighthouse-Messung beim Relaunch (Repo
      leandrojung/RoWI, docs/RELAUNCH.md), bei einer neuen Messung nachziehen.
      Gloria: Angaben aus dem fertigen Build (Repo leandrojung/Gloria, Prüfung
      mit npm run check und npm run contrast). TODO(Leandro): Sobald
-     mobile-pflegepraxis-gloria.de online ist, den Hinweis „Geht in Kürze
-     online“ gegen einen Link tauschen und Lighthouse-Werte ergänzen. -->
-<section class="section sheet wd-case wd-cases" id="referenz">
+     mobile-pflegepraxis-gloria.de online ist, „Geht in Kürze online“ gegen
+     einen Link tauschen und die Fußnote anpassen. -->
+<section class="section sheet wd-case" id="referenz">
   <div class="container">
     <div class="head-block head-block--split" data-reveal>
       <h2>Zwei Betriebe. <span class="soft">Zwei ganz eigene Websites.</span></h2>
       <p>Eine Maschinenwerkstatt und ein Pflegedienst haben wenig gemeinsam, außer dass ihre Kunden sie schnell erreichen wollen. Darum entsteht jede Seite neu, nicht aus einer Vorlage.</p>
     </div>
 
-    <div class="wd-cases__tabs" role="tablist" aria-label="Arbeitsproben" hidden data-reveal>
-      <button class="wd-cases__tab" type="button" role="tab" id="tab-rowi" aria-controls="case-rowi" aria-selected="true" style="--case:#C8102E">
-        <span class="wd-cases__dot" aria-hidden="true"></span>
-        <span class="wd-cases__lb"><b>Rowi Maschinenservice</b><small>Maschinenservice · Heiden</small></span>
-      </button>
-      <button class="wd-cases__tab" type="button" role="tab" id="tab-gloria" aria-controls="case-gloria" aria-selected="false" tabindex="-1" style="--case:#B4007B">
-        <span class="wd-cases__dot" aria-hidden="true"></span>
-        <span class="wd-cases__lb"><b>Pflegepraxis Gloria</b><small>Ambulante Pflege · Dorsten</small></span>
-        <span class="wd-cases__new">Neu</span>
-      </button>
-    </div>
-
-    <div class="wd-cases__deck">
-      <div class="wd-cases__wipe" aria-hidden="true"><span></span></div>
-
-      <!-- ---- Rowi ---- -->
-      <article class="wd-case__panel" id="case-rowi" role="tabpanel" aria-labelledby="tab-rowi" style="--case:#C8102E">
-        <div class="wd-case__head" data-reveal>
-          <h3>Rowi Maschinenservice. <span class="soft">Gebaut 2026.</span></h3>
-          <div>
-            <p>Robert Wikarek repariert, wartet und verkauft Steinbearbeitungsmaschinen, aus Heiden im Münsterland, in ganz Deutschland. Die Website hat genau ein Ziel: Wer eine stehende Maschine hat, soll in zwei Minuten beim richtigen Ansprechpartner sein.</p>
-            <a class="link-arrow" href="https://www.rowi-maschinenservice.de" target="_blank" rel="noopener">rowi-maschinenservice.de ansehen<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-          </div>
-        </div>
-
-        <div class="wd-case__stage" data-reveal>
-          <div class="wd-case__browser">
-            <div class="wd-case__bar" aria-hidden="true"><i></i><i></i><i></i><span>rowi-maschinenservice.de</span></div>
-            <div class="wd-case__viewport" tabindex="0" aria-label="Startseite von Rowi Maschinenservice, zum Durchscrollen mit der Maus überfahren">
+    <div class="wd-refs">
+      <article class="wd-ref" id="case-rowi" style="--case:#C8102E" data-reveal>
+        <div class="wd-ref__shot">
+          <div class="wd-ref__win">
+            <div class="wd-ref__bar" aria-hidden="true"><i></i><i></i><i></i><span>rowi-maschinenservice.de</span></div>
+            <div class="wd-ref__view" tabindex="0" aria-label="Startseite von Rowi Maschinenservice, zum Durchscrollen mit der Maus überfahren">
               <picture>
                 <source type="image/avif" srcset="/referenzen/rowi/rowi-scroll-900.avif">
-                <img class="wd-case__scroll" src="/referenzen/rowi/rowi-scroll-900.webp" alt="Die komplette Startseite von Rowi Maschinenservice: Hero, Kennzahlen, Leistungen als Kacheln, Ansprechpartner, Ablauf, mobiler Service und Einblicke" width="900" height="3875" loading="lazy" decoding="async">
+                <img src="/referenzen/rowi/rowi-scroll-900.webp" alt="Die komplette Startseite von Rowi Maschinenservice: Hero, Kennzahlen, Leistungen als Kacheln, Ansprechpartner, Ablauf, mobiler Service und Einblicke" width="900" height="3875" loading="lazy" decoding="async">
               </picture>
             </div>
           </div>
-          <figure class="wd-case__phone">
+          <figure class="wd-ref__phone">
             <picture>
               <source type="image/avif" srcset="/referenzen/rowi/rowi-mobile-600.avif">
               <img src="/referenzen/rowi/rowi-mobile-600.webp" alt="Startseite von rowi-maschinenservice.de auf dem Telefon" width="600" height="1298" loading="lazy" decoding="async">
             </picture>
           </figure>
         </div>
-
-        <dl class="wd-case__facts" data-reveal>
-          <div><dt>Geschwindigkeit</dt><dd><b>95</b><span>von 100 Punkten auf dem Handy</span></dd></div>
-          <div><dt>Barrierefreiheit</dt><dd><b>100</b><span>von 100 Punkten</span></dd></div>
-          <div><dt>Suchmaschinen</dt><dd><b>100</b><span>von 100 Punkten</span></dd></div>
-          <div><dt>Fotos</dt><dd><b>36</b><span>echte Einsätze statt Stockbilder</span></dd></div>
-        </dl>
-
-        <div class="wd-case__points m-gallery">
-          <div class="wd-case__point" data-reveal>
-            <h4>Anruf statt Formular-Marathon</h4>
-            <p>Anrufen, WhatsApp, Anfrage: auf dem Handy immer eine Daumenbreite entfernt. Dazu der Live-Status „Jetzt erreichbar“, direkt aus den Öffnungszeiten berechnet.</p>
-          </div>
-          <div class="wd-case__point" data-reveal data-d="1">
-            <h4>Jede Leistung mit eigener Seite</h4>
-            <p>Acht Leistungen, acht Seiten: jede mit eigener Überschrift, eigenem Text und Fotos aus echten Einsätzen. So findet Google für jede Suche die passende Antwort.</p>
-          </div>
-          <div class="wd-case__point" data-reveal data-d="2">
-            <h4>Schnell, auch im Funkloch</h4>
-            <p>Bilder im modernen AVIF-Format, kein Skript ohne Aufgabe, kein Tracking ohne Einwilligung. Ergebnis laut Google Lighthouse: 95 von 100 Punkten mobil.</p>
+        <div class="wd-ref__body">
+          <p class="wd-ref__kicker"><span class="wd-ref__dot" aria-hidden="true"></span>Maschinenservice · Heiden</p>
+          <h3>Rowi Maschinenservice</h3>
+          <p>Wer eine stehende Maschine hat, soll in zwei Minuten beim richtigen Ansprechpartner sein: Anrufen, WhatsApp und Anfrage immer eine Daumenbreite entfernt.</p>
+          <dl class="wd-ref__facts">
+            <div><dt>Punkte Tempo mobil</dt><dd><b>95</b></dd></div>
+            <div><dt>Punkte Barrierefreiheit</dt><dd><b>100</b></dd></div>
+            <div><dt>echte Einsatzfotos</dt><dd><b>36</b></dd></div>
+          </dl>
+          <div class="wd-ref__foot">
+            <a class="link-arrow" href="https://www.rowi-maschinenservice.de" target="_blank" rel="noopener">rowi-maschinenservice.de ansehen<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
           </div>
         </div>
-        <p class="wd-case__note">Messwerte: Google Lighthouse 12, Startseite mobil, September 2026. Mobile Werte schwanken je Lauf um wenige Punkte.</p>
       </article>
 
-      <!-- ---- Gloria ----
-           Ohne data-reveal im Inneren: Das Feld ist beim Laden verborgen, die
-           Einblendung übernimmt die Klasse .is-entering beim Umschalten. -->
-      <article class="wd-case__panel" id="case-gloria" role="tabpanel" aria-labelledby="tab-gloria" style="--case:#B4007B">
-        <div class="wd-case__head">
-          <h3>Mobile Pflegepraxis Gloria. <span class="soft">Gebaut 2026.</span></h3>
-          <div>
-            <p>Sr. Gloria Ibe und ihr Team pflegen Menschen in Dorsten zu Hause. Wer hier sucht, ist oft ein Angehöriger in einer schweren Woche. Die Website soll in Ruhe zeigen, welche Hilfe passt, und dann zum Telefon führen.</p>
-            <span class="wd-case__soon"><span aria-hidden="true"></span>Geht in Kürze online</span>
-          </div>
-        </div>
-
-        <div class="wd-case__stage">
-          <div class="wd-case__browser">
-            <div class="wd-case__bar" aria-hidden="true"><i></i><i></i><i></i><span>mobile-pflegepraxis-gloria.de</span></div>
-            <div class="wd-case__viewport" tabindex="0" aria-label="Startseite der Mobilen Pflegepraxis Gloria, zum Durchscrollen mit der Maus überfahren">
+      <article class="wd-ref" id="case-gloria" style="--case:#B4007B" data-reveal data-d="1">
+        <div class="wd-ref__shot">
+          <div class="wd-ref__win">
+            <div class="wd-ref__bar" aria-hidden="true"><i></i><i></i><i></i><span>mobile-pflegepraxis-gloria.de</span></div>
+            <div class="wd-ref__view" tabindex="0" aria-label="Startseite der Mobilen Pflegepraxis Gloria, zum Durchscrollen mit der Maus überfahren">
               <picture>
                 <source type="image/avif" srcset="/referenzen/gloria/gloria-scroll-900.avif">
-                <img class="wd-case__scroll" src="/referenzen/gloria/gloria-scroll-900.webp" alt="Die komplette Startseite der Mobilen Pflegepraxis Gloria: Hero, Pflege-Check, Ablauf in vier Schritten, Leistungen, Zahlen, Team, Leitbild, häufige Fragen und Kontakt" width="900" height="5419" loading="lazy" decoding="async">
+                <img src="/referenzen/gloria/gloria-scroll-900.webp" alt="Die komplette Startseite der Mobilen Pflegepraxis Gloria: Hero, Pflege-Check, Ablauf in vier Schritten, Leistungen, Zahlen, Team, Leitbild, häufige Fragen und Kontakt" width="900" height="5419" loading="lazy" decoding="async">
               </picture>
             </div>
           </div>
-          <figure class="wd-case__phone">
+          <figure class="wd-ref__phone">
             <picture>
               <source type="image/avif" srcset="/referenzen/gloria/gloria-mobile-600.avif">
               <img src="/referenzen/gloria/gloria-mobile-600.webp" alt="Startseite der Mobilen Pflegepraxis Gloria auf dem Telefon: Pflege zu Hause. In Dorsten." width="600" height="1298" loading="lazy" decoding="async">
             </picture>
           </figure>
         </div>
-
-        <dl class="wd-case__facts">
-          <div><dt>Pflege-Check</dt><dd><b>3</b><span>Fragen bis zur passenden Hilfe</span></dd></div>
-          <div><dt>Kontrast</dt><dd><b>AA</b><span>jede Textfarbe nach WCAG geprüft</span></dd></div>
-          <div><dt>Cookies</dt><dd><b>0</b><span>kein Tracking, kein Banner</span></dd></div>
-          <div><dt>Fremde Server</dt><dd><b>0</b><span>Schriften und Bilder vom eigenen Server</span></dd></div>
-        </dl>
-
-        <div class="wd-case__points m-gallery">
-          <div class="wd-case__point">
-            <h4>Erst verstehen, dann anfragen</h4>
-            <p>Der Pflege-Check fragt in drei Schritten, was gebraucht wird, und schlägt die passende Leistung vor. Das Ergebnis wandert mit einem Klick ins Anfrageformular.</p>
-          </div>
-          <div class="wd-case__point">
-            <h4>Ruhig, groß, gut lesbar</h4>
-            <p>Große Schrift, eine einzige Akzentfarbe aus dem Logo, viel Luft. Gemacht für Angehörige unter Druck und für Menschen, die nicht mehr so gut sehen.</p>
-          </div>
-          <div class="wd-case__point">
-            <h4>Ehrlich gekennzeichnet</h4>
-            <p>Das Team steht mit echten Fotos und Namen auf der Seite. Wo ein Symbolbild verwendet wird, steht das auch dran.</p>
+        <div class="wd-ref__body">
+          <p class="wd-ref__kicker"><span class="wd-ref__dot" aria-hidden="true"></span>Ambulante Pflege · Dorsten <span class="wd-ref__new">Neu</span></p>
+          <h3>Mobile Pflegepraxis Gloria</h3>
+          <p>Für Angehörige in einer schweren Woche: ruhig, groß, gut lesbar. Ein Pflege-Check zeigt, welche Hilfe passt, und führt dann zum Telefon.</p>
+          <dl class="wd-ref__facts">
+            <div><dt>Fragen bis zur passenden Hilfe</dt><dd><b>3</b></dd></div>
+            <div><dt>Cookies, kein Tracking</dt><dd><b>0</b></dd></div>
+            <div><dt>Kontrast nach WCAG</dt><dd><b>AA</b></dd></div>
+          </dl>
+          <div class="wd-ref__foot">
+            <span class="wd-ref__soon"><span aria-hidden="true"></span>Geht in Kürze online</span>
           </div>
         </div>
-        <p class="wd-case__note">Stand: fertiger Build, Oktober 2026, geprüft auf Telefonbreite 390 px, Tippflächen ab 44 px und Kontraste. Ladezeit-Messwerte folgen, sobald die Seite online ist.</p>
       </article>
     </div>
+    <p class="wd-refs__note">Rowi: Google Lighthouse 12, Startseite mobil, September 2026, Werte schwanken je Lauf um wenige Punkte. Gloria: geprüft am fertigen Build, Oktober 2026; Ladezeit-Werte folgen, sobald die Seite online ist.</p>
   </div>
 </section>
 

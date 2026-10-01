@@ -2182,125 +2182,62 @@ body[data-zweig="webdesign"] .pagehead{
   .device-mac__bar span{display:none}
 }
 
-/* ---- Arbeitsproben: Rowi und Gloria ----
-   --case ist die Markenfarbe des jeweiligen Kunden. Sie färbt Punkt und
-   Linie im Umschalter, den Schein hinter dem Rechner und den Wisch beim
-   Wechsel. Ohne JavaScript bleibt die Leiste verborgen (hidden) und beide
-   Projekte stehen untereinander. */
-.wd-cases__tabs{display:flex;gap:10px;margin-top:var(--sp-head);padding:6px;border-radius:22px;background:var(--bg-soft);width:max-content;max-width:100%}
-.wd-cases__tabs[hidden]{display:none}
-.wd-cases__tab{position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 20px 10px 16px;border:0;border-radius:16px;
-  background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;
-  transition:background var(--dur-ui) var(--ease-apple),box-shadow var(--dur-ui) var(--ease-apple)}
-.wd-cases__tab[aria-selected="true"]{background:#fff;box-shadow:0 0 0 1px rgba(14,17,34,.06),0 10px 24px -14px rgba(14,17,34,.35)}
-@media(hover:hover){.wd-cases__tab[aria-selected="false"]:hover{background:rgba(255,255,255,.6)}}
-.wd-cases__tab:focus-visible{outline:2px solid var(--case);outline-offset:2px}
-.wd-cases__dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--case);box-shadow:0 0 0 4px color-mix(in srgb,var(--case) 16%,transparent);
-  transition:transform .4s var(--ease-out)}
-.wd-cases__tab[aria-selected="false"] .wd-cases__dot{transform:scale(.7);opacity:.55}
-.wd-cases__lb{display:flex;flex-direction:column;line-height:1.25}
-.wd-cases__lb b{font-family:var(--font-display);font-size:1.04rem;letter-spacing:-.02em}
-.wd-cases__lb small{font-size:.82rem;color:var(--dim-2)}
-.wd-cases__new{flex:none;padding:3px 9px;border-radius:999px;background:var(--case);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.01em}
-
-.wd-cases__deck{position:relative}
-.wd-case__panel+.wd-case__panel{margin-top:clamp(96px,12vw,160px)}
-.wd-cases.is-tabs .wd-case__panel+.wd-case__panel{margin-top:0}
-.wd-case__panel[hidden]{display:none}
-.wd-case__head{margin-top:clamp(40px,5vw,64px)}
-.wd-case__head h3{font-size:clamp(1.9rem,3.6vw,2.7rem);letter-spacing:-.035em;line-height:1.08;color:var(--ink)}
-.wd-case__head p{margin-top:14px;max-width:56ch;color:var(--dim-2);font-size:1.06rem;line-height:1.55}
-.wd-case__head .link-arrow{margin-top:18px}
-@media(min-width:901px){
-  .wd-case__head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,72px);align-items:end}
-  .wd-case__head p{margin-top:0}
+/* ---- Arbeitsproben: kompakte Kacheln nebeneinander ----
+   Je Projekt eine Kachel: kleines Rechner-Fenster mit Telefon davor, darunter
+   Name, ein Satz und drei belegte Kennzahlen. --case ist die Markenfarbe des
+   Kunden (Punkt, Schein hinter dem Fenster, Rahmen beim Überfahren). Das
+   Fenster fährt beim Überfahren die ganze Startseite ab: Das Bild steht oben
+   und wandert per top:100% + translateY(-100%) bis zu seinem unteren Ende,
+   damit es unabhängig von der Fenstergröße genau unten anhält. */
+.wd-refs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:var(--sp-head)}
+.wd-ref{position:relative;display:flex;flex-direction:column;padding:22px 22px 26px;border-radius:var(--r-xl);background:var(--bg-soft);isolation:isolate;
+  box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .4s var(--ease-out),transform .4s var(--ease-out)}
+@media(hover:hover){.wd-ref:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--case) 35%,transparent),var(--elev-2)}}
+.wd-ref__shot{position:relative;padding:0 13% 7% 0}
+.wd-ref__shot::before{content:"";position:absolute;z-index:-1;inset:10% 18% 0 8%;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--case) 26%,transparent),transparent);filter:blur(24px);pointer-events:none}
+.wd-ref__win{border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(14,17,34,.08),0 30px 60px -34px rgba(14,17,34,.5)}
+.wd-ref__bar{display:flex;align-items:center;gap:5px;height:26px;padding:0 11px;background:#F3F4F7;border-bottom:1px solid #E6E8EE}
+.wd-ref__bar i{width:8px;height:8px;border-radius:50%;background:#D5D8E1}
+.wd-ref__bar span{flex:1;text-align:center;margin-right:30px;font-family:var(--font-sys);font-size:.68rem;color:#7A7F92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wd-ref__view{position:relative;display:block;aspect-ratio:16/10;overflow:hidden;cursor:ns-resize}
+.wd-ref__view img{position:absolute;left:0;top:0;width:100%;height:auto;transform:translateY(0);
+  transition:top 7s cubic-bezier(.35,0,.25,1),transform 7s cubic-bezier(.35,0,.25,1)}
+@media(hover:hover){
+  .wd-ref__view:hover img,.wd-ref__view:focus img{top:100%;transform:translateY(-100%)}
 }
-.wd-case__soon{display:inline-flex;align-items:center;gap:9px;margin-top:18px;font-size:.92rem;font-weight:600;color:var(--ink)}
-.wd-case__soon>span{width:8px;height:8px;border-radius:50%;background:var(--case);animation:wdSoon 2.4s ease-in-out infinite}
+.wd-ref__view:focus-visible{outline:2px solid var(--case);outline-offset:-3px}
+.wd-ref__phone{position:absolute;right:0;bottom:0;width:22%;margin:0;padding:4px;border-radius:18px;background:#16171C;
+  box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 44px -18px rgba(14,17,34,.7)}
+.wd-ref__phone img{width:100%;height:auto;border-radius:14px;display:block}
+.wd-ref__body{display:flex;flex-direction:column;flex:1;margin-top:22px}
+.wd-ref__kicker{display:flex;align-items:center;gap:9px;font-size:.84rem;font-weight:600;color:var(--dim-2)}
+.wd-ref__dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--case);box-shadow:0 0 0 3px color-mix(in srgb,var(--case) 18%,transparent)}
+.wd-ref__new{padding:2px 8px;border-radius:999px;background:var(--case);color:#fff;font-size:.7rem;font-weight:700}
+.wd-ref h3{margin-top:8px;font-size:1.45rem;letter-spacing:-.03em;color:var(--ink)}
+.wd-ref__body>p{margin-top:8px;color:var(--dim);font-size:.97rem;line-height:1.55}
+.wd-ref__facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:18px 0 0;padding-top:14px;border-top:1px solid var(--border)}
+.wd-ref__facts>div{padding-right:10px}
+.wd-ref__facts>div+div{padding-left:12px;border-left:1px solid var(--border)}
+.wd-ref__facts dd b{display:block;font-family:var(--font-display);font-weight:700;font-size:1.6rem;letter-spacing:-.03em;line-height:1.05;color:var(--ink)}
+.wd-ref__facts dt{margin-top:4px;font-size:.8rem;line-height:1.35;color:var(--dim-2)}
+.wd-ref__facts>div{display:flex;flex-direction:column-reverse;justify-content:flex-end}
+.wd-ref__foot{margin-top:auto;padding-top:18px}
+.wd-ref .link-arrow{font-size:.95rem}
+.wd-ref__soon{display:inline-flex;align-items:center;gap:9px;font-size:.92rem;font-weight:600;color:var(--ink)}
+.wd-ref__soon>span{width:8px;height:8px;border-radius:50%;background:var(--case);animation:wdSoon 2.4s ease-in-out infinite}
 @keyframes wdSoon{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--case) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
-
-/* Schein in Kundenfarbe hinter dem Rechner */
-.wd-case__stage::before{content:"";position:absolute;z-index:-1;left:6%;right:14%;top:12%;bottom:-6%;border-radius:50%;
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--case) 22%,transparent),transparent);filter:blur(30px);pointer-events:none}
-.wd-case__stage{isolation:isolate}
-
-/* Wisch beim Projektwechsel: eine schräge Fläche in der Farbe des Ziels
-   läuft von links nach rechts über die Bühne. In der Mitte, wenn sie alles
-   bedeckt, tauscht site.js das Projekt. */
-.wd-cases__wipe{position:absolute;z-index:5;inset:-12px -12px auto;height:min(100%,820px);border-radius:24px;pointer-events:none;
-  background:var(--wipe,#C8102E);clip-path:polygon(0 0,0 0,-20% 100%,-20% 100%);visibility:hidden}
-.wd-cases__wipe.is-run{visibility:visible;animation:wdWipe .9s cubic-bezier(.7,0,.3,1) both}
-.wd-cases__wipe span{position:sticky;top:40%;display:block;padding:min(30vh,240px) 24px 0;text-align:center;color:#fff;
-  font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4.4vw,3.4rem);letter-spacing:-.035em;line-height:1.05}
-.wd-cases__wipe.is-run span{animation:wdWipeTx .9s ease both}
-@keyframes wdWipeTx{0%,25%{opacity:0;transform:translateX(-24px)}45%,62%{opacity:1;transform:none}85%,100%{opacity:0;transform:translateX(24px)}}
-@keyframes wdWipe{
-  0%{clip-path:polygon(0 0,0 0,-20% 100%,-20% 100%)}
-  48%,52%{clip-path:polygon(0 0,120% 0,100% 100%,-20% 100%)}
-  100%{clip-path:polygon(120% 0,120% 0,100% 100%,100% 100%)}
+.wd-refs__note{margin-top:18px;font-size:.8rem;line-height:1.55;color:var(--dim-2)}
+@media(max-width:900px){
+  .wd-refs{grid-template-columns:minmax(0,1fr);max-width:560px;margin-left:auto;margin-right:auto}
 }
-.wd-case__panel.is-entering .wd-case__head,
-.wd-case__panel.is-entering .wd-case__stage,
-.wd-case__panel.is-entering .wd-case__facts,
-.wd-case__panel.is-entering .wd-case__point{animation:wdEnter .8s var(--ease-out) both}
-.wd-case__panel.is-entering .wd-case__stage{animation-delay:.06s}
-.wd-case__panel.is-entering .wd-case__facts{animation-delay:.14s}
-.wd-case__panel.is-entering .wd-case__point:nth-child(2){animation-delay:.2s}
-.wd-case__panel.is-entering .wd-case__point:nth-child(3){animation-delay:.26s}
-@keyframes wdEnter{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 @media(max-width:640px){
-  .wd-cases__tabs{width:100%;gap:6px}
-  .wd-cases__tab{flex:1 1 0;min-width:0;padding:10px 12px;gap:10px}
-  .wd-cases__lb small{display:none}
-  .wd-cases__lb b{font-size:.95rem}
-  .wd-cases__new{display:none}
+  .wd-ref{padding:16px 16px 22px}
+  .wd-ref__view{cursor:auto}
 }
 @media(prefers-reduced-motion:reduce){
-  .wd-cases__wipe.is-run{animation:none;visibility:hidden}
-  .wd-case__panel.is-entering *{animation:none!important}
-  .wd-case__soon>span{animation:none}
-}
-
-/* ---- Arbeitsprobe (je Projekt) ---- */
-.wd-case__stage{position:relative;margin-top:var(--sp-head);padding-right:12%}
-.wd-case__browser{border-radius:22px;overflow:hidden;background:#fff;
-  box-shadow:0 0 0 1px rgba(14,17,34,.08),0 50px 100px -50px rgba(14,17,34,.45)}
-.wd-case__bar{display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;background:#F3F4F7;border-bottom:1px solid #E6E8EE}
-.wd-case__bar i{width:11px;height:11px;border-radius:50%;background:#D5D8E1}
-.wd-case__bar span{flex:1;text-align:center;margin-right:52px;font-family:var(--font-sys);font-size:.76rem;color:#7A7F92}
-/* Der Ausschnitt fährt beim Überfahren langsam die ganze Startseite ab —
-   dieselbe Geste, mit der man eine Seite durchsieht. */
-.wd-case__viewport{position:relative;height:clamp(320px,38vw,520px);overflow:hidden;cursor:ns-resize}
-.wd-case__scroll{width:100%;height:auto;transform:translateY(0);transition:transform 9s cubic-bezier(.35,0,.25,1)}
-@media(hover:hover){
-  .wd-case__viewport:hover .wd-case__scroll,.wd-case__viewport:focus .wd-case__scroll{transform:translateY(calc(-100% + clamp(320px,38vw,520px)))}
-}
-.wd-case__viewport:focus-visible{outline:2px solid var(--brand);outline-offset:-4px}
-.wd-case__phone{position:absolute;right:0;bottom:-8%;width:24%;margin:0;padding:6px;border-radius:30px;background:#16171C;
-  box-shadow:0 0 0 1px rgba(255,255,255,.1),0 40px 80px -30px rgba(14,17,34,.7)}
-.wd-case__phone img{width:100%;height:auto;border-radius:24px;display:block}
-.wd-case__facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:clamp(64px,8vw,110px);border-top:1px solid var(--border)}
-.wd-case__facts>div{padding:26px 24px 4px 0}
-.wd-case__facts>div+div{padding-left:24px;border-left:1px solid var(--border)}
-.wd-case__facts dt{font-size:.88rem;font-weight:600;color:var(--dim-2);margin-bottom:10px}
-.wd-case__facts dd b{display:block;font-family:var(--font-display);font-weight:700;font-size:clamp(2.8rem,5vw,4.2rem);letter-spacing:-.03em;line-height:1;color:var(--ink)}
-.wd-case__facts dd span{display:block;margin-top:8px;font-size:.94rem;color:var(--dim);line-height:1.45}
-.wd-case__points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:clamp(40px,5vw,64px)}
-.wd-case__point{padding:26px 24px;border-radius:var(--r-lg);background:var(--bg-soft)}
-.wd-case__point h3,.wd-case__point h4{font-size:1.2rem;letter-spacing:-.025em;margin-bottom:10px}
-.wd-case__point p{color:var(--dim);font-size:.99rem;line-height:1.6}
-.wd-case__note{margin-top:22px;font-size:.82rem;color:var(--dim-2)}
-@media(max-width:900px){
-  .wd-case__facts{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .wd-case__facts>div:nth-child(3){padding-left:0;border-left:0}
-  .wd-case__facts>div:nth-child(n+3){border-top:1px solid var(--border)}
-  .wd-case__points{grid-template-columns:1fr}
-}
-@media(max-width:640px){
-  .wd-case__stage{padding-right:18%}
-  .wd-case__phone{width:34%;border-radius:20px;padding:4px}
-  .wd-case__phone img{border-radius:16px}
-  .wd-case__viewport{cursor:auto}
+  .wd-ref__view img{transition:none}
+  .wd-ref__soon>span{animation:none}
 }
 
 /* ---- Was eine alte Seite kostet ---- */
@@ -2559,7 +2496,6 @@ body[data-zweig="webdesign"] .pagehead{
   .wd-pillar{padding:26px 22px 24px}
   .wd-pillar h3,.wd-pillar__claim{font-size:1.3rem}
   .wd-step{padding:24px 22px 22px}
-  .wd-case__point{padding:24px 22px}
 }
 
 /* ============ 9  STARTSCREEN ============ */
@@ -2842,7 +2778,6 @@ body[data-zweig="webdesign"] .pagehead{
   .ticker__track{width:auto;flex-wrap:wrap;justify-content:center;max-height:none}
   .ticker__group{flex-wrap:wrap;justify-content:center;row-gap:8px}
   .ticker__group[aria-hidden="true"]{display:none}
-  .wd-case__scroll{transition:none}
 }
 
 /* ---- Druck: nichts wartet auf eine Animation ---- */
