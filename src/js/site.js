@@ -887,24 +887,44 @@
 
   // premium pointer micro-interactions (fine pointer + motion ok)
   if(finePointer && !reduce){
-    // magnetic primary buttons — schwächerer Zug (0.22/0.30 -> 0.1/0.13) und
-    // per Lerp sanft nachgeführt statt den Button beim ersten Mousemove
-    // sofort auf den vollen Zielwert zu springen (das wirkte "hingezogen").
-    document.querySelectorAll('.btn--primary').forEach(function(btn){
+    // Magnetische Hauptknöpfe: Der Knopf folgt der Maus ein kleines Stück,
+    // per Lerp sanft nachgeführt.
+    //
+    // Geschrieben wird die Eigenschaft translate, nicht transform. Vorher stand
+    // der Versatz inline in transform und hat dabei drei Dinge kaputt gemacht:
+    //  * .btn hat eine CSS-Transition auf transform, die jeden Schritt der
+    //    Schleife noch einmal 0,35 s lang nachgezogen hat. Zwei Glättungen
+    //    übereinander, deshalb wirkte der Knopf zäh und hakelig.
+    //  * Der Inline-Wert hat :active (scale .97) überschrieben, der Knopf ließ
+    //    sich nicht mehr sichtbar eindrücken.
+    //  * Der Endwert war translate(0,-2px): Nach dem ersten Überfahren blieb
+    //    jeder Knopf dauerhaft 2 px zu hoch stehen.
+    // translate setzt sich mit transform zusammen, Anheben und Eindrücken aus
+    // dem CSS bleiben also erhalten, und ohne Transition darauf glättet nur
+    // noch die Schleife.
+    //
+    // Der Termin-Knopf in der Navigationsleiste bleibt bewusst ausgenommen:
+    // Er sitzt mit knapp 10 px Luft in der Leiste, dort sieht jede Bewegung
+    // nach einem Fehler aus.
+    document.querySelectorAll('.btn--primary:not(.nav__cta-desktop)').forEach(function(btn){
       var tx=0, ty=0, cx=0, cy=0, running=false;
       var loop = function(){
         cx += (tx-cx)*0.16; cy += (ty-cy)*0.16;
-        btn.style.transform = 'translate('+cx.toFixed(2)+'px,'+(cy-2).toFixed(2)+'px)';
         if(Math.abs(tx-cx) > 0.05 || Math.abs(ty-cy) > 0.05){
           requestAnimationFrame(loop);
         } else {
-          running = false;
+          cx = tx; cy = ty; running = false;
         }
+        // In Ruhe ohne Inline-Wert, damit nichts am Knopf hängen bleibt.
+        btn.style.translate = (cx || cy) ? cx.toFixed(2)+'px '+cy.toFixed(2)+'px' : '';
       };
       btn.addEventListener('mousemove', function(e){
+        if(btn.disabled) return;
+        // Mitte ohne den eigenen Versatz messen: getBoundingClientRect enthält
+        // translate schon, sonst liefe das Ziel dem Knopf hinterher.
         var r = btn.getBoundingClientRect();
-        tx = (e.clientX-(r.left+r.width/2))*0.1;
-        ty = (e.clientY-(r.top+r.height/2))*0.13;
+        tx = (e.clientX-(r.left-cx+r.width/2))*0.1;
+        ty = (e.clientY-(r.top-cy+r.height/2))*0.13;
         if(!running){ running = true; requestAnimationFrame(loop); }
       }, {passive:true});
       btn.addEventListener('mouseleave', function(){
@@ -918,86 +938,10 @@
   // mit festen Startzeiten (site.css, "Hero-Einstieg"). Kein Timer mehr, der
   // sich mit dem Einblenden der Karte ueberschneiden konnte.
 
-  // Custom-Cursor: Punkt + nachlaufender Ring (lerp), Zustände je nach Ziel.
-  // Nur auf Geräten mit feinem Zeiger und ohne reduced motion — auf Touch
-  // existiert er gar nicht (keine DOM-Knoten, keine Listener).
-  if(finePointer && !reduce){
-    document.documentElement.classList.add('has-cursor');
-    var curDot = document.createElement('div');
-    curDot.className = 'cur-dot';
-    var curRing = document.createElement('div');
-    curRing.className = 'cur-ring';
-    curRing.innerHTML = '<span class="cur-ring__c"></span><span class="cur-ring__label"></span>' +
-      '<svg class="cur-ring__drag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
-    curDot.setAttribute('aria-hidden', 'true');
-    curRing.setAttribute('aria-hidden', 'true');
-    curRing.setAttribute('data-cursor', 'elastic');
-    // Ring vor dem Punkt einhängen: das CSS blendet den Punkt über den
-    // Folge-Geschwister-Selektor aus, wenn der Ring ein Label/Griff zeigt.
-    document.body.appendChild(curRing);
-    document.body.appendChild(curDot);
-    var curLabel = curRing.querySelector('.cur-ring__label');
-    var cx = -100, cy = -100, rx = -100, ry = -100, curSeen = false, curLoopRunning = false;
-    // Elastic-Dehnung: der Ring hinkt der Zielposition per Lerp hinterher —
-    // der dabei entstehende Rückstand (dx/dy) ist proportional zur
-    // Bewegungsgeschwindigkeit und liefert Länge + Richtung der Dehnung.
-    // Rotate → stretchen → zurückrotieren dehnt exakt entlang der
-    // Bewegungsrichtung, unabhängig vom Winkel (klassischer Gummiband-Trick).
-    var curLoop = function(){
-      var dx = cx - rx, dy = cy - ry;
-      rx += dx * 0.15; ry += dy * 0.15;
-      curDot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
-      var state = curRing.getAttribute('data-state');
-      var stretchOk = state !== 'pin' && state !== 'drag' && state !== 'view';
-      var stretchTf = '';
-      if(stretchOk){
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var stretch = Math.min(1 + dist * 0.012, 1.3);
-        if(stretch > 1.01){
-          var angle = Math.atan2(dy, dx) * 180 / Math.PI;
-          var squeeze = 1 / Math.sqrt(stretch);
-          stretchTf = ' rotate(' + angle.toFixed(1) + 'deg) scale(' + stretch.toFixed(3) + ',' + squeeze.toFixed(3) + ') rotate(' + (-angle).toFixed(1) + 'deg)';
-        }
-      }
-      curRing.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)' + stretchTf;
-      // Hat der Ring aufgeholt, ruht die Schleife bis zur nächsten Bewegung —
-      // vorher lief sie nach der ersten Mausbewegung dauerhaft in jedem Bild.
-      if(Math.abs(cx - rx) < 0.3 && Math.abs(cy - ry) < 0.3){ curLoopRunning = false; return; }
-      requestAnimationFrame(curLoop);
-    };
-    // Loop erst starten, wenn sich die Maus tatsächlich bewegt hat — sonst
-    // läuft die Animation (rAF + Style-Writes) schon während des Seitenladens
-    // dauerhaft mit, ganz ohne dass ein Cursor je sichtbar ist.
-    window.addEventListener('mousemove', function(e){
-      cx = e.clientX; cy = e.clientY;
-      if(!curSeen){
-        curSeen = true; rx = cx; ry = cy;
-        document.documentElement.classList.add('cursor-seen');
-      }
-      if(!curLoopRunning){ curLoopRunning = true; curLoop(); }
-    }, {passive:true});
-    var setCurState = function(state, labelText){
-      document.documentElement.classList.toggle('cursor-off', state === 'off');
-      curRing.setAttribute('data-state', state);
-      curLabel.textContent = labelText || '';
-    };
-    document.addEventListener('mouseover', function(e){
-      var t = e.target;
-      if(!(t instanceof Element)) return;
-      if(t.closest('input,textarea,select,iframe')){ setCurState('off'); return; }
-      if(t.closest('.vnc__stage')){ setCurState('drag'); return; }
-      if(t.closest('.related__list a')){ setCurState('view', 'Ansehen'); return; }
-      var faqQ = t.closest('.faq__q');
-      if(faqQ){ setCurState('view', faqQ.getAttribute('aria-expanded') === 'true' ? 'Schließen' : 'Öffnen'); return; }
-      var crow = t.closest('.crow');
-      if(crow){ setCurState('view', (crow.getAttribute('href') || '').indexOf('tel:') === 0 ? 'Anrufen' : 'Schreiben'); return; }
-      if(t.closest('.btn--primary')){ setCurState('pin'); return; }
-      if(t.closest('a,button,[role="button"]')){ setCurState('grow'); return; }
-      setCurState('idle');
-    });
-    document.addEventListener('mouseleave', function(){ document.documentElement.classList.add('cursor-off'); });
-    document.addEventListener('mouseenter', function(){ document.documentElement.classList.remove('cursor-off'); });
-  }
+  // Den Kartenpin über Handlungsknöpfen zeichnet das Betriebssystem als
+  // echten Mauszeiger (site.css, "Mauszeiger über Handlungsknöpfen"). Der
+  // frühere nachgebaute Zeiger hier im Skript lief per requestAnimationFrame
+  // hinter der Maus her und ist entfallen.
 
   // Scroll-Parallax für die Kapitel: Ebenen mit data-pd bewegen sich beim
   // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
@@ -1482,7 +1426,7 @@
   if(!('IntersectionObserver' in window)) return;
 
   // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
-  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.cur-ring,.inote,[data-noanim]';
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.inote,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
   var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';

@@ -354,13 +354,16 @@ h2 .soft,h1 .soft{font-weight:inherit}
   background:var(--brand);color:#fff;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 10px 24px -12px rgba(var(--brand-rgb),.75);
 }
-/* Lichtkante, die beim Überfahren einmal durch den Knopf zieht. */
+/* Lichtkante, die beim Überfahren einmal durch den Knopf zieht. Nur in eine
+   Richtung: Die Transition sitzt am Hover-Zustand, beim Verlassen springt die
+   Kante unsichtbar (ausserhalb des Knopfs) an den Start zurück. Vorher lief
+   sie beim Verlassen rückwärts, schnelles Drüberfahren gab ein Hin und Her. */
 .btn--primary::after{content:"";position:absolute;inset:0;z-index:-1;
   background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.34) 48%,transparent 64%);
-  transform:translateX(-130%);transition:transform .75s var(--ease)}
+  transform:translateX(-130%)}
 .btn--primary:hover{background:var(--brand-hover);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 16px 34px -14px rgba(var(--brand-rgb),.85)}
-.btn--primary:hover::after{transform:translateX(130%)}
+.btn--primary:hover::after{transform:translateX(130%);transition:transform .75s var(--ease)}
 .btn--ghost{background:transparent;color:var(--ink);border-color:var(--border-strong)}
 .btn--ghost:hover{border-color:var(--ink)}
 /* Für dunkle Flächen: helle Glasfläche statt Kontur. Bewusst ohne
@@ -502,6 +505,11 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @media(prefers-reduced-motion:reduce){.nav__glide{transition:opacity .2s}}
 .nav__right{display:flex;align-items:center;gap:12px}
 .nav__cta-desktop{height:42px;padding:0 20px;font-size:.92rem}
+/* In der Leiste bleibt der Knopf beim Überfahren an seinem Platz (kein
+   Anheben, kein Magnet in site.js): Er sitzt mit knapp 10 px Luft in der
+   Leiste, jede Bewegung darin wirkt wie ein Wackler. Rückmeldung geben Farbe,
+   Lichtkante und das Eindrücken beim Klick. */
+.nav__cta-desktop:hover{transform:none}
 
 .nav__toggle{display:none;width:44px;height:44px;margin-right:-8px;background:none;border:0;cursor:pointer;color:inherit}
 .nav__toggle span{display:block;width:20px;height:1.8px;margin:5px auto;border-radius:2px;background:currentColor;
@@ -1714,31 +1722,25 @@ main:has(> .manifest:last-child) + .footer{margin-top:0;border-radius:0;padding-
 .zweig-wahl .mcta{display:none!important}
 
 /* ---- Mauszeiger über Handlungsknöpfen: der Kartenpin ----
-   Nur auf Geräten mit feinem Zeiger (site.js setzt .has-cursor). */
+   Ein echter Systemzeiger (Bild mit Hotspot an der Nadelspitze), kein
+   nachgebautes Element mehr. Der frühere Pin war ein DIV, das site.js per
+   requestAnimationFrame hinter der Maus herzog: Er hing sichtbar hinterher,
+   blendete beim Betreten erst ein (kurz gar kein Zeiger) und stand mit der
+   Kopfmitte statt der Spitze auf dem Klickpunkt, also mitten auf der
+   Beschriftung. Den Systemzeiger zeichnet das Betriebssystem, ohne
+   Verzögerung.
+   Bild 24 x 32 px: Chrome zeigt eigene Zeiger über 32 px nicht an, sobald
+   sie über den Seitenrand in die Browserleiste ragen, und der Termin-Knopf
+   sitzt ganz oben.
+   Erste Zeile für Browser ohne image-set im cursor, dahinter die Variante
+   mit Retina-Bild. Fehlt das Bild, greift "pointer". */
 @media (hover:hover) and (pointer:fine){
-  html.has-cursor.cursor-seen .btn--primary{cursor:none}
+  .btn--primary:not(:disabled){
+    cursor:url("/cursor-pin.png") 12 29,pointer;
+    cursor:-webkit-image-set(url("/cursor-pin.png") 1x,url("/cursor-pin@2x.png") 2x) 12 29,pointer;
+    cursor:image-set(url("/cursor-pin.png") 1x,url("/cursor-pin@2x.png") 2x) 12 29,pointer;
+  }
 }
-.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;opacity:0}
-html.has-cursor.cursor-seen .cur-ring[data-state="pin"]{opacity:1}
-.cursor-off .cur-dot,.cursor-off .cur-ring{opacity:0}
-/* Ohne mix-blend-mode: Sichtbar ist nur die Nadel über Handlungsknöpfen, und
-   die mischt ohnehin normal. Eine Mischfläche, die der Maus folgt, zwang den
-   Browser in jedem Bild zum Neuverrechnen der ganzen Seite darunter. */
-.cur-dot{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;transition:opacity .25s}
-.cur-ring{width:28px;height:28px;margin:-14px 0 0 -14px;display:flex;align-items:center;justify-content:center;transition:opacity .25s}
-.cur-ring__c{position:absolute;inset:0;border:1.5px solid #fff;border-radius:50%;background:transparent;
-  transition:transform .3s var(--ease-out),opacity .3s,border-radius .32s var(--ease-out),background-color .3s,border-color .3s;will-change:transform}
-.cur-ring__label{position:relative;color:#fff;font-size:.56rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:0;transition:opacity .25s;white-space:nowrap}
-.cur-ring__drag{position:absolute;color:#fff;opacity:0;transform:scale(.6);transition:opacity .25s,transform .3s var(--ease-out)}
-.cur-ring[data-state="grow"] .cur-ring__c{transform:scale(1.5)}
-.cur-ring[data-state="view"] .cur-ring__c{transform:scale(2.1)}
-.cur-ring[data-state="view"] .cur-ring__label{opacity:1}
-.cur-ring[data-state="drag"] .cur-ring__c{transform:scale(1.9)}
-.cur-ring[data-state="drag"] .cur-ring__drag{opacity:1;transform:scale(1)}
-.cur-ring[data-state="pin"] .cur-ring__c{border-color:transparent;background-color:var(--mint-soft);border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg) scale(.68) translateY(-3px);box-shadow:0 3px 10px -2px rgba(0,0,0,.5)}
-.cur-ring[data-state="view"]~.cur-dot,.cur-ring[data-state="drag"]~.cur-dot,.cur-ring[data-state="pin"]~.cur-dot{opacity:0}
-@media (hover:none),(pointer:coarse){.cur-dot,.cur-ring{display:none}}
 
 /* ============ 7  UNTERSEITEN ============ */
 
@@ -2772,5 +2774,5 @@ body[data-zweig="webdesign"] .pagehead{
   .gsp__stage,.gsp__stage *{animation:none!important}
   .gsp-win{border-color:#34C759!important}
   .gsp-sweep{opacity:0}
-  .nav,.mcta,.mobile-menu,.chooser,.cur-dot,.cur-ring{display:none!important}
+  .nav,.mcta,.mobile-menu,.chooser{display:none!important}
 }
