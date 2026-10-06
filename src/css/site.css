@@ -503,7 +503,7 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .nav.scrolled .brand__name b,.nav.open .brand__name b,body[data-top="light"] .nav .brand__name b{color:var(--brand-ink)}
 
 .nav__links{position:relative;display:flex;align-items:center;gap:2px}
-.nav__links a{position:relative;z-index:1;display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;
+.nav__links a{position:relative;z-index:1;display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;white-space:nowrap;
   font-size:.93rem;font-weight:500;letter-spacing:0;opacity:.8;
   transition:opacity .2s,color var(--dur-ui) var(--ease-apple)}
 .nav__links a:hover{opacity:1}
@@ -663,7 +663,11 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
    im Oktober 2026 wieder zurückgenommen. */
 .logo-scene{position:absolute;top:50%;right:-4%;width:min(760px,60vw);aspect-ratio:1/1;
   transform:translateY(-52%);opacity:.9;contain:layout paint;will-change:transform}
-.logo-scene svg{width:100%;height:100%;display:block}
+.logo-scene svg{position:relative;width:100%;height:100%;display:block}
+/* Bildmarke aus Code (logo-code.js): Der Canvas liegt unter der Linie, die
+   Linie bleibt als Rahmen. Die blasse Füllfläche übernimmt der Code. */
+.logo-scene__code{position:absolute;inset:0;width:100%;height:100%}
+.logo-scene--code #logo-fill{display:none}
 /* Endzustand = Ruhezustand ohne Animation (kein JS, "Bewegung reduzieren"). */
 #logo-glow{fill:none;stroke:url(#jlLineGradient);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:1000;stroke-dashoffset:0;opacity:0}
