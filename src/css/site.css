@@ -654,34 +654,16 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   background:radial-gradient(circle closest-side,rgba(26,107,255,.22),rgba(26,107,255,.07) 48%,rgba(26,107,255,0))}
 
 /* Die Bildmarke zeichnet sich einmal selbst und bleibt danach als ganz leise
-   Fläche hinter der Karte stehen. Eigene Ebene: Das Nachzeichnen der
-   Linie malt nur diese Ebene neu, nicht den ganzen Hero.
+   Fläche hinter der Karte stehen. Eigene Ebene plus Paint-Containment: Das
+   Nachzeichnen der Linie malt nur diese Ebene neu, nicht den ganzen Hero.
    Früher lag ein SVG-Weichzeichner auf der Linie (und auf einem Lichtpunkt),
    der in jedem Bild über eine sehr große Fläche neu gerechnet wurde. */
 /* Am Fensterrand ist gewollt (Leandros Wunsch): Die Bildmarke läuft rechts
    bis an den Rand. Ein Versuch, sie mittig hinter die Karte zu holen, wurde
    im Oktober 2026 wieder zurückgenommen. */
 .logo-scene{position:absolute;top:50%;right:-4%;width:min(760px,60vw);aspect-ratio:1/1;
-  transform:translateY(-52%);opacity:.9;contain:layout;will-change:transform}
+  transform:translateY(-52%);opacity:.9;contain:layout paint;will-change:transform}
 .logo-scene>svg{position:relative;width:100%;height:100%;display:block}
-/* Bildmarke aus Glas (logo-glas.js): Steht der WebGL-Canvas, tritt das
-   SVG zurück. Ohne Skript, ohne WebGL 2 oder bei einem Fehler bleibt das
-   SVG mit seiner Linie stehen. Beim Scrollen wird die Marke zum gläsernen
-   Suchfeld; dessen Beschriftung ist HTML über dem Glas. Das Suchfeld
-   liegt unter der Karte und damit oft knapp unter der Fläche der Marke:
-   Der Canvas ist darum nach unten länger (Höhe setzt das Skript), und die
-   Szene schneidet nicht mehr ab (kein Paint-Containment). Was über den
-   Hero hinausragt, schneidet .hero ab. */
-.logo-scene__glas{position:absolute;left:0;top:0;width:100%;height:100%}
-.logo-scene--glas>svg{visibility:hidden}
-.logo-suche{position:absolute;display:flex;align-items:center;gap:12px;padding:0 22px;box-sizing:border-box;
-  color:#F2F6FF;font-family:var(--font-text);font-weight:500;letter-spacing:0;white-space:nowrap;opacity:0;pointer-events:none;
-  text-shadow:0 1px 8px rgba(5,10,30,.6)}
-.logo-suche__lupe{flex:none;color:#CFE0FF}
-.logo-suche__text{overflow:hidden}
-.logo-suche__cursor{flex:none;width:1.5px;height:1.15em;margin-left:-9px;background:#BFD6FF;border-radius:1px}
-.logo-suche.is-fertig .logo-suche__cursor{animation:logoCursor 1.06s steps(1) infinite}
-@keyframes logoCursor{50%{opacity:0}}
 /* Endzustand = Ruhezustand ohne Animation (kein JS, "Bewegung reduzieren"). */
 #logo-glow{fill:none;stroke:url(#jlLineGradient);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:1000;stroke-dashoffset:0;opacity:0}
@@ -803,10 +785,6 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .ios-note--call{top:-46px;right:-30px}
 .ios-note--review{bottom:-40px;left:-46px}
 .hero__caption{margin-top:16px;padding-right:6px;text-align:right;font-size:.78rem;line-height:18px;color:rgba(232,235,248,.42);letter-spacing:.01em}
-/* Liegt die Unterschrift auf der Bildmarke, deckt ein weicher Schatten in
-   Hintergrundfarbe das Glas dahinter ab. */
-.hero:has(.logo-scene--glas) .hero__caption{position:relative;z-index:1;color:rgba(232,235,248,.55);
-  text-shadow:0 0 4px #0B0F24,0 0 8px #0B0F24,0 0 14px #0B0F24}
 @media(max-width:1100px) and (min-width:961px){
   .hero__inner{grid-template-columns:minmax(0,1fr) minmax(0,380px)}
   .ios-note--call{right:-10px}

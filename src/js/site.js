@@ -23,19 +23,6 @@ var scrollTakt = (function(){
   };
 })();
 
-// Für Module, die eigene Dateien sind (logo-glas.js): derselbe Takt statt
-// eines weiteren Scroll-Listeners.
-window.jlScrollTakt = scrollTakt;
-
-// Bildmarke aus Glas im Hero (src/js/logo-glas.js), die beim Scrollen zur
-// Suchleiste wird. Nur wenn die Marke überhaupt zu sehen ist: Auf dem
-// Telefon steht sie auf display:none.
-(function(){
-  var scene = document.querySelector('.hero .logo-scene');
-  if(!scene || !scene.offsetWidth) return;
-  import('./logo-glas.js').then(function(m){ m.start(scene); }).catch(function(){});
-})();
-
 (function(){
   // Der Buchungskalender (src/js/booking.js) wird geladen, wenn er sich
   // nähert (anderthalb Bildschirmhöhen vorher) — so steht er fertig da,
