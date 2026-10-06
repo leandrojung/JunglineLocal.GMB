@@ -1271,7 +1271,11 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @keyframes gspRight{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
 @keyframes gspLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes gspPhone{from{opacity:0;transform:translateY(60px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes gspType{from{width:0}to{width:118px}}
+/* Tippen im Suchfeld: max-width statt width. Das Feld wird nie breiter als
+   der Text selbst, der Strich steht danach direkt am letzten Buchstaben, egal
+   wie breit die Systemschrift des Geräts ihn setzt. 150 px liegt sicher über
+   jeder Schrift; die letzten Schritte laufen dann einfach ins Leere. */
+@keyframes gspType{from{max-width:0}to{max-width:150px}}
 @keyframes gspCaret{0%,44%{opacity:1}45%,100%{opacity:0}}
 @keyframes gspBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
 @keyframes gspPin{0%{opacity:0;transform:translateY(-34px) scale(.4)}60%{opacity:1;transform:translateY(4px) scale(1.08)}80%{transform:translateY(-2px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
