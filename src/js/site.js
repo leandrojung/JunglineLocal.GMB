@@ -23,12 +23,12 @@ var scrollTakt = (function(){
   };
 })();
 
-// Bildmarke als Wortbild im Hero (src/js/logo-wortbild.js). Nur wenn die
+// Bildmarke als Topografie im Hero (src/js/logo-topo.js). Nur wenn die
 // Marke überhaupt zu sehen ist: Auf dem Telefon steht sie auf display:none.
 (function(){
   var scene = document.querySelector('.hero .logo-scene');
   if(!scene || !scene.offsetWidth) return;
-  import('./logo-wortbild.js').then(function(m){ m.start(scene); }).catch(function(){});
+  import('./logo-topo.js').then(function(m){ m.start(scene); }).catch(function(){});
 })();
 
 (function(){
