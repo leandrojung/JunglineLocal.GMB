@@ -658,11 +658,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
    Nachzeichnen der Linie malt nur diese Ebene neu, nicht den ganzen Hero.
    Früher lag ein SVG-Weichzeichner auf der Linie (und auf einem Lichtpunkt),
    der in jedem Bild über eine sehr große Fläche neu gerechnet wurde. */
-/* Die Bildmarke steht mittig hinter der Rangliste, ganz im Bild. Mit
-   right:-4% lief ihre rechte Ecke bis auf gut 30 px an den Fensterrand und
-   wirkte wie versehentlich abgeschnitten. 225px = halbe Kartenbreite. */
-.logo-scene{position:absolute;top:50%;right:max(-20px,calc(max(var(--gutter),(100vw - var(--maxw)) / 2) + 225px - min(380px,30vw)));
-  width:min(760px,60vw);aspect-ratio:1/1;
+/* Am Fensterrand ist gewollt (Leandros Wunsch): Die Bildmarke läuft rechts
+   bis an den Rand. Ein Versuch, sie mittig hinter die Karte zu holen, wurde
+   im Oktober 2026 wieder zurückgenommen. */
+.logo-scene{position:absolute;top:50%;right:-4%;width:min(760px,60vw);aspect-ratio:1/1;
   transform:translateY(-52%);opacity:.9;contain:layout paint;will-change:transform}
 .logo-scene svg{width:100%;height:100%;display:block}
 /* Endzustand = Ruhezustand ohne Animation (kein JS, "Bewegung reduzieren"). */
