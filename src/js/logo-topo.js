@@ -2,15 +2,19 @@
    BILDMARKE ALS TOPOGRAFIE (Hero der Startseite)
    ============================================================
    "Oben bei Google" als Landkarte: Die Bildmarke ist ein Berg, gezeichnet
-   mit Höhenlinien wie auf einer Wanderkarte. Ganz oben steht die
-   Gipfelmarke "Platz 1", unten die Koordinaten von Dorsten.
+   mit Höhenlinien wie auf einer Wanderkarte, und zwar räumlich: Jede Linie
+   ist um ihre Höhe angehoben, wie bei einem Geländemodell aus Glasplatten.
+   Unten stehen die Koordinaten von Dorsten.
 
    Einstieg: Eine flache Karte mit sanften Höhenlinien öffnet sich von der
-   Mitte aus. Dann wächst die Marke aus dem Gelände; die Linien ziehen sich
-   zu vielen versetzten Konturen um die Form zusammen.
-   Ruhe: Das Gelände atmet sehr langsam. Kein Streifen, kein Flackern.
-   Maus (nur Desktop): Unter dem Zeiger hebt sich ein kleiner Hügel, die
-   Höhenlinien weichen ihm aus.
+   Mitte aus. Dann wächst die Marke aus dem Gelände, die Linien ziehen sich
+   zu vielen versetzten Konturen um die Form zusammen, und die Karte kippt
+   ins Räumliche: Der Berg steigt auf. Die obersten Linien tragen Licht.
+   Ruhe: Das Gelände um den Berg wandert sehr langsam. Kein Streifen, kein
+   Flackern.
+   Maus (nur Desktop): Die ganze Platte neigt sich leicht zur Maus (CSS,
+   rechnet die Grafikkarte). Über der Marke hebt sich unter dem Zeiger ein
+   kleiner Hügel, die Höhenlinien weichen ihm aus.
 
    So funktioniert es:
      * Ein Höhenfeld auf einem Raster (etwa alle 6 px ein Wert) aus drei
@@ -57,11 +61,18 @@ const HUEGEL = 0.2
 // einziges Mal gezeichnet werden.
 const FEST_AB = 0.15
 
+// Räumliche Anhebung: Spannweite zwischen tiefster und höchster Linie, als
+// Anteil der Kantenlänge. Die Mitte bleibt, wo sie ist.
+const ANHEBEN = 0.05
+// Ab dieser Höhe tragen die Linien einen weichen Schein.
+const GLANZ_AB = 0.66
+
 // Einstieg in Sekunden.
 const OEFFNEN = [0, 1.1]      // Karte öffnet sich von der Mitte
 const WACHSEN = [0.35, 2.15]  // Marke wächst aus dem Gelände
-const BESCHRIFTEN = [1.9, 2.6]
-const RUHE_AB = 2.6
+const KIPPEN = [1.15, 2.6]    // Karte kippt ins Räumliche
+const BESCHRIFTEN = [2.0, 2.7]
+const RUHE_AB = 2.7
 
 const FPS_RUHE = 15, FPS_ZEIGER = 36, FPS_EINSTIEG = 60
 
@@ -115,22 +126,25 @@ export async function start(scene) {
   let feld = null         // aktuelles Höhenfeld
   let farben = []         // Strichfarbe je Höhenlinie
   let randMaske = null    // radialer Verlauf zum Ausblenden am Rand
+  const glanz = 'rgba(130,175,255,.13)'
   let fest = null         // je Rasterzelle: 1, wenn ihre Höhe fest ist
   const berg = document.createElement('canvas')
   const bctx = berg.getContext('2d')
   let bergFertig = false
   let stuecke = []        // Linienstücke je Höhe, pro Bild neu gefüllt
   let zaehler = null
-  let gipfel = null, fuss = null
-  // Ob die Beschriftungen frei stehen (nichts liegt darüber); wird geprüft,
+  let fuss = null
+  // Ob die Beschriftung frei steht (nichts liegt darüber); wird geprüft,
   // sobald Karte und Mitteilungen ihren Platz haben.
-  let gipfelFrei = false, fussFrei = false, frageFrei = true
+  let fussFrei = false, frageFrei = true
   let startZeit = 0, gestartet = false, laeuft = false, raf = 0, letztesBild = 0
   let imBild = !('IntersectionObserver' in window)
   // Obergrenze der Bildrate; sinkt, wenn ein Bild auf diesem Gerät zu teuer ist.
   let fpsGrenze = FPS_ZEIGER
   // Hügel unter dem Zeiger: Ziel, geglättete Lage, Stärke.
   let zielX = 0, zielY = 0, hX = 0, hY = 0, hStaerke = 0, zeigerZeit = -1e4, zeigerDrin = false
+  // Neigung der Platte: Ziel aus der Mauslage im Hero (-1 bis 1), geglättet.
+  let neigZielX = 0, neigZielY = 0, neigX = 0, neigY = 0, neigGeschrieben = ''
 
   function aufbauen() {
     groesse = scene.clientWidth
@@ -180,10 +194,8 @@ export async function start(scene) {
     randMaske.addColorStop(0, 'rgba(0,0,0,1)')
     randMaske.addColorStop(1, 'rgba(0,0,0,0)')
 
-    // Beschriftung: Gipfel an der obersten Spitze der Marke, Koordinaten
-    // unter der untersten. Beide Punkte aus dem SVG-Pfad (Ecken bei 23,6
-    // und 351,4 im 375er Raster).
-    gipfel = { x: groesse / 2, y: (23.6 / VIEW) * groesse }
+    // Beschriftung: Koordinaten unter der unteren Spitze der Marke (Ecke bei
+    // 351,4 im 375er Raster des SVG-Pfads).
     fuss = { x: groesse / 2, y: (351.4 / VIEW) * groesse }
     return true
   }
@@ -298,18 +310,29 @@ export async function start(scene) {
   }
 
   // Alle gesammelten Linienstücke in einen Kontext zeichnen, dann zum Rand
-  // hin ausblenden.
-  function striche(c) {
+  // hin ausblenden. kippen (0 bis 1): wie weit jede Linie um ihre Höhe
+  // angehoben wird. Hohe Linien zuerst breit und blass (Schein), dann fein.
+  function striche(c, kippen) {
     c.lineCap = 'butt'
+    const spanne = ANHEBEN * groesse * kippen
     for (let k = 0; k < STUFEN; k++) {
       const anzahl = zaehler[k]
       if (!anzahl) continue
+      const h = k / (STUFEN - 1)
       const buf = stuecke[k]
+      c.save()
+      c.translate(0, spanne * (0.45 - h))
       c.beginPath()
       for (let s = 0; s < anzahl * 4; s += 4) { c.moveTo(buf[s], buf[s + 1]); c.lineTo(buf[s + 2], buf[s + 3]) }
+      if (h >= GLANZ_AB) {
+        c.strokeStyle = glanz
+        c.lineWidth = 5
+        c.stroke()
+      }
       c.strokeStyle = farben[k]
       c.lineWidth = k > STUFEN * 0.7 ? 1.4 : 1.1
       c.stroke()
+      c.restore()
     }
     c.globalCompositeOperation = 'destination-in'
     c.fillStyle = randMaske
@@ -326,7 +349,7 @@ export async function start(scene) {
     linien(2)
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     bctx.clearRect(0, 0, groesse, groesse)
-    striche(bctx)
+    striche(bctx, 1)
     bergFertig = true
   }
 
@@ -349,7 +372,7 @@ export async function start(scene) {
       ctx.arc(groesse / 2, groesse / 2, Math.max(1, oeffnen * groesse * 0.72), 0, Math.PI * 2)
       ctx.clip()
     }
-    striche(ctx)
+    striche(ctx, voll ? wellig(glatt(KIPPEN[0], KIPPEN[1], t)) : 1)
     ctx.restore()
     if (!voll) {
       ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -359,20 +382,14 @@ export async function start(scene) {
     beschriften(glatt(BESCHRIFTEN[0], BESCHRIFTEN[1], t))
   }
 
-  // Gipfelmarke und Koordinaten, wie Beschriftungen auf einer Karte.
-  // Lage in Canvas-Koordinaten: Rechteck je Beschriftung.
-  function gipfelKasten() {
-    const fs = Math.round(groesse / 62)
-    return { l: gipfel.x - 7, o: gipfel.y - fs, r: gipfel.x + 14 + fs * 4.2, u: gipfel.y + fs * 0.6, fs }
-  }
+  // Koordinaten wie eine Beschriftung auf einer Karte.
   function fussKasten() {
     const fs = Math.round(groesse / 72)
     return { l: fuss.x - fs * 6, o: fuss.y + 18 - fs, r: fuss.x + fs * 6, u: fuss.y + 18 + fs, fs }
   }
 
-  // Liegt etwas über einer Beschriftung (Leiste, Karte, Mitteilungen,
-  // Bildunterschrift), bleibt sie weg. Die Leiste wird so geprüft, wie sie
-  // ganz oben auf der Seite steht.
+  // Liegt etwas über der Beschriftung (Karte, Mitteilungen, Bildunter-
+  // schrift), bleibt sie weg.
   function freiPruefen() {
     const r = canvas.getBoundingClientRect()
     if (!r.width) return
@@ -381,47 +398,36 @@ export async function start(scene) {
       const b = el.getBoundingClientRect()
       return { l: (b.left - r.left) * k - 8, r: (b.right - r.left) * k + 8, o: (b.top - r.top) * k - 8, u: (b.bottom - r.top) * k + 8 }
     })
-    const nav = document.querySelector('.nav__inner')
-    if (nav) {
-      const n = nav.getBoundingClientRect()
-      // Leiste ist fest oben; ihre Unterkante in Canvas-Koordinaten bei
-      // Scrollposition 0.
-      const canvasObenSeite = r.top + window.scrollY
-      decken.push({ l: -1e4, r: 1e4, o: -1e4, u: (n.bottom - canvasObenSeite) * k + 12 })
-    }
-    const frei = (q) => !decken.some((d) => q.r > d.l && q.l < d.r && q.u > d.o && q.o < d.u)
-    gipfelFrei = frei(gipfelKasten())
-    fussFrei = frei(fussKasten())
+    const q = fussKasten()
+    fussFrei = !decken.some((d) => q.r > d.l && q.l < d.r && q.u > d.o && q.o < d.u)
   }
 
   function beschriften(sicht) {
-    if (sicht <= 0 || (!gipfelFrei && !fussFrei)) return
+    if (sicht <= 0 || !fussFrei) return
+    const f = fussKasten()
     ctx.save()
     ctx.globalAlpha = sicht
     ctx.textBaseline = 'middle'
     // Dunkler Schein hinter der Schrift, damit sie über den Linien lesbar ist.
     ctx.shadowColor = 'rgba(9,12,29,.95)'
     ctx.shadowBlur = 8
-    if (gipfelFrei) {
-      // Dreieck genau auf der Spitze der Marke, daneben "Platz 1".
-      const g = gipfelKasten()
-      ctx.fillStyle = '#E6EFFF'
-      ctx.beginPath()
-      ctx.moveTo(gipfel.x - 6, gipfel.y + 3); ctx.lineTo(gipfel.x, gipfel.y - 7); ctx.lineTo(gipfel.x + 6, gipfel.y + 3); ctx.closePath()
-      ctx.fill()
-      ctx.font = `600 ${g.fs}px ${SCHRIFT}`
-      ctx.textAlign = 'left'
-      ctx.fillText('Platz 1', gipfel.x + 12, gipfel.y - 1)
-    }
-    if (fussFrei) {
-      // Koordinaten von Dorsten unter der unteren Spitze.
-      const f = fussKasten()
-      ctx.font = `500 ${f.fs}px ${SCHRIFT}`
-      ctx.textAlign = 'center'
-      ctx.fillStyle = 'rgba(169,200,255,.75)'
-      ctx.fillText('51°39′ N   6°58′ O', fuss.x, fuss.y + 18)
-    }
+    ctx.font = `500 ${f.fs}px ${SCHRIFT}`
+    ctx.textAlign = 'center'
+    ctx.fillStyle = 'rgba(169,200,255,.75)'
+    ctx.fillText('51°39′ N   6°58′ O', fuss.x, fuss.y + 18)
     ctx.restore()
+  }
+
+  // Neigung der Platte zur Maus: nur transform, das setzt der Browser auf
+  // der Grafikkarte um. Geschrieben wird nur, wenn sich etwas ändert.
+  function neigen() {
+    neigX += (neigZielX - neigX) * 0.06
+    neigY += (neigZielY - neigY) * 0.06
+    if (Math.abs(neigX) < 0.0005 && Math.abs(neigZielX) === 0) neigX = 0
+    if (Math.abs(neigY) < 0.0005 && Math.abs(neigZielY) === 0) neigY = 0
+    const wert = neigX === 0 && neigY === 0 ? ''
+      : `perspective(1400px) rotateX(${(-neigY * 6).toFixed(2)}deg) rotateY(${(neigX * 7).toFixed(2)}deg)`
+    if (wert !== neigGeschrieben) { canvas.style.transform = wert; neigGeschrieben = wert }
   }
 
   function bild(jetzt) {
@@ -436,6 +442,7 @@ export async function start(scene) {
       hY += (zielY - hY) * 0.18
       if (hStaerke < 0.002) hStaerke = 0
     }
+    if (feinerZeiger) neigen()
     const rate = t < RUHE_AB ? FPS_EINSTIEG : Math.min(hStaerke > 0 ? FPS_ZEIGER : FPS_RUHE, fpsGrenze)
     if (jetzt - letztesBild >= 1000 / rate - 2) {
       const vorher = performance.now()
@@ -476,6 +483,11 @@ export async function start(scene) {
   if (feinerZeiger) {
     const hero = scene.closest('.hero') || document
     hero.addEventListener('pointermove', (e) => {
+      const hb = hero.getBoundingClientRect ? hero.getBoundingClientRect() : null
+      if (hb && hb.width) {
+        neigZielX = Math.max(-1, Math.min(1, ((e.clientX - hb.left) / hb.width - 0.5) * 2))
+        neigZielY = Math.max(-1, Math.min(1, ((e.clientY - hb.top) / hb.height - 0.5) * 2))
+      }
       const r = canvas.getBoundingClientRect()
       if (!r.width) return
       const x = (e.clientX - r.left) * (groesse / r.width)
@@ -486,7 +498,7 @@ export async function start(scene) {
       zielX = x; zielY = y
       zeigerZeit = (performance.now() - startZeit) / 1000
     }, { passive: true })
-    hero.addEventListener('pointerleave', () => { zeigerDrin = false }, { passive: true })
+    hero.addEventListener('pointerleave', () => { zeigerDrin = false; neigZielX = 0; neigZielY = 0 }, { passive: true })
   }
 
   let neuUhr = 0
