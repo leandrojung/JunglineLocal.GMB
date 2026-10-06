@@ -2874,25 +2874,11 @@ body[data-zweig="webdesign"] .pagehead{
   }
 }
 
-/* Blätter: Schiebt sich ein Abschnitt mit runder Oberkante (.sheet) über den
-   vorigen, tritt der vorige ein Stück zurück (Inhalt auf 97 %) und wird
-   dunkler, wie ein Blatt unter einem neuen in iOS. Nur Desktop und nur mit
-   Scroll-Zeitleiste; ausserhalb des Übergangs ist die Animation ganz aus
-   (fill none), damit kein Abschnitt dauerhaft eine Transformation trägt. */
-@keyframes sheetZurueck{to{transform:scale(.97)}}
-@keyframes sheetDunkel{to{opacity:.24}}
-@supports (animation-timeline:view()){
-  @media(min-width:1024px) and (prefers-reduced-motion:no-preference){
-    .js main>:has(+ .sheet){position:relative;isolation:isolate;view-timeline:--weg block}
-    /* Einzelangaben statt der Kurzform: Die Kurzform setzte auch
-       animation-play-state zurück, und die Handy-Bühne (.gsp__stage) muss
-       pausiert bleiben, bis site.js sie startet. */
-    .js main>:has(+ .sheet)>*{transform-origin:50% 100%;animation-name:sheetZurueck;animation-timing-function:linear;
-      animation-fill-mode:none;animation-timeline:--weg;animation-range:exit 0% exit 100%}
-    .js main>:has(+ .sheet)::after{content:"";position:absolute;inset:0;z-index:50;pointer-events:none;background:#05070F;opacity:0;
-      animation-name:sheetDunkel;animation-timing-function:linear;animation-fill-mode:none;animation-timeline:--weg;animation-range:exit 0% exit 100%}
-  }
-}
+/* Kein Blatt-Übergang mehr (vorigen Abschnitt beim Überdecken schrumpfen
+   und abdunkeln, Oktober 2026 kurz live): In Safari liess sich die
+   Webdesign-Seite damit nicht mehr scrollen. Dort hing er an elf
+   Abschnitten mit über 20 scrollgesteuerten Animationen, die Safari auf dem
+   Hauptthread rechnet. Nicht wieder einbauen, ohne es in Safari zu testen. */
 
 /* ---- Live-Icons: jedes Strich-Icon zeichnet sich beim ersten Sichtkontakt
    selbst (site.js misst die Pfadlänge und legt sie als --len ab). Sichtbarer
