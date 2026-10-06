@@ -1316,11 +1316,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @property --flow-p{syntax:'<number>';inherits:true;initial-value:1}
 /* Quer steht jeder Schritt mittig in seiner Spalte, die Linie verbindet die
    Mitten. Die Nummern tragen einen Verlauf (--num-an oben, --num-bis unten),
-   der von --num-aus her aufleuchtet; auf dunkler Fläche Weiß zu Hellblau. */
+   der von --num-aus her aufleuchtet. */
 .flow{--flow-p:1;--flow-gap:clamp(20px,2.6vw,40px);--node:20px;--node-y:10px;
-  --num-an:var(--brand);--num-bis:#5C9BFF;--num-aus:#D3D5DD;--funke:var(--brand-rgb);
+  --num-an:var(--brand);--num-bis:#5C9BFF;--num-aus:#D2D2D7;--funke:92,155,255;
   position:relative;list-style:none;display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:0 var(--flow-gap);margin:var(--sp-head) 0 0;padding:0}
-.theme-dark .flow{--num-an:#FFFFFF;--num-bis:var(--brand-on-dark);--num-aus:rgba(255,255,255,.13);--funke:var(--brand-on-dark-rgb)}
 .flow__step{position:relative;
   --lit:clamp(0,(var(--flow-p) - var(--t,0)) * 8 + 1,1);
   --seg:clamp(0,(var(--flow-p) - var(--t,0)) * (var(--n,4) - 1),1)}
@@ -1328,7 +1327,6 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   top:calc(var(--node-y) - 1px);left:50%;width:calc(100% + var(--flow-gap));height:2px;border-radius:2px}
 .flow__step::before{background:var(--border)}
 .flow__step::after{background:linear-gradient(90deg,var(--brand),rgb(var(--funke)));transform-origin:left center;transform:scaleX(var(--seg))}
-.theme-dark .flow__step::after{box-shadow:0 0 12px rgba(var(--brand-rgb),.75)}
 /* Lichtpunkt an der Spitze der Füllung: wandert beim Scrollen die Linie
    entlang und lässt jeden Schritt aufleuchten, wenn er ihn erreicht. Seine
    Lage ist dieselbe Rechnung wie die Füllung: Mitte der ersten Spalte plus
@@ -1337,18 +1335,17 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .flow::after{content:"";position:absolute;z-index:2;pointer-events:none;
   --spalte:calc((100% - (var(--n,4) - 1) * var(--flow-gap)) / var(--n,4));
   top:var(--node-y);left:calc(var(--spalte) / 2 + var(--flow-p) * (100% - var(--spalte)));
-  width:120px;height:22px;transform:translate(calc(-100% + 11px),-50%);
-  background:radial-gradient(closest-side,#fff 28%,rgba(var(--funke),.85) 55%,rgba(var(--funke),0)) right center/22px 22px no-repeat,
-    linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.9)) left center/calc(100% - 11px) 2px no-repeat;
-  filter:drop-shadow(0 0 6px rgba(var(--funke),.9));
+  width:110px;height:20px;transform:translate(calc(-100% + 10px),-50%);
+  background:radial-gradient(closest-side,#fff 30%,rgba(var(--funke),.9) 55%,rgba(var(--funke),0)) right center/20px 20px no-repeat,
+    linear-gradient(90deg,rgba(var(--funke),0),rgba(var(--funke),.95)) left center/calc(100% - 10px) 2px no-repeat;
+  filter:drop-shadow(0 0 4px rgba(var(--brand-rgb),.45));
   opacity:clamp(0,min(var(--flow-p) * 40,(1 - var(--flow-p)) * 40),1)}
 .flow__link{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;text-align:center;color:var(--ink)}
 .flow__node{position:relative;flex:none;width:var(--node);height:var(--node);margin-bottom:28px;border-radius:50%;background:var(--bg);
   box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--brand) calc(var(--lit) * 100%),var(--border-strong)),
-    0 0 0 calc(var(--lit) * 7px) rgba(var(--brand-rgb),.14),
-    0 0 calc(var(--lit) * 26px) rgba(var(--brand-rgb),calc(var(--lit) * .5))}
+    0 0 0 calc(var(--lit) * 7px) rgba(var(--brand-rgb),.12),
+    0 0 calc(var(--lit) * 14px) rgba(var(--brand-rgb),calc(var(--lit) * .22))}
 .flow__node::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--brand);transform:scale(var(--lit))}
-.theme-dark .flow__node::after{background:radial-gradient(circle at 40% 35%,#fff,rgb(var(--funke)) 45%,var(--brand))}
 .flow__num{font-family:var(--font-display);font-weight:700;font-size:clamp(3.4rem,6.4vw,6rem);line-height:.9;letter-spacing:-.045em;
   padding:0 .06em;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--num-an) calc(var(--lit) * 100%),var(--num-aus))}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
@@ -1390,10 +1387,32 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 @media(max-width:640px){
   .flow-foot{gap:14px}
 }
-/* Startseite: Der Ablauf steht auf dunkler Fläche, mit einem leisen blauen
-   Schein hinter der Linie. So wechseln sich hell und dunkel ab, statt dass
-   zwei weisse Abschnitte aufeinander folgen. */
-.steps.theme-dark{background:radial-gradient(62% 48% at 50% 66%,rgba(var(--brand-rgb),.17),rgba(var(--brand-rgb),0) 72%),var(--bg)}
+/* Ablauf im Apple-Stil (Leandros Wunsch, Startseite und Stadtseiten):
+   Apples Systemschrift SF Pro auf iPhone, iPad und Mac. Als Webfont darf
+   SF Pro nicht ausgeliefert werden; auf anderen Geräten steht darum die
+   Hausschrift. -apple-system und BlinkMacSystemFont genügen: Damit holen
+   Safari, Chrome und Firefox auf Apple-Geräten SF Pro, in der jeweils
+   passenden Fassung (Display ab 20 px, Text darunter). Grössen, Gewichte und Laufweiten nach apple.com:
+   Überschrift 600 statt 700 und kaum enger, Einleitung 21 px, Fliesstext
+   und Links 17 px mit leicht engerer Laufweite, Apples Grau- und Linkfarben.
+   Titel färben sich beim Zeigen nicht ein; der Link wird unterstrichen. */
+.steps{--font-apple:-apple-system,BlinkMacSystemFont,'Instrument Sans','Instrument Fallback',system-ui,sans-serif;
+  --apple-ink:#1D1D1F;--apple-dim:#6E6E73;--apple-soft:#86868B;--apple-link:#0066CC;
+  font-family:var(--font-apple)}
+.steps :is(h2,h3,.flow__num){font-family:var(--font-apple)}
+.steps .head-block h2{font-weight:600;letter-spacing:-.005em;line-height:1.07;color:var(--apple-ink)}
+.steps .head-block h2 .soft{color:var(--apple-soft)}
+.steps .head-block p{font-size:clamp(1.125rem,1.6vw,1.3125rem);line-height:1.381;letter-spacing:.011em;color:var(--apple-dim)}
+.steps .flow__num{font-weight:600;letter-spacing:-.025em}
+.steps .flow__step h3{margin-top:16px;font-size:clamp(1.3rem,1.9vw,1.5rem);font-weight:600;line-height:1.17;letter-spacing:.009em;color:var(--apple-ink)}
+.steps .flow__step p{font-size:1.0625rem;line-height:1.47;letter-spacing:-.022em;color:var(--apple-dim)}
+.steps .flow__more{padding-top:10px;font-size:1.0625rem;font-weight:400;letter-spacing:-.022em;color:var(--apple-link)}
+.steps .flow-foot__promise{font-size:.875rem;font-weight:400;letter-spacing:-.016em;color:var(--apple-dim)}
+.steps .flow-foot .link-arrow{font-size:1.0625rem;font-weight:400;letter-spacing:-.022em;color:var(--apple-link)}
+@media(hover:hover){
+  .steps .flow__link:hover h3{color:var(--apple-ink)}
+  .steps .flow__link:hover .flow__more,.steps .flow-foot .link-arrow:hover{text-decoration:underline;text-underline-offset:.18em}
+}
 
 /* Profil-Check: Zusagen als Chips unter dem einen Satz. */
 .rank-check__intro .chips{margin-top:22px}
