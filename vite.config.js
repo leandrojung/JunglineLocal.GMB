@@ -105,16 +105,24 @@ function renderBausteineLeistungen() {
 // ("Ihr Betrieb", "Ihr Büro", …), die Wettbewerber-Namen aber überall identisch
 // bleiben. Token-Syntax: <!--RANKCARD_ILLU youLabel="…" ariaLabel="…"-->
 // ---------------------------------------------------------------------------
-// Vier Schritte als Bento-Raster (Daten: src/data/ablauf.js). Token: <!--ABLAUF-->
+// Vier Schritte als Zeitstrahl (Daten: src/data/ablauf.js). Token: <!--ABLAUF-->
+// Große Nummern und eine Linie, die sich beim Scrollen von Schritt zu Schritt
+// füllt (site.css, "Ablauf"). Vorher vier gleiche Kacheln mit Symbol-Quadrat
+// und "Schritt n" in der Ecke: das sah nach Vorlage aus, nicht nach Ablauf.
+// --t ist die Stelle des Schritts auf der Linie (0 bis 1), --n die Anzahl.
 function renderAblauf() {
-  const more = '<span class="bento__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>'
-  const tiles = ablauf.map((s, i) => `<a class="bento__tile" href="${s.href}" data-reveal${i ? ` data-d="${i}"` : ''}>
-        <span class="bento__top"><span class="bento__ic">${s.icon}</span><span class="bento__step">Schritt ${i + 1}</span></span>
-        <h3>${s.titel}</h3>
-        <p>${s.text}</p>
-        ${more}
-      </a>`).join('\n      ')
-  return `<div class="bento">\n      ${tiles}\n    </div>`
+  const more = '<span class="flow__more">Mehr erfahren<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>'
+  const letzte = ablauf.length - 1
+  const steps = ablauf.map((s, i) => `<li class="flow__step" style="--t:${(i / letzte).toFixed(3)}" data-reveal${i ? ` data-d="${i}"` : ''}>
+        <a class="flow__link" href="${s.href}">
+          <span class="flow__node" aria-hidden="true"></span>
+          <span class="flow__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+          <h3>${s.titel}</h3>
+          <p>${s.text}</p>
+          ${more}
+        </a>
+      </li>`).join('\n      ')
+  return `<ol class="flow" style="--n:${ablauf.length}">\n      ${steps}\n    </ol>`
 }
 
 // ---------------------------------------------------------------------------
@@ -135,7 +143,9 @@ function renderReferenzen() {
         </div>` : ''
     const rang = r.suchbegriff ? `<p class="inote inote--flat client-spotlight__rank"><span class="inote__ic inote__ic--maps" aria-hidden="true">${PIN_SVG}</span><span class="inote__tx"><span class="inote__top"><b>Platz 1 bei Google</b>${r.platzStand ? `<span class="inote__time">Stand ${r.platzStand}</span>` : ''}</span><small>„${r.suchbegriff}“</small></span></p>` : ''
     const anzahl = r.bewertungen && r.bewertungen.anzahl ? ` · ${r.bewertungen.anzahl} Bewertungen${r.bewertungen.stand ? ` (Stand ${r.bewertungen.stand})` : ''}` : ' bei Google'
-    const meta = r.sterne ? `<p class="client-spotlight__meta"><span class="client-spotlight__stars" aria-hidden="true">★★★★★</span> <b>${r.sterne}</b>${anzahl}</p>` : ''
+    // Fünf einzelne Sterne, damit sie sich beim Einblenden nacheinander füllen (site.css, --s).
+    const sterne = [0, 1, 2, 3, 4].map((k) => `<span style="--s:${k}">★</span>`).join('')
+    const meta = r.sterne ? `<p class="client-spotlight__meta"><span class="client-spotlight__stars" aria-hidden="true">${sterne}</span> <b>${r.sterne}</b>${anzahl}</p>` : ''
     const zitat = r.zitat ? `<blockquote class="client-spotlight__quote"><p>${r.zitat.text}</p><cite>${r.zitat.quelle}</cite></blockquote>` : `<p class="client-spotlight__name">${r.name}</p>`
     const kz = r.kennzahlen ? `<div class="client-spotlight__kpis"><p class="client-spotlight__kpis-head">${r.kennzahlen.zeitraum}</p><dl>${r.kennzahlen.werte.map((w) => `<div><dt>${w.label}</dt><dd><span>${w.vorher}</span> → <b>${w.nachher}</b></dd></div>`).join('')}</dl>${r.kennzahlen.quelle ? `<p class="client-spotlight__kpis-src">Quelle: ${r.kennzahlen.quelle}</p>` : ''}</div>` : ''
     return `<article class="client-spotlight__card" data-reveal${i % 2 ? ' data-d="1"' : ''}>
@@ -183,7 +193,7 @@ function renderRankcardIllu(youLabel, ariaLabel) {
           ${mapArt()}
           <div class="pin">
             <span class="pulse"></span>
-            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#3D50C8"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
+            <svg class="pin__marker" width="24" height="30" viewBox="0 0 28 36" fill="none"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="#1A6BFF"/><circle cx="14" cy="14" r="5.2" fill="#FFFFFF"/></svg>
           </div>
         </div>
         <div class="bam__rows" aria-hidden="true">
@@ -273,12 +283,19 @@ function renderBookingSkeleton() {
             </div>`
 }
 
+// Die Anzahl steht als Klasse am Raster (branchen-grid--10, --9): site.css
+// wählt danach eine Spaltenzahl, die aufgeht. Mit auto-fill blieben bei zehn
+// Kacheln in vier Spalten unten zwei Plätze leer.
+function renderBranchenGrid(items) {
+  return `<div class="branchen-grid branchen-grid--${items.length}">\n        ${renderBranchenTiles(items)}\n      </div>`
+}
+
 function renderBranchenGridHome() {
-  return `<div class="branchen-grid">\n        ${renderBranchenTiles([...branchenList, ...branchenGridExtras])}\n      </div>`
+  return renderBranchenGrid([...branchenList, ...branchenGridExtras])
 }
 
 function renderBranchenGridLeistungen() {
-  return `<div class="branchen-grid">\n        ${renderBranchenTiles(branchenList)}\n      </div>`
+  return renderBranchenGrid(branchenList)
 }
 
 // ---------------------------------------------------------------------------

@@ -1,3 +1,28 @@
+/* ============================================================
+   EIN SCROLL-TAKT FÜR DIE GANZE SEITE
+   ============================================================
+   Alles, was auf Scrollen reagiert (Leiste, Abschnittsmarkierung, Termin-
+   Leiste auf dem Telefon, die Nachläufe von Einblenden, Kennzahlen, Icons
+   und Handy-Bühne), meldet sich hier an, statt einen eigenen Listener zu
+   setzen. Ein passiver Listener, höchstens ein Durchlauf pro Bild. Wer fertig
+   ist, meldet sich ab (Rückgabewert); ist niemand mehr angemeldet, hängt
+   auch der Listener ab. Alles, was nur "ist es im Bild?" wissen muss, läuft
+   über IntersectionObserver und braucht den Takt gar nicht. */
+var scrollTakt = (function(){
+  var abos = [], wartet = false;
+  var lauf = function(){ wartet = false; abos.slice().forEach(function(fn){ fn(); }); };
+  var bei = function(){ if(!wartet){ wartet = true; requestAnimationFrame(lauf); } };
+  return function(fn){
+    if(!abos.length) window.addEventListener('scroll', bei, {passive:true});
+    abos.push(fn);
+    return function(){
+      var i = abos.indexOf(fn);
+      if(i > -1) abos.splice(i, 1);
+      if(!abos.length) window.removeEventListener('scroll', bei);
+    };
+  };
+})();
+
 (function(){
   // Der Buchungskalender (src/js/booking.js) wird geladen, wenn er sich
   // nähert (anderthalb Bildschirmhöhen vorher) — so steht er fertig da,
@@ -665,8 +690,41 @@
     var farbe = hell ? '#FFFFFF' : '#0A0D1F';
     if(farbe !== themeNow){ themeNow = farbe; themeMeta.setAttribute('content', farbe); }
   };
-  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24); syncTheme(); };
-  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+  // Über dunklen Flächen (Showcase, Zahlen, Abschluss, Footer) bleibt die
+  // Leiste dunkles Glas wie im Hero, statt als hellgraue Pille auf Navy zu
+  // stehen. Ein Beobachter auf einem 1 px hohen Streifen in Höhe der Leiste
+  // meldet, welche dunklen Flächen gerade darunter liegen: kein Messen pro
+  // Scroll-Bild, nur ein Rückruf beim Übergang.
+  var ueberDunkel = 0;
+  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24 && !ueberDunkel); syncTheme(); };
+  var dunkle = document.querySelectorAll('main > .theme-dark, .footer.theme-dark');
+  if(dunkle.length && 'IntersectionObserver' in window){
+    var unter = [];
+    var dunkelIo = null;
+    var beobachte = function(){
+      if(dunkelIo) dunkelIo.disconnect();
+      unter = [];
+      var mitte = Math.round(nav.getBoundingClientRect().top + nav.offsetHeight / 2);
+      dunkelIo = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          var i = unter.indexOf(e.target);
+          if(e.isIntersecting && i < 0) unter.push(e.target);
+          if(!e.isIntersecting && i > -1) unter.splice(i, 1);
+        });
+        ueberDunkel = unter.length;
+        onScroll();
+      }, {rootMargin: '-' + mitte + 'px 0px -' + Math.max(0, window.innerHeight - mitte - 1) + 'px 0px'});
+      Array.prototype.forEach.call(dunkle, function(el){ dunkelIo.observe(el); });
+    };
+    beobachte();
+    var hoeheVorher = window.innerHeight, neuTimer = null;
+    window.addEventListener('resize', function(){
+      if(Math.abs(window.innerHeight - hoeheVorher) < 2) return;
+      hoeheVorher = window.innerHeight;
+      clearTimeout(neuTimer); neuTimer = setTimeout(beobachte, 150);
+    }, {passive:true});
+  }
+  onScroll(); scrollTakt(onScroll);
 
   // mobile menu — ein Blatt über die volle Höhe; solange es offen ist, steht
   // die Seite dahinter still (html.menu-open).
@@ -733,11 +791,35 @@
   var offen = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
   if(offen.length){
     var LINIE = 50;   // identisch zum rootMargin unten
+
+    // Geschwister erscheinen nacheinander (site.css: --ri mal 70 ms). Gezählt
+    // wird je Zeile, nicht durchgehend: In einem Raster aus fünf Spalten
+    // beginnt die zweite Zeile wieder vorn, statt eine halbe Sekunde
+    // hinterherzuhinken. Wer data-d im HTML trägt, ist von Hand gestaffelt.
+    var gruppen = [];
+    offen.forEach(function(el){
+      if(el.hasAttribute('data-d')) return;
+      var eltern = el.parentNode, g = null;
+      for(var k = 0; k < gruppen.length; k++){ if(gruppen[k].eltern === eltern){ g = gruppen[k]; break; } }
+      if(!g){ g = {eltern: eltern, kinder: []}; gruppen.push(g); }
+      g.kinder.push(el);
+    });
+    gruppen.forEach(function(g){
+      if(g.kinder.length < 2) return;
+      var oben = g.kinder[0].offsetTop, spalten = 0;
+      g.kinder.forEach(function(el){ if(el.offsetTop === oben) spalten++; });
+      g.kinder.forEach(function(el, k){ el.style.setProperty('--ri', Math.min(k % Math.max(1, spalten), 5)); });
+    });
+
     var zeigen = function(el){
       var i = offen.indexOf(el);
       if(i < 0) return;
       offen.splice(i, 1);
       el.classList.add('in');
+      // Ist alles da (auch Sterne und Nachsätze, die später kommen), fällt
+      // das Attribut weg: Ab dann gelten wieder die eigenen Übergänge des
+      // Elements, Hover reagiert ohne die Einblend-Verzögerung.
+      setTimeout(function(){ el.removeAttribute('data-reveal'); }, 1800);
     };
     var nachlauf = function(){
       var grenze = window.innerHeight - LINIE;
@@ -745,11 +827,11 @@
         if(offen[i].getBoundingClientRect().top < grenze) zeigen(offen[i]);
       }
       if(!offen.length){
-        window.removeEventListener('scroll', angestossen);
+        if(revealAb) revealAb();
         window.removeEventListener('resize', angestossen);
       }
     };
-    var ruheTimer = null;
+    var ruheTimer = null, revealAb = null;
     var angestossen = function(){
       if(ruheTimer) clearTimeout(ruheTimer);
       ruheTimer = setTimeout(nachlauf, 140);
@@ -760,7 +842,7 @@
         nachlauf();
       }, {threshold:.14, rootMargin:'0px 0px -' + LINIE + 'px 0px'});
       offen.slice().forEach(function(el){ io.observe(el); });
-      window.addEventListener('scroll', angestossen, {passive:true});
+      revealAb = scrollTakt(angestossen);
       window.addEventListener('resize', angestossen, {passive:true});
       nachlauf();
     } else {
@@ -835,7 +917,7 @@
           countsOffen.splice(i, 1);
         }
       }
-      if(!countsOffen.length) window.removeEventListener('scroll', countsAngestossen);
+      if(!countsOffen.length && countsAb) countsAb();
     };
     var countsRuheTimer = null;
     var countsAngestossen = function(){
@@ -861,7 +943,7 @@
       el.style.minWidth = Math.ceil(el.getBoundingClientRect().width) + 'px';
       cio.observe(el);
     });
-    window.addEventListener('scroll', countsAngestossen, {passive:true});
+    var countsAb = scrollTakt(countsAngestossen);
     countsNachlauf();
   }
 
@@ -943,63 +1025,6 @@
   // frühere nachgebaute Zeiger hier im Skript lief per requestAnimationFrame
   // hinter der Maus her und ist entfallen.
 
-  // Scroll-Parallax für die Kapitel: Ebenen mit data-pd bewegen sich beim
-  // Scrollen unterschiedlich schnell. Gemessen wird der untransformierte
-  // Kapitel-Container (kein Feedback über die eigene Transformation),
-  // geschrieben wird nur transform, gedrosselt per requestAnimationFrame.
-  // Nur auf Geräten mit feinem Zeiger (Desktop): auf Touch-Geräten wäre
-  // der Scroll-Handler überflüssige Arbeit ohne sichtbaren Effekt.
-  var chapterEls = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
-  if(chapterEls.length && !reduce && finePointer){
-    var chapters = chapterEls.map(function(ch){
-      return {root: ch, layers: Array.prototype.slice.call(ch.querySelectorAll('[data-pd]')).map(function(el){
-        return {el: el, depth: parseFloat(el.getAttribute('data-pd')) || 0};
-      })};
-    });
-    var pRaf = null;
-    var applyParallax = function(){
-      pRaf = null;
-      var vh = window.innerHeight;
-      chapters.forEach(function(ch){
-        var r = ch.root.getBoundingClientRect();
-        if(r.bottom < -160 || r.top > vh + 160) return;
-        var c = r.top + r.height / 2 - vh / 2;
-        ch.layers.forEach(function(l){
-          var y = c * l.depth;
-          l.el.style.transform = (l.el.classList.contains('chapter__glow') ? 'translateY(-50%) ' : '') +
-            'translate3d(0,' + y.toFixed(1) + 'px,0)';
-        });
-      });
-    };
-    var queueParallax = function(){ if(!pRaf) pRaf = requestAnimationFrame(applyParallax); };
-    window.addEventListener('scroll', queueParallax, {passive:true});
-    window.addEventListener('resize', queueParallax, {passive:true});
-    queueParallax();
-  }
-
-  // Sitewide Soft-Aurora-Hintergrund (partials/endbody.html): die weichen,
-  // geblurrten Flächen atmen unabhängig per CSS-Keyframes (siehe site.css)
-  // UND parallaxen zusätzlich beim Scrollen unterschiedlich schnell
-  // (data-speed) — eigene Transform-Ebene pro Blob, damit sich beide
-  // Bewegungen nicht gegenseitig überschreiben. Gleiches rAF-Drossel-Muster
-  // wie der Kapitel-Parallax oben, unabhängig davon.
-  // Parallax nur auf Desktop: auf Mobile ist Aurora per CSS ausgeblendet
-  // (display:none), finePointer verhindert unnötige JS-Arbeit.
-  var bgAurora = document.getElementById('bgAurora');
-  if(bgAurora && !reduce && finePointer && document.body.getAttribute('data-bgfx') !== 'off'){
-    var auroraLayers = Array.prototype.slice.call(bgAurora.querySelectorAll('[data-speed]')).map(function(el){
-      return {el: el, speed: parseFloat(el.getAttribute('data-speed')) || 0};
-    });
-    var auroraRaf = null;
-    var applyAurora = function(){
-      auroraRaf = null;
-      var y = window.scrollY;
-      auroraLayers.forEach(function(l){ l.el.style.transform = 'translate3d(0,' + (y * l.speed).toFixed(1) + 'px,0)'; });
-    };
-    var queueAurora = function(){ if(!auroraRaf) auroraRaf = requestAnimationFrame(applyAurora); };
-    window.addEventListener('scroll', queueAurora, {passive:true});
-    queueAurora();
-  }
 
   // Vorher-Nachher-Slider (Apple-Design): eine Pointer-Logik für Maus &
   // Touch, zusätzlich per Pfeiltasten bedienbar (role="slider"). Der Griff
@@ -1189,12 +1214,7 @@
     aktualisiere(true);
 
     if(seitenTreffer < 0 && abschnitte.length){
-      var spyWartet = false;
-      window.addEventListener('scroll', function(){
-        if(spyWartet) return;
-        spyWartet = true;
-        requestAnimationFrame(function(){ spyWartet = false; aktualisiere(false); });
-      }, {passive:true});
+      scrollTakt(function(){ aktualisiere(false); });
     }
 
     eintraege.forEach(function(a){
@@ -1238,7 +1258,7 @@
       }, {rootMargin:'0px'});
       fio.observe(footerEl);
     }
-    window.addEventListener('scroll', updateMcta, {passive:true});
+    scrollTakt(updateMcta);
     updateMcta();
   }
 
@@ -1356,55 +1376,6 @@
   // die früheren Rechtstext-Modals entfallen ersatzlos.
 })();
 
-// Scroll-linked sequential sweep animation for step numbers 01–04
-(function(){
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var nums = Array.prototype.slice.call(document.querySelectorAll('.chapter__num'));
-  if(!nums.length || reduce) return;
-
-  // Track scroll velocity (px/ms) to set animation duration
-  var scrollVel = 0;
-  var lastY = window.scrollY, lastT = Date.now();
-  window.addEventListener('scroll', function(){
-    var now = Date.now(), dt = now - lastT;
-    if(dt > 0) scrollVel = Math.abs(window.scrollY - lastY) / dt;
-    lastY = window.scrollY; lastT = now;
-  }, {passive: true});
-
-  // nextIdx: which number should animate next (ensures strict ordering)
-  var nextIdx = 0;
-
-  var lightUp = function(idx, vel){
-    if(idx >= nums.length) return;
-    var el = nums[idx];
-    // Faster scroll → shorter sweep (clamped 2.5s – 6.0s)
-    var dur = Math.max(2.5, Math.min(6.0, 3.0 / Math.max(vel, 0.04)));
-    el.style.setProperty('--chnum-dur', dur.toFixed(2) + 's');
-    el.classList.add('lit');
-    nextIdx = idx + 1;
-  };
-
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(!e.isIntersecting) return;
-      var idx = nums.indexOf(e.target);
-      if(idx < 0 || idx < nextIdx) return;
-      io.unobserve(e.target);
-
-      // Any numbers that were skipped over (fast scroll) light up at minimum speed
-      for(var i = nextIdx; i < idx; i++){
-        nums[i].style.setProperty('--chnum-dur', '2.5s');
-        nums[i].classList.add('lit');
-        nextIdx = i + 1;
-      }
-
-      // Animate the visible number with scroll-speed-linked duration
-      lightUp(idx, scrollVel);
-    });
-  }, {threshold: 0.2, rootMargin: '0px 0px -60px 0px'});
-
-  nums.forEach(function(el){ io.observe(el); });
-})();
 /* ============================================================
    LIVE-ICON-ENGINE
    ============================================================
@@ -1470,14 +1441,14 @@
       offen.splice(i, 1);
       play(svg);
     }
-    if(!offen.length) window.removeEventListener('scroll', angestossen);
+    if(!offen.length && licoAb) licoAb();
   };
   var ruheTimer = null;
   var angestossen = function(){
     if(ruheTimer) clearTimeout(ruheTimer);
     ruheTimer = setTimeout(nachlauf, 160);
   };
-  window.addEventListener('scroll', angestossen, {passive:true});
+  var licoAb = scrollTakt(angestossen);
 
   // Wird true, wenn der Failsafe unten feststellt, dass der Observer nicht
   // arbeitet. Danach dürfen auch nachgezogene Icons nicht mehr versteckt
@@ -1622,10 +1593,11 @@
   var count   = document.getElementById('gspCount');
   var FRAME_W = 414, FRAME_H = 868;
   // Die Geräte sollen frei auf der Bühne stehen, nicht den Bildschirm füllen:
-  // höchstens 64 % der Fensterhöhe und nie größer als 0,68 (≈ 590 px hoch).
-  // Unter 0,42 wird der Bildschirminhalt unleserlich — kleiner nur, wenn die
-  // Spaltenbreite es erzwingt.
-  var MAX_S = 0.68, MIN_S = 0.42, HOEHE = 0.64;
+  // höchstens 72 % der Fensterhöhe und nie größer als 0,76 (≈ 660 px hoch).
+  // Bei 0,6 war die Schrift im Handy auf dem Desktop kaum noch lesbar (14 px
+  // wurden zu gut 8 px). Unter 0,42 wird der Inhalt unleserlich, kleiner nur,
+  // wenn die Spaltenbreite es erzwingt.
+  var MAX_S = 0.76, MIN_S = 0.42, HOEHE = 0.72;
   var raf = null, timer = null, pending = false;
   // Die Fensterhöhe nur bei geänderter Breite neu lesen: Auf dem iPhone ändert
   // sie sich beim Scrollen (Adressleiste klappt ein) — die Geräte würden sonst
@@ -1754,7 +1726,7 @@
     if(gestartet) return;
     gestartet = true;
     io.disconnect();
-    window.removeEventListener('scroll', angestossen);
+    if(gspAb) gspAb();
     run();
   };
   // Wie beim Reveal und den Live-Icons: Der Beobachter ist der Auslöser, der
@@ -1775,7 +1747,7 @@
     entries.forEach(function(e){ if(e.isIntersecting) starten(); });
   }, {threshold:.15});
   io.observe(stage);
-  window.addEventListener('scroll', angestossen, {passive:true});
+  var gspAb = scrollTakt(angestossen);
 })();
 
 /* ============================================================
