@@ -1292,6 +1292,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
    in jedem Bild neu malen, auch lange nachdem man weitergescrollt hatte. */
 @keyframes gspAlert{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
 @keyframes gspWarn{0%,100%{opacity:1}50%{opacity:.6}}
+/* Schein über dem Foto und Radarkreise um die Nadel: Beide warten erst
+   (Verzögerung) und laufen dann endlos. Ihr Grundzustand ist darum
+   unsichtbar (opacity:0 im HTML), sonst stünden sie in der Wartezeit
+   still im Bild. */
 @keyframes gspSweep{0%{opacity:0;transform:translateX(-120%)}35%{opacity:.5}100%{opacity:0;transform:translateX(120%)}}
 @keyframes gspRise{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes gspTab{from{transform:scaleX(0)}to{transform:scaleX(1)}}
