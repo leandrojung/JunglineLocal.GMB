@@ -692,38 +692,23 @@ var scrollTakt = (function(){
   };
   // Über dunklen Flächen (Showcase, Zahlen, Abschluss, Footer) bleibt die
   // Leiste dunkles Glas wie im Hero, statt als hellgraue Pille auf Navy zu
-  // stehen. Ein Beobachter auf einem 1 px hohen Streifen in Höhe der Leiste
-  // meldet, welche dunklen Flächen gerade darunter liegen: kein Messen pro
-  // Scroll-Bild, nur ein Rückruf beim Übergang.
-  var ueberDunkel = 0;
-  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24 && !ueberDunkel); syncTheme(); };
-  var dunkle = document.querySelectorAll('main > .theme-dark, .footer.theme-dark');
-  if(dunkle.length && 'IntersectionObserver' in window){
-    var unter = [];
-    var dunkelIo = null;
-    var beobachte = function(){
-      if(dunkelIo) dunkelIo.disconnect();
-      unter = [];
-      var mitte = Math.round(nav.getBoundingClientRect().top + nav.offsetHeight / 2);
-      dunkelIo = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){
-          var i = unter.indexOf(e.target);
-          if(e.isIntersecting && i < 0) unter.push(e.target);
-          if(!e.isIntersecting && i > -1) unter.splice(i, 1);
-        });
-        ueberDunkel = unter.length;
-        onScroll();
-      }, {rootMargin: '-' + mitte + 'px 0px -' + Math.max(0, window.innerHeight - mitte - 1) + 'px 0px'});
-      Array.prototype.forEach.call(dunkle, function(el){ dunkelIo.observe(el); });
-    };
-    beobachte();
-    var hoeheVorher = window.innerHeight, neuTimer = null;
-    window.addEventListener('resize', function(){
-      if(Math.abs(window.innerHeight - hoeheVorher) < 2) return;
-      hoeheVorher = window.innerHeight;
-      clearTimeout(neuTimer); neuTimer = setTimeout(beobachte, 150);
-    }, {passive:true});
-  }
+  // stehen. Gemessen wird im Scroll-Takt: Liegt die Mitte der Leiste über
+  // einer dunklen Fläche? Das sind eine Handvoll Rechtecke pro Bild. Ein
+  // IntersectionObserver auf einem 1 px hohen Streifen meldete sich in
+  // Safari nicht zuverlässig, die Leiste blieb dort hell.
+  var dunkle = Array.prototype.slice.call(document.querySelectorAll('main > .theme-dark, .footer.theme-dark'));
+  var leisteMitte = 0;
+  var misseLeiste = function(){ var r = nav.getBoundingClientRect(); leisteMitte = r.top + r.height / 2; };
+  var ueberDunkel = function(){
+    for(var i = 0; i < dunkle.length; i++){
+      var r = dunkle[i].getBoundingClientRect();
+      if(r.top <= leisteMitte && r.bottom > leisteMitte) return true;
+    }
+    return false;
+  };
+  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 24 && !ueberDunkel()); syncTheme(); };
+  misseLeiste();
+  window.addEventListener('resize', function(){ misseLeiste(); onScroll(); }, {passive:true});
   onScroll(); scrollTakt(onScroll);
 
   // mobile menu — ein Blatt über die volle Höhe; solange es offen ist, steht
