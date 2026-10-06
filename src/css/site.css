@@ -664,10 +664,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .logo-scene{position:absolute;top:50%;right:-4%;width:min(760px,60vw);aspect-ratio:1/1;
   transform:translateY(-52%);opacity:.9;contain:layout paint;will-change:transform}
 .logo-scene svg{position:relative;width:100%;height:100%;display:block}
-/* Bildmarke aus Code (logo-code.js): Der Canvas liegt unter der Linie, die
-   Linie bleibt als Rahmen. Die blasse Füllfläche übernimmt der Code. */
-.logo-scene__code{position:absolute;inset:0;width:100%;height:100%}
-.logo-scene--code #logo-fill{display:none}
+/* Bildmarke als Wortbild (logo-wortbild.js): Der Canvas mit dem Satz aus
+   Suchanfragen liegt unter dem SVG. Dessen Linie bleibt der Rahmen, die
+   blasse Fläche (5 %) der Körper der Form. */
+.logo-scene__wort{position:absolute;inset:0;width:100%;height:100%}
 /* Endzustand = Ruhezustand ohne Animation (kein JS, "Bewegung reduzieren"). */
 #logo-glow{fill:none;stroke:url(#jlLineGradient);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:1000;stroke-dashoffset:0;opacity:0}
@@ -789,6 +789,10 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
 .ios-note--call{top:-46px;right:-30px}
 .ios-note--review{bottom:-40px;left:-46px}
 .hero__caption{margin-top:16px;padding-right:6px;text-align:right;font-size:.78rem;line-height:18px;color:rgba(232,235,248,.42);letter-spacing:.01em}
+/* Liegt die Unterschrift auf dem Wortbild der Bildmarke, deckt ein weicher
+   Schatten in Hintergrundfarbe die Wörter dahinter ab. */
+.hero:has(.logo-scene--wort) .hero__caption{position:relative;z-index:1;color:rgba(232,235,248,.55);
+  text-shadow:0 0 4px #0B0F24,0 0 8px #0B0F24,0 0 14px #0B0F24}
 @media(max-width:1100px) and (min-width:961px){
   .hero__inner{grid-template-columns:minmax(0,1fr) minmax(0,380px)}
   .ios-note--call{right:-10px}

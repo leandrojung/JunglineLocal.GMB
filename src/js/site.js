@@ -23,12 +23,12 @@ var scrollTakt = (function(){
   };
 })();
 
-// Bildmarke aus Code im Hero (src/js/logo-code.js). Nur wenn die Marke
-// überhaupt zu sehen ist: Auf dem Telefon steht sie auf display:none.
+// Bildmarke als Wortbild im Hero (src/js/logo-wortbild.js). Nur wenn die
+// Marke überhaupt zu sehen ist: Auf dem Telefon steht sie auf display:none.
 (function(){
   var scene = document.querySelector('.hero .logo-scene');
   if(!scene || !scene.offsetWidth) return;
-  import('./logo-code.js').then(function(m){ m.start(scene); }).catch(function(){});
+  import('./logo-wortbild.js').then(function(m){ m.start(scene); }).catch(function(){});
 })();
 
 (function(){
