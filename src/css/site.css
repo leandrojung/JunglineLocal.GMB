@@ -1314,24 +1314,50 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
    wie hochkant, ohne dass jemand Spaltenbreiten nachrechnen muss.
    --t (aus vite.config.js) ist die Stelle des Schritts auf der Linie. */
 @property --flow-p{syntax:'<number>';inherits:true;initial-value:1}
-.flow{--flow-p:1;--flow-gap:clamp(20px,2.6vw,40px);--node:18px;--node-y:9px;
-  list-style:none;display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:0 var(--flow-gap);margin:var(--sp-head) 0 0;padding:0}
+/* Quer steht jeder Schritt mittig in seiner Spalte, die Linie verbindet die
+   Mitten. Die Nummern tragen einen Verlauf (--num-an oben, --num-bis unten),
+   der von --num-aus her aufleuchtet; auf dunkler Fläche Weiß zu Hellblau. */
+.flow{--flow-p:1;--flow-gap:clamp(20px,2.6vw,40px);--node:20px;--node-y:10px;
+  --num-an:var(--brand);--num-bis:#5C9BFF;--num-aus:#D3D5DD;--funke:var(--brand-rgb);
+  position:relative;list-style:none;display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:0 var(--flow-gap);margin:var(--sp-head) 0 0;padding:0}
+.theme-dark .flow{--num-an:#FFFFFF;--num-bis:var(--brand-on-dark);--num-aus:rgba(255,255,255,.13);--funke:var(--brand-on-dark-rgb)}
 .flow__step{position:relative;
   --lit:clamp(0,(var(--flow-p) - var(--t,0)) * 8 + 1,1);
   --seg:clamp(0,(var(--flow-p) - var(--t,0)) * (var(--n,4) - 1),1)}
 .flow__step:not(:last-child)::before,.flow__step:not(:last-child)::after{content:"";position:absolute;z-index:0;
-  top:calc(var(--node-y) - 1px);left:calc(var(--node) / 2);width:calc(100% + var(--flow-gap));height:2px;border-radius:2px}
+  top:calc(var(--node-y) - 1px);left:50%;width:calc(100% + var(--flow-gap));height:2px;border-radius:2px}
 .flow__step::before{background:var(--border)}
-.flow__step::after{background:linear-gradient(90deg,var(--brand),#5C9BFF);transform-origin:left center;transform:scaleX(var(--seg))}
-.flow__link{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;height:100%;color:var(--ink)}
-.flow__node{position:relative;flex:none;width:var(--node);height:var(--node);margin-bottom:26px;border-radius:50%;background:var(--bg);
+.flow__step::after{background:linear-gradient(90deg,var(--brand),rgb(var(--funke)));transform-origin:left center;transform:scaleX(var(--seg))}
+.theme-dark .flow__step::after{box-shadow:0 0 12px rgba(var(--brand-rgb),.75)}
+/* Lichtpunkt an der Spitze der Füllung: wandert beim Scrollen die Linie
+   entlang und lässt jeden Schritt aufleuchten, wenn er ihn erreicht. Seine
+   Lage ist dieselbe Rechnung wie die Füllung: Mitte der ersten Spalte plus
+   --flow-p mal Weg bis zur Mitte der letzten. Am Anfang und am Ende, also
+   auch ohne Bewegung, ist er unsichtbar. */
+.flow::after{content:"";position:absolute;z-index:2;pointer-events:none;
+  --spalte:calc((100% - (var(--n,4) - 1) * var(--flow-gap)) / var(--n,4));
+  top:var(--node-y);left:calc(var(--spalte) / 2 + var(--flow-p) * (100% - var(--spalte)));
+  width:120px;height:22px;transform:translate(calc(-100% + 11px),-50%);
+  background:radial-gradient(closest-side,#fff 28%,rgba(var(--funke),.85) 55%,rgba(var(--funke),0)) right center/22px 22px no-repeat,
+    linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.9)) left center/calc(100% - 11px) 2px no-repeat;
+  filter:drop-shadow(0 0 6px rgba(var(--funke),.9));
+  opacity:clamp(0,min(var(--flow-p) * 40,(1 - var(--flow-p)) * 40),1)}
+.flow__link{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;text-align:center;color:var(--ink)}
+.flow__node{position:relative;flex:none;width:var(--node);height:var(--node);margin-bottom:28px;border-radius:50%;background:var(--bg);
   box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--brand) calc(var(--lit) * 100%),var(--border-strong)),
-    0 0 0 calc(var(--lit) * 6px) rgba(var(--brand-rgb),.14)}
+    0 0 0 calc(var(--lit) * 7px) rgba(var(--brand-rgb),.14),
+    0 0 calc(var(--lit) * 26px) rgba(var(--brand-rgb),calc(var(--lit) * .5))}
 .flow__node::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--brand);transform:scale(var(--lit))}
-.flow__num{font-family:var(--font-display);font-weight:700;font-size:clamp(3rem,5.2vw,4.5rem);line-height:.86;letter-spacing:-.04em;
-  font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--brand) calc(var(--lit) * 100%),#D3D5DD)}
-.flow__step h3{margin-top:12px;font-size:clamp(1.3rem,1.8vw,1.55rem);letter-spacing:-.015em;transition:color var(--dur-ui)}
-.flow__step p{color:var(--dim);font-size:.98rem;line-height:1.5;max-width:30ch}
+.theme-dark .flow__node::after{background:radial-gradient(circle at 40% 35%,#fff,rgb(var(--funke)) 45%,var(--brand))}
+.flow__num{font-family:var(--font-display);font-weight:700;font-size:clamp(3.4rem,6.4vw,6rem);line-height:.9;letter-spacing:-.045em;
+  padding:0 .06em;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--num-an) calc(var(--lit) * 100%),var(--num-aus))}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .flow__num{color:transparent;-webkit-background-clip:text;background-clip:text;
+    background-image:linear-gradient(180deg,color-mix(in srgb,var(--num-an) calc(var(--lit) * 100%),var(--num-aus)) 18%,
+      color-mix(in srgb,var(--num-bis) calc(var(--lit) * 100%),var(--num-aus)) 92%)}
+}
+.flow__step h3{margin-top:14px;font-size:clamp(1.3rem,1.8vw,1.55rem);letter-spacing:-.015em;transition:color var(--dur-ui)}
+.flow__step p{color:var(--dim);font-size:.98rem;line-height:1.5;max-width:28ch}
 .flow__more{display:inline-flex;align-items:center;gap:5px;margin-top:auto;padding-top:6px;color:var(--link);font-weight:600;font-size:.93rem}
 .flow__more svg{transition:transform var(--dur-ui) var(--ease-apple)}
 @media(hover:hover){
@@ -1345,23 +1371,29 @@ a.link-arrow[target="_blank"]:hover svg{transform:translate(2px,-2px)}
   .flow{--flow-gap:30px;--node-y:20px;grid-template-columns:minmax(0,1fr);gap:var(--flow-gap) 0}
   .flow__step:not(:last-child)::before,.flow__step:not(:last-child)::after{top:var(--node-y);left:calc(var(--node) / 2 - 1px);width:2px;height:calc(100% + var(--flow-gap))}
   .flow__step::after{background:linear-gradient(180deg,var(--brand),#5C9BFF);transform-origin:center top;transform:scaleY(var(--seg))}
-  .flow__link{display:grid;grid-template-columns:var(--node) minmax(0,1fr);column-gap:20px;row-gap:6px;align-items:start}
+  .flow::after{display:none}
+  .flow__link{display:grid;grid-template-columns:var(--node) minmax(0,1fr);column-gap:20px;row-gap:6px;align-items:start;text-align:left}
   .flow__link>:not(.flow__node){grid-column:2}
   .flow__node{grid-row:1/span 4;margin:calc(var(--node-y) - var(--node) / 2) 0 0}
-  .flow__num{font-size:2.6rem}
+  .flow__num{font-size:2.6rem;padding:0}
   .flow__step h3{margin-top:4px;font-size:1.25rem}
   .flow__step p{max-width:none;font-size:.95rem}
   .flow__more{display:none}
 }
 /* Fusszeile unter dem Ablauf: die drei Zusagen als ruhige Textzeile statt
-   einer weiteren Reihe Häkchen-Pillen, rechts der Link zu allen Bausteinen. */
-.flow-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px 28px;
-  margin-top:clamp(40px,5vw,64px);padding-top:24px;border-top:1px solid var(--border)}
-.flow-foot__promise{display:flex;flex-wrap:wrap;gap:6px 0;color:var(--dim);font-size:.96rem;font-weight:500}
+   einer weiteren Reihe Häkchen-Pillen, darunter der Link zu allen
+   Bausteinen. Mittig wie der ganze Abschnitt. */
+.flow-foot{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
+  margin-top:clamp(48px,5.5vw,72px);padding-top:28px;border-top:1px solid var(--border)}
+.flow-foot__promise{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 0;color:var(--dim);font-size:.96rem;font-weight:500}
 .flow-foot__promise span+span::before{content:"·";margin:0 12px;color:var(--soft)}
 @media(max-width:640px){
-  .flow-foot{flex-direction:column;align-items:flex-start;gap:14px}
+  .flow-foot{gap:14px}
 }
+/* Startseite: Der Ablauf steht auf dunkler Fläche, mit einem leisen blauen
+   Schein hinter der Linie. So wechseln sich hell und dunkel ab, statt dass
+   zwei weisse Abschnitte aufeinander folgen. */
+.steps.theme-dark{background:radial-gradient(62% 48% at 50% 66%,rgba(var(--brand-rgb),.17),rgba(var(--brand-rgb),0) 72%),var(--bg)}
 
 /* Profil-Check: Zusagen als Chips unter dem einen Satz. */
 .rank-check__intro .chips{margin-top:22px}
