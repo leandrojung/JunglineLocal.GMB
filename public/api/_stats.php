@@ -47,6 +47,10 @@ const STATS_EVENTS = [
     'cta_termin'        => 'Knopf „Erstgespräch/Termin“ angetippt',
     'gsp_switch'        => 'Live-Handys: auf Platz 11 umgeschaltet',
     'menu_open'         => 'Menü geöffnet (Telefon)',
+    'chat_open'         => 'Chat-Assistent geöffnet',
+    'chat_frage'        => 'Chat-Assistent: Frage getippt',
+    'chat_termin'       => 'Chat-Assistent: Termin gebucht',
+    'chat_nachricht'    => 'Chat-Assistent: Nachricht gesendet',
 ];
 
 /** Obergrenzen gegen aufgeblähte Dateien durch Unfug von außen. */

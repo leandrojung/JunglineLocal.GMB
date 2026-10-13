@@ -51,6 +51,32 @@ var scrollTakt = (function(){
 })();
 
 /* ============================================================
+   CHAT-ASSISTENT: Knopf unten rechts
+   ============================================================
+   Der Knopf steht im HTML als Link auf die Terminseite (Rückfall ohne
+   JavaScript). Hier wird er zum Schalter. Fenster und Logik (src/js/chat.js)
+   werden erst geladen, wenn jemand den Knopf berührt, mit der Maus darüber
+   fährt oder ihn per Tastatur erreicht: Auf allen anderen Seitenaufrufen
+   kostet der Chat kein einziges Byte JavaScript. */
+(function(){
+  var btn = document.getElementById('chatLaunch');
+  if(!btn) return;
+  var modul = null;
+  var laden = function(){ return modul || (modul = import('./chat.js')); };
+  btn.setAttribute('role', 'button');
+  ['pointerenter', 'focus', 'touchstart'].forEach(function(ev){
+    btn.addEventListener(ev, function(){ laden().catch(function(){}); }, {once:true, passive:true});
+  });
+  btn.addEventListener('click', function(ev){
+    ev.preventDefault();
+    laden().then(function(m){ m.toggle(btn); }).catch(function(){
+      // Modul nicht ladbar (Netz weg, alter Cache): der Link darf wirken.
+      window.location.href = btn.getAttribute('href');
+    });
+  });
+})();
+
+/* ============================================================
    BESUCHERSTATISTIK — ohne Cookies, ohne Kennung
    Zählt Seitenaufrufe und eine feste Liste von Ereignissen auf dem eigenen
    Server (/api/stats, Speicherregeln in public/api/_stats.php). Auf dem Gerät
@@ -76,7 +102,7 @@ var scrollTakt = (function(){
   };
   var gezaehlt = {};
   // Ereignisse, die pro Seitenaufruf höchstens einmal zählen sollen.
-  var einmalig = {chooser_shown:1, menu_open:1, gsp_switch:1};
+  var einmalig = {chooser_shown:1, menu_open:1, gsp_switch:1, chat_open:1};
   window.jlTrack = function(name){
     if(einmalig[name]){ if(gezaehlt[name]) return; gezaehlt[name] = 1; }
     senden({e: name});
@@ -1382,7 +1408,7 @@ var scrollTakt = (function(){
   if(!('IntersectionObserver' in window)) return;
 
   // Icons mit eigener, aufwändigerer Choreografie bleiben unberührt.
-  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.inote,[data-noanim]';
+  var SKIP = '.logo-scene,.map,.bam,.rankcard,.vnc__stage,.gbp-ring,.manifest__ico,.inote,.chat-launch,.chat,[data-noanim]';
   var SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
   // Träger, deren Hover/Fokus das Icon erneut zeichnen lässt.
   var HOSTS = 'a,button,.svc,.fact,.chapter,.way,.tcard,.pledge';

@@ -132,6 +132,9 @@
   # Kontaktformular — eigener Versand statt eines fremden Dienstes.
   RewriteRule ^api/contact/?$ api/contact.php [L]
 
+  # Chat-Assistent (runder Knopf unten rechts), siehe api/chat.php.
+  RewriteRule ^api/chat/?$ api/chat.php [L]
+
   # Besucherstatistik ohne Cookies (siehe api/_stats.php).
   RewriteRule ^api/stats/?$ api/stats.php [L]
 

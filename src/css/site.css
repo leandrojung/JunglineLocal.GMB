@@ -165,9 +165,11 @@
   /* Ebenen */
   --z-base:1;
   --z-mcta:90;
+  --z-chat-btn:92;
   --z-menu:95;
   --z-nav:100;
   --z-grain:120;
+  --z-chat:140;
   --z-chooser:200;
 }
 
@@ -1858,6 +1860,27 @@ main:has(> .manifest:last-child) + .footer{margin-top:0;border-radius:0;padding-
 @media(max-width:960px){.mcta{display:flex}}
 .zweig-wahl .mcta{display:none!important}
 
+/* ---- Chat-Assistent: runder Knopf unten rechts ----
+   Das Fenster selbst (src/css/chat.css) wird erst beim ersten Antippen
+   nachgeladen. Der Knopf steht hier, damit er sofort da ist. Auf dem Telefon
+   rutscht er über die Aktionsleiste (.mcta), sobald sie eingeblendet ist. */
+.chat-launch{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:var(--z-chat-btn);
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;text-decoration:none;
+  background:var(--grad-cta);
+  box-shadow:0 16px 32px -12px rgba(var(--brand-rgb),.7),0 2px 6px rgba(14,17,34,.18),inset 0 0 0 1px rgba(255,255,255,.2);
+  transition:transform .25s var(--ease-out),box-shadow .25s,bottom .45s var(--ease-out);-webkit-tap-highlight-color:transparent}
+.chat-launch:hover{transform:translateY(-2px) scale(1.05)}
+.chat-launch:active{transform:scale(.95)}
+.chat-launch:focus-visible{outline:3px solid var(--brand-ink);outline-offset:3px}
+.chat-launch svg{grid-area:1/1;transition:opacity .2s,transform .3s var(--ease-out)}
+.chat-launch__x{opacity:0;transform:rotate(-70deg) scale(.5)}
+.chat-launch[aria-expanded="true"] .chat-launch__ic{opacity:0;transform:rotate(70deg) scale(.5)}
+.chat-launch[aria-expanded="true"] .chat-launch__x{opacity:1;transform:none}
+@media(max-width:960px){.mcta.show ~ .chat-launch{bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
+/* Auf Impressum, Datenschutz und Nutzungsbedingungen sowie unter dem Startscreen ist er fehl am Platz. */
+body[data-bgfx="off"] .chat-launch,.zweig-wahl .chat-launch{display:none!important}
+@media(prefers-reduced-motion:reduce){.chat-launch,.chat-launch svg{transition:none}}
+
 /* ---- Mauszeiger über Handlungsknöpfen: der Kartenpin ----
    Ein echter Systemzeiger (Bild mit Hotspot an der Nadelspitze), kein
    nachgebautes Element mehr. Der frühere Pin war ein DIV, das site.js per
@@ -2999,5 +3022,5 @@ body[data-zweig="webdesign"] .pagehead{
   .gsp__stage,.gsp__stage *{animation:none!important}
   .gsp-win{border-color:#34C759!important}
   .gsp-sweep{opacity:0}
-  .nav,.mcta,.mobile-menu,.chooser{display:none!important}
+  .nav,.mcta,.mobile-menu,.chooser,.chat-launch{display:none!important}
 }
