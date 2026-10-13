@@ -79,6 +79,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
     if (!$t['ok']) {
         $bericht['grund'] = $t['grund'];
         if (!empty($t['meldung'])) $bericht['meldung_des_anbieters'] = $t['meldung'];
+        $modelle = chatLlmModelle();
+        if ($modelle !== []) {
+            $bericht['verfuegbare_modelle'] = $modelle;
+            $bericht['hinweis_modell'] = 'Eines davon als CHAT_MODEL=<Name> in die .env eintragen. Für den Chat eignet sich ein Textmodell mit 70B oder mehr, keine Sprach-, Bild- oder Sicherheitsmodelle.';
+        }
         $bericht['hinweis'] = 'Die genaue Meldung des Anbieters steht im PHP-Fehlerprotokoll des Servers (Zeile "chat-llm").';
     }
     respond(200, $bericht);

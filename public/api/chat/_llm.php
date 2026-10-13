@@ -215,6 +215,39 @@ function chatLlmFrage(string $system, array $verlauf): array {
     return ['ok' => true, 'text' => $text];
 }
 
+/**
+ * Fragt beim Anbieter, welche Modelle der Schlüssel nutzen darf (nur für die
+ * Diagnose). Funktioniert bei allen OpenAI-kompatiblen Diensten, bei Claude
+ * nicht (dort liefert die Funktion eine leere Liste).
+ *
+ * @return string[] Modellnamen, höchstens 40
+ */
+function chatLlmModelle(): array {
+    $k = chatLlmKonfig();
+    if ($k['schluessel'] === null || $k['anbieter'] === 'anthropic') return [];
+
+    $url = (string) preg_replace('~/chat/completions/?$~', '/models', $k['url']);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $k['schluessel']],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 4,
+        CURLOPT_TIMEOUT => 8,
+    ]);
+    $antwort = curl_exec($ch);
+    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($antwort === false || $code < 200 || $code >= 300) return [];
+
+    $daten = json_decode((string) $antwort, true);
+    $ids = [];
+    foreach ((array) ($daten['data'] ?? []) as $m) {
+        if (is_array($m) && is_string($m['id'] ?? null)) $ids[] = $m['id'];
+    }
+    sort($ids);
+    return array_slice($ids, 0, 40);
+}
+
 /** Holt das erste JSON-Objekt aus der Modellantwort (auch wenn Text oder ```json drumherum steht). */
 function chatJsonAusText(string $text): ?array {
     $von = strpos($text, '{');
