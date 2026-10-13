@@ -23,16 +23,17 @@ Termin und Nachricht laufen im Browser direkt gegen `/api/booking/book` und
 
 ## Einrichtung (einmalig)
 
-Ohne Schlüssel läuft der Chat schon jetzt, nur ohne KI für Freitext. Für die KI:
+Ohne Schlüssel läuft der Chat schon, nur ohne KI für Freitext. Für die KI mit
+dem kostenlosen Groq-Tarif:
 
-1. Konto bei Mistral anlegen: <https://console.mistral.ai>. Im kostenlosen
-   Tarif ("Experiment") ist eine Telefonverifizierung nötig. Dort unter
-   **API Keys** einen Schlüssel erzeugen.
-2. In der `.env` auf dem Server (oberhalb von `public_html`, nie ins
-   Repository) eintragen:
+1. Konto auf <https://console.groq.com> anlegen, unter **API Keys** einen
+   Schlüssel erzeugen und sofort kopieren.
+2. In der `.env` auf dem Server (im Ordner, in dem `public_html` liegt, nie im
+   Repository) eintragen. Gibt es dort schon eine `.env`, die Zeilen unten
+   anhängen:
 
    ```
-   CHAT_PROVIDER=mistral
+   CHAT_PROVIDER=groq
    CHAT_API_KEY=<der Schlüssel>
    CHAT_DAILY_BUDGET=300
    CHAT_DIAG_TOKEN=<frei gewählter geheimer Wert>
@@ -40,26 +41,29 @@ Ohne Schlüssel läuft der Chat schon jetzt, nur ohne KI für Freitext. Für die
 
 3. Prüfen: `https://jungline.de/api/chat?diag=<CHAT_DIAG_TOKEN>` im Browser
    öffnen. Erwartet: `"schluessel_gefunden": true` und
-   `"testaufruf": "erfolgreich"`. Bei einem Fehler steht der Grund im
-   PHP-Fehlerprotokoll (Zeile `chat-llm`).
+   `"testaufruf": "erfolgreich"`. Bei einem Fehler zeigt `meldung_des_anbieters`
+   den Grund (z. B. "model not found": dann in der Groq-Konsole einen aktuellen
+   Modellnamen nachsehen und als `CHAT_MODEL=...` eintragen).
 
-## Wichtig: Datenschutz und Trainingsdaten
+Der Schlüssel gehört nie in den Chat, in GitHub oder in eine Datei im
+Repository. Wurde er irgendwo geteilt, in der Groq-Konsole löschen und einen
+neuen erzeugen.
 
-- Im **kostenlosen** Mistral-Tarif darf der Anbieter Ein- und Ausgaben nach
-  eigenen Angaben zum Training verwenden (Opt-out in der Mistral-Konsole
-  möglich). Der Chat warnt Besucher deshalb unter dem Eingabefeld und in der
-  Datenschutzerklärung (Abschnitt 10), keine persönlichen Daten einzugeben.
-- **Vor dem Livegang:** Abschnitt 10 der Datenschutzerklärung rechtlich prüfen
-  lassen, den Opt-out in der Mistral-Konsole setzen (oder auf einen bezahlten
-  Tarif wechseln) und die Angabe im Abschnitt anpassen, falls sich die
-  Bedingungen ändern. Wird der Anbieter gewechselt, muss der Abschnitt
-  ebenfalls geändert werden (z. B. Anthropic hat Sitz und Verarbeitung in den
-  USA).
+## Wichtig: Datenschutz
+
+- Groq sitzt in den USA. Frei getippte Fragen gehen dorthin (Abschnitt 10 der
+  Datenschutzerklärung). Der Chat warnt Besucher unter dem Eingabefeld, keine
+  persönlichen Daten einzugeben.
+- **Vor dem Livegang prüfen:** Die Aussage "kein Training mit Eingaben" in
+  Abschnitt 10 stammt aus Angaben Dritter, nicht aus Groqs eigenen
+  Bedingungen. Bitte in Groqs Datenschutzerklärung und den Nutzungsbedingungen
+  gegenlesen und den Abschnitt rechtlich prüfen lassen, besonders die
+  Übermittlung in die USA.
 - **Zustimmung vor der ersten Frage:** In `src/js/chat.js` steht ganz oben
   `CONSENT_REQUIRED = false`. Auf `true` setzen und neu bauen, dann muss der
-  Besucher vor der ersten frei getippten Frage ausdrücklich zustimmen. Das ist
-  die rechtlich sicherere Variante. Feste Antworten, Termin und Nachricht sind
-  davon nicht betroffen.
+  Besucher vor der ersten frei getippten Frage ausdrücklich zustimmen. Wegen
+  der Übermittlung in die USA ist das die rechtlich sicherere Variante. Feste
+  Antworten, Termin und Nachricht sind davon nicht betroffen.
 - Auf dem Server werden weder Fragen noch Antworten gespeichert, auch nicht im
   Fehlerprotokoll. Gezählt wird nur ein anonymes Tagesbudget und, wie bei den
   anderen Werkzeugen, die cookielose Statistik (`chat_open`, `chat_frage`,
@@ -92,7 +96,8 @@ Nur die `.env` ändern:
 
 | Anbieter | Einstellung |
 | --- | --- |
-| Mistral (Standard) | `CHAT_PROVIDER=mistral` |
+| Groq (kostenlos) | `CHAT_PROVIDER=groq` |
+| Mistral (EU, API-Zugang erst nach Upgrade) | `CHAT_PROVIDER=mistral` |
 | Claude | `CHAT_PROVIDER=anthropic`, `CHAT_MODEL=claude-sonnet-5-5` (oder ein anderes Claude-Modell) |
 | Groq, OpenRouter, OpenAI | `CHAT_PROVIDER=openai`, `CHAT_API_URL=<Adresse>`, `CHAT_MODEL=<Modell>` |
 

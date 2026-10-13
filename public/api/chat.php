@@ -78,6 +78,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
     $bericht['testaufruf'] = $t['ok'] ? 'erfolgreich' : 'fehlgeschlagen';
     if (!$t['ok']) {
         $bericht['grund'] = $t['grund'];
+        if (!empty($t['meldung'])) $bericht['meldung_des_anbieters'] = $t['meldung'];
         $bericht['hinweis'] = 'Die genaue Meldung des Anbieters steht im PHP-Fehlerprotokoll des Servers (Zeile "chat-llm").';
     }
     respond(200, $bericht);

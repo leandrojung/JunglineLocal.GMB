@@ -15,6 +15,7 @@
  *
  * ANBIETER
  *   mistral    Standard. OpenAI-kompatible Schnittstelle, EU-Anbieter.
+ *   groq       OpenAI-kompatibel, kostenloser Tarif mit Tageslimit (USA).
  *   openai     Jeder OpenAI-kompatible Dienst (Groq, OpenRouter, OpenAI ...),
  *              Adresse über CHAT_API_URL.
  *   anthropic  Claude. Eigene Schnittstelle (Messages API).
@@ -34,16 +35,18 @@ require_once __DIR__ . '/_wissen.php';
 
 function chatLlmKonfig(): array {
     $anbieter = strtolower(envValue('CHAT_PROVIDER') ?? 'mistral');
-    if (!in_array($anbieter, ['mistral', 'openai', 'anthropic'], true)) $anbieter = 'mistral';
+    if (!in_array($anbieter, ['mistral', 'groq', 'openai', 'anthropic'], true)) $anbieter = 'mistral';
 
     $standardUrl = [
         'mistral'   => 'https://api.mistral.ai/v1/chat/completions',
+        'groq'      => 'https://api.groq.com/openai/v1/chat/completions',
         'openai'    => 'https://api.openai.com/v1/chat/completions',
         'anthropic' => 'https://api.anthropic.com/v1/messages',
     ][$anbieter];
 
     $standardModell = [
         'mistral'   => 'mistral-small-latest',
+        'groq'      => 'llama-3.3-70b-versatile',
         'openai'    => 'gpt-4o-mini',
         'anthropic' => 'claude-sonnet-5-5',
     ][$anbieter];
@@ -137,7 +140,7 @@ function chatVerlaufBereinigen(array $verlauf): array {
 /**
  * Fragt das Sprachmodell. Liefert immer ein Array:
  *   ['ok' => true,  'text' => '<Rohtext des Modells>']
- *   ['ok' => false, 'grund' => 'kein_schluessel' | 'netz' | 'anbieter_<HTTP>' | 'leer']
+ *   ['ok' => false, 'grund' => 'kein_schluessel' | 'netz' | 'anbieter_<HTTP>' | 'leer', 'meldung' => '<Text des Anbieters, nur bei anbieter_*>']
  */
 function chatLlmFrage(string $system, array $verlauf): array {
     $k = chatLlmKonfig();
@@ -201,7 +204,7 @@ function chatLlmFrage(string $system, array $verlauf): array {
         // Modell unbekannt). Nur die Meldung loggen, nie die Frage des Besuchers.
         $meldung = is_array($daten) ? (string) ($daten['error']['message'] ?? $daten['message'] ?? '') : '';
         error_log('chat-llm: HTTP ' . $code . ' (' . $k['anbieter'] . ', ' . $k['modell'] . '): ' . mb_substr($meldung, 0, 300));
-        return ['ok' => false, 'grund' => 'anbieter_' . $code];
+        return ['ok' => false, 'grund' => 'anbieter_' . $code, 'meldung' => mb_substr($meldung, 0, 200)];
     }
 
     $text = $k['anbieter'] === 'anthropic'
