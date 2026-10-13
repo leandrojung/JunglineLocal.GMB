@@ -35,6 +35,8 @@ dem kostenlosen Groq-Tarif:
    ```
    CHAT_PROVIDER=groq
    CHAT_API_KEY=<der Schlüssel>
+   CHAT_MODEL=openai/gpt-oss-120b
+   CHAT_REASONING_EFFORT=low
    CHAT_DAILY_BUDGET=300
    CHAT_DIAG_TOKEN=<frei gewählter geheimer Wert>
    ```
@@ -48,6 +50,16 @@ dem kostenlosen Groq-Tarif:
 Der Schlüssel gehört nie in den Chat, in GitHub oder in eine Datei im
 Repository. Wurde er irgendwo geteilt, in der Groq-Konsole löschen und einen
 neuen erzeugen.
+
+## Grenzen des kostenlosen Groq-Tarifs
+
+Groq begrenzt den kostenlosen Tarif laut Drittquellen auf grob 8.000 Tokens pro
+Minute und 200.000 pro Tag (die aktuellen Zahlen stehen in der Groq-Konsole
+unter den Limits). Ein KI-Aufruf kostet mit dem kompakten Prompt etwa 3.000
+Tokens. Praktisch sind das einige Dutzend KI-Fragen pro Tag. Ist das Limit
+erreicht, antwortet der Chat mit festen Antworten oder leitet an Leandro
+weiter. Er fällt also nie aus. Die meisten Fragen (Preise, Ablauf, Kontakt,
+Termin) werden ohnehin ohne KI beantwortet und zählen nicht mit.
 
 ## Wichtig: Datenschutz
 

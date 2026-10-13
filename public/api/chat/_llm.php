@@ -67,14 +67,34 @@ function chatLlmVerfuegbar(): bool {
 // Prompt
 // ---------------------------------------------------------------------
 
-/** Die Wissensbasis als Text für das Modell (ohne die Begrüßung). */
-function chatWissenText(): string {
+/**
+ * Die Wissensbasis als Text für das Modell (ohne die Begrüßung).
+ *
+ * "kompakt": Titel plus Textanfang. Das spart rund die Hälfte der Tokens und
+ * ist für kostenlose Tarife mit knappem Minutenkontingent gedacht (Groq: etwa
+ * 8.000 Tokens pro Minute). Das Modell wählt damit vor allem feste Antworten
+ * aus; die Prüfung der Antwort läuft weiter gegen die VOLLE Wissensbasis.
+ */
+function chatWissenText(bool $kompakt = false): string {
     $teile = [];
     foreach (chatWissen() as $id => $e) {
         if ($id === 'begruessung') continue;
-        $teile[] = '[' . $id . '] ' . $e['titel'] . "\n" . $e['text'];
+        $text = $e['text'];
+        if ($kompakt && mb_strlen($text) > 160) {
+            $text = rtrim(mb_substr($text, 0, 160));
+            $text = (string) preg_replace('/\s+\S*$/u', '', $text) . ' ...';
+        }
+        $teile[] = '[' . $id . '] ' . $e['titel'] . "\n" . $text;
     }
     return implode("\n\n", $teile);
+}
+
+/** Kompakt ist Standard bei Groq, sonst voll. Übersteuerbar mit CHAT_PROMPT=kompakt|voll. */
+function chatPromptKompakt(): bool {
+    $w = strtolower(envValue('CHAT_PROMPT') ?? '');
+    if ($w === 'kompakt') return true;
+    if ($w === 'voll') return false;
+    return chatLlmKonfig()['anbieter'] === 'groq';
 }
 
 function chatSystemPrompt(string $seite): string {
@@ -108,7 +128,7 @@ TXT;
     return $regeln
         . "\n\nSEITEN (IDs für links)\n" . implode("\n", $seitenListe)
         . "\n\nDer Besucher befindet sich gerade auf: " . ($seite !== '' ? $seite : '/')
-        . "\n\nWISSEN\n" . chatWissenText();
+        . "\n\nWISSEN\n" . chatWissenText(chatPromptKompakt());
 }
 
 // ---------------------------------------------------------------------
@@ -157,7 +177,7 @@ function chatLlmFrage(string $system, array $verlauf): array {
         ];
         $koerper = [
             'model' => $k['modell'],
-            'max_tokens' => 700,
+            'max_tokens' => 1000,
             'system' => $system,
             'messages' => $verlauf,
         ];
@@ -169,9 +189,15 @@ function chatLlmFrage(string $system, array $verlauf): array {
         $koerper = [
             'model' => $k['modell'],
             'temperature' => 0.1,
-            'max_tokens' => 700,
+            'max_tokens' => 1000,
             'messages' => array_merge([['role' => 'system', 'content' => $system]], $verlauf),
         ];
+        // Denkmodelle (z. B. gpt-oss bei Groq) verbrauchen Ausgabe-Tokens fürs
+        // Nachdenken. 'low' hält das klein. Nur setzen, wenn der Anbieter es kennt.
+        $aufwand = envValue('CHAT_REASONING_EFFORT');
+        if ($aufwand !== null && in_array($aufwand, ['low', 'medium', 'high'], true)) {
+            $koerper['reasoning_effort'] = $aufwand;
+        }
         // Erzwingt gültiges JSON. Fast alle kompatiblen Dienste kennen das;
         // wer einen kennt, der es ablehnt, setzt CHAT_JSON_MODE=0.
         if ((envValue('CHAT_JSON_MODE') ?? '1') !== '0') {
