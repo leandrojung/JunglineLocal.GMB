@@ -2185,32 +2185,42 @@ var scrollTakt = (function(){
     setze();
   });
   // ---- Kartenstapel im Webdesign-Hero ------------------------------------
-  // Klick auf die hintere Karte oder auf den Knopf oben rechts holt sie nach
-  // vorn. Erst schiebt sich die vordere Karte zur Seite, dann tauschen beide
-  // die Ebene (die Bewegung macht CSS). Der Knopf nennt und färbt sich immer
-  // nach der Karte, die gerade hinten liegt. Kein automatisches Mischen, der
-  // Besucher tauscht selbst.
+  // Klick auf eine hintere Karte oder auf den Knopf oben rechts holt sie nach
+  // vorn. Erst schiebt sich die vordere Karte zur Seite, dann rücken die
+  // Karten reihum: Die vordere geht ganz nach hinten, die übrigen je eine
+  // Ebene nach vorn, bis die gewählte vorne liegt (die Bewegung macht CSS).
+  // Der Knopf nennt und färbt sich immer nach der Karte direkt hinter der
+  // vorderen. Kein automatisches Mischen, der Besucher tauscht selbst.
   var stack = document.querySelector('.wd-stack');
   if(stack){
     var stackReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var stackBtn = stack.querySelector('.wd-stack__peek');
     var stackBusy = false;
+    // Reihenfolge von vorn nach hinten, gelesen aus data-pos: front, back, back-2
+    var stackRang = function(el){
+      var pos = el.getAttribute('data-pos');
+      return pos === 'front' ? 0 : pos === 'back' ? 1 : parseInt(pos.slice(5), 10);
+    };
+    var stackOrder = [].slice.call(stack.querySelectorAll('.wd-stack__item'))
+      .sort(function(a, b){ return stackRang(a) - stackRang(b); });
     var stackLabel = function(){
-      var back = stack.querySelector('[data-pos="back"]');
+      var back = stackOrder[1];
       if(!stackBtn || !back) return;
       stackBtn.lastChild.textContent = back.getAttribute('data-short') + ' ansehen';
       stackBtn.setAttribute('aria-label', back.getAttribute('data-name') + ' nach vorne holen');
       stackBtn.style.setProperty('--case', getComputedStyle(back).getPropertyValue('--case'));
     };
-    var stackSwap = function(){
-      var front = stack.querySelector('[data-pos="front"]');
-      var back = stack.querySelector('[data-pos="back"]');
-      if(stackBusy || !front || !back) return;
+    var stackSwap = function(item){
+      var schritte = stackOrder.indexOf(item);
+      if(stackBusy || schritte < 1) return;
       stackBusy = true;
+      var front = stackOrder[0];
       var tauschen = function(){
         front.classList.remove('is-leaving');
-        front.setAttribute('data-pos', 'back');
-        back.setAttribute('data-pos', 'front');
+        for(var i = 0; i < schritte; i++) stackOrder.push(stackOrder.shift());
+        stackOrder.forEach(function(el, i){
+          el.setAttribute('data-pos', i === 0 ? 'front' : i === 1 ? 'back' : 'back-' + i);
+        });
         stackLabel();
         setTimeout(function(){ stackBusy = false; }, stackReduce ? 0 : 760);
       };
@@ -2219,9 +2229,9 @@ var scrollTakt = (function(){
       setTimeout(tauschen, 380);
     };
     stack.addEventListener('click', function(e){
-      if(stackBtn && stackBtn.contains(e.target)){ stackSwap(); return; }
+      if(stackBtn && stackBtn.contains(e.target)){ stackSwap(stackOrder[1]); return; }
       var item = e.target.closest('.wd-stack__item');
-      if(item && item.getAttribute('data-pos') === 'back') stackSwap();
+      if(item) stackSwap(item);
     });
     if(stackBtn){ stackBtn.hidden = false; stackLabel(); }
   }

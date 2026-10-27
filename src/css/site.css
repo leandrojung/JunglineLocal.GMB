@@ -2308,28 +2308,33 @@ body[data-zweig="webdesign"] .pagehead{
 
 /* Geräte: Rechner-Fenster + Telefon, echte Bildschirmfotos. */
 .wd-hero__visual{position:relative;animation:wdDevices 1.3s var(--ease-out) .15s both}
-/* Kartenstapel: beide Karten liegen in derselben Rasterzelle. Die hintere
-   ragt oben rechts deutlich heraus, ist leicht gedreht und abgedunkelt, ihr
-   Telefon ausgeblendet. Ein Klick auf sie (oder auf den Knopf darüber) holt sie
-   nach vorn: Die vordere schiebt sich erst zur Seite (.is-leaving), dann
-   tauschen beide die Ebene und gleiten an ihren Platz. */
+/* Kartenstapel: alle Karten liegen in derselben Rasterzelle. Die hinteren
+   ragen gestaffelt oben heraus (die zweite nach rechts, die dritte darüber
+   nach links gedreht), sind abgedunkelt, ihre Telefone ausgeblendet. Ein
+   Klick auf eine von ihnen (oder auf den Knopf darüber) holt sie nach vorn:
+   Die vordere schiebt sich erst zur Seite (.is-leaving), dann rücken alle
+   reihum an ihren neuen Platz. */
 .wd-stack{display:grid;padding-top:13%}
 .wd-stack__item{grid-area:1/1;position:relative;padding:0 6% 9% 0;
   transition:transform .75s cubic-bezier(.65,0,.25,1)}
 .wd-stack__item .device-mac{transition:filter .75s}
-.wd-stack__item[data-pos="front"]{z-index:2}
-.wd-stack__item[data-pos="back"]{z-index:1;transform:translate(9%,-15%) scale(.86) rotate(4deg);cursor:pointer}
+.wd-stack__item[data-pos="front"]{z-index:3}
+.wd-stack__item[data-pos^="back"]{cursor:pointer}
+.wd-stack__item[data-pos="back"]{z-index:2;transform:translate(9%,-15%) scale(.86) rotate(4deg)}
+.wd-stack__item[data-pos="back-2"]{z-index:1;transform:translate(-6%,-30%) scale(.78) rotate(-3deg)}
 .wd-stack__item[data-pos="back"] .device-mac{filter:brightness(.5) saturate(.8)}
-.wd-stack__item[data-pos="back"] .device-phone{opacity:0;visibility:hidden}
+.wd-stack__item[data-pos="back-2"] .device-mac{filter:brightness(.34) saturate(.7)}
+.wd-stack__item[data-pos^="back"] .device-phone{opacity:0;visibility:hidden}
 .wd-stack__item .device-phone{transition:opacity .45s,visibility .45s}
-.wd-stack__item.is-leaving{z-index:2;transform:translate(-14%,6%) rotate(-3deg);transition-duration:.38s;transition-timing-function:cubic-bezier(.5,0,.75,0)}
+.wd-stack__item.is-leaving{z-index:3;transform:translate(-14%,6%) rotate(-3deg);transition-duration:.38s;transition-timing-function:cubic-bezier(.5,0,.75,0)}
 @media(hover:hover){
   .wd-stack__item[data-pos="back"]:hover{transform:translate(10%,-19%) scale(.87) rotate(5deg)}
-  .wd-stack__item[data-pos="back"]:hover .device-mac{filter:brightness(.72) saturate(.95)}
+  .wd-stack__item[data-pos="back-2"]:hover{transform:translate(-6%,-34%) scale(.79) rotate(-4deg)}
+  .wd-stack__item[data-pos^="back"]:hover .device-mac{filter:brightness(.72) saturate(.95)}
 }
 /* Knopf oben rechts über dem Stapel, in der Farbe der hinteren Karte */
 .wd-stack{position:relative}
-.wd-stack__peek{position:absolute;z-index:3;top:0;right:3%;display:inline-flex;align-items:center;gap:7px;min-height:40px;
+.wd-stack__peek{position:absolute;z-index:4;top:0;right:3%;display:inline-flex;align-items:center;gap:7px;min-height:40px;
   padding:0 15px 0 12px;border:0;border-radius:999px;background:var(--case);color:#fff;font:inherit;font-size:.85rem;font-weight:700;letter-spacing:0;
   white-space:nowrap;cursor:pointer;box-shadow:0 12px 28px -12px rgba(0,0,0,.8),0 0 0 4px color-mix(in srgb,var(--case) 22%,transparent);
   transition:background .4s,box-shadow .4s,transform .25s var(--ease-out)}
