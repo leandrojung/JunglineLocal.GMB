@@ -2189,8 +2189,8 @@ var scrollTakt = (function(){
   // vorn. Erst schiebt sich die vordere Karte zur Seite, dann rücken die
   // Karten reihum: Die vordere geht ganz nach hinten, die übrigen je eine
   // Ebene nach vorn, bis die gewählte vorne liegt (die Bewegung macht CSS).
-  // Der Knopf nennt und färbt sich immer nach der Karte direkt hinter der
-  // vorderen. Kein automatisches Mischen, der Besucher tauscht selbst.
+  // Der Knopf nennt immer die Karte direkt hinter der vorderen. Kein
+  // automatisches Mischen, der Besucher tauscht selbst.
   var stack = document.querySelector('.wd-stack');
   if(stack){
     var stackReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2208,7 +2208,6 @@ var scrollTakt = (function(){
       if(!stackBtn || !back) return;
       stackBtn.lastChild.textContent = back.getAttribute('data-short') + ' ansehen';
       stackBtn.setAttribute('aria-label', back.getAttribute('data-name') + ' nach vorne holen');
-      stackBtn.style.setProperty('--case', getComputedStyle(back).getPropertyValue('--case'));
     };
     var stackSwap = function(item){
       var schritte = stackOrder.indexOf(item);

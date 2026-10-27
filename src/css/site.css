@@ -2332,15 +2332,16 @@ body[data-zweig="webdesign"] .pagehead{
   .wd-stack__item[data-pos="back-2"]:hover{transform:translate(-6%,-34%) scale(.79) rotate(-4deg)}
   .wd-stack__item[data-pos^="back"]:hover .device-mac{filter:brightness(.72) saturate(.95)}
 }
-/* Knopf oben rechts über dem Stapel, in der Farbe der hinteren Karte */
+/* Knopf oben rechts über dem Stapel, immer im Markenblau der Seite (wie
+   „Kostenloses Erstgespräch“), egal welche Karte gerade hinten liegt. */
 .wd-stack{position:relative}
 .wd-stack__peek{position:absolute;z-index:4;top:0;right:3%;display:inline-flex;align-items:center;gap:7px;min-height:40px;
-  padding:0 15px 0 12px;border:0;border-radius:999px;background:var(--case);color:#fff;font:inherit;font-size:.85rem;font-weight:700;letter-spacing:0;
-  white-space:nowrap;cursor:pointer;box-shadow:0 12px 28px -12px rgba(0,0,0,.8),0 0 0 4px color-mix(in srgb,var(--case) 22%,transparent);
+  padding:0 15px 0 12px;border:0;border-radius:999px;background:var(--brand);color:#fff;font:inherit;font-size:.85rem;font-weight:700;letter-spacing:0;
+  white-space:nowrap;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 12px 28px -12px rgba(0,0,0,.8),0 0 0 4px rgba(var(--brand-rgb),.22);
   transition:background .4s,box-shadow .4s,transform .25s var(--ease-out)}
 .wd-stack__peek[hidden]{display:none}
 .wd-stack__peek svg{flex:none;transition:transform .5s var(--ease-out)}
-@media(hover:hover){.wd-stack__peek:hover{transform:translateY(-2px)}.wd-stack__peek:hover svg{transform:rotate(180deg)}}
+@media(hover:hover){.wd-stack__peek:hover{transform:translateY(-2px);background:var(--brand-hover)}.wd-stack__peek:hover svg{transform:rotate(180deg)}}
 .wd-stack__peek:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media(max-width:640px){.wd-stack__peek{min-height:36px;font-size:.78rem;padding:0 12px 0 10px}}
 @media(prefers-reduced-motion:reduce){.wd-stack__item,.wd-stack__item.is-leaving,.wd-stack__item .device-mac{transition:none}}
