@@ -136,12 +136,19 @@
      Gloria: Angaben aus dem fertigen Build (Repo leandrojung/Gloria, Prüfung
      mit npm run check und npm run contrast). TODO(Leandro): Sobald
      mobile-pflegepraxis-gloria.de online ist, „Geht in Kürze online“ gegen
-     einen Link tauschen und die Fußnote anpassen. -->
+     einen Link tauschen und die Fußnote anpassen.
+     Patina: Stand 3.4.0 aus dem Repo leandrojung/patina-bar-dorsten
+     (docs/VERBESSERUNGEN-3.4.md, Abschnitt Prüfung). Die dritte Karte liegt
+     ab 901 px quer über beide Spalten. TODO(Leandro): Erst live schalten,
+     wenn Michelle Hallmann Auftrag, Nennung und Bildrechte freigegeben hat.
+     Dann die Bildschirmfotos neu aufnehmen (der Entwurf trägt unten noch
+     den Hinweis „Private Designvorschau“), die Domain patina-bar.de
+     bestätigen und „Geht in Kürze online“ prüfen. -->
 <section class="section sheet wd-case" id="referenz">
   <div class="container">
     <div class="head-block head-block--split" data-reveal>
-      <h2>Zwei Betriebe. <span class="soft">Zwei ganz eigene Websites.</span></h2>
-      <p>Eine Maschinenwerkstatt und ein Pflegedienst haben wenig gemeinsam, außer dass ihre Kunden sie schnell erreichen wollen. Darum entsteht jede Seite neu, nicht aus einer Vorlage.</p>
+      <h2>Drei Betriebe. <span class="soft">Drei ganz eigene Websites.</span></h2>
+      <p>Eine Maschinenwerkstatt, ein Pflegedienst und eine Bar haben wenig gemeinsam, außer dass ihre Kunden sie schnell erreichen wollen. Darum entsteht jede Seite neu, nicht aus einer Vorlage.</p>
     </div>
 
     <div class="wd-refs">
@@ -210,8 +217,41 @@
           </div>
         </div>
       </article>
+
+      <article class="wd-ref wd-ref--wide" id="case-patina" style="--case:#C99361" data-reveal>
+        <div class="wd-ref__shot">
+          <div class="wd-ref__win">
+            <div class="wd-ref__bar" aria-hidden="true"><i></i><i></i><i></i><span>patina-bar.de</span></div>
+            <div class="wd-ref__view" tabindex="0" aria-label="Startseite der PATINA Bar &amp; Kost, zum Durchscrollen mit der Maus überfahren">
+              <picture>
+                <source type="image/avif" srcset="/referenzen/patina/patina-scroll-900.avif">
+                <img src="/referenzen/patina/patina-scroll-900.webp" alt="Die komplette Startseite der PATINA Bar &amp; Kost: Bild vom Tresen mit dem Satz „Ein Abend. Ganz deiner.“, heutige Öffnungszeit, die Bar, Essen, Drinks und Feiern, Einblicke und Tischanfrage" width="900" height="2368" loading="lazy" decoding="async">
+              </picture>
+            </div>
+          </div>
+          <figure class="wd-ref__phone">
+            <picture>
+              <source type="image/avif" srcset="/referenzen/patina/patina-mobile-600.avif">
+              <img src="/referenzen/patina/patina-mobile-600.webp" alt="Startseite der PATINA Bar &amp; Kost auf dem Telefon, mit Leiste für Start, Karte, Termine und Kontakt" width="600" height="1298" loading="lazy" decoding="async">
+            </picture>
+          </figure>
+        </div>
+        <div class="wd-ref__body">
+          <p class="wd-ref__kicker"><span class="wd-ref__dot" aria-hidden="true"></span>Bar und Küche · Dorsten</p>
+          <h3>PATINA Bar &amp; Kost</h3>
+          <p>Für den spontanen Abend: Direkt unter dem Bild steht, bis wann heute geöffnet ist. Und montags, am Pfannkuchentag, öffnet die Speisekarte von selbst bei den Pfannkuchen.</p>
+          <dl class="wd-ref__facts">
+            <div><dt>Karten zum Umschalten</dt><dd><b>3</b></dd></div>
+            <div><dt>Ansichten im Browsertest geprüft</dt><dd><b>72</b></dd></div>
+            <div><dt>Fehler im Test auf Barrierefreiheit</dt><dd><b>0</b></dd></div>
+          </dl>
+          <div class="wd-ref__foot">
+            <span class="wd-ref__soon"><span aria-hidden="true"></span>Geht in Kürze online</span>
+          </div>
+        </div>
+      </article>
     </div>
-    <p class="wd-refs__note">Rowi: Google Lighthouse 12, Startseite mobil, September 2026, Werte schwanken je Lauf um wenige Punkte. Gloria: geprüft am fertigen Build, Oktober 2026; Ladezeit-Werte folgen, sobald die Seite online ist.</p>
+    <p class="wd-refs__note">Rowi: Google Lighthouse 12, Startseite mobil, September 2026, Werte schwanken je Lauf um wenige Punkte. Gloria: geprüft am fertigen Build, Oktober 2026; Ladezeit-Werte folgen, sobald die Seite online ist. Patina: geprüft am fertigen Build, Oktober 2026, neun Seiten in Chromium und WebKit (der Technik hinter Chrome und Safari) bei vier Bildschirmbreiten; Barrierefreiheit automatisch mit axe-core nach WCAG 2 AA.</p>
   </div>
 </section>
 
