@@ -3,10 +3,11 @@ Fotos im Vorher/Nachher-Vergleich auf /webdesign/
 Alle Bilder stammen von Unsplash und stehen unter der Unsplash-Lizenz
 (https://unsplash.com/license): kostenlose Nutzung, auch kommerziell,
 Namensnennung nicht erforderlich. Keine Unsplash+-Bilder.
-Zugeschnitten und als AVIF/WebP gespeichert, Oktober 2026.
+Ausgewählt nach kühlen Blautönen passend zum Seitendesign, zugeschnitten
+und als AVIF/WebP gespeichert, Oktober 2026.
 
-werkstatt-*  https://images.unsplash.com/photo-1589939705384-5185137a7f0f
-beratung-*   https://images.unsplash.com/photo-1503387762-592deb58ef4e
-arbeit-*     https://images.unsplash.com/photo-1611021061285-16c871740efa
-ergebnis-*   https://images.unsplash.com/photo-1588854337236-6889d631faa8
+werkstatt-*  https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1
+beratung-*   https://images.unsplash.com/photo-1581091877018-dac6a371d50f
+arbeit-*     https://images.unsplash.com/photo-1562259949-e8e7689d7828
+ergebnis-*   https://images.unsplash.com/photo-1584622650111-993a426fbf0a
 alt-*        dieselben Motive, absichtlich klein und stark komprimiert
