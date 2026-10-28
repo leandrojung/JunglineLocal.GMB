@@ -6,8 +6,12 @@ Namensnennung nicht erforderlich. Keine Unsplash+-Bilder.
 Ausgewählt nach kühlen Blautönen passend zum Seitendesign, zugeschnitten
 und als AVIF/WebP gespeichert, Oktober 2026.
 
-werkstatt-*  https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1
-beratung-*   https://images.unsplash.com/photo-1581091877018-dac6a371d50f
-arbeit-*     https://images.unsplash.com/photo-1562259949-e8e7689d7828
-ergebnis-*   https://images.unsplash.com/photo-1584622650111-993a426fbf0a
+Wichtig: Bilder werden laut .htaccess 30 Tage im Browser gespeichert.
+Wer ein Foto austauscht, muss ihm einen NEUEN Dateinamen geben, sonst
+sehen Stammbesucher bis zu 30 Tage lang das alte Bild.
+
+schweisser-* https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1
+whiteboard-* https://images.unsplash.com/photo-1581091877018-dac6a371d50f
+farbrolle-*  https://images.unsplash.com/photo-1562259949-e8e7689d7828
+bad-*        https://images.unsplash.com/photo-1584622650111-993a426fbf0a
 alt-*        dieselben Motive, absichtlich klein und stark komprimiert
