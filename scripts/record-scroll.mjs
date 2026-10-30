@@ -213,7 +213,7 @@ const outDir = join('public', 'referenzen', name);
 mkdirSync(outDir, { recursive: true });
 const ffmpeg = args => {
   const r = spawnSync('ffmpeg', ['-loglevel', 'error', '-y', '-framerate', String(fps), '-i', join(tmp, 'f%05d.jpg'),
-    '-vf', 'scale=1200:750:flags=lanczos,format=yuv420p', '-an', ...args], { stdio: 'inherit' });
+    '-vf', 'scale=1200:750:flags=lanczos:in_range=full:out_range=tv,format=yuv420p', '-color_range', 'tv', '-an', ...args], { stdio: 'inherit' });
   if(r.status !== 0) process.exit(r.status || 1);
 };
 ffmpeg(['-c:v', 'libx264', '-preset', 'slow', '-crf', '27', '-profile:v', 'high', '-movflags', '+faststart', join(outDir, `${name}-scroll.mp4`)]);
