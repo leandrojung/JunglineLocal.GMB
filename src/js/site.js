@@ -33,14 +33,12 @@
     video.preload = 'none';
     video.disablePictureInPicture = true;
     video.setAttribute('aria-hidden', 'true');
-    [['webm', 'video/webm'], ['mp4', 'video/mp4']].forEach(function(f){
-      var quelle = document.createElement('source');
-      quelle.src = basis + '.' + f[0];
-      quelle.type = f[1];
-      video.appendChild(quelle);
-    });
-    // Schlägt die letzte Quelle fehl, bleibt es beim Standbild.
-    video.lastChild.addEventListener('error', function(){
+    var quelle = document.createElement('source');
+    quelle.src = basis + '.mp4';
+    quelle.type = 'video/mp4';
+    video.appendChild(quelle);
+    // Lädt das Video nicht, bleibt es beim Standbild.
+    quelle.addEventListener('error', function(){
       view.classList.remove('has-video', 'is-playing');
       video.remove();
     });
