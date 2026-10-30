@@ -118,7 +118,7 @@
   RewriteCond %{HTTP_REFERER} !^https?://([a-z0-9-]+\.)?(bing|duckduckgo|yandex|ecosia|startpage|qwant|brave)\.[a-z]+(/|$) [NC]
   RewriteCond %{HTTP_REFERER} !^https?://localhost(:[0-9]+)?(/|$) [NC]
   RewriteCond %{HTTP_REFERER} !^https?://127\.0\.0\.1(:[0-9]+)?(/|$) [NC]
-  RewriteRule \.(png|jpe?g|webp|avif|gif|svg|ico)$ - [F,NC,L]
+  RewriteRule \.(png|jpe?g|webp|avif|gif|svg|ico|mp4|webm)$ - [F,NC,L]
 
   RewriteRule ^api/gbp-check/?$ api/gbp-check.php [L]
   RewriteRule ^api/gbp-compare/?$ api/gbp-compare.php [L]
@@ -176,6 +176,8 @@ Options -Indexes
   AddType image/webp                    .webp
   AddType image/avif                    .avif
   AddType font/woff2                    .woff2
+  AddType video/mp4                     .mp4
+  AddType video/webm                    .webm
   AddType font/woff                     .woff
   AddType application/xml               .xml
   AddType text/plain                    .txt
@@ -261,7 +263,8 @@ RedirectMatch 404 ^/\.jungline-data(/|$)
   # Achtung: Wer z. B. das Logo unter gleichem Namen austauscht, muss bis
   # zu 30 Tage warten, bis es alle Stammbesucher sehen. Bei eiligen
   # Änderungen die Datei umbenennen (logo-2.png) und Verweise anpassen.
-  <FilesMatch "\.(png|jpe?g|webp|avif|gif|svg|ico)$">
+  # Die Scroll-Videos der Arbeitsproben (mp4, webm) laufen genauso.
+  <FilesMatch "\.(png|jpe?g|webp|avif|gif|svg|ico|mp4|webm)$">
     Header set Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
   </FilesMatch>
 
@@ -346,4 +349,6 @@ RedirectMatch 404 ^/\.jungline-data(/|$)
   ExpiresByType image/webp "access plus 30 days"
   ExpiresByType image/svg+xml "access plus 30 days"
   ExpiresByType image/x-icon "access plus 30 days"
+  ExpiresByType video/mp4 "access plus 30 days"
+  ExpiresByType video/webm "access plus 30 days"
 </IfModule>

@@ -2403,6 +2403,15 @@ body[data-zweig="webdesign"] .pagehead{
   .wd-ref__view:hover img,.wd-ref__view:focus img{top:100%;transform:translateY(-100%)}
 }
 .wd-ref__view:focus-visible{outline:2px solid var(--case);outline-offset:-3px}
+/* Scroll-Video (site.js): liegt über dem Standbild und blendet erst ein,
+   wenn es wirklich läuft. Bis dahin bleibt das Standbild oben stehen, statt
+   selbst loszufahren, damit Bild und Video nicht gegeneinander laufen. */
+.wd-ref__view video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;
+  opacity:0;transition:opacity .3s var(--ease-out);pointer-events:none}
+.wd-ref__view.is-playing video{opacity:1}
+@media(hover:hover){
+  .wd-ref__view.has-video:hover img,.wd-ref__view.has-video:focus img{top:0;transform:none;transition:none}
+}
 .wd-ref__phone{position:absolute;right:0;bottom:0;width:22%;margin:0;padding:4px;border-radius:18px;background:#16171C;
   box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 44px -18px rgba(14,17,34,.7)}
 .wd-ref__phone img{width:100%;height:auto;border-radius:14px;display:block}

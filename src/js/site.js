@@ -1,4 +1,80 @@
 /* ============================================================
+   SCROLL-VIDEOS DER ARBEITSPROBEN (/webdesign/)
+   Fenster mit data-video spielen beim Überfahren eine Aufnahme der echten
+   Startseite ab, mit allen Animationen. Das Standbild bleibt darunter
+   liegen: für Telefone, reduzierte Bewegung, Datensparmodus und falls das
+   Video nicht lädt. Geladen wird erst, wenn die Karte in die Nähe kommt.
+   ============================================================ */
+(function(){
+  var fenster = document.querySelectorAll('.wd-ref__view[data-video]');
+  if(!fenster.length || !window.matchMedia) return;
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(navigator.connection && navigator.connection.saveData) return;
+
+  var laden = function(video){
+    if(video.preload === 'auto') return;
+    video.preload = 'auto';
+    video.load();
+  };
+  var nah = 'IntersectionObserver' in window ? new IntersectionObserver(function(eintraege){
+    eintraege.forEach(function(e){
+      if(!e.isIntersecting) return;
+      laden(e.target.querySelector('video'));
+      nah.unobserve(e.target);
+    });
+  }, {rootMargin:'400px 0px'}) : null;
+
+  Array.prototype.forEach.call(fenster, function(view){
+    var basis = view.getAttribute('data-video');
+    var video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    video.disablePictureInPicture = true;
+    video.setAttribute('aria-hidden', 'true');
+    [['webm', 'video/webm'], ['mp4', 'video/mp4']].forEach(function(f){
+      var quelle = document.createElement('source');
+      quelle.src = basis + '.' + f[0];
+      quelle.type = f[1];
+      video.appendChild(quelle);
+    });
+    // Schlägt die letzte Quelle fehl, bleibt es beim Standbild.
+    video.lastChild.addEventListener('error', function(){
+      view.classList.remove('has-video', 'is-playing');
+      video.remove();
+    });
+    view.appendChild(video);
+    view.classList.add('has-video');
+
+    var aktiv = false, zurueck = 0;
+    var start = function(){
+      if(aktiv || !video.isConnected) return;
+      aktiv = true;
+      clearTimeout(zurueck);
+      laden(video);
+      var p = video.play();
+      if(p && p.catch) p.catch(function(){});
+    };
+    var stopp = function(){
+      if(!aktiv) return;
+      aktiv = false;
+      video.pause();
+      view.classList.remove('is-playing');
+      // Erst nach dem Ausblenden an den Anfang, sonst springt das Bild sichtbar.
+      zurueck = setTimeout(function(){ video.currentTime = 0; }, 320);
+    };
+    video.addEventListener('playing', function(){
+      if(aktiv) view.classList.add('is-playing');
+    });
+    view.addEventListener('mouseenter', start);
+    view.addEventListener('mouseleave', stopp);
+    view.addEventListener('focus', start);
+    view.addEventListener('blur', stopp);
+    if(nah) nah.observe(view);
+  });
+})();
+/* ============================================================
    EIN SCROLL-TAKT FÜR DIE GANZE SEITE
    ============================================================
    Alles, was auf Scrollen reagiert (Leiste, Abschnittsmarkierung, Termin-

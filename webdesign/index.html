@@ -146,6 +146,13 @@
      ganze Startseite ab) mit Telefon davor, darunter drei belegte Zahlen.
      --case ist die Markenfarbe des Kunden.
 
+     Mit data-video spielt das Fenster beim Überfahren statt des Standbilds
+     eine Aufnahme der echten Seite ab, mit allen Einblendungen und Zählern
+     (site.js, Abschnitt Scroll-Videos). Pfad ohne Endung, es liegen je eine
+     .webm und eine .mp4 daneben. Neu aufnehmen mit
+     scripts/record-scroll.mjs. Rowi hat noch kein Video und fährt weiter
+     das Standbild ab.
+
      Rowi: Zahlen aus der Lighthouse-Messung beim Relaunch (Repo
      leandrojung/RoWI, docs/RELAUNCH.md), bei einer neuen Messung nachziehen.
      Gloria: Angaben aus dem fertigen Build (Repo leandrojung/Gloria, Prüfung
@@ -204,7 +211,7 @@
         <div class="wd-ref__shot">
           <div class="wd-ref__win">
             <div class="wd-ref__bar" aria-hidden="true"><i></i><i></i><i></i><span>mobile-pflegepraxis-gloria.de</span></div>
-            <div class="wd-ref__view" tabindex="0" aria-label="Startseite der Mobilen Pflegepraxis Gloria, zum Durchscrollen mit der Maus überfahren">
+            <div class="wd-ref__view" tabindex="0" data-video="/referenzen/gloria/gloria-scroll" aria-label="Startseite der Mobilen Pflegepraxis Gloria, zum Durchscrollen mit der Maus überfahren">
               <picture>
                 <source type="image/avif" srcset="/referenzen/gloria/gloria-scroll-900.avif">
                 <img src="/referenzen/gloria/gloria-scroll-900.webp" alt="Die komplette Startseite der Mobilen Pflegepraxis Gloria: Hero, Pflege-Check, Ablauf in vier Schritten, Leistungen, Zahlen, Team, Leitbild, häufige Fragen und Kontakt" width="900" height="5419" loading="lazy" decoding="async">
@@ -237,7 +244,7 @@
         <div class="wd-ref__shot">
           <div class="wd-ref__win">
             <div class="wd-ref__bar" aria-hidden="true"><i></i><i></i><i></i><span>patina-bar.de</span></div>
-            <div class="wd-ref__view" tabindex="0" aria-label="Startseite der PATINA Bar &amp; Kost, zum Durchscrollen mit der Maus überfahren">
+            <div class="wd-ref__view" tabindex="0" data-video="/referenzen/patina/patina-scroll" aria-label="Startseite der PATINA Bar &amp; Kost, zum Durchscrollen mit der Maus überfahren">
               <picture>
                 <source type="image/avif" srcset="/referenzen/patina/patina-scroll-900.avif">
                 <img src="/referenzen/patina/patina-scroll-900.webp" alt="Die komplette Startseite der PATINA Bar &amp; Kost: Bild vom Tresen mit dem Satz „Ein Abend. Ganz deiner.“, heutige Öffnungszeit, die Bar, Essen, Drinks und Feiern, Einblicke und Tischanfrage" width="900" height="2368" loading="lazy" decoding="async">
