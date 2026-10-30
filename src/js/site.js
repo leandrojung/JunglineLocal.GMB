@@ -37,22 +37,27 @@
     quelle.src = basis + '.mp4';
     quelle.type = 'video/mp4';
     video.appendChild(quelle);
-    // Lädt das Video nicht, bleibt es beim Standbild.
-    quelle.addEventListener('error', function(){
-      view.classList.remove('has-video', 'is-playing');
-      video.remove();
-    });
     view.appendChild(video);
     view.classList.add('has-video');
 
     var aktiv = false, zurueck = 0;
+    // Zurück zum Standbild, das dann wie früher per CSS durchfährt. Für
+    // Ladefehler und für Browser, die das Abspielen verweigern (Safari mit
+    // „Automatische Wiedergabe: Nie“ oder im Stromsparmodus).
+    var aufgeben = function(){
+      aktiv = false;
+      view.classList.remove('has-video', 'is-playing');
+      video.remove();
+    };
+    quelle.addEventListener('error', aufgeben);
     var start = function(){
       if(aktiv || !video.isConnected) return;
       aktiv = true;
       clearTimeout(zurueck);
       laden(video);
       var p = video.play();
-      if(p && p.catch) p.catch(function(){});
+      // AbortError heißt nur, dass die Maus schon wieder weg war.
+      if(p && p.catch) p.catch(function(e){ if(e && e.name === 'NotAllowedError') aufgeben(); });
     };
     var stopp = function(){
       if(!aktiv) return;
