@@ -19,10 +19,17 @@
      npx playwright install chromium
    und ffmpeg (Mac: brew install ffmpeg).
 
+   Cookie-Banner: Vor der Aufnahme wartet das Skript kurz, klickt im Banner
+   auf „Ablehnen“ (oder ähnlich, notfalls „Akzeptieren“) und lädt die Seite
+   neu. Die Wahl ist dann gespeichert, der Banner bleibt weg und die
+   Einstiegs-Animation läuft trotzdem von vorn. Findet es keinen passenden
+   Knopf, blendet --verstecken=<CSS-Selektor> Elemente einfach aus.
+
    Aufruf aus dem Projektordner:
-     node scripts/record-scroll.mjs <url> <name> [halteOben] [pxProSek] [halteUnten] [fps]
+     node scripts/record-scroll.mjs <url> <name> [halteOben] [pxProSek] [halteUnten] [fps] [--verstecken=<selektor>]
    Beispiel:
      node scripts/record-scroll.mjs https://www.rowi-maschinenservice.de/ rowi
+     node scripts/record-scroll.mjs https://example.de/ kunde --verstecken=".cookie-banner,#chat"
    Ergebnis: public/referenzen/<name>/<name>-scroll.mp4 */
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -30,9 +37,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
 
-const [,, url, name, holdTop = '1800', speed = '800', holdEnd = '1200', fpsArg = '60'] = process.argv;
+const flags = process.argv.slice(2).filter(a => a.startsWith('--'));
+const [url, name, holdTop = '1800', speed = '800', holdEnd = '1200', fpsArg = '60'] = process.argv.slice(2).filter(a => !a.startsWith('--'));
+const verstecken = (flags.find(f => f.startsWith('--verstecken=')) || '').slice('--verstecken='.length);
 if(!url || !name){
-  console.error('Aufruf: node scripts/record-scroll.mjs <url> <name> [halteOben] [pxProSek] [halteUnten] [fps]');
+  console.error('Aufruf: node scripts/record-scroll.mjs <url> <name> [halteOben] [pxProSek] [halteUnten] [fps] [--verstecken=<selektor>]');
   process.exit(1);
 }
 const fps = +fpsArg;
@@ -138,8 +147,36 @@ await context.addInitScript(uhr);
 const page = await context.newPage();
 page.on('pageerror', e => console.warn('Fehler in der Seite:', e.message));
 
+// Künstliche Uhr ohne Aufnahme vorspulen (z. B. bis ein Banner erscheint)
+const vorspulen = async ms => {
+  for(let t = 0; t < ms; t += 50) await page.evaluate(() => window.__uhr.step(50));
+};
+
+// Cookie-Banner wegklicken: lieber ablehnen (dann lädt auch nichts Fremdes
+// wie Google Maps nach), nur wenn es das nicht gibt, akzeptieren.
+const ABLEHNEN = /^\s*((alle\s+)?ablehnen|nur\s+(technisch\s+)?(notwendige|erforderliche)(\s+cookies)?(\s+(akzeptieren|zulassen|erlauben))?|(reject|decline)(\s+all)?)\s*$/i;
+const ANNEHMEN = /^\s*((alle\s+)?(akzeptieren|zustimmen|zulassen|annehmen)|alle\s+cookies\s+(akzeptieren|zulassen)|accept(\s+all)?|ok|verstanden)\s*$/i;
+const bannerWeg = async () => {
+  const knoepfe = page.locator('button, a, [role=button]');
+  for(const muster of [ABLEHNEN, ANNEHMEN]){
+    for(const k of await knoepfe.filter({ hasText: muster }).all()){
+      if(!(await k.isVisible().catch(() => false))) continue;
+      const text = (await k.innerText()).trim();
+      await k.click({ timeout: 3000 }).catch(() => {});
+      return text;
+    }
+  }
+  return null;
+};
+
 await page.goto(url, { waitUntil: 'load' });
-await page.addStyleTag({ content: 'html{scroll-behavior:auto!important}' });
+await vorspulen(3000);
+const geklickt = await bannerWeg();
+console.log(geklickt ? `Cookie-Banner: „${geklickt}“ geklickt` : 'Kein Cookie-Banner gefunden');
+await vorspulen(1500);
+// Neu laden: Uhr und Einstiegs-Animation starten von vorn, die Cookie-Wahl bleibt
+await page.reload({ waitUntil: 'load' });
+await page.addStyleTag({ content: 'html{scroll-behavior:auto!important}' + (verstecken ? `${verstecken}{display:none!important}` : '') });
 // Alle Bilder vorab laden, damit beim Scrollen nichts nachploppt
 await page.evaluate(async () => {
   document.querySelectorAll('img[loading=lazy]').forEach(i => { i.loading = 'eager'; });
